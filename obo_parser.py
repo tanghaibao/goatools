@@ -3,6 +3,7 @@
 
 import os
 from pprint import pprint
+import sys
 from exceptions import EOFError
 
 typedef_tag, term_tag = "[Typedef]", "[Term]"
@@ -109,8 +110,25 @@ class GO_dag:
             self.graph[rec.id] = rec
         #pprint(self.graph)
 
+def write_desc(obo_file, out=sys.stdout):
+    for rec in OBO_reader(obo_file):
+        print >>out, rec.id + "\t" + rec.name 
+
+
 if __name__ == '__main__':
 
-    my_dag = GO_dag()
-    print len(my_dag.graph.keys()), "nodes imported"
+    import optparse
+    p = optparse.OptionParser()
+    p.add_option("-d", dest="desc", help="write description file to stdout"
+                 " from the obo file specified in args", action="store_true")
+
+    opts, args = p.parse_args()
+
+    if not (len(args) and opts.desc):
+        p.print_help()
+        my_dag = GO_dag()
+        print len(my_dag.graph.keys()), "nodes imported"
+        sys.exit()
+
+    write_desc(args[0])
 
