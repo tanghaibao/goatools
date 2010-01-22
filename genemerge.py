@@ -33,6 +33,8 @@ def holm_bonferroni(pvals, a=0.05):
         idxs[p].append(i)
 
     lp = len(pvals)
+    if lp == 0:
+        raise StopIteration
     an = a / lp
     for p in sorted(pvals):
         if p < an:
@@ -135,7 +137,7 @@ if __name__ == "__main__":
     holm_significant = list(holm_bonferroni([r[3] for r in results], a=alpha))
 
     correction = sum(1 for _ in term_study if _ in non_singletons)
-    sidak = sidakp(correction, alpha)
+    sidak = sidakp(correction, alpha) if correction > 0 else None
 
     for i, r in enumerate(results):
         pval = float(r[3])
