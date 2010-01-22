@@ -100,6 +100,10 @@ if __name__ == "__main__":
     p.add_option('-a', '--alpha', dest='alpha', default=None, 
                  help="only print out the terms where the corrected p-value"
                 " is less than this value")
+    p.add_option('--compare', dest='compare', default=False, 
+                 action='store_true',
+                 help="the population file as a comparison group. if this flag is specified,"
+                 " the population is used as the study plus the `population/comparisong`")
     opts, args = p.parse_args()
     bad = check_bad_args(args)
     if bad:
@@ -110,8 +114,14 @@ if __name__ == "__main__":
     assoc_fn, desc_fn, pop_fn, study_fn, out_fn = args
 
 
-    pop = frozenset(_.strip() for _ in open(pop_fn) if _.strip())
+    pop = set(_.strip() for _ in open(pop_fn) if _.strip())
     study = frozenset(_.strip() for _ in open(study_fn) if _.strip())
+    if opts.compare:
+        common = pop.intersection(study)
+        pop = pop.union(study)
+        pop = pop.difference(common)
+        study = study.difference(common)
+        print >>sys.stderr, "removed %i overlapping items" % (len(common), )
 
     assoc, term_cnt = count_associations(assoc_fn)
     desc = get_description(desc_fn)
