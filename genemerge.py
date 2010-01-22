@@ -45,9 +45,15 @@ def holm_bonferroni(pvals, a=0.05):
 def count_associations(assoc_fn):
     term_cnt = collections.defaultdict(int)
     assoc = {}
+    sep = " "
     for row in open(assoc_fn):
         if len(row.strip().split())<2: continue 
-        a, b = row.split()
+        try:
+            # the accn may have a space. in which case get > 2 tokens.
+            a, b = row.split(sep)
+        except ValueError:
+            sep = "\t"
+            a, b = row.split(sep)
         if a not in pop: continue
         b = set(b.replace(";"," ").split())
         assoc[a] = b
@@ -72,6 +78,15 @@ def filter_results(results, alpha=None):
             if alpha is None: yield row
             elif row[-3] < alpha: yield row
 
+def check_bad_args(args):
+    """check args. otherwise if one of the 5 args is bad
+    it's hard to tell which one"""
+    import os
+    if not len(args) == 5: return "send in 5 file names"
+    for arg in args[:-1]:
+        if not os.path.exists(arg):
+            return "*%s* does not exist" % arg
+    return False
 
 if __name__ == "__main__":
     import doctest
@@ -84,7 +99,9 @@ if __name__ == "__main__":
                  help="only print out the terms where the corrected p-value"
                 " is less than this value")
     opts, args = p.parse_args()
-    if len(args) != 5:
+    bad = check_bad_args(args)
+    if bad:
+        print bad
         sys.exit(p.print_help())
     alpha = float(opts.alpha) if opts.alpha else 0.05
 
@@ -131,7 +148,7 @@ if __name__ == "__main__":
 
     fw = file(out_fn, "w")
     # TODO: correct left/right p-values.
-    fw.write("go\tenriched_purified\tgo_desc\tgo/n_in_study\tgo/n_in_pop\tp_tt\tp_left\tp_right\tp_bonferroni\tp_holm\tp_sidak\n")
+    fw.write("go\tenriched_purified\tgo_desc\tgo/n_in_study\tgo/n_in_pop\tp_tt\tp_bonferroni\tp_holm\tp_sidak\n")
     for k,v,C,p, left_p, right_p, p_corrected, p_holm, p_sidak in results:
         D = desc.get(k, "No description")
         over_under = 'e' if 1.0* v/study_n > 1.0 * C / pop_n else 'p'
