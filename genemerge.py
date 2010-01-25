@@ -90,6 +90,21 @@ def check_bad_args(args):
             return "*%s* does not exist" % arg
     return False
 
+def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
+    """
+    check if the ratio go /n is different between the study group and
+    the population
+    """
+    if min_ratio is None:
+        return True
+    s = float(study_go) / study_n
+    p = float(pop_go) / pop_n
+    if s > p:
+        return s / p > min_ratio
+    return p / s > min_ratio
+
+
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
@@ -104,12 +119,22 @@ if __name__ == "__main__":
                  action='store_true',
                  help="the population file as a comparison group. if this flag is specified,"
                  " the population is used as the study plus the `population/comparisong`")
+    p.add_option('--ratio', dest='ratio', type='float', default=None,
+                 help="only show values where the difference between study and population"
+                 " ratios is greater than this. useful for excluding GO categories with"
+                " small differences, but containing large numbers of genes. should be a "
+                " value between 1 and 2. ")
+
     opts, args = p.parse_args()
     bad = check_bad_args(args)
     if bad:
         print bad
         sys.exit(p.print_help())
     alpha = float(opts.alpha) if opts.alpha else 0.05
+
+    min_ratio = opts.ratio
+    if not min_ratio is None:
+        assert 1 <= min_ratio <= 2
 
     assoc_fn, desc_fn, pop_fn, study_fn, out_fn = args
 
@@ -138,7 +163,7 @@ if __name__ == "__main__":
     results = []
     for term , study_count in term_study.items():
         pop_count = term_cnt[term]
-        left_p, right_p, p_val = f.pvalue(study_count, study_n, term_cnt[term], pop_n)
+        left_p, right_p, p_val = f.pvalue(study_count, study_n, pop_count, pop_n)
 
         results.append([term, study_count, pop_count, p_val, left_p, right_p])
 
@@ -161,9 +186,10 @@ if __name__ == "__main__":
     fw = file(out_fn, "w")
     # TODO: correct left/right p-values.
     fw.write("go\tenriched_purified\tgo_desc\tgo/n_in_study\tgo/n_in_pop\tp_tt\tp_bonferroni\tp_holm\tp_sidak\n")
-    for k,v,C,p, left_p, right_p, p_corrected, p_holm, p_sidak in results:
+    for k,study_count,pop_count,p, left_p, right_p, p_corrected, p_holm, p_sidak in results:
         D = desc.get(k, "No description")
-        over_under = 'e' if 1.0* v/study_n > 1.0 * C / pop_n else 'p'
-        fw.write("%s\t%s\t%s\t%d/%d\t%d/%d\t%.3g\t%.3g\t%s\t%s\n"%(k, over_under, D, v,\
-                study_n, C, pop_n, p, p_corrected, p_holm, p_sidak))
+        if is_ratio_different(min_ratio, study_count, study_n, pop_count, pop_n):
+            over_under = 'e' if 1.0* study_count/study_n > 1.0 * pop_count / pop_n else 'p'
+            fw.write("%s\t%s\t%s\t%d/%d\t%d/%d\t%.3g\t%.3g\t%s\t%s\n"%(k, over_under, D, study_count,\
+                    study_n, pop_count, pop_n, p, p_corrected, p_holm, p_sidak))
     fw.close()
