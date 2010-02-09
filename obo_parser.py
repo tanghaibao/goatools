@@ -110,8 +110,7 @@ class GO_term:
         # taking the smallest level it can be... need to check though
         # the confusing part is that the term can be at different levels
         # depending on what ontology lineage you are tracking
-        # see for example GO:0000022 
-        # [http://amigo.geneontology.org/cgi-bin/amigo/visualize?inline=false&term_data=GO%3A0000022&format=png&mode=basic&term_data_type=string]
+        # see for example GO:0000022 [search on AMIGO and look at the graph]
         # it can be 4 or 7, and I am calling it 4
 
         if self.level < 0: # uninitialized 
