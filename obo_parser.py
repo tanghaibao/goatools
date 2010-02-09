@@ -29,7 +29,6 @@ class OBO_reader:
     """
     parse obo file, usually the most updated can be downloaded from
     http://www.geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo
-    __TODO__: this is not a parser, just a hack
 
     >>> reader = OBO_reader()
     >>> for rec in reader:
@@ -105,7 +104,7 @@ class GO_term:
 
     __repr__ = __str__
 
-    def getlevel(self, dag):
+    def getlevel(self):
         # TODO: I think what I am doing is reasonable here
         # taking the smallest level it can be... need to check though
         # the confusing part is that the term can be at different levels
@@ -118,7 +117,7 @@ class GO_term:
             if not self.parents: # root or obsolete terms
                 self.level = 0
             else:
-                self.level = min(dag[p].getlevel(dag) \
+                self.level = min(p.getlevel() \
                         for p in self.parents) + 1
 
         return self.level
@@ -145,11 +144,18 @@ class GO_dag:
         for rec in obo_reader:
             self.graph[rec.id] = rec
 
-    def populate_levels(self):
+        self.populate_terms()
 
-        for rec_id, rec in sorted(self.graph.items()):
+    def populate_terms(self):
+
+        # make the parents references to the GO terms
+        for rec in self.graph.values():
+            rec.parents = [self[key] for key in rec.parents]
+
+        # populate levels
+        for rec in self.graph.values():
             if rec.level < 0:
-                rec.getlevel(self)
+                rec.getlevel()
 
     def write_dag(self, out=sys.stdout):
 
@@ -174,8 +180,6 @@ if __name__ == '__main__':
 
     g = GO_dag(obo_file)
     print >>sys.stderr, len(g), "nodes imported"
-
-    g.populate_levels()
 
     if options.desc:
         g.write_dag()
