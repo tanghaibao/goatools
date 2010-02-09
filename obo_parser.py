@@ -99,7 +99,9 @@ class GO_term:
         self.level = -1         # distance from root node
 
     def __str__(self):
-        return "|".join([self.id, self.name, self.namespace])
+
+        return "%s\tlevel-%02d\t%s [%s]" % \
+                    (self.id, self.level, self.name, self.namespace) 
 
     __repr__ = __str__
 
@@ -153,7 +155,7 @@ class GO_dag:
     def write_dag(self, out=sys.stdout):
 
         for rec_id, rec in sorted(self.graph.items()):
-            print >>out, "%s\tlevel-%02d\t%s" % (rec.id, rec.level, rec.name) 
+            print >>out, rec
 
 
 if __name__ == '__main__':
