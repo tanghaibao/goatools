@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import os
-from pprint import pprint
+import pprint
 import sys
 from exceptions import EOFError
 
@@ -24,11 +24,11 @@ def read_until(handle, start):
             return
     raise EOFError, "%s tag cannot be found"
 
+
 class OBO_reader:
     """
     parse obo file, usually the most updated can be downloaded from
     http://www.geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo
-    __TODO__: this is not a parser, just a hack
 
     >>> reader = OBO_reader()
     >>> for rec in reader:
@@ -38,8 +38,13 @@ class OBO_reader:
 
     def __init__(self, obo_file="gene_ontology.1_2.obo"):
 
-        assert os.path.exists(obo_file), "%s not found!"%obo_file 
-        self._handle = file(obo_file)
+        try:
+            self._handle = file(obo_file)
+        except:
+            print >>sys.stderr, \
+                    "download obo file first\n " \
+                    "[http://geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo]"
+            sys.exit(1)
     
     def __iter__(self):
 
@@ -79,22 +84,44 @@ class OBO_reader:
 
         return rec
 
+
 class GO_term:
     """
     GO term, actually contain a lot more properties than interfaced here
     """
 
     def __init__(self):
-        self.id = "" 
-        self.name = ""
-        self.namespace = ""
-        self.parents = set()
+        self.id = ""            # GO:xxxxxx
+        self.name = ""          # description
+        self.namespace = ""     # BP, CC, MF
+        self.parents = set()    # is_a
+        self.level = -1         # distance from root node
 
     def __str__(self):
-        return "|".join([self.id, self.name, self.namespace])
 
-    def __repr__(self):
-        return self.__str__()
+        return "%s\tlevel-%02d\t%s [%s]" % \
+                    (self.id, self.level, self.name, self.namespace) 
+
+    __repr__ = __str__
+
+    def getlevel(self):
+        # TODO: I think what I am doing is reasonable here
+        # taking the smallest level it can be... need to check though
+        # the confusing part is that the term can be at different levels
+        # depending on what ontology lineage you are tracking
+        # see for example GO:0000022 [search on AMIGO and look at the graph]
+        # it can be 4 or 7, and I am calling it 4
+
+        if self.level < 0: # uninitialized 
+
+            if not self.parents: # root or obsolete terms
+                self.level = 0
+            else:
+                self.level = min(p.getlevel() \
+                        for p in self.parents) + 1
+
+        return self.level
+
 
 class GO_dag:
 
@@ -103,16 +130,37 @@ class GO_dag:
         self.graph = {}
         self.load_obo_file(obo_file)
 
+    def __len__(self):
+        return len(self.graph)
+
+    def __getitem__(self, key):
+
+        return self.graph[key]
+
     def load_obo_file(self, obo_file):
-        print "load obo file %s" % obo_file
+        
+        print >>sys.stderr, "load obo file %s" % obo_file
         obo_reader = OBO_reader(obo_file)
         for rec in obo_reader:
             self.graph[rec.id] = rec
-        #pprint(self.graph)
 
-def write_desc(obo_file, out=sys.stdout):
-    for rec in OBO_reader(obo_file):
-        print >>out, rec.id + "\t" + rec.name 
+        self.populate_terms()
+
+    def populate_terms(self):
+
+        # make the parents references to the GO terms
+        for rec in self.graph.values():
+            rec.parents = [self[key] for key in rec.parents]
+
+        # populate levels
+        for rec in self.graph.values():
+            if rec.level < 0:
+                rec.getlevel()
+
+    def write_dag(self, out=sys.stdout):
+
+        for rec_id, rec in sorted(self.graph.items()):
+            print >>out, rec
 
 
 if __name__ == '__main__':
@@ -122,13 +170,18 @@ if __name__ == '__main__':
     p.add_option("-d", dest="desc", help="write description file to stdout"
                  " from the obo file specified in args", action="store_true")
 
-    opts, args = p.parse_args()
+    options, args = p.parse_args()
 
-    if not (len(args) and opts.desc):
-        p.print_help()
-        my_dag = GO_dag()
-        print len(my_dag.graph.keys()), "nodes imported"
-        sys.exit()
+    if not len(args):
+        sys.exit(p.print_help())
 
-    write_desc(args[0])
+    obo_file = args[0]
+    assert os.path.exists(obo_file), "file %s not found!" % obo_file
+
+    g = GO_dag(obo_file)
+    print >>sys.stderr, len(g), "nodes imported"
+
+    if options.desc:
+        g.write_dag()
+
 
