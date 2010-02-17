@@ -2,3 +2,4 @@ scratch/*
 statlib/*
 *.obo
 *.enrichment
+out.*

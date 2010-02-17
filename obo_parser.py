@@ -167,7 +167,7 @@ if __name__ == '__main__':
 
     import optparse
     p = optparse.OptionParser()
-    p.add_option("-d", dest="desc", help="write description file to stdout"
+    p.add_option("-d", dest="desc", help="write term descriptions to stdout"
                  " from the obo file specified in args", action="store_true")
 
     options, args = p.parse_args()
