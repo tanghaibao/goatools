@@ -1,18 +1,19 @@
 Description
------------
+===========
 This package contains two utility scripts to handle gene ontology enrichment analysis.
 
 
 Installation
-------------
-The only requirement is to run the `setup.py` script::
+============
+The only requirement is to run the ``setup.py`` script::
 
     python setup.py build_ext -i
 
 this builds the C-extension of Fisher's exact test for speed
 
+
 Scripts
--------
+=======
 ``genemerge.py``
     command-line tool for processing over- and under-representation of certain GO terms, based on Fisher's exact test. Implemented several multiple correction routines (including Bonferroni, sidak, and false discovery rate).
 
