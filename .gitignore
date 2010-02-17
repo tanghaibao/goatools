@@ -1,5 +1,7 @@
 scratch/*
-statlib/*
+backup/*
+build/*
 *.obo
 *.enrichment
+*.so
 out.*

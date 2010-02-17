@@ -12,9 +12,7 @@ import operator
 import collections
 import random
 
-from fisher import FisherExactTest
-
-f = FisherExactTest()
+import fisher as f
 
 #http://en.wikipedia.org/wiki/Bonferroni_correction
 sidakp = lambda n, a: 1 - (1 - a) ** (1. /n )
@@ -62,7 +60,6 @@ def calc_qval(study_count, study_n, pop_count, pop_n, pop, assoc, term_cnt):
             pop_count = term_cnt[term]
             left_p, right_p, p_val = f.pvalue(study_count, study_n, pop_count, pop_n)
             if p_val < smallest_p: smallest_p = p_val
-            #print >> sys.stderr, "..", term, p_val, study_count, study_n, pop_count, pop_n
 
         distribution.append(smallest_p)
         print >>sys.stderr, i, smallest_p
@@ -214,9 +211,10 @@ if __name__ == "__main__":
     sidak = sidakp(correction, alpha) if correction > 0 else None
 
     # get the empirical p-value distributions for FDR
-    print >>sys.stderr, "generating p-value distribution for FDR calculation " \
+    if opts.fdr:
+        print >>sys.stderr, "generating p-value distribution for FDR calculation " \
             "(this might take a while)"
-    p_val_distribution = calc_qval(study_count, study_n, pop_count, pop_n, \
+        p_val_distribution = calc_qval(study_count, study_n, pop_count, pop_n, \
             pop, assoc, term_cnt)
 
     for i, r in enumerate(results):
@@ -224,11 +222,15 @@ if __name__ == "__main__":
         results[i].append(pval * correction)
         results[i].append("*" if i in holm_significant else ".")
         results[i].append("*" if pval < sidak else ".")
-        qval = sum(1 for x in p_val_distribution if x < pval) * 1./len(p_val_distribution)
+        if opts.fdr:
+            qval = sum(1 for x in p_val_distribution if x < pval) \
+                    * 1./len(p_val_distribution)
+        else:
+            qval = 0
         results[i].append(qval)
 
     results = list(filter_results(results, opts.alpha))
-    results.sort(key=operator.itemgetter(5))
+    results.sort(key=operator.itemgetter(5)) # p_raw
 
     fw = file(out_fn, "w")
 
