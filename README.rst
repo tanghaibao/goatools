@@ -6,6 +6,7 @@ This package contains two utility scripts to handle gene ontology enrichment ana
 Installation
 ------------
 The only requirement is to run the `setup.py` script::
+
     python setup.py build_ext -i
 
 this builds the C-extension of Fisher's exact test for speed
