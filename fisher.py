@@ -36,7 +36,7 @@ class FisherExactTest:
 		right_tail = min(right_tail, 1)
 		two_tailed = min(two_tailed, 1)
 
-		return left_tail, right_tail, two_tailed
+		return (left_tail, right_tail, two_tailed)
 
 	# Enrichment for the attribute in the query
 	# (< 1 if the query is impoverished)
@@ -108,14 +108,7 @@ class FisherExactTest:
 
 		return log(x) - 5.58106146679532777 - z + (z - 0.5) * log(z + 6.5)
 
-#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+if __name__ == "__main__":
 
-#test_set = 1, 500, 120, 1800
-#test_set = 10, 10, 20, 100
-#test_set = 1, 5, 8, 15
-#test_set = 2, 9, 10, 19
-#test_set = 2, 12, 52, 962
-#test_set = 79, 268, 195, 195+3723
-
-#f = FisherExactTest()
-#f.print_report(*test_set)
+    f = FisherExactTest()
+    f.print_report(10, 10, 20, 500)
