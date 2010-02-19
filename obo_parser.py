@@ -96,6 +96,7 @@ class GOTerm:
         self.namespace = ""     # BP, CC, MF
         self._parents = set()    # is_a
         self.parents = None
+        self.children = []
         self.level = -1         # distance from root node
 
     def __str__(self):
@@ -105,6 +106,7 @@ class GOTerm:
 
     def __repr__(self):
         return "GOTerm('%s')" % (self.id) 
+
 
 
 class GODag:
@@ -122,7 +124,6 @@ class GODag:
 
     def keys(self):
         return self.graph.keys()
-
 
     def load_obo_file(self, obo_file):
         
@@ -146,6 +147,8 @@ class GODag:
                 rec = self[rec]
             if rec.parents is None:
                 rec.parents = dict([(p, (populate(p) or "TOPLEVEL")) for p in rec._parents])
+                for p in rec.parents:
+                    self[p].children.append(rec)
             return rec.parents
 
 
