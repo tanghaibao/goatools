@@ -105,7 +105,7 @@ class OBOReader:
                 rec.namespace = after_colon(line) 
             elif line.startswith("is_a:"):
                 rec._parents.append(after_colon(line).split()[0])
-            elif line.startswith("is_obsolete:") and line.split()[-1]=="true":
+            elif line.startswith("is_obsolete:") and after_colon(line)=="true":
                 rec.is_obsolete = True
 
         return rec
@@ -242,7 +242,7 @@ if __name__ == '__main__':
     obo_file = args[0]
     assert os.path.exists(obo_file), "file %s not found!" % obo_file
 
-    g = load_godag()
+    g = load_godag(obo_file)
 
     if options.desc:
         g.write_dag()

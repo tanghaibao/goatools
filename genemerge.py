@@ -165,8 +165,8 @@ if __name__ == "__main__":
     p.add_option('--fdr', dest='fdr', default=False,
                 action='store_true',
                 help="calculate the false discovery rate (alternative to the Bonferroni correction)")
-    p.add_option('--hierarchy', dest='hierarchy', default=False,
-                action='store_true', help="group overlapping GO terms and indent")
+    p.add_option('--obo', dest='obo', default=False,
+                action='store_true', help="indent GO terms")
 
     opts, args = p.parse_args()
     bad = check_bad_args(args)
@@ -192,7 +192,6 @@ if __name__ == "__main__":
         print >>sys.stderr, "removed %d overlapping items" % (len(common), )
 
     assoc, term_cnt = count_associations(assoc_fn)
-    desc = get_description(desc_fn)
 
 
     pop_n, study_n = len(pop), len(study)
@@ -236,8 +235,10 @@ if __name__ == "__main__":
     results = list(filter_results(results, opts.alpha))
     results.sort(key=operator.itemgetter(5)) # p_raw
 
-    if opts.hierarchy:
-        g = load_godag()
+    if opts.obo:
+        g = load_godag(obo_file="gene_ontology.1_2.obo")
+    else:
+        g = get_description(desc_fn)
 
     fw = sys.stdout if out_fn=="stdout" else file(out_fn, "w") 
     # header for the output
@@ -246,11 +247,13 @@ if __name__ == "__main__":
     fw.write("\n")
 
     for term, study_count, pop_count, p_raw, left_p, right_p, p_corrected, p_holm, p_sidak, q_value in results:
-        if opts.hierarchy:
+        if opts.obo: # get the description from obo_file
             rec = g[term]
-            term = "." * rec.level + term + " [%s]" % rec.name 
+            term = "." * rec.level + term
+            D = rec.name
+        else: # get the description from description_file
+            D = g.get(term, "No description")
 
-        D = desc.get(term, "No description")
         if is_ratio_different(min_ratio, study_count, study_n, pop_count, pop_n):
             over_under = 'e' if 1.0* study_count/study_n > 1.0 * pop_count / pop_n else 'p'
             fw.write("%s\t%s\t%s\t%d/%d\t%d/%d\t%.3g\t%.3g\t%s\t%s"%(term, over_under, D, study_count,\
