@@ -212,11 +212,11 @@ class GODag:
             print >>out, rec
 
 
-def query_term(godag, term):
-    rec = g[term]
-    print >>sys.stderr, rec
-    print >>sys.stderr, "all parents:", set(flatten(rec.get_all_parents()))
-    print >>sys.stderr, "all children:", set(flatten(rec.get_all_children()))
+    def query_term(self, term):
+        rec = self[term]
+        print >>sys.stderr, rec
+        print >>sys.stderr, "all parents:", set(flatten(rec.get_all_parents()))
+        print >>sys.stderr, "all children:", set(flatten(rec.get_all_children()))
 
 
 def load_godag(obo_file="gene_ontology.1_2.obo"):
@@ -226,14 +226,13 @@ def load_godag(obo_file="gene_ontology.1_2.obo"):
 
     return g
 
+
 if __name__ == '__main__':
 
     import optparse
     p = optparse.OptionParser()
     p.add_option("-d", "--description", dest="desc", help="write term descriptions to stdout"
                  " from the obo file specified in args", action="store_true")
-    p.add_option("-p", "--pickle", dest="make_pickle", 
-                help="serialize the DAG data structure", action="store_true")
 
     (options, args) = p.parse_args()
 
@@ -249,16 +248,5 @@ if __name__ == '__main__':
         g.write_dag()
 
     # run a test case
-    query_term(g, "GO:0008135")
-
-
-    # UNIMPLEMENTED
-    """
-    if options.make_pickle:
-        import pickle
-        pkl_file = obo_file + ".pkl"
-        pickle.dump(g, file(pkl_file, "w"))
-        print >>sys.stderr, "object serialized to", pkl_file
-    """
-
+    g.query_term("GO:0008135")
 
