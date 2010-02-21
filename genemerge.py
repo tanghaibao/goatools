@@ -2,9 +2,11 @@
 # -*- coding: UTF-8 -*-
 
 """
-python genemerge.py gene-association.file description.file population.file study.file output.filename
+python genemerge.py gene-association.file description.file population.file study.file output
 
-This program returns P-values for functional enrichment in a cluster of study genes using fisher's exact test, and corrected for multiple testing (including Bonferroni, Sidak, and false discovery rate)
+Results are written to stdout if output is `stdout`
+
+This program returns P-values for functional enrichment in a cluster of study genes using fisher's exact test, and corrected for multiple testing (including Bonferroni, Holm, Sidak, and false discovery rate)
 """
 
 import sys
@@ -13,6 +15,7 @@ import collections
 import random
 
 import fisher as f
+from obo_parser import load_godag
 
 #http://en.wikipedia.org/wiki/Bonferroni_correction
 sidakp = lambda n, a: 1 - (1 - a) ** (1. /n )
@@ -148,11 +151,10 @@ if __name__ == "__main__":
     import optparse
     p = optparse.OptionParser(__doc__)
 
-    p.add_option('-a', '--alpha', dest='alpha', default=None, 
+    p.add_option('--alpha', dest='alpha', default=None, 
                  help="only print out the terms where the corrected p-value"
-                " is less than this value")
-    p.add_option('--compare', dest='compare', default=False, 
-                 action='store_true',
+                 " is less than this value. [default: %default]")
+    p.add_option('--compare', dest='compare', default=False, action='store_true',
                  help="the population file as a comparison group. if this flag is specified,"
                  " the population is used as the study plus the `population/comparison`")
     p.add_option('--ratio', dest='ratio', type='float', default=None,
@@ -160,9 +162,11 @@ if __name__ == "__main__":
                  " ratios is greater than this. useful for excluding GO categories with"
                 " small differences, but containing large numbers of genes. should be a "
                 " value between 1 and 2. ")
-    p.add_option('-q', '--fdr', dest='fdr', default=False,
+    p.add_option('--fdr', dest='fdr', default=False,
                 action='store_true',
                 help="calculate the false discovery rate (alternative to the Bonferroni correction)")
+    p.add_option('--hierarchy', dest='hierarchy', default=False,
+                action='store_true', help="group overlapping GO terms and indent")
 
     opts, args = p.parse_args()
     bad = check_bad_args(args)
@@ -232,14 +236,20 @@ if __name__ == "__main__":
     results = list(filter_results(results, opts.alpha))
     results.sort(key=operator.itemgetter(5)) # p_raw
 
-    fw = file(out_fn, "w")
+    if opts.hierarchy:
+        g = load_godag()
 
+    fw = sys.stdout if out_fn=="stdout" else file(out_fn, "w") 
     # header for the output
     fw.write("go\tenriched_purified\tgo_desc\tgo/n_in_study\tgo/n_in_pop\tp_raw\tp_bonferroni\tp_holm\tp_sidak")
     if opts.fdr: fw.write("\tq_value")
     fw.write("\n")
 
     for term, study_count, pop_count, p_raw, left_p, right_p, p_corrected, p_holm, p_sidak, q_value in results:
+        if opts.hierarchy:
+            rec = g[term]
+            term = "." * rec.level + term + " [%s]" % rec.name 
+
         D = desc.get(term, "No description")
         if is_ratio_different(min_ratio, study_count, study_n, pop_count, pop_n):
             over_under = 'e' if 1.0* study_count/study_n > 1.0 * pop_count / pop_n else 'p'
