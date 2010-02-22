@@ -9,29 +9,6 @@ from exceptions import EOFError
 
 typedef_tag, term_tag = "[Typedef]", "[Term]"
 
-
-# stolen from http://kogs-www.informatik.uni-hamburg.de/~meine/python_tricks
-def flatten(x):
-    """flatten(sequence) -> list
-
-    Returns a single, flat list which contains all elements retrieved
-    from the sequence and all recursively contained sub-sequences
-    (iterables).
-
-    Examples:
-    >>> [1, 2, [3,4], (5,6)]
-    [1, 2, [3, 4], (5, 6)]
-    >>> flatten([[[1,2,3], (42,None)], [4,5], [6], 7, MyVector(8,9,10)])
-    [1, 2, 3, 42, None, 4, 5, 6, 7, 8, 9, 10]"""
-
-    result = []
-    for el in x:
-        if hasattr(el, "__iter__") and not isinstance(el, basestring):
-            result.extend(flatten(el))
-        else:
-            result.append(el)
-    return result
-
 def after_colon(line):
     # macro for getting anything after the :
     return line.split(":", 1)[1].strip()
@@ -137,25 +114,47 @@ class GOTerm:
 
     def has_parent(self, term):
         for p in self.parents:
-            if p.has_parent(term) or p.id==term:
+            if p.id==term or p.has_parent(term):
+                return True
+        return False
+
+    def has_child(self, term):
+        for p in self.children:
+            if p.id==term or p.has_child(term):
                 return True
         return False
 
     def get_all_parents(self):
-        if not self.parents: return []
-        return list(chain([[p.id] + p.get_all_parents()] \
-                for p in self.parents))
-
-    def has_child(self, term):
-        for p in self.children:
-            if p.has_child(term) or p.id==term:
-                return True
-        return False
+        all_parents = set()
+        if self.parents:
+            for p in self.parents:
+                all_parents.add(p.id)
+                all_parents |= p.get_all_parents() 
+        return all_parents
 
     def get_all_children(self):
-        if not self.children: return []
-        return list(chain([[p.id] + p.get_all_children()] \
-                for p in self.children))
+        all_children = set()
+        if self.children:
+            for p in self.children:
+                all_children.add(p.id)
+                all_children |= p.get_all_children() 
+        return all_children
+
+    def get_all_parent_edges(self):
+        all_parent_edges = set()
+        if self.parents:
+            for p in self.parents:
+                all_parent_edges.add((self.id, p.id))
+                all_parent_edges |= p.get_all_parent_edges()
+        return all_parent_edges
+
+    def get_all_child_edges(self):
+        all_child_edges = set()
+        if self.children:
+            for p in self.children:
+                all_child_edges.add((p.id, self.id))
+                all_child_edges |= p.get_all_child_edges()
+        return all_child_edges
 
 
 class GODag:
@@ -212,11 +211,32 @@ class GODag:
             print >>out, rec
 
 
-    def query_term(self, term):
+    def query_term(self, term, draw_lineage=False):
         rec = self[term]
         print >>sys.stderr, rec
-        print >>sys.stderr, "all parents:", set(flatten(rec.get_all_parents()))
-        print >>sys.stderr, "all children:", set(flatten(rec.get_all_children()))
+        print >>sys.stderr, "all parents:", rec.get_all_parents()
+        print >>sys.stderr, "all children:", rec.get_all_children()
+        if draw_lineage:
+            self.draw_lineage(rec)
+
+
+    def draw_lineage(self, rec):
+        # draw AMIGO style network, lineage containing one query record
+        try:
+            import pydot
+        except:
+            print >>sys.stderr, "pydot not installed, lineage not drawn!"
+            print >>sys.stderr, "try `easy_install pydot`"
+            return
+        
+        G = pydot.Dot() 
+        edgeset = rec.get_all_parent_edges() | rec.get_all_child_edges()
+        for src, target in edgeset:
+            # ":" is interpreted as something else in pydot
+            src, target = src.replace(":","_"), target.replace(":", "_")
+            G.add_edge(pydot.Edge(src, target))
+
+        G.write_jpeg("go.jpg")
 
 
 def load_godag(obo_file="gene_ontology.1_2.obo"):
@@ -248,5 +268,5 @@ if __name__ == '__main__':
         g.write_dag()
 
     # run a test case
-    g.query_term("GO:0008135")
+    g.query_term("GO:0008135", draw_lineage=True)
 
