@@ -118,16 +118,15 @@ class GOEnrichmentStudy(object):
                     pop, assoc, term_pop)
                 fdr = []
                 for rec in results:
-                    q = sum(1 for x in p_val_distribution if x < pval) \
+                    q = sum(1 for x in p_val_distribution if x < rec.p_uncorrected) \
                             * 1./len(p_val_distribution)
                     fdr.append(q)
             else:
-                raise Exception, "multiple test correction methods must be one of", all_methods
+                raise Exception, "multiple test correction methods must be one of %s" % all_methods
 
         all_corrections = (bonferroni, sidak, holm, fdr)
 
         for method, corrected_pvals in zip(all_methods, all_corrections):
-            print >>sys.stderr, "update p_%s" % method 
             self.update_results(method, corrected_pvals)
 
         results = list(self.filter_results(alpha))
