@@ -18,6 +18,64 @@ import fisher as f
 from multiple_testing import Bonferroni, Sidak, HolmBonferroni 
 from obo_parser import GODag 
 
+
+class GOEnrichmentRecord(object):
+    _fields = "id enrichment description ratio_in_study ratio_in_pop"\
+            " p_uncorrected p_bonferroni p_holm p_sidak q_value".split()
+
+    def __init__(self, **kwargs):
+        for f in self._fields:
+            self.__setattr__(f, "n.a.")
+
+        for k, v in kwargs.iteritems():
+            assert k in self._fields, "invalid field name %s" % k
+            self.__setattr__(k, v)
+
+        self.goterm = None # the reference to the GOTerm
+    
+    def __setattr__(self, name, value):
+        self.__dict__[name] = value
+
+    def __str__(self, indent=False):
+        field_data = [self.__dict__[f] for f in self._fields]
+        field_formatter = ["%s"] * 3 + ["%d/%d"] * 2 + ["%.3g"] * 5
+        assert len(field_data)==len(field_formatter)
+        
+        # default formatting only works for non-"n.a" data
+        for i, f in enumerate(field_data):
+            if f=="n.a.":
+                field_formatter[i] = "%s"
+
+        if self.goterm is not None and indent:
+            dots = "." * self.goterm.level if indent else ""
+
+        return dots + "\t".join(a % b for (a, b) in \
+                zip(field_formatter, field_data))
+
+    def __repr__(self):
+        return "GOEnrichmentRecord(%s)" % self.id
+
+    def find_goterm(self, go):
+        if self.id in go.keys():
+            self.goterm = go[self.id]
+            self.description = self.goterm.name
+
+    def update_fields(self, **kwargs):
+        for k, v in kwargs.iteritems():
+            assert k in self._fields, "invalid field name %s" % k
+            self.__setattr__(k, v)
+
+    def update_remaining_fields(self, min_ratio=None):
+        study_count, study_n = self.ratio_in_study
+        pop_count, pop_n = self.ratio_in_pop
+        self.enrichment = 'e' if 1.0* study_count/study_n > 1.0 * pop_count / pop_n else 'p'
+        self.is_ratio_different = is_ratio_different(min_ratio, study_count, study_n, pop_count, pop_n)
+
+
+#class GOEnrichmentStudy(object):
+#    def __init__(self, study_set, population_set, associations):
+#        self.results = []
+
 #class FalseDiscoveryRate(AbstractCorrection):
 """
 Generate a p-value distribution based on re-sampling, as described in:
@@ -39,6 +97,7 @@ def calc_qval(study_count, study_n, pop_count, pop_n, pop, assoc, term_cnt):
         distribution.append(smallest_p)
         print >>sys.stderr, i, smallest_p
     return distribution
+
 
 def count_associations(assoc_fn):
     term_cnt = collections.defaultdict(int)
@@ -63,10 +122,9 @@ def count_associations(assoc_fn):
 
 def filter_results(results, alpha=None):
     if alpha is not None: alpha = float(alpha)
-    for row in results:
-        if alpha is None: yield row
-        # row[-3] is the bonferroni-corrected p-val
-        elif row[-3] < alpha: yield row
+    for rec in results:
+        if alpha is None: yield rec 
+        elif rec.p_bonferroni < alpha: yield rec
 
 
 def check_bad_args(args):
@@ -85,8 +143,8 @@ def count_term_study(study, assoc):
     """
     term_study = collections.defaultdict(int)
     for gene in (g for g in study if g in assoc):
-        for _ in assoc[gene]:
-            term_study[_] += 1
+        for x in assoc[gene]:
+            term_study[x] += 1
     return term_study
 
 
@@ -151,6 +209,7 @@ if __name__ == "__main__":
 
     assoc, term_cnt = count_associations(assoc_fn)
 
+    #g = GOEnrichmentStudy(study, pop, assoc)
 
     pop_n, study_n = len(pop), len(study)
     non_singletons = set(k for k, v in term_cnt.items() if v > 1)
@@ -162,17 +221,20 @@ if __name__ == "__main__":
         pop_count = term_cnt[term]
         left_p, right_p, p_val = f.pvalue(study_count, study_n, pop_count, pop_n)
 
-        results.append([term, study_count, pop_count, p_val, left_p, right_p])
+        one_record = GOEnrichmentRecord(id=term, p_uncorrected=p_val,\
+                ratio_in_study=(study_count, study_n), 
+                ratio_in_pop=(pop_count, pop_n))
 
-
-    pvals = [r[3] for r in results]
-    correction = sum(1 for _ in term_study if _ in non_singletons)
+        results.append(one_record)
 
 
     # Calculate multiple corrections
+    pvals = [r.p_uncorrected for r in results]
+    correction = sum(1 for x in term_study if x in non_singletons)
+
     bonferroni = Bonferroni(pvals, correction, alpha).corrected_pvals
     sidak = Sidak(pvals, correction, alpha).corrected_pvals
-    holmbonferroni = HolmBonferroni(pvals, correction, alpha).corrected_pvals
+    holm = HolmBonferroni(pvals, correction, alpha).corrected_pvals
 
     # get the empirical p-value distributions for FDR
     if opts.fdr:
@@ -181,44 +243,28 @@ if __name__ == "__main__":
         p_val_distribution = calc_qval(study_count, study_n, pop_count, pop_n, \
             pop, assoc, term_cnt)
 
-    for i, (r,b,s,h) in enumerate(zip(results, bonferroni, holmbonferroni, sidak)):
-        pval = float(r[3])
-        results[i].append(b)
-        results[i].append(h)
-        results[i].append(s)
+    for rec, b, s, h in zip(results, bonferroni, holm, sidak):
+        pval = rec.p_uncorrected 
+        rec.update_fields(p_bonferroni=b, p_holm=h, p_sidak=s)
+
         if opts.fdr:
-            qval = sum(1 for x in p_val_distribution if x < pval) \
+            q = sum(1 for x in p_val_distribution if x < pval) \
                     * 1./len(p_val_distribution)
-        else:
-            qval = 0
-        results[i].append(qval)
+            rec.q_value = q
 
     results = list(filter_results(results, opts.alpha))
-    results.sort(key=operator.itemgetter(5)) # p_raw
+    results.sort(key=lambda r: r.p_uncorrected) 
 
-    g = GODag(obo_file="gene_ontology.1_2.obo")
+    go = GODag(obo_file="gene_ontology.1_2.obo")
 
-    fw = sys.stdout
-    # header for the output
-    fw.write("go\tenriched_purified\tgo_desc\tgo/n_in_study\tgo/n_in_pop\tp_raw\tp_bonferroni\tp_holm\tp_sidak")
-    if opts.fdr: fw.write("\tq_value")
-    fw.write("\n")
+    # field names for output
+    print "\t".join(GOEnrichmentRecord()._fields)
 
-    for term, study_count, pop_count, p_raw, left_p, right_p, p_corrected, p_holm, p_sidak, q_value in results:
-        try:
-            rec = g[term]
-            D = rec.name
-            if opts.indent: # get the description from obo_file
-                term = "." * rec.level + term
-        except:
-            D = "No description"
+    for rec in results:
+        # get the actual go term for description and level
+        rec.find_goterm(go)
+        # calculate some additional statistics (over_under, is_ratio_different)
+        rec.update_remaining_fields(min_ratio=min_ratio)
 
-        if is_ratio_different(min_ratio, study_count, study_n, pop_count, pop_n):
-            over_under = 'e' if 1.0* study_count/study_n > 1.0 * pop_count / pop_n else 'p'
-            fw.write("%s\t%s\t%s\t%d/%d\t%d/%d\t%.3g\t%.3g\t%.3g\t%.3g"%(term, over_under, D, study_count,\
-                    study_n, pop_count, pop_n, p_raw, p_corrected, p_holm, p_sidak))
-            if opts.fdr: fw.write("\t%.3f" % q_value)
-            fw.write("\n")
-
-    fw.close()
-
+        if rec.is_ratio_different:
+            print rec.__str__(indent=opts.indent)
