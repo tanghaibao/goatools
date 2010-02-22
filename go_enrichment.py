@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 """
-python genemerge.py gene-association.file population.file study.file
+python genemerge.py study.file population.file gene-association.file 
 
 This program returns P-values for functional enrichment in a cluster of study genes using Fisher's exact test, and corrected for multiple testing (including Bonferroni, Holm, Sidak, and false discovery rate)
 """
@@ -17,8 +17,10 @@ from obo_parser import GODag
 
 
 class GOEnrichmentRecord(object):
+    """Represents one result (from a single GOTerm) in the GOEnrichmentStudy
+    """
     _fields = "id enrichment description ratio_in_study ratio_in_pop"\
-            " p_uncorrected p_bonferroni p_holm p_sidak q_value".split()
+            " p_uncorrected p_bonferroni p_holm p_sidak p_fdr".split()
 
     def __init__(self, **kwargs):
         for f in self._fields:
@@ -71,25 +73,110 @@ class GOEnrichmentRecord(object):
         self.is_ratio_different = is_ratio_different(min_ratio, study_count, study_n, pop_count, pop_n)
 
 
-#class GOEnrichmentStudy(object):
-#    def __init__(self, study_set, population_set, associations):
-#        self.results = []
+class GOEnrichmentStudy(object):
+    """Runs Fisher's exact test, as well as multiple corrections
+    """
+    def __init__(self, study_set, population_set, associations, alpha=None, \
+            methods=["bonferroni", "sidak", "holm"]):
+        self.results = results = []
 
-#class FalseDiscoveryRate(AbstractCorrection):
+        term_study = count_terms(study, assoc)
+        term_pop = count_terms(pop, assoc)
+
+        pop_n, study_n = len(pop), len(study)
+        non_singletons = set(k for k, v in term_pop.items() if v > 1)
+
+        for term, study_count in term_study.items():
+            pop_count = term_pop[term]
+            left_p, right_p, p_val = f.pvalue(study_count, study_n, pop_count, pop_n)
+
+            one_record = GOEnrichmentRecord(id=term, p_uncorrected=p_val,\
+                    ratio_in_study=(study_count, study_n), 
+                    ratio_in_pop=(pop_count, pop_n))
+
+            results.append(one_record)
+
+        # Calculate multiple corrections
+        pvals = [r.p_uncorrected for r in results]
+        num_of_tests = sum(1 for x in term_study if x in non_singletons)
+
+        all_methods = ("bonferroni", "sidak", "holm", "fdr")
+        bonferroni, sidak, holm, fdr = None, None, None, None
+
+        for method in methods:
+            if method=="bonferroni":
+                bonferroni = Bonferroni(pvals, num_of_tests, alpha).corrected_pvals
+            elif method=="sidak":
+                sidak = Sidak(pvals, num_of_tests, alpha).corrected_pvals
+            elif method=="holm":
+                holm = HolmBonferroni(pvals, num_of_tests, alpha).corrected_pvals
+            elif method=="fdr":
+                # get the empirical p-value distributions for FDR
+                print >>sys.stderr, "generating p-value distribution for FDR calculation " \
+                    "(this might take a while)"
+                p_val_distribution = calc_qval(study_count, study_n, pop_count, pop_n, \
+                    pop, assoc, term_pop)
+                fdr = []
+                for rec in results:
+                    q = sum(1 for x in p_val_distribution if x < pval) \
+                            * 1./len(p_val_distribution)
+                    fdr.append(q)
+            else:
+                raise Exception, "multiple test correction methods must be one of", all_methods
+
+        all_corrections = (bonferroni, sidak, holm, fdr)
+
+        for method, corrected_pvals in zip(all_methods, all_corrections):
+            print >>sys.stderr, "update p_%s" % method 
+            self.update_results(method, corrected_pvals)
+
+        results = list(self.filter_results(alpha))
+        results.sort(key=lambda r: r.p_uncorrected) 
+        self.results = results
+
+    def update_results(self, method, corrected_pvals):
+        if corrected_pvals is None: return
+        for rec, val in zip(self.results, corrected_pvals):
+            rec.__setattr__("p_"+method, val)
+
+    def filter_results(self, alpha=None):
+        if alpha is not None: alpha = float(alpha)
+        for rec in self.results:
+            if alpha is None: yield rec 
+            elif rec.p_bonferroni < alpha: yield rec
+
+    def populate_go(self, obo_file="gene_ontology.1_2.obo"):
+        go = GODag(obo_file)
+        for rec in self.results:
+            # get go term for description and level
+            rec.find_goterm(go)
+
+    def print_summary(self, min_ratio=None):
+        # field names for output
+        print "\t".join(GOEnrichmentRecord()._fields)
+
+        for rec in self.results:
+            # calculate some additional statistics (over_under, is_ratio_different)
+            rec.update_remaining_fields(min_ratio=min_ratio)
+
+            if rec.is_ratio_different:
+                print rec.__str__(indent=opts.indent)
+
 """
 Generate a p-value distribution based on re-sampling, as described in:
 http://www.biomedcentral.com/1471-2105/6/168
 """
-def calc_qval(study_count, study_n, pop_count, pop_n, pop, assoc, term_cnt):
+#class FalseDiscoveryRate(AbstractCorrection):
+def calc_qval(study_count, study_n, pop_count, pop_n, pop, assoc, term_pop):
     T = 1000 # number of samples
     distribution = []
     for i in xrange(T):
         new_study = random.sample(pop, study_n)
-        new_term_study = count_term_study(new_study, assoc)
+        new_term_study = count_terms(new_study, assoc)
 
         smallest_p = 1
         for term, study_count in new_term_study.items():
-            pop_count = term_cnt[term]
+            pop_count = term_pop[term]
             left_p, right_p, p_val = f.pvalue(study_count, study_n, pop_count, pop_n)
             if p_val < smallest_p: smallest_p = p_val
 
@@ -98,8 +185,22 @@ def calc_qval(study_count, study_n, pop_count, pop_n, pop, assoc, term_cnt):
     return distribution
 
 
-def count_associations(assoc_fn):
-    term_cnt = collections.defaultdict(int)
+def read_geneset(study_fn, pop_fn, compare=False):
+    pop = set(_.strip() for _ in open(pop_fn) if _.strip())
+    study = frozenset(_.strip() for _ in open(study_fn) if _.strip())
+    # some times the pop is a second group to compare, rather than the population
+    # in that case, we need to make sure the overlapping terms are removed first
+    if compare:
+        common = pop & study
+        pop |= study
+        pop -= common
+        study -= common
+        print >>sys.stderr, "removed %d overlapping items" % (len(common), )
+
+    return study, pop
+
+
+def read_associations(assoc_fn):
     assoc = {}
     sep = " "
     for row in open(assoc_fn):
@@ -110,20 +211,10 @@ def count_associations(assoc_fn):
         except ValueError:
             sep = "\t"
             a, b = row.split(sep)
-        if a not in pop: continue
         b = set(b.replace(";"," ").split())
         assoc[a] = b
-        for term in b:
-            term_cnt[term]+=1
 
-    return assoc, term_cnt
-
-
-def filter_results(results, alpha=None):
-    if alpha is not None: alpha = float(alpha)
-    for rec in results:
-        if alpha is None: yield rec 
-        elif rec.p_bonferroni < alpha: yield rec
+    return assoc
 
 
 def check_bad_args(args):
@@ -134,17 +225,19 @@ def check_bad_args(args):
     for arg in args[:-1]:
         if not os.path.exists(arg):
             return "*%s* does not exist" % arg
+
     return False
 
 
-def count_term_study(study, assoc):
+def count_terms(geneset, assoc):
     """count the number of terms in the study group
     """
-    term_study = collections.defaultdict(int)
-    for gene in (g for g in study if g in assoc):
+    term_cnt = collections.defaultdict(int)
+    for gene in (g for g in geneset if g in assoc):
         for x in assoc[gene]:
-            term_study[x] += 1
-    return term_study
+            term_cnt[x] += 1
+
+    return term_cnt
 
 
 def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
@@ -159,6 +252,7 @@ def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
     if s > p:
         return s / p > min_ratio
     return p / s > min_ratio
+
 
 
 if __name__ == "__main__":
@@ -183,87 +277,27 @@ if __name__ == "__main__":
     p.add_option('--indent', dest='indent', default=False,
                 action='store_true', help="indent GO terms")
 
-    opts, args = p.parse_args()
+    (opts, args) = p.parse_args()
     bad = check_bad_args(args)
     if bad:
         print bad
         sys.exit(p.print_help())
+
     alpha = float(opts.alpha) if opts.alpha else 0.05
 
     min_ratio = opts.ratio
     if not min_ratio is None:
         assert 1 <= min_ratio <= 2
 
-    assoc_fn, pop_fn, study_fn = args
+    study_fn, pop_fn, assoc_fn = args
+    study, pop = read_geneset(study_fn, pop_fn, compare=opts.compare)
+    assoc = read_associations(assoc_fn)
 
-    # Calculations start here
-    pop = set(_.strip() for _ in open(pop_fn) if _.strip())
-    study = frozenset(_.strip() for _ in open(study_fn) if _.strip())
-    if opts.compare:
-        common = pop.intersection(study)
-        pop = pop.union(study)
-        pop = pop.difference(common)
-        study = study.difference(common)
-        print >>sys.stderr, "removed %d overlapping items" % (len(common), )
-
-    assoc, term_cnt = count_associations(assoc_fn)
-
-    #g = GOEnrichmentStudy(study, pop, assoc)
-
-    pop_n, study_n = len(pop), len(study)
-    non_singletons = set(k for k, v in term_cnt.items() if v > 1)
-
-    term_study = count_term_study(study, assoc)
-
-    results = []
-    for term, study_count in term_study.items():
-        pop_count = term_cnt[term]
-        left_p, right_p, p_val = f.pvalue(study_count, study_n, pop_count, pop_n)
-
-        one_record = GOEnrichmentRecord(id=term, p_uncorrected=p_val,\
-                ratio_in_study=(study_count, study_n), 
-                ratio_in_pop=(pop_count, pop_n))
-
-        results.append(one_record)
-
-
-    # Calculate multiple corrections
-    pvals = [r.p_uncorrected for r in results]
-    correction = sum(1 for x in term_study if x in non_singletons)
-
-    bonferroni = Bonferroni(pvals, correction, alpha).corrected_pvals
-    sidak = Sidak(pvals, correction, alpha).corrected_pvals
-    holm = HolmBonferroni(pvals, correction, alpha).corrected_pvals
-
-    # get the empirical p-value distributions for FDR
+    methods=["bonferroni", "sidak", "holm"]
     if opts.fdr:
-        print >>sys.stderr, "generating p-value distribution for FDR calculation " \
-            "(this might take a while)"
-        p_val_distribution = calc_qval(study_count, study_n, pop_count, pop_n, \
-            pop, assoc, term_cnt)
+        methods.append("fdr")
 
-    for rec, b, s, h in zip(results, bonferroni, holm, sidak):
-        pval = rec.p_uncorrected 
-        rec.update_fields(p_bonferroni=b, p_holm=h, p_sidak=s)
+    g = GOEnrichmentStudy(study, pop, assoc, alpha=alpha, methods=methods)
+    g.populate_go(obo_file="gene_ontology.1_2.obo")
+    g.print_summary(min_ratio)
 
-        if opts.fdr:
-            q = sum(1 for x in p_val_distribution if x < pval) \
-                    * 1./len(p_val_distribution)
-            rec.q_value = q
-
-    results = list(filter_results(results, opts.alpha))
-    results.sort(key=lambda r: r.p_uncorrected) 
-
-    go = GODag(obo_file="gene_ontology.1_2.obo")
-
-    # field names for output
-    print "\t".join(GOEnrichmentRecord()._fields)
-
-    for rec in results:
-        # get the actual go term for description and level
-        rec.find_goterm(go)
-        # calculate some additional statistics (over_under, is_ratio_different)
-        rec.update_remaining_fields(min_ratio=min_ratio)
-
-        if rec.is_ratio_different:
-            print rec.__str__(indent=opts.indent)
