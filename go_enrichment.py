@@ -84,7 +84,6 @@ class GOEnrichmentStudy(object):
         term_pop = count_terms(pop, assoc)
 
         pop_n, study_n = len(pop), len(study)
-        non_singletons = set(k for k, v in term_pop.items() if v > 1)
 
         for term, study_count in term_study.items():
             pop_count = term_pop[term]
@@ -98,18 +97,16 @@ class GOEnrichmentStudy(object):
 
         # Calculate multiple corrections
         pvals = [r.p_uncorrected for r in results]
-        num_of_tests = sum(1 for x in term_study if x in non_singletons)
-
         all_methods = ("bonferroni", "sidak", "holm", "fdr")
         bonferroni, sidak, holm, fdr = None, None, None, None
 
         for method in methods:
             if method=="bonferroni":
-                bonferroni = Bonferroni(pvals, num_of_tests, alpha).corrected_pvals
+                bonferroni = Bonferroni(pvals, alpha).corrected_pvals
             elif method=="sidak":
-                sidak = Sidak(pvals, num_of_tests, alpha).corrected_pvals
+                sidak = Sidak(pvals, alpha).corrected_pvals
             elif method=="holm":
-                holm = HolmBonferroni(pvals, num_of_tests, alpha).corrected_pvals
+                holm = HolmBonferroni(pvals, alpha).corrected_pvals
             elif method=="fdr":
                 # get the empirical p-value distributions for FDR
                 print >>sys.stderr, "generating p-value distribution for FDR calculation " \

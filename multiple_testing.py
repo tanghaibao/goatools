@@ -9,10 +9,10 @@ import numpy as np
 
 class AbstractCorrection(object):
     
-    def __init__(self, pvals, n, a=.05):
+    def __init__(self, pvals, a=.05):
         self.pvals = self.corrected_pvals = np.array(pvals)
-        self.n = n          # number of multiple tests
-        self.a = a          # type-1 error cutoff for each test
+        self.n = len(self.pvals)    # number of multiple tests
+        self.a = a                  # type-1 error cutoff for each test
 
         self.set_correction()
 
@@ -25,7 +25,7 @@ class AbstractCorrection(object):
 class Bonferroni(AbstractCorrection):
 
     """
-    >>> Bonferroni([0.01, 0.01, 0.03, 0.05, 0.005], 5, a=0.05).corrected_pvals
+    >>> Bonferroni([0.01, 0.01, 0.03, 0.05, 0.005], a=0.05).corrected_pvals
     array([ 0.05 ,  0.05 ,  0.15 ,  0.25 ,  0.025])
     """
     def set_correction(self):
@@ -35,7 +35,7 @@ class Bonferroni(AbstractCorrection):
 class Sidak(AbstractCorrection):
     
     """http://en.wikipedia.org/wiki/Bonferroni_correction
-    >>> Sidak([0.01, 0.01, 0.03, 0.05, 0.005], 5, a=0.05).corrected_pvals
+    >>> Sidak([0.01, 0.01, 0.03, 0.05, 0.005], a=0.05).corrected_pvals
     array([ 0.04898974,  0.04898974,  0.14696923,  0.24494871,  0.02449487])
     """
     def set_correction(self):
@@ -49,7 +49,7 @@ class HolmBonferroni(AbstractCorrection):
     given a list of pvals, perform the Holm-Bonferroni correction
     and return the indexes from original list that are significant.
     (cant use p-value as that may be repeated.)
-    >>> HolmBonferroni([0.01, 0.01, 0.03, 0.05, 0.005], 5, a=0.05).corrected_pvals
+    >>> HolmBonferroni([0.01, 0.01, 0.03, 0.05, 0.005], a=0.05).corrected_pvals
     array([ 0.04 ,  0.04 ,  0.06 ,  0.05 ,  0.025])
     """
     def set_correction(self):
