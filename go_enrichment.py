@@ -4,13 +4,10 @@
 """
 python genemerge.py gene-association.file population.file study.file
 
-Tabular results are written to stdout
-
 This program returns P-values for functional enrichment in a cluster of study genes using Fisher's exact test, and corrected for multiple testing (including Bonferroni, Holm, Sidak, and false discovery rate)
 """
 
 import sys
-import operator
 import collections
 import random
 
@@ -46,8 +43,10 @@ class GOEnrichmentRecord(object):
             if f=="n.a.":
                 field_formatter[i] = "%s"
 
+        # print dots to show the level of the term
+        dots = ""
         if self.goterm is not None and indent:
-            dots = "." * self.goterm.level if indent else ""
+            dots = "." * self.goterm.level
 
         return dots + "\t".join(a % b for (a, b) in \
                 zip(field_formatter, field_data))
