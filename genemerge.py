@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 """
-python genemerge.py gene-association.file description.file population.file study.file output
+python genemerge.py gene-association.file population.file study.file
 
 Results are written to stdout if output is `stdout`
 
@@ -13,45 +13,85 @@ import sys
 import operator
 import collections
 import random
+import numpy as np
 
 import fisher as f
-from obo_parser import load_godag
+from obo_parser import GODag 
 
-#http://en.wikipedia.org/wiki/Bonferroni_correction
-sidakp = lambda n, a: 1 - (1 - a) ** (1. /n )
 
-def holm_bonferroni(pvals, a=0.05):
+class AbstractCorrection(object):
+    
+    def __init__(self, pvals, n, a=.05):
+        self.pvals = self.corrected_pvals = np.array(pvals)
+        self.n = n          # number of multiple tests
+        self.a = a          # type-1 error cutoff for each test
+
+        self.set_correction()
+
+    def set_correction(self):
+        # the point of multiple correction is to lower the alpha
+        # instead of the canonical value (like .05)
+        pass
+
+
+class Bonferroni(AbstractCorrection):
+
+    """
+    >>> Bonferroni([0.01, 0.01, 0.03, 0.05, 0.005], 5, a=0.05).corrected_pvals
+    array([ 0.05 ,  0.05 ,  0.15 ,  0.25 ,  0.025])
+    """
+    def set_correction(self):
+        self.corrected_pvals = self.pvals * self.n
+
+
+class Sidak(AbstractCorrection):
+    
+    """http://en.wikipedia.org/wiki/Bonferroni_correction
+    >>> Sidak([0.01, 0.01, 0.03, 0.05, 0.005], 5, a=0.05).corrected_pvals
+    array([ 0.04898974,  0.04898974,  0.14696923,  0.24494871,  0.02449487])
+    """
+    def set_correction(self):
+        correction = self.a * 1. / (1 - (1 - self.a) ** (1. / self.n))
+        self.corrected_pvals = self.pvals * correction
+
+
+class HolmBonferroni(AbstractCorrection):
+
     """http://en.wikipedia.org/wiki/Holm-Bonferroni_method
     given a list of pvals, perform the Holm-Bonferroni correction
     and return the indexes from original list that are significant.
     (cant use p-value as that may be repeated.)
-    >>> list(holm_bonferroni([0.01, 0.01, 0.03, 0.05, 0.005], a=0.05))
-    [4, 0, 1]
-
-    TODO: account for weights by number in study?
+    >>> HolmBonferroni([0.01, 0.01, 0.03, 0.05, 0.005], 5, a=0.05).corrected_pvals
+    array([ 0.04 ,  0.04 ,  0.06 ,  0.05 ,  0.025])
     """
-    idxs = collections.defaultdict(list)
-    for i, p in enumerate(pvals):
-        idxs[p].append(i)
+    def set_correction(self):
+        idxs, correction = zip(*self.generate_significant())
+        idxs = list(idxs)
+        self.corrected_pvals[idxs] *= correction
 
-    lp = len(pvals)
-    if lp == 0:
-        raise StopIteration
-    an = a / lp
-    for p in sorted(pvals):
-        if p < an:
-            yield idxs[p].pop(0) # [1, 2, 3] becomes [2, 3] and yields 1
-            lp -= 1
-            an = a / lp
-        else:
-            break
+    def generate_significant(self):
+
+        pvals = self.pvals
+        pvals_idxs = zip(pvals, xrange(len(pvals)))
+        pvals_idxs.sort()
+
+        lp = len(self.pvals)
+
+        from itertools import groupby
+        for pval, idxs in groupby(pvals_idxs, lambda x: x[0]):
+            idxs = list(idxs)
+            for p, i in idxs:
+                if p * 1. / lp < self.a:
+                    yield (i, lp)
+            lp -= len(idxs) 
 
 
+#class FalseDiscoverRate(AbstractCorrection):
+"""
+Generate a p-value distribution based on re-sampling, as described in:
+http://www.biomedcentral.com/1471-2105/6/168
+"""
 def calc_qval(study_count, study_n, pop_count, pop_n, pop, assoc, term_cnt):
-    """
-    Generate a p-value distribution based on re-sampling, as described in:
-    http://www.biomedcentral.com/1471-2105/6/168
-    """
     T = 1000 # number of samples
     distribution = []
     for i in xrange(T):
@@ -67,7 +107,6 @@ def calc_qval(study_count, study_n, pop_count, pop_n, pop, assoc, term_cnt):
         distribution.append(smallest_p)
         print >>sys.stderr, i, smallest_p
     return distribution
-
 
 def count_associations(assoc_fn):
     term_cnt = collections.defaultdict(int)
@@ -90,15 +129,6 @@ def count_associations(assoc_fn):
     return assoc, term_cnt
 
 
-def get_description(desc_fn):
-    desc = {}
-    for row in open(desc_fn):
-        if row.strip()=="": continue 
-        a,b = row.strip().split("\t")
-        desc[a] = b
-    return desc
-
-
 def filter_results(results, alpha=None):
     if alpha is not None: alpha = float(alpha)
     for row in results:
@@ -109,10 +139,10 @@ def filter_results(results, alpha=None):
 
 
 def check_bad_args(args):
-    """check args. otherwise if one of the 5 args is bad
+    """check args. otherwise if one of the 3 args is bad
     it's hard to tell which one"""
     import os
-    if not len(args) == 5: return "please send in 5 file names"
+    if not len(args) == 3: return "please send in 3 file names"
     for arg in args[:-1]:
         if not os.path.exists(arg):
             return "*%s* does not exist" % arg
@@ -165,7 +195,7 @@ if __name__ == "__main__":
     p.add_option('--fdr', dest='fdr', default=False,
                 action='store_true',
                 help="calculate the false discovery rate (alternative to the Bonferroni correction)")
-    p.add_option('--obo', dest='obo', default=False,
+    p.add_option('--indent', dest='indent', default=False,
                 action='store_true', help="indent GO terms")
 
     opts, args = p.parse_args()
@@ -179,7 +209,7 @@ if __name__ == "__main__":
     if not min_ratio is None:
         assert 1 <= min_ratio <= 2
 
-    assoc_fn, desc_fn, pop_fn, study_fn, out_fn = args
+    assoc_fn, pop_fn, study_fn = args
 
     # Calculations start here
     pop = set(_.strip() for _ in open(pop_fn) if _.strip())
@@ -207,11 +237,14 @@ if __name__ == "__main__":
         results.append([term, study_count, pop_count, p_val, left_p, right_p])
 
 
-    # get the indexes of values that are significant by the holm-b test.
-    holm_significant = list(holm_bonferroni([r[3] for r in results], a=alpha))
-
+    pvals = [r[3] for r in results]
     correction = sum(1 for _ in term_study if _ in non_singletons)
-    sidak = sidakp(correction, alpha) if correction > 0 else None
+
+
+    # Calculate multiple corrections
+    bonferroni = Bonferroni(pvals, correction, alpha).corrected_pvals
+    sidak = Sidak(pvals, correction, alpha).corrected_pvals
+    holmbonferroni = HolmBonferroni(pvals, correction, alpha).corrected_pvals
 
     # get the empirical p-value distributions for FDR
     if opts.fdr:
@@ -220,11 +253,11 @@ if __name__ == "__main__":
         p_val_distribution = calc_qval(study_count, study_n, pop_count, pop_n, \
             pop, assoc, term_cnt)
 
-    for i, r in enumerate(results):
+    for i, (r,b,s,h) in enumerate(zip(results, bonferroni, holmbonferroni, sidak)):
         pval = float(r[3])
-        results[i].append(pval * correction)
-        results[i].append("*" if i in holm_significant else ".")
-        results[i].append("*" if pval < sidak else ".")
+        results[i].append(b)
+        results[i].append(h)
+        results[i].append(s)
         if opts.fdr:
             qval = sum(1 for x in p_val_distribution if x < pval) \
                     * 1./len(p_val_distribution)
@@ -235,31 +268,29 @@ if __name__ == "__main__":
     results = list(filter_results(results, opts.alpha))
     results.sort(key=operator.itemgetter(5)) # p_raw
 
-    if opts.obo:
-        g = load_godag(obo_file="gene_ontology.1_2.obo")
-    else:
-        g = get_description(desc_fn)
+    g = GODag(obo_file="gene_ontology.1_2.obo")
 
-    fw = sys.stdout if out_fn=="stdout" else file(out_fn, "w") 
+    fw = sys.stdout
     # header for the output
     fw.write("go\tenriched_purified\tgo_desc\tgo/n_in_study\tgo/n_in_pop\tp_raw\tp_bonferroni\tp_holm\tp_sidak")
     if opts.fdr: fw.write("\tq_value")
     fw.write("\n")
 
     for term, study_count, pop_count, p_raw, left_p, right_p, p_corrected, p_holm, p_sidak, q_value in results:
-        if opts.obo: # get the description from obo_file
+        try:
             rec = g[term]
-            term = "." * rec.level + term
             D = rec.name
-        else: # get the description from description_file
-            D = g.get(term, "No description")
+            if opts.indent: # get the description from obo_file
+                term = "." * rec.level + term
+        except:
+            D = "No description"
 
         if is_ratio_different(min_ratio, study_count, study_n, pop_count, pop_n):
             over_under = 'e' if 1.0* study_count/study_n > 1.0 * pop_count / pop_n else 'p'
-            fw.write("%s\t%s\t%s\t%d/%d\t%d/%d\t%.3g\t%.3g\t%s\t%s"%(term, over_under, D, study_count,\
+            fw.write("%s\t%s\t%s\t%d/%d\t%d/%d\t%.3g\t%.3g\t%.3g\t%.3g"%(term, over_under, D, study_count,\
                     study_n, pop_count, pop_n, p_raw, p_corrected, p_holm, p_sidak))
             if opts.fdr: fw.write("\t%.3f" % q_value)
             fw.write("\n")
+
     fw.close()
 
-    print >>sys.stderr, "results written to %s" % out_fn

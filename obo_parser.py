@@ -43,8 +43,8 @@ class OBOReader:
             self._handle = file(obo_file)
         except:
             print >>sys.stderr, \
-                    "download obo file first\n " \
-                    "[http://geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo]"
+                "download obo file first\n " \
+                "[http://geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo]"
             sys.exit(1)
     
     def __iter__(self):
@@ -126,34 +126,30 @@ class GOTerm:
 
     def get_all_parents(self):
         all_parents = set()
-        if self.parents:
-            for p in self.parents:
-                all_parents.add(p.id)
-                all_parents |= p.get_all_parents() 
+        for p in self.parents:
+            all_parents.add(p.id)
+            all_parents |= p.get_all_parents() 
         return all_parents
 
     def get_all_children(self):
         all_children = set()
-        if self.children:
-            for p in self.children:
-                all_children.add(p.id)
-                all_children |= p.get_all_children() 
+        for p in self.children:
+            all_children.add(p.id)
+            all_children |= p.get_all_children() 
         return all_children
 
     def get_all_parent_edges(self):
         all_parent_edges = set()
-        if self.parents:
-            for p in self.parents:
-                all_parent_edges.add((self.id, p.id))
-                all_parent_edges |= p.get_all_parent_edges()
+        for p in self.parents:
+            all_parent_edges.add((self.id, p.id))
+            all_parent_edges |= p.get_all_parent_edges()
         return all_parent_edges
 
     def get_all_child_edges(self):
         all_child_edges = set()
-        if self.children:
-            for p in self.children:
-                all_child_edges.add((p.id, self.id))
-                all_child_edges |= p.get_all_child_edges()
+        for p in self.children:
+            all_child_edges.add((p.id, self.id))
+            all_child_edges |= p.get_all_child_edges()
         return all_child_edges
 
 
@@ -181,6 +177,7 @@ class GODag:
             self.graph[rec.id] = rec
 
         self.populate_terms()
+        print >>sys.stderr, len(self), "nodes imported"
 
     def populate_terms(self):
         
@@ -237,14 +234,6 @@ class GODag:
             G.add_edge(pydot.Edge(src, target))
 
         G.write_jpeg("go.jpg")
-
-
-def load_godag(obo_file="gene_ontology.1_2.obo"):
-
-    g = GODag(obo_file)
-    print >>sys.stderr, len(g), "nodes imported"
-
-    return g
 
 
 if __name__ == '__main__':
