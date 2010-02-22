@@ -4,89 +4,21 @@
 """
 python genemerge.py gene-association.file population.file study.file
 
-Results are written to stdout if output is `stdout`
+Tabular results are written to stdout
 
-This program returns P-values for functional enrichment in a cluster of study genes using fisher's exact test, and corrected for multiple testing (including Bonferroni, Holm, Sidak, and false discovery rate)
+This program returns P-values for functional enrichment in a cluster of study genes using Fisher's exact test, and corrected for multiple testing (including Bonferroni, Holm, Sidak, and false discovery rate)
 """
 
 import sys
 import operator
 import collections
 import random
-import numpy as np
 
 import fisher as f
+from multiple_testing import Bonferroni, Sidak, HolmBonferroni 
 from obo_parser import GODag 
 
-
-class AbstractCorrection(object):
-    
-    def __init__(self, pvals, n, a=.05):
-        self.pvals = self.corrected_pvals = np.array(pvals)
-        self.n = n          # number of multiple tests
-        self.a = a          # type-1 error cutoff for each test
-
-        self.set_correction()
-
-    def set_correction(self):
-        # the point of multiple correction is to lower the alpha
-        # instead of the canonical value (like .05)
-        pass
-
-
-class Bonferroni(AbstractCorrection):
-
-    """
-    >>> Bonferroni([0.01, 0.01, 0.03, 0.05, 0.005], 5, a=0.05).corrected_pvals
-    array([ 0.05 ,  0.05 ,  0.15 ,  0.25 ,  0.025])
-    """
-    def set_correction(self):
-        self.corrected_pvals = self.pvals * self.n
-
-
-class Sidak(AbstractCorrection):
-    
-    """http://en.wikipedia.org/wiki/Bonferroni_correction
-    >>> Sidak([0.01, 0.01, 0.03, 0.05, 0.005], 5, a=0.05).corrected_pvals
-    array([ 0.04898974,  0.04898974,  0.14696923,  0.24494871,  0.02449487])
-    """
-    def set_correction(self):
-        correction = self.a * 1. / (1 - (1 - self.a) ** (1. / self.n))
-        self.corrected_pvals = self.pvals * correction
-
-
-class HolmBonferroni(AbstractCorrection):
-
-    """http://en.wikipedia.org/wiki/Holm-Bonferroni_method
-    given a list of pvals, perform the Holm-Bonferroni correction
-    and return the indexes from original list that are significant.
-    (cant use p-value as that may be repeated.)
-    >>> HolmBonferroni([0.01, 0.01, 0.03, 0.05, 0.005], 5, a=0.05).corrected_pvals
-    array([ 0.04 ,  0.04 ,  0.06 ,  0.05 ,  0.025])
-    """
-    def set_correction(self):
-        idxs, correction = zip(*self.generate_significant())
-        idxs = list(idxs)
-        self.corrected_pvals[idxs] *= correction
-
-    def generate_significant(self):
-
-        pvals = self.pvals
-        pvals_idxs = zip(pvals, xrange(len(pvals)))
-        pvals_idxs.sort()
-
-        lp = len(self.pvals)
-
-        from itertools import groupby
-        for pval, idxs in groupby(pvals_idxs, lambda x: x[0]):
-            idxs = list(idxs)
-            for p, i in idxs:
-                if p * 1. / lp < self.a:
-                    yield (i, lp)
-            lp -= len(idxs) 
-
-
-#class FalseDiscoverRate(AbstractCorrection):
+#class FalseDiscoveryRate(AbstractCorrection):
 """
 Generate a p-value distribution based on re-sampling, as described in:
 http://www.biomedcentral.com/1471-2105/6/168
@@ -132,10 +64,9 @@ def count_associations(assoc_fn):
 def filter_results(results, alpha=None):
     if alpha is not None: alpha = float(alpha)
     for row in results:
-        if "*" in row[-2:]: yield row
-        else:
-            if alpha is None: yield row
-            elif row[-3] < alpha: yield row
+        if alpha is None: yield row
+        # row[-3] is the bonferroni-corrected p-val
+        elif row[-3] < alpha: yield row
 
 
 def check_bad_args(args):
@@ -173,10 +104,7 @@ def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
     return p / s > min_ratio
 
 
-
 if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
 
     import optparse
     p = optparse.OptionParser(__doc__)
