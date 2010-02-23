@@ -3,9 +3,12 @@
 
 from distutils.core import setup, Extension
 
-fisher_module = Extension('_fisher', ['fisher.c','fisher_wrap.c'])
+fisher_module = Extension('goatools/_fisher', ['src/fisher.c','src/fisher_wrap.c'])
 
-setup(ext_modules=[fisher_module],
-      py_modules=['fisher'],
+setup(
       name="goatools",
+      ext_modules=[fisher_module],
+      packages=['goatools'],
+      scripts = [ 'goatools/go_enrichment.py'],
+
       )
