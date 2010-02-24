@@ -209,7 +209,11 @@ class GODag:
 
 
     def query_term(self, term, draw_lineage=False):
-        rec = self[term]
+        try:
+            rec = self[term]
+        except:
+            print >>sys.stderr, "Term %s not found!" % term
+            return
         print >>sys.stderr, rec
         print >>sys.stderr, "all parents:", rec.get_all_parents()
         print >>sys.stderr, "all children:", rec.get_all_children()
@@ -233,15 +237,20 @@ class GODag:
             src, target = src.replace(":","_"), target.replace(":", "_")
             G.add_edge(pydot.Edge(src, target))
 
-        G.write_jpeg("go.jpg")
+        lineage_img = "%s.jpg" % rec.id.replace(":", "_")
+        print >>sys.stderr, "lineage info for term %s written to %s" %\
+                (rec.id, lineage_img)
 
 
 if __name__ == '__main__':
 
     import optparse
     p = optparse.OptionParser()
-    p.add_option("-d", "--description", dest="desc", help="write term descriptions to stdout"
+    p.add_option("-d", "--description", dest="desc", 
+            help="write term descriptions to stdout" \
                  " from the obo file specified in args", action="store_true")
+    p.add_option("-t", "--term", dest="term", help="write the parents and children" \
+            "of the query term", action="store", type="string", default=None)
 
     (options, args) = p.parse_args()
 
@@ -251,11 +260,12 @@ if __name__ == '__main__':
     obo_file = args[0]
     assert os.path.exists(obo_file), "file %s not found!" % obo_file
 
-    g = load_godag(obo_file)
+    g = GODag(obo_file)
 
     if options.desc:
         g.write_dag()
 
     # run a test case
-    g.query_term("GO:0008135", draw_lineage=True)
+    if options.term is not None:
+        g.query_term(options.term, draw_lineage=True)
 
