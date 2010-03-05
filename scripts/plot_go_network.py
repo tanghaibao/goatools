@@ -5,6 +5,17 @@ import os
 import sys
 from goatools import GODag
 
+
+def read_go_counts(infile):
+
+    fp = file(infile)
+    term_cnt = {}
+    for row in fp:
+        term, cnt = row.split()
+        term_cnt[term] = int(cnt)
+    return term_cnt
+
+
 if __name__ == '__main__':
 
     import optparse
@@ -18,4 +29,5 @@ if __name__ == '__main__':
     assert os.path.exists(infile), "file %s not found!" % infile
 
     g = GODag()
+    term_cnt = read_go_counts(infile)
 

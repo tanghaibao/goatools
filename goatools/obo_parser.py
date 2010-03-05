@@ -208,7 +208,7 @@ class GODag:
             print >>out, rec
 
 
-    def query_term(self, term, draw_lineage=False):
+    def query_term(self, term, draw_lineage=False, verbose=False):
         try:
             rec = self[term]
         except:
@@ -218,40 +218,53 @@ class GODag:
         print >>sys.stderr, "all parents:", rec.get_all_parents()
         print >>sys.stderr, "all children:", rec.get_all_children()
         if draw_lineage:
-            self.draw_lineage(rec)
+            self.draw_lineage(rec, verbose=verbose)
 
 
-    def draw_lineage(self, rec):
+    def _label_wrap(self, label):
+        wrapped_label = r"%s\n%s" % (label, self[label].name.replace(",", r"\n"))
+        return wrapped_label
+
+
+    def draw_lineage(self, rec, nodecolor="mediumseagreen", 
+            edgecolor="lightslateblue", verbose=False):
         # draw AMIGO style network, lineage containing one query record
         try:
-            import pydot
+            import pygraphviz as pgv
         except:
-            print >>sys.stderr, "pydot not installed, lineage not drawn!"
-            print >>sys.stderr, "try `easy_install pydot`"
+            print >>sys.stderr, "pygraphviz not installed, lineage not drawn!"
+            print >>sys.stderr, "try `easy_install pygraphviz`"
             return
         
-        G = pydot.Dot() 
+        G = pgv.AGraph() 
         edgeset = rec.get_all_parent_edges() | rec.get_all_child_edges()
+        edgeset = [(self._label_wrap(a), self._label_wrap(b)) for (a, b) in edgeset]
         for src, target in edgeset:
-            # ":" is interpreted as something else in pydot
-            src, target = src.replace(":","_"), target.replace(":", "_")
-            G.add_edge(pydot.Edge(src, target))
+            # default layout in graphviz is top->bottom, so we invert the direction
+            # and plot using dir="back"
+            G.add_edge(target, src)
 
-        lineage_img = "%s.jpg" % rec.id.replace(":", "_")
+        G.node_attr.update(shape="box", style="rounded,filled", 
+                fillcolor="beige", color=nodecolor)
+        G.edge_attr.update(shape="normal", color=edgecolor, dir="back", label="is_a")
+        if verbose: 
+            print >>sys.stderr, G.to_string()
+
+        lineage_img = "%s.png" % rec.id.replace(":", "_")
         print >>sys.stderr, "lineage info for term %s written to %s" %\
                 (rec.id, lineage_img)
 
-        G.write_jpeg(lineage_img, prog="dot")
+        G.draw(lineage_img, prog="dot")
 
 
 if __name__ == '__main__':
 
     import optparse
     p = optparse.OptionParser()
-    p.add_option("-d", "--description", dest="desc", 
+    p.add_option("--description", dest="desc", 
             help="write term descriptions to stdout" \
                  " from the obo file specified in args", action="store_true")
-    p.add_option("-t", "--term", dest="term", help="write the parents and children" \
+    p.add_option("--term", dest="term", help="write the parents and children" \
             "of the query term", action="store", type="string", default=None)
 
     (options, args) = p.parse_args()
@@ -269,5 +282,5 @@ if __name__ == '__main__':
 
     # run a test case
     if options.term is not None:
-        g.query_term(options.term, draw_lineage=True)
+        g.query_term(options.term, draw_lineage=True, verbose=verbose)
 

@@ -27,9 +27,9 @@ If you need to plot the ontology lineage, you need the following to tools to be 
 
 - `Graphviz <http://www.graphviz.org/>`_, for graph visualization.
 
-- `pydot <http://dkbza.org/pydot.html>`_, Python binding for communicating with Graphviz::
+- `pygraphviz <http://networkx.lanl.gov/pygraphviz/>`_, Python binding for communicating with Graphviz::
 
-    easy_install pydot
+    easy_install pygraphviz 
 
 
 Cookbook
@@ -41,7 +41,19 @@ Find GO enrichment of genes under study
 see ``find_enrichment.py`` for usage. 
 
 
-Read GO graph and plot GO lineage
+Read and plot GO lineage
 ::::::::::::::::::::::::::::::::::::
 see ``plot_go_term.py`` and ``plot_go_network.py`` for usage. 
+
+``plot_ge_term.py`` can plot the lineage of a certain GO term, by::
+
+   python scripts/plot_go_term.py --term=GO:0008135
+
+this will plot the following image.
+
+.. image:: http://img35.imageshack.us/img35/7016/go0008135.png 
+    :height: 200 
+    :width: 200 
+    :alt: term lineage
+
 

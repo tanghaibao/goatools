@@ -9,5 +9,5 @@ setup(
       name="goatools",
       ext_modules=[fisher_module],
       packages=['goatools'],
-      scripts = ['goatools/go_enrichment.py'],
+      scripts = ['scripts/find_enrichment.py'],
       )
