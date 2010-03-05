@@ -241,6 +241,8 @@ class GODag:
         print >>sys.stderr, "lineage info for term %s written to %s" %\
                 (rec.id, lineage_img)
 
+        G.write_jpeg(lineage_img, prog="dot")
+
 
 if __name__ == '__main__':
 

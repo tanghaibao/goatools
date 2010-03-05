@@ -1,0 +1,103 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+"""
+python genemerge.py study.file population.file gene-association.file 
+
+This program returns P-values for functional enrichment in a cluster of study genes using Fisher's exact test, and corrected for multiple testing (including Bonferroni, Holm, Sidak, and false discovery rate)
+"""
+
+import sys
+from goatools import GOEnrichmentStudy
+
+
+def read_geneset(study_fn, pop_fn, compare=False):
+    pop = set(_.strip() for _ in open(pop_fn) if _.strip())
+    study = frozenset(_.strip() for _ in open(study_fn) if _.strip())
+    # some times the pop is a second group to compare, rather than the population
+    # in that case, we need to make sure the overlapping terms are removed first
+    if compare:
+        common = pop & study
+        pop |= study
+        pop -= common
+        study -= common
+        print >>sys.stderr, "removed %d overlapping items" % (len(common), )
+
+    return study, pop
+
+
+def read_associations(assoc_fn):
+    assoc = {}
+    sep = " "
+    for row in open(assoc_fn):
+        if len(row.strip().split())<2: continue 
+        try:
+            # the accn may have a space. in which case get > 2 tokens.
+            a, b = row.split(sep)
+        except ValueError:
+            sep = "\t"
+            a, b = row.split(sep)
+        b = set(b.replace(";"," ").split())
+        assoc[a] = b
+
+    return assoc
+
+
+def check_bad_args(args):
+    """check args. otherwise if one of the 3 args is bad
+    it's hard to tell which one"""
+    import os
+    if not len(args) == 3: return "please send in 3 file names"
+    for arg in args[:-1]:
+        if not os.path.exists(arg):
+            return "*%s* does not exist" % arg
+
+    return False
+
+
+if __name__ == "__main__":
+
+    import optparse
+    p = optparse.OptionParser(__doc__)
+
+    p.add_option('--alpha', dest='alpha', default=None, 
+                 help="only print out the terms where the corrected p-value"
+                 " is less than this value. [default: %default]")
+    p.add_option('--compare', dest='compare', default=False, action='store_true',
+                 help="the population file as a comparison group. if this flag is specified,"
+                 " the population is used as the study plus the `population/comparison`")
+    p.add_option('--ratio', dest='ratio', type='float', default=None,
+                 help="only show values where the difference between study and population"
+                 " ratios is greater than this. useful for excluding GO categories with"
+                " small differences, but containing large numbers of genes. should be a "
+                " value between 1 and 2. ")
+    p.add_option('--fdr', dest='fdr', default=False,
+                action='store_true',
+                help="calculate the false discovery rate (alternative to the Bonferroni correction)")
+    p.add_option('--indent', dest='indent', default=False,
+                action='store_true', help="indent GO terms")
+
+    (opts, args) = p.parse_args()
+    bad = check_bad_args(args)
+    if bad:
+        print bad
+        sys.exit(p.print_help())
+
+    alpha = float(opts.alpha) if opts.alpha else 0.05
+
+    min_ratio = opts.ratio
+    if not min_ratio is None:
+        assert 1 <= min_ratio <= 2
+
+    study_fn, pop_fn, assoc_fn = args
+    study, pop = read_geneset(study_fn, pop_fn, compare=opts.compare)
+    assoc = read_associations(assoc_fn)
+
+    methods=["bonferroni", "sidak", "holm"]
+    if opts.fdr:
+        methods.append("fdr")
+
+    g = GOEnrichmentStudy(study, pop, assoc, alpha=alpha, methods=methods)
+    g.populate_go(obo_file="gene_ontology.1_2.obo")
+    g.print_summary(min_ratio=min_ratio, indent=opts.indent)
+

@@ -76,7 +76,7 @@ class GOEnrichmentRecord(object):
 class GOEnrichmentStudy(object):
     """Runs Fisher's exact test, as well as multiple corrections
     """
-    def __init__(self, study_set, population_set, associations, alpha=None, \
+    def __init__(self, study, pop, assoc, alpha=None, \
             methods=["bonferroni", "sidak", "holm"]):
         self.results = results = []
 
@@ -147,7 +147,7 @@ class GOEnrichmentStudy(object):
             # get go term for description and level
             rec.find_goterm(go)
 
-    def print_summary(self, min_ratio=None):
+    def print_summary(self, min_ratio=None, indent=False):
         # field names for output
         print "\t".join(GOEnrichmentRecord()._fields)
 
@@ -156,7 +156,7 @@ class GOEnrichmentStudy(object):
             rec.update_remaining_fields(min_ratio=min_ratio)
 
             if rec.is_ratio_different:
-                print rec.__str__(indent=opts.indent)
+                print rec.__str__(indent=indent)
 
 """
 Generate a p-value distribution based on re-sampling, as described in:
@@ -295,5 +295,5 @@ if __name__ == "__main__":
 
     g = GOEnrichmentStudy(study, pop, assoc, alpha=alpha, methods=methods)
     g.populate_go(obo_file="gene_ontology.1_2.obo")
-    g.print_summary(min_ratio)
+    g.print_summary(min_ratio=min_ratio, indent=opts.indent)
 
