@@ -34,5 +34,6 @@ if __name__ == '__main__':
 
     # run a test case
     if options.term is not None:
-        g.query_term(options.term, draw_lineage=True, verbose=True)
+        rec = g.query_term(options.term, verbose=True)
+        g.draw_lineage(rec, dpi=50, verbose=True)
 

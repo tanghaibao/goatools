@@ -51,9 +51,7 @@ see ``plot_go_term.py`` and ``plot_go_network.py`` for usage.
 
 this will plot the following image.
 
-.. image:: http://img35.imageshack.us/img35/7016/go0008135.png 
-    :height: 200 
-    :width: 200 
+.. image:: http://img502.imageshack.us/img502/7016/go0008135.png 
     :alt: term lineage
 
 

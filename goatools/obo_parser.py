@@ -208,17 +208,18 @@ class GODag:
             print >>out, rec
 
 
-    def query_term(self, term, draw_lineage=False, verbose=False):
+    def query_term(self, term, verbose=False):
         try:
             rec = self[term]
         except:
             print >>sys.stderr, "Term %s not found!" % term
             return
         print >>sys.stderr, rec
-        print >>sys.stderr, "all parents:", rec.get_all_parents()
-        print >>sys.stderr, "all children:", rec.get_all_children()
-        if draw_lineage:
-            self.draw_lineage(rec, verbose=verbose)
+        if verbose:
+            print >>sys.stderr, "all parents:", rec.get_all_parents()
+            print >>sys.stderr, "all children:", rec.get_all_children()
+
+        return rec
 
 
     def _label_wrap(self, label):
@@ -227,7 +228,7 @@ class GODag:
 
 
     def draw_lineage(self, rec, nodecolor="mediumseagreen", 
-            edgecolor="lightslateblue", verbose=False):
+            edgecolor="lightslateblue", dpi=96, verbose=False):
         # draw AMIGO style network, lineage containing one query record
         try:
             import pygraphviz as pgv
@@ -244,6 +245,7 @@ class GODag:
             # and plot using dir="back"
             G.add_edge(target, src)
 
+        G.graph_attr.update(dpi="%d" % dpi)
         G.node_attr.update(shape="box", style="rounded,filled", 
                 fillcolor="beige", color=nodecolor)
         G.edge_attr.update(shape="normal", color=edgecolor, dir="back", label="is_a")
@@ -282,5 +284,6 @@ if __name__ == '__main__':
 
     # run a test case
     if options.term is not None:
-        g.query_term(options.term, draw_lineage=True, verbose=verbose)
+        rec = g.query_term(options.term, verbose=True)
+        g.draw_lineage(rec, dpi=50, verbose=False)
 
