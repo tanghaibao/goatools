@@ -17,6 +17,10 @@ This package contains a Python library to
 
 Installation
 -------------
+- Python version >= 2.6, try install this package first. Within this folder::
+
+    easy_install .
+
 - ``.obo`` file for the most current `gene ontology <http://www.geneontology.org/>`_::
 
     wget http://geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo 
@@ -34,7 +38,7 @@ If you need to plot the ontology lineage, you need the following to tools to be 
 
 Cookbook
 ---------
-``run.sh`` contains a few example usages, which calls the utility scripts in the ``scripts`` folder.
+``run.sh`` contains example cases, which calls the utility scripts in the ``scripts`` folder.
 
 Find GO enrichment of genes under study
 ::::::::::::::::::::::::::::::::::::::::::
@@ -43,7 +47,7 @@ see ``find_enrichment.py`` for usage.
 
 Read and plot GO lineage
 ::::::::::::::::::::::::::::::::::::
-see ``plot_go_term.py`` and ``plot_go_network.py`` for usage. 
+see ``plot_go_term.py`` for usage. 
 
 ``plot_ge_term.py`` can plot the lineage of a certain GO term, by::
 
