@@ -43,13 +43,23 @@ Cookbook
 Find GO enrichment of genes under study
 ::::::::::::::::::::::::::::::::::::::::::
 see ``find_enrichment.py`` for usage. 
+it takes as arguments files containing:
 
+ * gene names in a study
+ 
+ * gene names in population (or other study if --compare is specified)
+
+ * an association file that maps a gene name to a GO category.
+
+and can filter on the significance of erichment or purification.
+it can report various multiple testing corrected p-values as well as
+the false discovery rate.
 
 Read and plot GO lineage
 ::::::::::::::::::::::::::::::::::::
 see ``plot_go_term.py`` for usage. 
 
-``plot_ge_term.py`` can plot the lineage of a certain GO term, by::
+``plot_go_term.py`` can plot the lineage of a certain GO term, by::
 
    python scripts/plot_go_term.py --term=GO:0008135
 
