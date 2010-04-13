@@ -2,9 +2,8 @@
 # -*- coding: UTF-8 -*-
 
 import os
-import pprint
+import os.path as op
 import sys
-from itertools import chain
 from exceptions import EOFError
 
 typedef_tag, term_tag = "[Typedef]", "[Term]"
@@ -18,7 +17,7 @@ def read_until(handle, start):
     while 1:
         pos = handle.tell()
         line = handle.readline()
-        if not line: 
+        if not line:
             break
         if line.startswith(start):
             handle.seek(pos)
@@ -46,7 +45,7 @@ class OBOReader:
                 "download obo file first\n " \
                 "[http://geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo]"
             sys.exit(1)
-    
+
     def __iter__(self):
 
         term_tag = "[Term]"
@@ -75,11 +74,11 @@ class OBOReader:
         rec = GOTerm()
         for line in lines:
             if line.startswith("id:"):
-                rec.id = after_colon(line) 
+                rec.id = after_colon(line)
             elif line.startswith("name:"):
-                rec.name = after_colon(line) 
+                rec.name = after_colon(line)
             elif line.startswith("namespace:"):
-                rec.namespace = after_colon(line) 
+                rec.namespace = after_colon(line)
             elif line.startswith("is_a:"):
                 rec._parents.append(after_colon(line).split()[0])
             elif line.startswith("is_obsolete:") and after_colon(line)=="true":
@@ -107,10 +106,10 @@ class GOTerm:
         obsolete = "obsolete" if self.is_obsolete else ""
         return "%s\tlevel-%02d\t%s [%s] %s" % \
                     (self.id, self.level, self.name,
-                     self.namespace, obsolete) 
+                     self.namespace, obsolete)
 
     def __repr__(self):
-        return "GOTerm('%s')" % (self.id) 
+        return "GOTerm('%s')" % (self.id)
 
     def has_parent(self, term):
         for p in self.parents:
@@ -128,14 +127,14 @@ class GOTerm:
         all_parents = set()
         for p in self.parents:
             all_parents.add(p.id)
-            all_parents |= p.get_all_parents() 
+            all_parents |= p.get_all_parents()
         return all_parents
 
     def get_all_children(self):
         all_children = set()
         for p in self.children:
             all_children.add(p.id)
-            all_children |= p.get_all_children() 
+            all_children |= p.get_all_children()
         return all_children
 
     def get_all_parent_edges(self):
@@ -170,7 +169,7 @@ class GODag:
         return self.graph.keys()
 
     def load_obo_file(self, obo_file):
-        
+
         print >>sys.stderr, "load obo file %s" % obo_file
         obo_reader = OBOReader(obo_file)
         for rec in obo_reader:
@@ -180,7 +179,7 @@ class GODag:
         print >>sys.stderr, len(self), "nodes imported"
 
     def populate_terms(self):
-        
+
         def depth(rec):
             if rec.level < 0:
                 if not rec.parents:
@@ -198,7 +197,7 @@ class GODag:
             for p in rec.parents:
                 p.children.append(rec)
 
-            if rec.level < 0: 
+            if rec.level < 0:
                 depth(rec)
 
 
@@ -227,7 +226,7 @@ class GODag:
         return wrapped_label
 
 
-    def draw_lineage(self, rec, nodecolor="mediumseagreen", 
+    def draw_lineage(self, rec, nodecolor="mediumseagreen",
             edgecolor="lightslateblue", dpi=96, verbose=False):
         # draw AMIGO style network, lineage containing one query record
         try:
@@ -236,8 +235,8 @@ class GODag:
             print >>sys.stderr, "pygraphviz not installed, lineage not drawn!"
             print >>sys.stderr, "try `easy_install pygraphviz`"
             return
-        
-        G = pgv.AGraph() 
+
+        G = pgv.AGraph()
         edgeset = rec.get_all_parent_edges() | rec.get_all_child_edges()
         edgeset = [(self._label_wrap(a), self._label_wrap(b)) for (a, b) in edgeset]
         for src, target in edgeset:
@@ -246,10 +245,10 @@ class GODag:
             G.add_edge(target, src)
 
         G.graph_attr.update(dpi="%d" % dpi)
-        G.node_attr.update(shape="box", style="rounded,filled", 
+        G.node_attr.update(shape="box", style="rounded,filled",
                 fillcolor="beige", color=nodecolor)
         G.edge_attr.update(shape="normal", color=edgecolor, dir="back", label="is_a")
-        if verbose: 
+        if verbose:
             print >>sys.stderr, G.to_string()
 
         lineage_img = "%s.png" % rec.id.replace(":", "_")
@@ -263,7 +262,7 @@ if __name__ == '__main__':
 
     import optparse
     p = optparse.OptionParser()
-    p.add_option("--description", dest="desc", 
+    p.add_option("--description", dest="desc",
             help="write term descriptions to stdout" \
                  " from the obo file specified in args", action="store_true")
     p.add_option("--term", dest="term", help="write the parents and children" \

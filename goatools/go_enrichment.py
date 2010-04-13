@@ -10,6 +10,7 @@ This program returns P-values for functional enrichment in a cluster of study ge
 import sys
 import collections
 import random
+import os.path as op
 
 import fisher
 from multiple_testing import Bonferroni, Sidak, HolmBonferroni
@@ -292,8 +293,8 @@ if __name__ == "__main__":
     methods=["bonferroni", "sidak", "holm"]
     if opts.fdr:
         methods.append("fdr")
-
+    obo_file = op.join(op.dirname(__file__), "..", "gene_ontology.1_2.obo")
     g = GOEnrichmentStudy(study, pop, assoc, alpha=alpha, methods=methods)
-    g.populate_go(obo_file="gene_ontology.1_2.obo")
+    g.populate_go(obo_file=obo_file)
     g.print_summary(min_ratio=min_ratio, indent=opts.indent)
 
