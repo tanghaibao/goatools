@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 """
-python genemerge.py study.file population.file gene-association.file 
+python %prog study.file population.file gene-association.file
 
 This program returns P-values for functional enrichment in a cluster of study genes using Fisher's exact test, and corrected for multiple testing (including Bonferroni, Holm, Sidak, and false discovery rate)
 """
@@ -11,9 +11,9 @@ import sys
 import collections
 import random
 
-from goatools import fisher
-from goatools.multiple_testing import Bonferroni, Sidak, HolmBonferroni 
-from goatools.obo_parser import GODag 
+import fisher
+from multiple_testing import Bonferroni, Sidak, HolmBonferroni
+from obo_parser import GODag
 
 
 class GOEnrichmentRecord(object):
@@ -87,9 +87,9 @@ class GOEnrichmentStudy(object):
 
         for term, study_count in term_study.items():
             pop_count = term_pop[term]
-            left_p, right_p, p_val = fisher.pvalue(study_count, study_n, pop_count, pop_n)
+            p = fisher.pvalue(study_count, study_n, pop_count, pop_n)
 
-            one_record = GOEnrichmentRecord(id=term, p_uncorrected=p_val,\
+            one_record = GOEnrichmentRecord(id=term, p_uncorrected=p.two_tail,\
                     ratio_in_study=(study_count, study_n), 
                     ratio_in_pop=(pop_count, pop_n))
 
@@ -173,8 +173,8 @@ def calc_qval(study_count, study_n, pop_count, pop_n, pop, assoc, term_pop):
         smallest_p = 1
         for term, study_count in new_term_study.items():
             pop_count = term_pop[term]
-            left_p, right_p, p_val = fisher.pvalue(study_count, study_n, pop_count, pop_n)
-            if p_val < smallest_p: smallest_p = p_val
+            p = fisher.pvalue(study_count, study_n, pop_count, pop_n)
+            if p.two_tail < smallest_p: smallest_p = p.two_tail
 
         distribution.append(smallest_p)
         print >>sys.stderr, i, smallest_p

@@ -2,12 +2,14 @@
 # -*- coding: UTF-8 -*-
 
 """
-python genemerge.py study.file population.file gene-association.file 
+python %prog study.file population.file gene-association.file
 
 This program returns P-values for functional enrichment in a cluster of study genes using Fisher's exact test, and corrected for multiple testing (including Bonferroni, Holm, Sidak, and false discovery rate)
 """
 
 import sys
+import os.path as op
+sys.path.insert(0, op.join(op.dirname(__file__), ".."))
 from goatools import GOEnrichmentStudy
 
 
@@ -30,7 +32,7 @@ def read_associations(assoc_fn):
     assoc = {}
     sep = " "
     for row in open(assoc_fn):
-        if len(row.strip().split())<2: continue 
+        if len(row.strip().split())<2: continue
         try:
             # the accn may have a space. in which case get > 2 tokens.
             a, b = row.split(sep)
@@ -60,7 +62,7 @@ if __name__ == "__main__":
     import optparse
     p = optparse.OptionParser(__doc__)
 
-    p.add_option('--alpha', dest='alpha', default=None, 
+    p.add_option('--alpha', dest='alpha', default=None,
                  help="only print out the terms where the corrected p-value"
                  " is less than this value. [default: %default]")
     p.add_option('--compare', dest='compare', default=False, action='store_true',
