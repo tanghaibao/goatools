@@ -25,6 +25,10 @@ Installation
 
     wget http://geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo 
 
+- `fisher <http://pypi.python.org/pypi/fisher/>`_ module for calculating Fisher's exact test::
+    
+    easy_install fisher
+
 And put it in the current folder where you want to do your analysis.
 
 If you need to plot the ontology lineage, you need the following to tools to be installed.
@@ -49,6 +53,10 @@ see ``find_enrichment.py`` for usage. It takes as arguments files containing:
 * gene names in population (or other study if --compare is specified)
 
 * an association file that maps a gene name to a GO category.
+
+please look at ``data/`` folder to see examples on how to make these files. when ready, the command looks like::
+
+    python scripts/find_enrichment.py --alpha=0.05 --indent data/study data/population data/association
 
 and can filter on the significance of erichment or purification.
 it can report various multiple testing corrected p-values as well as

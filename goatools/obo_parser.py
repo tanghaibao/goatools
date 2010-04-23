@@ -272,6 +272,6 @@ class GODag:
                     bad_terms.add(term)
             terms.update(parents)
         if bad_terms:
-            print>>sys.stderr, "terms not found:", bad_terms
+            print >>sys.stderr, "terms not found:", bad_terms
 
 
