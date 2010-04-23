@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-from distutils.core import setup #, Extension
-
+from distutils.core import setup
+from glob import glob
 
 setup(
       name="goatools",
-    #ext_modules=[fisher_module],
       packages=['goatools'],
-      scripts = ['scripts/find_enrichment.py'],
+      scripts = glob('scripts/*.py'),
       requires=['fisher'],
       )

@@ -152,28 +152,18 @@ class GOTerm:
         return all_child_edges
 
 
-class GODag:
+class GODag(dict):
 
     def __init__(self, obo_file="gene_ontology.1_2.obo"):
 
-        self.graph = {}
         self.load_obo_file(obo_file)
-
-    def __len__(self):
-        return len(self.graph)
-
-    def __getitem__(self, key):
-        return self.graph[key]
-
-    def keys(self):
-        return self.graph.keys()
 
     def load_obo_file(self, obo_file):
 
         print >>sys.stderr, "load obo file %s" % obo_file
         obo_reader = OBOReader(obo_file)
         for rec in obo_reader:
-            self.graph[rec.id] = rec
+            self[rec.id] = rec
 
         self.populate_terms()
         print >>sys.stderr, len(self), "nodes imported"
@@ -189,11 +179,11 @@ class GODag:
             return rec.level
 
         # make the parents references to the GO terms
-        for rec in self.graph.itervalues():
+        for rec in self.itervalues():
             rec.parents = [self[x] for x in rec._parents]
 
         # populate children and levels
-        for rec in self.graph.itervalues():
+        for rec in self.itervalues():
             for p in rec.parents:
                 p.children.append(rec)
 
@@ -203,7 +193,7 @@ class GODag:
 
     def write_dag(self, out=sys.stdout):
 
-        for rec_id, rec in sorted(self.graph.items()):
+        for rec_id, rec in sorted(self.items()):
             print >>out, rec
 
 
