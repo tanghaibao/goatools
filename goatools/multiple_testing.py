@@ -39,7 +39,10 @@ class Sidak(AbstractCorrection):
     array([ 0.04898974,  0.04898974,  0.14696923,  0.24494871,  0.02449487])
     """
     def set_correction(self):
-        correction = self.a * 1. / (1 - (1 - self.a) ** (1. / self.n))
+        if self.n != 0:
+            correction = self.a * 1. / (1 - (1 - self.a) ** (1. / self.n))
+        else:
+            correction = 1
         self.corrected_pvals *= correction
 
 
@@ -53,9 +56,10 @@ class HolmBonferroni(AbstractCorrection):
     array([ 0.04 ,  0.04 ,  0.06 ,  0.05 ,  0.025])
     """
     def set_correction(self):
-        idxs, correction = zip(*self.generate_significant())
-        idxs = list(idxs)
-        self.corrected_pvals[idxs] *= correction
+        if len(self.pvals):
+            idxs, correction = zip(*self.generate_significant())
+            idxs = list(idxs)
+            self.corrected_pvals[idxs] *= correction
 
     def generate_significant(self):
 
