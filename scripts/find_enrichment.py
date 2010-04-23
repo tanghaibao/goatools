@@ -11,6 +11,7 @@ import sys
 import os.path as op
 sys.path.insert(0, op.join(op.dirname(__file__), ".."))
 from goatools import GOEnrichmentStudy
+from goatools.obo_parser import GODag
 
 
 def read_geneset(study_fn, pop_fn, compare=False):
@@ -30,15 +31,14 @@ def read_geneset(study_fn, pop_fn, compare=False):
 
 def read_associations(assoc_fn):
     assoc = {}
-    sep = " "
     for row in open(assoc_fn):
-        if len(row.strip().split())<2: continue
-        try:
-            # the accn may have a space. in which case get > 2 tokens.
-            a, b = row.split(sep)
-        except ValueError:
-            sep = "\t"
-            a, b = row.split(sep)
+        atoms = row.split()
+        if len(atoms) == 2:
+            a, b = atoms
+        elif len(atoms) > 2 and row.count('\t')==1:
+            a, b = row.split("\t")
+        else:
+            continue
         b = set(b.replace(";"," ").split())
         assoc[a] = b
 
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     if opts.fdr:
         methods.append("fdr")
 
-    g = GOEnrichmentStudy(study, pop, assoc, alpha=alpha, methods=methods)
-    g.populate_go(obo_file="gene_ontology.1_2.obo")
+    obo_dag = GODag(obo_file="gene_ontology.1_2.obo")
+    g = GOEnrichmentStudy(pop, assoc, obo_dag, alpha=alpha, study=study, methods=methods)
     g.print_summary(min_ratio=min_ratio, indent=opts.indent)
 

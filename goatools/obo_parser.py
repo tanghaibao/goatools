@@ -248,6 +248,10 @@ class GODag:
         G.node_attr.update(shape="box", style="rounded,filled",
                 fillcolor="beige", color=nodecolor)
         G.edge_attr.update(shape="normal", color=edgecolor, dir="back", label="is_a")
+        # highlight the query term
+        q = G.get_node(self._label_wrap(rec.id))
+        q.attr.update(fillcolor="plum")
+
         if verbose:
             print >>sys.stderr, G.to_string()
 
@@ -257,32 +261,17 @@ class GODag:
 
         G.draw(lineage_img, prog="dot")
 
+    def update_association(self, association):
+        bad_terms = set()
+        for key, terms in association.items():
+            parents = set()
+            for term in terms:
+                try:
+                    parents.update(self[term].get_all_parents())
+                except:
+                    bad_terms.add(term)
+            terms.update(parents)
+        if bad_terms:
+            print>>sys.stderr, "terms not found:", bad_terms
 
-if __name__ == '__main__':
-
-    import optparse
-    p = optparse.OptionParser()
-    p.add_option("--description", dest="desc",
-            help="write term descriptions to stdout" \
-                 " from the obo file specified in args", action="store_true")
-    p.add_option("--term", dest="term", help="write the parents and children" \
-            "of the query term", action="store", type="string", default=None)
-
-    (options, args) = p.parse_args()
-
-    if not len(args):
-        sys.exit(p.print_help())
-
-    obo_file = args[0]
-    assert os.path.exists(obo_file), "file %s not found!" % obo_file
-
-    g = GODag(obo_file)
-
-    if options.desc:
-        g.write_dag()
-
-    # run a test case
-    if options.term is not None:
-        rec = g.query_term(options.term, verbose=True)
-        g.draw_lineage(rec, dpi=50, verbose=False)
 

@@ -2,7 +2,9 @@
 # -*- coding: UTF-8 -*-
 
 import os
+import os.path as op
 import sys
+sys.path.insert(0, op.join(op.dirname(__file__), ".."))
 from goatools.obo_parser import GODag
 
 

@@ -1,7 +1,7 @@
 Tools for Gene Ontology
 ========================
 
-:Author: Haibao Tang (tanghaibao), Brent Pedersen (brentp)
+:Author: Haibao Tang (tanghaibao), Brent Pedersen (brentp), Aurélien Naldi
 :Email: tanghaibao@gmail.com
 :License: BSD
 
@@ -42,14 +42,13 @@ Cookbook
 
 Find GO enrichment of genes under study
 ::::::::::::::::::::::::::::::::::::::::::
-see ``find_enrichment.py`` for usage. 
-it takes as arguments files containing:
+see ``find_enrichment.py`` for usage. It takes as arguments files containing:
 
- * gene names in a study
+* gene names in a study
  
- * gene names in population (or other study if --compare is specified)
+* gene names in population (or other study if --compare is specified)
 
- * an association file that maps a gene name to a GO category.
+* an association file that maps a gene name to a GO category.
 
 and can filter on the significance of erichment or purification.
 it can report various multiple testing corrected p-values as well as
@@ -65,7 +64,7 @@ see ``plot_go_term.py`` for usage.
 
 this will plot the following image.
 
-.. image:: http://img502.imageshack.us/img502/7016/go0008135.png 
+.. image:: http://lh6.ggpht.com/_srvRoIok9Xs/S9HhleQrk5I/AAAAAAAAA5U/dzVIvjlYCQU/s800/GO_0008135.png 
     :alt: term lineage
 
 

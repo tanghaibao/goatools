@@ -77,20 +77,33 @@ class GOEnrichmentRecord(object):
 class GOEnrichmentStudy(object):
     """Runs Fisher's exact test, as well as multiple corrections
     """
-    def __init__(self, study, pop, assoc, alpha=None, \
+    def __init__(self, pop, assoc, obo_dag, alpha=None, study=None,
             methods=["bonferroni", "sidak", "holm"]):
+
+        self.pop = pop
+        self.assoc = assoc
+        self.obo_dag = obo_dag
+        self.alpha = alpha
+        self.methods = methods
+
+        obo_dag.update_association(assoc)
+        self.term_pop = count_terms(pop, assoc)
+
+        if study:
+            self.run_study(study)
+
+    def run_study(self, study):
         self.results = results = []
 
-        term_study = count_terms(study, assoc)
-        term_pop = count_terms(pop, assoc)
-
-        pop_n, study_n = len(pop), len(study)
+        term_study = count_terms(study, self.assoc)
+        
+        pop_n, study_n = len(self.pop), len(study)
 
         for term, study_count in term_study.items():
-            pop_count = term_pop[term]
+            pop_count = self.term_pop[term]
             p = fisher.pvalue_population(study_count, study_n, pop_count, pop_n)
 
-            one_record = GOEnrichmentRecord(id=term, p_uncorrected=p.two_tail,\
+            one_record = GOEnrichmentRecord(id=term, p_uncorrected=p.two_tail,
                     ratio_in_study=(study_count, study_n), 
                     ratio_in_pop=(pop_count, pop_n))
 
@@ -101,13 +114,13 @@ class GOEnrichmentStudy(object):
         all_methods = ("bonferroni", "sidak", "holm", "fdr")
         bonferroni, sidak, holm, fdr = None, None, None, None
 
-        for method in methods:
+        for method in self.methods:
             if method=="bonferroni":
-                bonferroni = Bonferroni(pvals, alpha).corrected_pvals
+                bonferroni = Bonferroni(pvals, self.alpha).corrected_pvals
             elif method=="sidak":
-                sidak = Sidak(pvals, alpha).corrected_pvals
+                sidak = Sidak(pvals, self.alpha).corrected_pvals
             elif method=="holm":
-                holm = HolmBonferroni(pvals, alpha).corrected_pvals
+                holm = HolmBonferroni(pvals, self.alpha).corrected_pvals
             elif method=="fdr":
                 # get the empirical p-value distributions for FDR
                 print >>sys.stderr, "generating p-value distribution for FDR calculation " \
@@ -127,9 +140,13 @@ class GOEnrichmentStudy(object):
         for method, corrected_pvals in zip(all_methods, all_corrections):
             self.update_results(method, corrected_pvals)
 
-        results = list(self.filter_results(alpha))
+        results = list(self.filter_results(self.alpha))
         results.sort(key=lambda r: r.p_uncorrected) 
         self.results = results
+
+        for rec in results:
+            # get go term for description and level
+            rec.find_goterm(self.obo_dag)
 
     def update_results(self, method, corrected_pvals):
         if corrected_pvals is None: return
@@ -141,12 +158,6 @@ class GOEnrichmentStudy(object):
         for rec in self.results:
             if alpha is None: yield rec 
             elif rec.p_bonferroni < alpha: yield rec
-
-    def populate_go(self, obo_file="gene_ontology.1_2.obo"):
-        go = GODag(obo_file)
-        for rec in self.results:
-            # get go term for description and level
-            rec.find_goterm(go)
 
     def print_summary(self, min_ratio=None, indent=False):
         # field names for output
@@ -182,50 +193,6 @@ def calc_qval(study_count, study_n, pop_count, pop_n, pop, assoc, term_pop):
     return distribution
 
 
-def read_geneset(study_fn, pop_fn, compare=False):
-    pop = set(_.strip() for _ in open(pop_fn) if _.strip())
-    study = frozenset(_.strip() for _ in open(study_fn) if _.strip())
-    # some times the pop is a second group to compare, rather than the population
-    # in that case, we need to make sure the overlapping terms are removed first
-    if compare:
-        common = pop & study
-        pop |= study
-        pop -= common
-        study -= common
-        print >>sys.stderr, "removed %d overlapping items" % (len(common), )
-
-    return study, pop
-
-
-def read_associations(assoc_fn):
-    assoc = {}
-    sep = " "
-    for row in open(assoc_fn):
-        if len(row.strip().split())<2: continue 
-        try:
-            # the accn may have a space. in which case get > 2 tokens.
-            a, b = row.split(sep)
-        except ValueError:
-            sep = "\t"
-            a, b = row.split(sep)
-        b = set(b.replace(";"," ").split())
-        assoc[a] = b
-
-    return assoc
-
-
-def check_bad_args(args):
-    """check args. otherwise if one of the 3 args is bad
-    it's hard to tell which one"""
-    import os
-    if not len(args) == 3: return "please send in 3 file names"
-    for arg in args[:-1]:
-        if not os.path.exists(arg):
-            return "*%s* does not exist" % arg
-
-    return False
-
-
 def count_terms(geneset, assoc):
     """count the number of terms in the study group
     """
@@ -249,52 +216,4 @@ def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
     if s > p:
         return s / p > min_ratio
     return p / s > min_ratio
-
-
-
-if __name__ == "__main__":
-
-    import optparse
-    p = optparse.OptionParser(__doc__)
-
-    p.add_option('--alpha', dest='alpha', default=None, 
-                 help="only print out the terms where the corrected p-value"
-                 " is less than this value. [default: %default]")
-    p.add_option('--compare', dest='compare', default=False, action='store_true',
-                 help="the population file as a comparison group. if this flag is specified,"
-                 " the population is used as the study plus the `population/comparison`")
-    p.add_option('--ratio', dest='ratio', type='float', default=None,
-                 help="only show values where the difference between study and population"
-                 " ratios is greater than this. useful for excluding GO categories with"
-                " small differences, but containing large numbers of genes. should be a "
-                " value between 1 and 2. ")
-    p.add_option('--fdr', dest='fdr', default=False,
-                action='store_true',
-                help="calculate the false discovery rate (alternative to the Bonferroni correction)")
-    p.add_option('--indent', dest='indent', default=False,
-                action='store_true', help="indent GO terms")
-
-    (opts, args) = p.parse_args()
-    bad = check_bad_args(args)
-    if bad:
-        print bad
-        sys.exit(p.print_help())
-
-    alpha = float(opts.alpha) if opts.alpha else 0.05
-
-    min_ratio = opts.ratio
-    if not min_ratio is None:
-        assert 1 <= min_ratio <= 2
-
-    study_fn, pop_fn, assoc_fn = args
-    study, pop = read_geneset(study_fn, pop_fn, compare=opts.compare)
-    assoc = read_associations(assoc_fn)
-
-    methods=["bonferroni", "sidak", "holm"]
-    if opts.fdr:
-        methods.append("fdr")
-    obo_file = op.join(op.dirname(__file__), "..", "gene_ontology.1_2.obo")
-    g = GOEnrichmentStudy(study, pop, assoc, alpha=alpha, methods=methods)
-    g.populate_go(obo_file=obo_file)
-    g.print_summary(min_ratio=min_ratio, indent=opts.indent)
 
