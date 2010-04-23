@@ -174,7 +174,7 @@ def calc_qval(study_count, study_n, pop_count, pop_n, pop, assoc, term_pop):
         smallest_p = 1
         for term, study_count in new_term_study.items():
             pop_count = term_pop[term]
-            p = fisher.pvalue(study_count, study_n, pop_count, pop_n)
+            p = fisher.pvalue_population(study_count, study_n, pop_count, pop_n)
             if p.two_tail < smallest_p: smallest_p = p.two_tail
 
         distribution.append(smallest_p)
