@@ -88,7 +88,7 @@ class GOEnrichmentStudy(object):
 
         for term, study_count in term_study.items():
             pop_count = term_pop[term]
-            p = fisher.pvalue(study_count, study_n, pop_count, pop_n)
+            p = fisher.pvalue_population(study_count, study_n, pop_count, pop_n)
 
             one_record = GOEnrichmentRecord(id=term, p_uncorrected=p.two_tail,\
                     ratio_in_study=(study_count, study_n), 
