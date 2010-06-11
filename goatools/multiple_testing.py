@@ -5,7 +5,12 @@
 A list of commonly used multiple correction routines
 """
 
+import sys
+import random
+import fisher
 import numpy as np
+import go_enrichment
+
 
 class AbstractCorrection(object):
     
@@ -76,6 +81,41 @@ class HolmBonferroni(AbstractCorrection):
                 if p * 1. / lp < self.a:
                     yield (i, lp)
             lp -= len(idxs) 
+
+
+class FDR(object):
+    def __init__(self, p_val_distribution, results, a=.05):
+        self.corrected_pvals = fdr = []
+        for rec in results:
+            q = sum(1 for x in p_val_distribution if x < rec.p_uncorrected) \
+                    * 1./len(p_val_distribution)
+            fdr.append(q)
+
+
+
+"""
+Generate a p-value distribution based on re-sampling, as described in:
+http://www.biomedcentral.com/1471-2105/6/168
+"""
+#class FalseDiscoveryRate(AbstractCorrection):
+def calc_qval(study_count, study_n, pop_count, pop_n, pop, assoc, term_pop):
+    print >>sys.stderr, "generating p-value distribution for FDR calculation " \
+            "(this might take a while)"
+    T = 1000 # number of samples
+    distribution = []
+    for i in xrange(T):
+        new_study = random.sample(pop, study_n)
+        new_term_study = go_enrichment.count_terms(new_study, assoc)
+
+        smallest_p = 1
+        for term, study_count in new_term_study.items():
+            pop_count = term_pop[term]
+            p = fisher.pvalue_population(study_count, study_n, pop_count, pop_n)
+            if p.two_tail < smallest_p: smallest_p = p.two_tail
+
+        distribution.append(smallest_p)
+        print >>sys.stderr, i, smallest_p
+    return distribution
 
 
 if __name__ == '__main__':

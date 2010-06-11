@@ -4,17 +4,16 @@
 """
 python %prog study.file population.file gene-association.file
 
-This program returns P-values for functional enrichment in a cluster of study genes using Fisher's exact test, and corrected for multiple testing (including Bonferroni, Holm, Sidak, and false discovery rate)
+This program returns P-values for functional enrichment in a cluster of
+study genes using Fisher's exact test, and corrected for multiple testing
+(including Bonferroni, Holm, Sidak, and false discovery rate)
 """
 
 import sys
 import collections
-import random
 import os.path as op
-
 import fisher
-from multiple_testing import Bonferroni, Sidak, HolmBonferroni
-from obo_parser import GODag
+from multiple_testing import Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
 
 
 class GOEnrichmentRecord(object):
@@ -123,15 +122,9 @@ class GOEnrichmentStudy(object):
                 holm = HolmBonferroni(pvals, self.alpha).corrected_pvals
             elif method=="fdr":
                 # get the empirical p-value distributions for FDR
-                print >>sys.stderr, "generating p-value distribution for FDR calculation " \
-                    "(this might take a while)"
                 p_val_distribution = calc_qval(study_count, study_n, pop_count, pop_n, \
-                    pop, assoc, term_pop)
-                fdr = []
-                for rec in results:
-                    q = sum(1 for x in p_val_distribution if x < rec.p_uncorrected) \
-                            * 1./len(p_val_distribution)
-                    fdr.append(q)
+                        self.pop, self.assoc, self.term_pop)
+                fdr = FDR(p_val_distribution, results, self.alpha).corrected_pvals
             else:
                 raise Exception, "multiple test correction methods must be one of %s" % all_methods
 
@@ -147,6 +140,8 @@ class GOEnrichmentStudy(object):
         for rec in results:
             # get go term for description and level
             rec.find_goterm(self.obo_dag)
+
+        return results
 
     def update_results(self, method, corrected_pvals):
         if corrected_pvals is None: return
@@ -169,28 +164,6 @@ class GOEnrichmentStudy(object):
 
             if rec.is_ratio_different:
                 print rec.__str__(indent=indent)
-
-"""
-Generate a p-value distribution based on re-sampling, as described in:
-http://www.biomedcentral.com/1471-2105/6/168
-"""
-#class FalseDiscoveryRate(AbstractCorrection):
-def calc_qval(study_count, study_n, pop_count, pop_n, pop, assoc, term_pop):
-    T = 1000 # number of samples
-    distribution = []
-    for i in xrange(T):
-        new_study = random.sample(pop, study_n)
-        new_term_study = count_terms(new_study, assoc)
-
-        smallest_p = 1
-        for term, study_count in new_term_study.items():
-            pop_count = term_pop[term]
-            p = fisher.pvalue_population(study_count, study_n, pop_count, pop_n)
-            if p.two_tail < smallest_p: smallest_p = p.two_tail
-
-        distribution.append(smallest_p)
-        print >>sys.stderr, i, smallest_p
-    return distribution
 
 
 def count_terms(geneset, assoc):
