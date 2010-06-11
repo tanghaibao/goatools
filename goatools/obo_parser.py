@@ -251,6 +251,48 @@ class GODag(dict):
 
         G.draw(lineage_img, prog="dot")
 
+
+    def draw_lineages(self, recs, nodecolor="mediumseagreen",
+            edgecolor="lightslateblue", dpi=96, verbose=False, lineage_img="GO_lineage,png"):
+        # draw AMIGO style network, lineage containing one query record
+        try:
+            import pygraphviz as pgv
+        except:
+            print >>sys.stderr, "pygraphviz not installed, lineage not drawn!"
+            print >>sys.stderr, "try `easy_install pygraphviz`"
+            return
+
+        G = pgv.AGraph()
+        edgeset = set()
+        for rec in recs:
+            edgeset.update(rec.get_all_parent_edges())
+            #G.add_node(self._label_wrap(rec.id))
+        edgeset = [(self._label_wrap(a), self._label_wrap(b)) for (a, b) in edgeset]
+        for src, target in edgeset:
+            # default layout in graphviz is top->bottom, so we invert the direction
+            # and plot using dir="back"
+            G.add_edge(target, src)
+
+        G.graph_attr.update(dpi="%d" % dpi)
+        G.node_attr.update(shape="box", style="rounded,filled",
+                fillcolor="beige", color=nodecolor)
+        G.edge_attr.update(shape="normal", color=edgecolor, dir="back")
+        # highlight the query terms
+        for rec in recs:
+            try:
+                q = G.get_node(self._label_wrap(rec.id))
+                q.attr.update(fillcolor="plum")
+            except: continue
+
+        if verbose:
+            print >>sys.stderr, G.to_string()
+
+        print >>sys.stderr, "lineage info written to %s" % lineage_img
+
+        G.draw(lineage_img, prog="dot")
+
+
+
     def update_association(self, association):
         bad_terms = set()
         for key, terms in association.items():
