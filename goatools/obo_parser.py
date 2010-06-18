@@ -75,6 +75,8 @@ class OBOReader:
         for line in lines:
             if line.startswith("id:"):
                 rec.id = after_colon(line)
+            if line.startswith("alt_id:"):
+                rec.alt_ids.append(after_colon(line))
             elif line.startswith("name:"):
                 rec.name = after_colon(line)
             elif line.startswith("namespace:"):
@@ -101,6 +103,7 @@ class GOTerm:
         self.children = []       # children records
         self.level = -1          # distance from root node
         self.is_obsolete = False # is_obsolete
+        self.alt_ids = []        # alternative identifiers
 
     def __str__(self):
         obsolete = "obsolete" if self.is_obsolete else ""
@@ -164,6 +167,8 @@ class GODag(dict):
         obo_reader = OBOReader(obo_file)
         for rec in obo_reader:
             self[rec.id] = rec
+            for alt in rec.alt_ids:
+                self[alt] = rec
 
         self.populate_terms()
         print >>sys.stderr, len(self), "nodes imported"
