@@ -86,7 +86,7 @@ class GOEnrichmentStudy(object):
         self.methods = methods
 
         obo_dag.update_association(assoc)
-        self.term_pop = count_terms(pop, assoc, obo_dag)
+        self.term_pop = count_terms(pop, assoc)
 
         if study:
             self.run_study(study)
@@ -94,7 +94,7 @@ class GOEnrichmentStudy(object):
     def run_study(self, study):
         self.results = results = []
 
-        term_study = count_terms(study, self.assoc, self.obo_dag)
+        term_study = count_terms(study, self.assoc)
         
         pop_n, study_n = len(self.pop), len(study)
 
@@ -166,16 +166,13 @@ class GOEnrichmentStudy(object):
                 print rec.__str__(indent=indent)
 
 
-def count_terms(geneset, assoc, obo_dag):
+def count_terms(geneset, assoc):
     """count the number of terms in the study group
     """
     term_cnt = collections.defaultdict(int)
     for gene in (g for g in geneset if g in assoc):
         for x in assoc[gene]:
-            try:
-                term_cnt[obo_dag[x].id] += 1
-            except:
-                pass
+            term_cnt[obo_dag[x].id] += 1
 
     return term_cnt
 
