@@ -221,44 +221,8 @@ class GODag(dict):
         return wrapped_label
 
 
-    def draw_lineage(self, rec, nodecolor="mediumseagreen",
-            edgecolor="lightslateblue", dpi=96, verbose=False):
-        # draw AMIGO style network, lineage containing one query record
-        try:
-            import pygraphviz as pgv
-        except:
-            print >>sys.stderr, "pygraphviz not installed, lineage not drawn!"
-            print >>sys.stderr, "try `easy_install pygraphviz`"
-            return
-
-        G = pgv.AGraph()
-        edgeset = rec.get_all_parent_edges() | rec.get_all_child_edges()
-        edgeset = [(self._label_wrap(a), self._label_wrap(b)) for (a, b) in edgeset]
-        for src, target in edgeset:
-            # default layout in graphviz is top->bottom, so we invert the direction
-            # and plot using dir="back"
-            G.add_edge(target, src)
-
-        G.graph_attr.update(dpi="%d" % dpi)
-        G.node_attr.update(shape="box", style="rounded,filled",
-                fillcolor="beige", color=nodecolor)
-        G.edge_attr.update(shape="normal", color=edgecolor, dir="back", label="is_a")
-        # highlight the query term
-        q = G.get_node(self._label_wrap(rec.id))
-        q.attr.update(fillcolor="plum")
-
-        if verbose:
-            print >>sys.stderr, G.to_string()
-
-        lineage_img = "%s.png" % rec.id.replace(":", "_")
-        print >>sys.stderr, "lineage info for term %s written to %s" %\
-                (rec.id, lineage_img)
-
-        G.draw(lineage_img, prog="dot")
-
-
-    def draw_lineages(self, recs, nodecolor="mediumseagreen",
-            edgecolor="lightslateblue", dpi=96, verbose=False, lineage_img="GO_lineage,png"):
+    def draw_lineage(self, recs, nodecolor="mediumseagreen",
+            edgecolor="lightslateblue", dpi=96, verbose=False, lineage_img="GO_lineage.png"):
         # draw AMIGO style network, lineage containing one query record
         try:
             import pygraphviz as pgv
@@ -271,7 +235,8 @@ class GODag(dict):
         edgeset = set()
         for rec in recs:
             edgeset.update(rec.get_all_parent_edges())
-            #G.add_node(self._label_wrap(rec.id))
+            edgeset.update(rec.get_all_child_edges())
+
         edgeset = [(self._label_wrap(a), self._label_wrap(b)) for (a, b) in edgeset]
         for src, target in edgeset:
             # default layout in graphviz is top->bottom, so we invert the direction
@@ -281,7 +246,7 @@ class GODag(dict):
         G.graph_attr.update(dpi="%d" % dpi)
         G.node_attr.update(shape="box", style="rounded,filled",
                 fillcolor="beige", color=nodecolor)
-        G.edge_attr.update(shape="normal", color=edgecolor, dir="back")
+        G.edge_attr.update(shape="normal", color=edgecolor, dir="back", label="is_a")
         # highlight the query terms
         for rec in recs:
             try:
@@ -292,7 +257,8 @@ class GODag(dict):
         if verbose:
             print >>sys.stderr, G.to_string()
 
-        print >>sys.stderr, "lineage info written to %s" % lineage_img
+        print >>sys.stderr, "lineage info for terms %s written to %s" % \
+                ([rec.id for rec in recs], lineage_img)
 
         G.draw(lineage_img, prog="dot")
 
