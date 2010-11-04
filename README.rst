@@ -1,8 +1,7 @@
 Tools for Gene Ontology
 ========================
 
-:Author: Haibao Tang (tanghaibao), Brent Pedersen (brentp), Aurelien Naldi
-(aurelien-naldi)
+:Author: Haibao Tang (tanghaibao), Brent Pedersen (brentp), Aurelien Naldi (aurelien-naldi)
 :Email: tanghaibao@gmail.com
 :License: BSD
 
