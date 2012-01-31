@@ -58,9 +58,15 @@ please look at ``data/`` folder to see examples on how to make these files. when
 
     python scripts/find_enrichment.py --alpha=0.05 --indent data/study data/population data/association
 
-and can filter on the significance of erichment or purification.
+and can filter on the significance of (e)nrichment or (p)urification.
 it can report various multiple testing corrected p-values as well as
 the false discovery rate.
+
+The "e" in the "Enrichment" column means "enriched" - the concentration of GO term in
+the study group is significantly *higher* than those in the population.  The "p" stands
+for "purified" - significantly *lower* concentration of the GO term in the study group
+than in the population.
+
 
 Read and plot GO lineage
 ::::::::::::::::::::::::::::::::::::
