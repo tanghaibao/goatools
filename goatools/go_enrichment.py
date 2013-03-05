@@ -31,7 +31,7 @@ class GOEnrichmentRecord(object):
             self.__setattr__(k, v)
 
         self.goterm = None # the reference to the GOTerm
-    
+
     def __setattr__(self, name, value):
         self.__dict__[name] = value
 
@@ -39,7 +39,7 @@ class GOEnrichmentRecord(object):
         field_data = [self.__dict__[f] for f in self._fields]
         field_formatter = ["%s"] * 3 + ["%d/%d"] * 2 + ["%.3g"] * 5
         assert len(field_data)==len(field_formatter)
-        
+
         # default formatting only works for non-"n.a" data
         for i, f in enumerate(field_data):
             if f=="n.a.":
@@ -76,7 +76,7 @@ class GOEnrichmentRecord(object):
 class GOEnrichmentStudy(object):
     """Runs Fisher's exact test, as well as multiple corrections
     """
-    def __init__(self, pop, assoc, obo_dag, alpha=None, study=None,
+    def __init__(self, pop, assoc, obo_dag, alpha=.05, study=None,
             methods=["bonferroni", "sidak", "holm"]):
 
         self.pop = pop
@@ -95,7 +95,7 @@ class GOEnrichmentStudy(object):
         self.results = results = []
 
         term_study = count_terms(study, self.assoc, self.obo_dag)
-        
+
         pop_n, study_n = len(self.pop), len(study)
 
         for term, study_count in term_study.items():
@@ -103,7 +103,7 @@ class GOEnrichmentStudy(object):
             p = fisher.pvalue_population(study_count, study_n, pop_count, pop_n)
 
             one_record = GOEnrichmentRecord(id=term, p_uncorrected=p.two_tail,
-                    ratio_in_study=(study_count, study_n), 
+                    ratio_in_study=(study_count, study_n),
                     ratio_in_pop=(pop_count, pop_n))
 
             results.append(one_record)
@@ -133,8 +133,7 @@ class GOEnrichmentStudy(object):
         for method, corrected_pvals in zip(all_methods, all_corrections):
             self.update_results(method, corrected_pvals)
 
-        results = list(self.filter_results(self.alpha))
-        results.sort(key=lambda r: r.p_uncorrected) 
+        results.sort(key=lambda r: r.p_uncorrected)
         self.results = results
 
         for rec in results:
@@ -148,19 +147,16 @@ class GOEnrichmentStudy(object):
         for rec, val in zip(self.results, corrected_pvals):
             rec.__setattr__("p_"+method, val)
 
-    def filter_results(self, alpha=None):
-        if alpha is not None: alpha = float(alpha)
-        for rec in self.results:
-            if alpha is None: yield rec 
-            elif rec.p_bonferroni < alpha: yield rec
-
-    def print_summary(self, min_ratio=None, indent=False):
+    def print_summary(self, min_ratio=None, indent=False, pval=0.05):
         # field names for output
         print "\t".join(GOEnrichmentRecord()._fields)
 
         for rec in self.results:
             # calculate some additional statistics (over_under, is_ratio_different)
             rec.update_remaining_fields(min_ratio=min_ratio)
+
+            if pval is not None and rec.p_bonferroni > pval:
+                continue
 
             if rec.is_ratio_different:
                 print rec.__str__(indent=indent)
@@ -190,4 +186,3 @@ def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
     if s > p:
         return s / p > min_ratio
     return p / s > min_ratio
-

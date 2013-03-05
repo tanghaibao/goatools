@@ -4,7 +4,15 @@
 """
 python %prog study.file population.file gene-association.file
 
-This program returns P-values for functional enrichment in a cluster of study genes using Fisher's exact test, and corrected for multiple testing (including Bonferroni, Holm, Sidak, and false discovery rate)
+This program returns P-values for functional enrichment in a cluster of study
+genes using Fisher's exact test, and corrected for multiple testing (including
+Bonferroni, Holm, Sidak, and false discovery rate).
+
+About significance cutoff:
+--alpha: test-wise alpha; for each GO term, what significance level to apply
+        (most often you don't need to change this other than 0.05 or 0.01)
+--pval: experiment-wise alpha; for the entire experiment, what significance
+        level to apply after Bonferroni correction
 """
 
 import sys
@@ -62,20 +70,23 @@ if __name__ == "__main__":
     import optparse
     p = optparse.OptionParser(__doc__)
 
-    p.add_option('--alpha', dest='alpha', default=None,
-                 help="only print out the terms where the corrected p-value"
-                 " is less than this value. [default: %default]")
+    p.add_option('--alpha', default=0.05, type="float",
+                 help="Test-wise alpha for multiple testing [default: %default]")
+    p.add_option('--pval', default=None, type="float",
+                 help="Family-wise alpha (whole experiment), only print out "
+                 "Bonferroni p-value is less than this value. [default: %default]")
     p.add_option('--compare', dest='compare', default=False, action='store_true',
                  help="the population file as a comparison group. if this flag is specified,"
                  " the population is used as the study plus the `population/comparison`")
     p.add_option('--ratio', dest='ratio', type='float', default=None,
                  help="only show values where the difference between study and population"
                  " ratios is greater than this. useful for excluding GO categories with"
-                " small differences, but containing large numbers of genes. should be a "
+                " small differences, but containing large numbers of genes. should be a"
                 " value between 1 and 2. ")
     p.add_option('--fdr', dest='fdr', default=False,
                 action='store_true',
-                help="calculate the false discovery rate (alternative to the Bonferroni correction)")
+                help="Calculate the false discovery rate (alt. to the Bonferroni"
+                " but slower)")
     p.add_option('--indent', dest='indent', default=False,
                 action='store_true', help="indent GO terms")
 
@@ -85,11 +96,11 @@ if __name__ == "__main__":
         print bad
         sys.exit(p.print_help())
 
-    alpha = float(opts.alpha) if opts.alpha else 0.05
-
     min_ratio = opts.ratio
     if not min_ratio is None:
         assert 1 <= min_ratio <= 2
+
+    assert 0 < opts.alpha < 1, "Test-wise alpha must fall between (0, 1)"
 
     study_fn, pop_fn, assoc_fn = args
     study, pop = read_geneset(study_fn, pop_fn, compare=opts.compare)
@@ -100,6 +111,5 @@ if __name__ == "__main__":
         methods.append("fdr")
 
     obo_dag = GODag(obo_file="gene_ontology.1_2.obo")
-    g = GOEnrichmentStudy(pop, assoc, obo_dag, alpha=alpha, study=study, methods=methods)
-    g.print_summary(min_ratio=min_ratio, indent=opts.indent)
-
+    g = GOEnrichmentStudy(pop, assoc, obo_dag, alpha=opts.alpha, study=study, methods=methods)
+    g.print_summary(min_ratio=min_ratio, indent=opts.indent, pval=opts.pval)

@@ -56,7 +56,7 @@ see ``find_enrichment.py`` for usage. It takes as arguments files containing:
 
 please look at ``data/`` folder to see examples on how to make these files. when ready, the command looks like::
 
-    python scripts/find_enrichment.py --alpha=0.05 --indent data/study data/population data/association
+    python scripts/find_enrichment.py --pval=0.05 --indent data/study data/population data/association
 
 and can filter on the significance of (e)nrichment or (p)urification.
 it can report various multiple testing corrected p-values as well as
