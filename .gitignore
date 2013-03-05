@@ -1,8 +1,0 @@
-scratch/*
-backup/*
-build/*
-*.obo
-*.enrichment
-*.so
-*.pyc
-out.*
