@@ -222,7 +222,8 @@ class GODag(dict):
 
 
     def draw_lineage(self, recs, nodecolor="mediumseagreen",
-            edgecolor="lightslateblue", dpi=96, verbose=False, lineage_img="GO_lineage.png"):
+            edgecolor="lightslateblue", dpi=96, lineage_img="GO_lineage.png",
+            gml=False):
         # draw AMIGO style network, lineage containing one query record
         try:
             import pygraphviz as pgv
@@ -254,15 +255,21 @@ class GODag(dict):
                 q.attr.update(fillcolor="plum")
             except: continue
 
-        if verbose:
-            print >>sys.stderr, G.to_string()
+        if gml:
+            import networkx as nx  # use networkx to do the conversion
+            pf = lineage_img.rsplit(".", 1)[0]
+            G.name = "GO tree"
+            NG = nx.from_agraph(G)
+
+            del NG.graph['node']
+            del NG.graph['edge']
+            gmlfile = pf + ".gml"
+            nx.write_gml(NG, gmlfile)
 
         print >>sys.stderr, "lineage info for terms %s written to %s" % \
                 ([rec.id for rec in recs], lineage_img)
 
         G.draw(lineage_img, prog="dot")
-
-
 
     def update_association(self, association):
         bad_terms = set()

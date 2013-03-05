@@ -12,13 +12,15 @@ if __name__ == '__main__':
 
     import optparse
     p = optparse.OptionParser("%prog [obo_file]")
-    p.add_option("--description", dest="desc", 
+    p.add_option("--description", dest="desc",
             help="write term descriptions to stdout" \
                  " from the obo file specified in args", action="store_true")
     p.add_option("--term", dest="term", help="write the parents and children" \
             "of the query term", action="store", type="string", default=None)
+    p.add_option("--gml", action="store_true",
+            help="Write GML output (for Cytoscape) [default: %deafult]")
 
-    (options, args) = p.parse_args()
+    opts, args = p.parse_args()
 
     if not len(args):
         obo_file = None
@@ -31,11 +33,10 @@ if __name__ == '__main__':
     else:
         g = GODag(obo_file)
 
-    if options.desc:
+    if opts.desc:
         g.write_dag()
 
     # run a test case
-    if options.term is not None:
-        rec = g.query_term(options.term, verbose=True)
-        g.draw_lineage([rec], verbose=True)
-
+    if opts.term is not None:
+        rec = g.query_term(opts.term, verbose=True)
+        g.draw_lineage([rec], gml=opts.gml)

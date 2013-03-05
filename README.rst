@@ -79,6 +79,16 @@ see ``plot_go_term.py`` for usage.
 this will plot the following image.
 
 .. image:: http://lh6.ggpht.com/_srvRoIok9Xs/S9HhleQrk5I/AAAAAAAAA5U/dzVIvjlYCQU/s800/GO_0008135.png
-    :alt: term lineage
+    :alt: GO term lineage
 
+Sometimes people like to stylize the graph themselves, use option ``--gml`` to
+generate a GML output which can then be used in an external graph editing
+software like `Cytoscape <http://www.cytoscape.org/>`_. The following image is
+produced by importing the GML file into Cytoscape using yFile orthogonal
+layout and solid VizMapping. Note that the GML reader plugin may need to be
+downloaded and installed in the ``plugins`` folder of Cytoscape::
 
+    python scripts/plot_go_term.py --term=GO:0008135 --gml
+
+.. image:: http://tinyurl.com/by2m57n
+    :alt: GO term lineage (Cytoscape)
