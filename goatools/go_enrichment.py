@@ -84,6 +84,7 @@ class GOEnrichmentStudy(object):
         self.obo_dag = obo_dag
         self.alpha = alpha
         self.methods = methods
+        self.results = []
 
         obo_dag.update_association(assoc)
         self.term_pop = count_terms(pop, assoc, obo_dag)
@@ -92,7 +93,7 @@ class GOEnrichmentStudy(object):
             self.run_study(study)
 
     def run_study(self, study):
-        self.results = results = []
+        results = self.results
 
         term_study = count_terms(study, self.assoc, self.obo_dag)
 

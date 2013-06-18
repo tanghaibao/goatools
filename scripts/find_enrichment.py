@@ -33,6 +33,8 @@ def read_geneset(study_fn, pop_fn, compare=False):
         pop -= common
         study -= common
         print >>sys.stderr, "removed %d overlapping items" % (len(common), )
+        print >> sys.stderr, "Set 1: {0}, Set 2: {1}".\
+                format(len(study), len(pop))
 
     return study, pop
 
