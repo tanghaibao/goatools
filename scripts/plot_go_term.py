@@ -13,12 +13,13 @@ if __name__ == '__main__':
     import optparse
     p = optparse.OptionParser("%prog [obo_file]")
     p.add_option("--description", dest="desc",
-            help="write term descriptions to stdout" \
+                 help="write term descriptions to stdout"
                  " from the obo file specified in args", action="store_true")
-    p.add_option("--term", dest="term", help="write the parents and children" \
-            "of the query term", action="store", type="string", default=None)
+    p.add_option("--term", dest="term", help="write the parents and children"
+                 "of the query term", action="store", type="string",
+                 default=None)
     p.add_option("--gml", action="store_true",
-            help="Write GML output (for Cytoscape) [default: %deafult]")
+                 help="Write GML output (for Cytoscape) [default: %deafult]")
 
     opts, args = p.parse_args()
 

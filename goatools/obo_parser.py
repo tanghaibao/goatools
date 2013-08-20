@@ -8,12 +8,15 @@ from exceptions import EOFError
 
 typedef_tag, term_tag = "[Typedef]", "[Term]"
 
+
 def after_colon(line):
     # macro for getting anything after the :
     return line.split(":", 1)[1].strip()
 
+
 def read_until(handle, start):
-    # read each line until it has a certain start, and then puts the start tag back
+    # read each line until it has a certain start, and then puts
+    # the start tag back
     while 1:
         pos = handle.tell()
         line = handle.readline()
@@ -22,7 +25,7 @@ def read_until(handle, start):
         if line.startswith(start):
             handle.seek(pos)
             return
-    raise EOFError, "%s tag cannot be found"
+    raise EOFError("%s tag cannot be found" % start)
 
 
 class OBOReader:
@@ -41,14 +44,13 @@ class OBOReader:
         try:
             self._handle = file(obo_file)
         except:
-            print >>sys.stderr, \
-                "download obo file first\n " \
-                "[http://geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo]"
+            print >>sys.stderr, ("download obo file first\n "
+                                 "[http://geneontology.org/ontology/"
+                                 "obo_format_1_2/gene_ontology.1_2.obo]"
             sys.exit(1)
 
     def __iter__(self):
 
-        term_tag = "[Term]"
         line = self._handle.readline()
         if not line.startswith(term_tag):
             read_until(self._handle, term_tag)
@@ -64,10 +66,10 @@ class OBOReader:
 
         # read until the next tag and save everything in between
         while 1:
-            pos = self._handle.tell() # save current postion for roll-back
+            pos = self._handle.tell()   # save current postion for roll-back
             line = self._handle.readline()
             if line.startswith(typedef_tag) or line.startswith(term_tag):
-                self._handle.seek(pos) # roll-back
+                self._handle.seek(pos)  # roll-back
                 break
             lines.append(line)
 
@@ -83,7 +85,8 @@ class OBOReader:
                 rec.namespace = after_colon(line)
             elif line.startswith("is_a:"):
                 rec._parents.append(after_colon(line).split()[0])
-            elif line.startswith("is_obsolete:") and after_colon(line)=="true":
+            elif (line.startswith("is_obsolete:") and
+                  after_colon(line) == "true"):
                 rec.is_obsolete = True
 
         return rec
@@ -95,34 +98,33 @@ class GOTerm:
     """
 
     def __init__(self):
-        self.id = ""             # GO:xxxxxx
-        self.name = ""           # description
-        self.namespace = ""      # BP, CC, MF
-        self._parents = []       # is_a basestring of parents
-        self.parents  = []       # parent records
-        self.children = []       # children records
-        self.level = -1          # distance from root node
-        self.is_obsolete = False # is_obsolete
-        self.alt_ids = []        # alternative identifiers
+        self.id = ""                # GO:xxxxxx
+        self.name = ""              # description
+        self.namespace = ""         # BP, CC, MF
+        self._parents = []          # is_a basestring of parents
+        self.parents = []           # parent records
+        self.children = []          # children records
+        self.level = -1             # distance from root node
+        self.is_obsolete = False    # is_obsolete
+        self.alt_ids = []           # alternative identifiers
 
     def __str__(self):
         obsolete = "obsolete" if self.is_obsolete else ""
-        return "%s\tlevel-%02d\t%s [%s] %s" % \
-                    (self.id, self.level, self.name,
-                     self.namespace, obsolete)
+        return "%s\tlevel-%02d\t%s [%s] %s" % (self.id, self.level, self.name,
+                                               self.namespace, obsolete)
 
     def __repr__(self):
         return "GOTerm('%s')" % (self.id)
 
     def has_parent(self, term):
         for p in self.parents:
-            if p.id==term or p.has_parent(term):
+            if p.id == term or p.has_parent(term):
                 return True
         return False
 
     def has_child(self, term):
         for p in self.children:
-            if p.id==term or p.has_child(term):
+            if p.id == term or p.has_child(term):
                 return True
         return False
 
@@ -195,12 +197,9 @@ class GODag(dict):
             if rec.level < 0:
                 depth(rec)
 
-
     def write_dag(self, out=sys.stdout):
-
         for rec_id, rec in sorted(self.items()):
             print >>out, rec
-
 
     def query_term(self, term, verbose=False):
         try:
@@ -215,15 +214,14 @@ class GODag(dict):
 
         return rec
 
-
     def _label_wrap(self, label):
-        wrapped_label = r"%s\n%s" % (label, self[label].name.replace(",", r"\n"))
+        wrapped_label = r"%s\n%s" % (label,
+                                     self[label].name.replace(",", r"\n"))
         return wrapped_label
 
-
     def draw_lineage(self, recs, nodecolor="mediumseagreen",
-            edgecolor="lightslateblue", dpi=96, lineage_img="GO_lineage.png",
-            gml=False):
+                     edgecolor="lightslateblue", dpi=96,
+                     lineage_img="GO_lineage.png", gml=False):
         # draw AMIGO style network, lineage containing one query record
         try:
             import pygraphviz as pgv
@@ -238,22 +236,25 @@ class GODag(dict):
             edgeset.update(rec.get_all_parent_edges())
             edgeset.update(rec.get_all_child_edges())
 
-        edgeset = [(self._label_wrap(a), self._label_wrap(b)) for (a, b) in edgeset]
+        edgeset = [(self._label_wrap(a), self._label_wrap(b))
+                   for (a, b) in edgeset]
         for src, target in edgeset:
-            # default layout in graphviz is top->bottom, so we invert the direction
-            # and plot using dir="back"
+            # default layout in graphviz is top->bottom, so we invert
+            # the direction and plot using dir="back"
             G.add_edge(target, src)
 
         G.graph_attr.update(dpi="%d" % dpi)
         G.node_attr.update(shape="box", style="rounded,filled",
-                fillcolor="beige", color=nodecolor)
-        G.edge_attr.update(shape="normal", color=edgecolor, dir="back", label="is_a")
+                           fillcolor="beige", color=nodecolor)
+        G.edge_attr.update(shape="normal", color=edgecolor,
+                           dir="back", label="is_a")
         # highlight the query terms
         for rec in recs:
             try:
                 q = G.get_node(self._label_wrap(rec.id))
                 q.attr.update(fillcolor="plum")
-            except: continue
+            except:
+                continue
 
         if gml:
             import networkx as nx  # use networkx to do the conversion
@@ -282,6 +283,4 @@ class GODag(dict):
                     bad_terms.add(term)
             terms.update(parents)
         if bad_terms:
-            print >>sys.stderr, "terms not found:", bad_terms
-
-
+            print >>sys.stderr, "terms not found: %s", bad_terms
