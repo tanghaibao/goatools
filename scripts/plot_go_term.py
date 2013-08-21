@@ -19,7 +19,7 @@ if __name__ == '__main__':
                  "of the query term", action="store", type="string",
                  default=None)
     p.add_option("--gml", action="store_true",
-                 help="Write GML output (for Cytoscape) [default: %deafult]")
+                 help="Write GML output (for Cytoscape) [default: %default]")
 
     opts, args = p.parse_args()
 
