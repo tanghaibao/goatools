@@ -50,7 +50,7 @@ def read_associations(assoc_fn):
             a, b = row.split("\t")
         else:
             continue
-        b = set(b.replace(";", " ").split())
+        b = set(b.split(";"))
         assoc[a] = b
 
     return assoc
