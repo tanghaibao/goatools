@@ -24,15 +24,12 @@ if __name__ == '__main__':
     opts, args = p.parse_args()
 
     if not len(args):
-        obo_file = None
+        obo_file = "gene_ontology.1_2.obo"
     else:
         obo_file = args[0]
         assert os.path.exists(obo_file), "file %s not found!" % obo_file
 
-    if obo_file is None:
-        g = GODag()
-    else:
-        g = GODag(obo_file)
+    g = GODag(obo_file)
 
     if opts.desc:
         g.write_dag()

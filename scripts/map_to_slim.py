@@ -31,12 +31,12 @@ if __name__ == '__main__':
 
     import optparse
     p = optparse.OptionParser("%prog [options] go_obo_file goslim_obo_file")
-    p.add_option("--term", dest="term", help="a term (accession id) to map "
+    p.add_option("--term", dest="term", help="a term (association id) to map "
                  "to slim IDs. This can not be used together with "
-                 "--accsession_file", action="store", type="string",
+                 "--association_file", action="store", type="string",
                  default=None)
-    p.add_option("--accession_file", dest="ass_file_name", action="store",
-                 help="the file of protein products and their accessions "
+    p.add_option("--association_file", dest="ass_file_name", action="store",
+                 help="the file of protein products and their associations "
                  "to be mapped to GO slim terms. This can not be used "
                  "together with --term", type="string", default=None)
     p.add_option("--slim_out", dest="slim_out", action="store", type="string",
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     slim_obo_file = args[1]
     assert os.path.exists(slim_obo_file), "file %s not found!" % slim_obo_file
 
-    # check that either --term or --accession_file is set
+    # check that either --term or --association_file is set
     if (opts.term is None and opts.ass_file_name is None) \
             or ((not opts.term is None) and (not opts.ass_file_name is None)):
         p.print_help()
@@ -77,6 +77,7 @@ if __name__ == '__main__':
     go_dag = GODag(obo_file)
     goslim_dag = GODag(slim_obo_file)
 
+    # in case a single term is given as input:
     if opts.term:
         if not opts.term in go_dag:
             print >> sys.stderr, ("term %s not found!" % opts.term)
@@ -89,6 +90,7 @@ if __name__ == '__main__':
             slim_terms_str = ";".join(all_anc)
         print(slim_terms_str)
 
+    # in case a association file is given as input
     if opts.ass_file_name:
         assert os.path.exists(opts.ass_file_name), ("file %s not found!"
                                                     % opts.ass_file_name)
@@ -112,10 +114,3 @@ if __name__ == '__main__':
             else:
                 slim_terms_str = ";".join(all_all_anc)
             print(protein_product + "\t" + slim_terms_str)
-
-
-
-
-
-
-    pass

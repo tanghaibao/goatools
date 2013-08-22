@@ -13,6 +13,7 @@ This package contains a Python library to
 
 - process over- and under-representation of certain GO terms, based on Fisher's exact test. Also implemented several multiple correction routines (including Bonferroni, Sidak, and false discovery rate).
 - process the obo-formatted file from `Gene Ontology website <http://geneontology.org>`_. The data structure is a directed acyclic graph (DAG) that allows easy traversal from leaf to root.
+- map GO terms (or protein products with multiple associations to GO terms) to GOslim terms (analog to the map2slim.pl script supplied by geneontology.org)
 
 
 Installation
@@ -24,6 +25,10 @@ Installation
 - ``.obo`` file for the most current `gene ontology <http://www.geneontology.org/>`_::
 
     wget http://geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo
+
+- ``.obo`` file for the most current `gene ontology <http://www.geneontology.org/>`_::
+
+    wget http://www.geneontology.org/GO_slims/goslim_generic.obo
 
 - `fisher <http://pypi.python.org/pypi/fisher/>`_ module for calculating Fisher's exact test::
 
@@ -54,7 +59,7 @@ see ``find_enrichment.py`` for usage. It takes as arguments files containing:
 
 * an association file that maps a gene name to a GO category.
 
-please look at ``data/`` folder to see examples on how to make these files. when ready, the command looks like::
+please look at ``tests/data/`` folder to see examples on how to make these files. when ready, the command looks like::
 
     python scripts/find_enrichment.py --pval=0.05 --indent data/study data/population data/association
 
@@ -93,3 +98,28 @@ downloaded and installed in the ``plugins`` folder of Cytoscape::
 
 .. image:: http://tinyurl.com/by2m57n
     :alt: GO term lineage (Cytoscape)
+
+
+Map GO terms to GOslim terms
+::::::::::::::::::::::::::::::::::::
+see ``map_to_slim.py` fro usage. As arguments it takes the gene ontology files:
+
+* the current gene ontology file ``gene_ontology.1_2.obo``
+
+* the GOslim file to be used (e.g. ``goslim_generic.obo`` or any other GOslim file)
+
+The script either maps one GO term to it's GOslim terms, or protein products with multiple associations to all it's GOslim terms.
+
+To determine the GOslim terms for a single GO term, you can use the following
+command:
+
+    python scripts/map_to_slim.py --term=GO:0008135 gene_ontology.1_2.obo goslim_generic.obo
+
+To determine the GOslim terms for protein products with multiple associations:
+
+    python scripts/map_to_slim.py --association_file=data/association gene_ontology.1_2.obo goslim_generic.obo
+
+Where the ``association`` file has the same format as used for ``find_enrichment.py``.
+
+The implemented algorithm is described in more detail at the go-perl documenation of `map2slim
+<http://search.cpan.org/~cmungall/go-perl/scripts/map2slim>`_.
