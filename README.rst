@@ -26,7 +26,7 @@ Installation
 
     wget http://geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo
 
-- ``.obo`` file for the most current `gene ontology <http://www.geneontology.org/>`_::
+- ``.obo`` file for the most current `GO Slim <http://www.geneontology.org/GO.slims.shtml>`_ terms (.e.g generic GOslim) ::
 
     wget http://www.geneontology.org/GO_slims/goslim_generic.obo
 
@@ -102,7 +102,7 @@ downloaded and installed in the ``plugins`` folder of Cytoscape::
 
 Map GO terms to GOslim terms
 ::::::::::::::::::::::::::::::::::::
-see ``map_to_slim.py` fro usage. As arguments it takes the gene ontology files:
+see ``map_to_slim.py`` fro usage. As arguments it takes the gene ontology files:
 
 * the current gene ontology file ``gene_ontology.1_2.obo``
 
@@ -111,11 +111,11 @@ see ``map_to_slim.py` fro usage. As arguments it takes the gene ontology files:
 The script either maps one GO term to it's GOslim terms, or protein products with multiple associations to all it's GOslim terms.
 
 To determine the GOslim terms for a single GO term, you can use the following
-command:
+command::
 
     python scripts/map_to_slim.py --term=GO:0008135 gene_ontology.1_2.obo goslim_generic.obo
 
-To determine the GOslim terms for protein products with multiple associations:
+To determine the GOslim terms for protein products with multiple associations::
 
     python scripts/map_to_slim.py --association_file=data/association gene_ontology.1_2.obo goslim_generic.obo
 
