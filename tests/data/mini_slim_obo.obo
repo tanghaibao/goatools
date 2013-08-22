@@ -1,0 +1,21 @@
+this is a very small example for a GO Slim DAG, used for testing the map2slim
+algorithm. The DAG and the expected results can be seen at the original
+map2slim.pl documentation here:
+http://search.cpan.org/~cmungall/go-perl/scripts/map2slim
+an image of the graph:
+http://geneontology.cvs.sourceforge.net/viewvc/geneontology/go-dev/go-perl/doc/map2slim.gif
+
+[Term]
+id: GO:0000001
+
+[Term]
+id: GO:0000002
+is_a: GO:0000001
+
+[Term]
+id: GO:0000003
+is_a: GO:0000001
+
+[Term]
+id: GO:0000004
+is_a: GO:0000003

@@ -20,7 +20,7 @@ class GOEnrichmentRecord(object):
     """Represents one result (from a single GOTerm) in the GOEnrichmentStudy
     """
     _fields = "id enrichment description ratio_in_study ratio_in_pop"\
-            " p_uncorrected p_bonferroni p_holm p_sidak p_fdr".split()
+              " p_uncorrected p_bonferroni p_holm p_sidak p_fdr".split()
 
     def __init__(self, **kwargs):
         for f in self._fields:
@@ -30,7 +30,7 @@ class GOEnrichmentRecord(object):
             assert k in self._fields, "invalid field name %s" % k
             self.__setattr__(k, v)
 
-        self.goterm = None # the reference to the GOTerm
+        self.goterm = None  # the reference to the GOTerm
 
     def __setattr__(self, name, value):
         self.__dict__[name] = value
@@ -38,11 +38,11 @@ class GOEnrichmentRecord(object):
     def __str__(self, indent=False):
         field_data = [self.__dict__[f] for f in self._fields]
         field_formatter = ["%s"] * 3 + ["%d/%d"] * 2 + ["%.3g"] * 5
-        assert len(field_data)==len(field_formatter)
+        assert len(field_data) == len(field_formatter)
 
         # default formatting only works for non-"n.a" data
         for i, f in enumerate(field_data):
-            if f=="n.a.":
+            if f == "n.a.":
                 field_formatter[i] = "%s"
 
         # print dots to show the level of the term
@@ -50,8 +50,8 @@ class GOEnrichmentRecord(object):
         if self.goterm is not None and indent:
             dots = "." * self.goterm.level
 
-        return dots + "\t".join(a % b for (a, b) in \
-                zip(field_formatter, field_data))
+        return dots + "\t".join(a % b for (a, b) in
+                                zip(field_formatter, field_data))
 
     def __repr__(self):
         return "GOEnrichmentRecord(%s)" % self.id
@@ -69,15 +69,17 @@ class GOEnrichmentRecord(object):
     def update_remaining_fields(self, min_ratio=None):
         study_count, study_n = self.ratio_in_study
         pop_count, pop_n = self.ratio_in_pop
-        self.enrichment = 'e' if 1.0* study_count/study_n > 1.0 * pop_count / pop_n else 'p'
-        self.is_ratio_different = is_ratio_different(min_ratio, study_count, study_n, pop_count, pop_n)
+        self.enrichment = 'e' if ((1.0 * study_count / study_n) >
+                                  (1.0 * pop_count / pop_n)) else 'p'
+        self.is_ratio_different = is_ratio_different(min_ratio, study_count,
+                                                     study_n, pop_count, pop_n)
 
 
 class GOEnrichmentStudy(object):
     """Runs Fisher's exact test, as well as multiple corrections
     """
     def __init__(self, pop, assoc, obo_dag, alpha=.05, study=None,
-            methods=["bonferroni", "sidak", "holm"]):
+                 methods=["bonferroni", "sidak", "holm"]):
 
         self.pop = pop
         self.assoc = assoc
@@ -101,11 +103,14 @@ class GOEnrichmentStudy(object):
 
         for term, study_count in term_study.items():
             pop_count = self.term_pop[term]
-            p = fisher.pvalue_population(study_count, study_n, pop_count, pop_n)
+            p = fisher.pvalue_population(study_count, study_n,
+                                         pop_count, pop_n)
 
-            one_record = GOEnrichmentRecord(id=term, p_uncorrected=p.two_tail,
-                    ratio_in_study=(study_count, study_n),
-                    ratio_in_pop=(pop_count, pop_n))
+            one_record = GOEnrichmentRecord(
+                id=term,
+                p_uncorrected=p.two_tail,
+                ratio_in_study=(study_count, study_n),
+                ratio_in_pop=(pop_count, pop_n))
 
             results.append(one_record)
 
@@ -115,19 +120,23 @@ class GOEnrichmentStudy(object):
         bonferroni, sidak, holm, fdr = None, None, None, None
 
         for method in self.methods:
-            if method=="bonferroni":
+            if method == "bonferroni":
                 bonferroni = Bonferroni(pvals, self.alpha).corrected_pvals
-            elif method=="sidak":
+            elif method == "sidak":
                 sidak = Sidak(pvals, self.alpha).corrected_pvals
-            elif method=="holm":
+            elif method == "holm":
                 holm = HolmBonferroni(pvals, self.alpha).corrected_pvals
-            elif method=="fdr":
+            elif method == "fdr":
                 # get the empirical p-value distributions for FDR
-                p_val_distribution = calc_qval(study_count, study_n, pop_count, pop_n, \
-                        self.pop, self.assoc, self.term_pop, self.obo_dag)
-                fdr = FDR(p_val_distribution, results, self.alpha).corrected_pvals
+                p_val_distribution = calc_qval(study_count, study_n,
+                                               pop_count, pop_n,
+                                               self.pop, self.assoc,
+                                               self.term_pop, self.obo_dag)
+                fdr = FDR(p_val_distribution,
+                          results, self.alpha).corrected_pvals
             else:
-                raise Exception, "multiple test correction methods must be one of %s" % all_methods
+                raise Exception("multiple test correction methods must be "
+                                "one of %s" % all_methods)
 
         all_corrections = (bonferroni, sidak, holm, fdr)
 
@@ -144,7 +153,8 @@ class GOEnrichmentStudy(object):
         return results
 
     def update_results(self, method, corrected_pvals):
-        if corrected_pvals is None: return
+        if corrected_pvals is None:
+            return
         for rec, val in zip(self.results, corrected_pvals):
             rec.__setattr__("p_"+method, val)
 
@@ -153,7 +163,8 @@ class GOEnrichmentStudy(object):
         print "\t".join(GOEnrichmentRecord()._fields)
 
         for rec in self.results:
-            # calculate some additional statistics (over_under, is_ratio_different)
+            # calculate some additional statistics
+            # (over_under, is_ratio_different)
             rec.update_remaining_fields(min_ratio=min_ratio)
 
             if pval is not None and rec.p_bonferroni > pval:
