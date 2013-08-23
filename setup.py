@@ -5,8 +5,8 @@ from distutils.core import setup
 from glob import glob
 
 setup(
-      name="goatools",
-      packages=['goatools'],
-      scripts = glob('scripts/*.py'),
-      requires=['fisher'],
-      )
+    name="goatools",
+    packages=['goatools'],
+    scripts=glob('scripts/*.py'),
+    requires=['fisher', 'pygraphviz']
+    )
