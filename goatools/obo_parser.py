@@ -256,7 +256,8 @@ class GODag(dict):
 
     def draw_lineage(self, recs, nodecolor="mediumseagreen",
                      edgecolor="lightslateblue", dpi=96,
-                     lineage_img="GO_lineage.png", gml=False):
+                     lineage_img="GO_lineage.png", gml=False,
+                     draw_parents=True, draw_children=True):
         # draw AMIGO style network, lineage containing one query record
         try:
             import pygraphviz as pgv
@@ -268,11 +269,19 @@ class GODag(dict):
         G = pgv.AGraph()
         edgeset = set()
         for rec in recs:
-            edgeset.update(rec.get_all_parent_edges())
-            edgeset.update(rec.get_all_child_edges())
+            if draw_parents:
+                edgeset.update(rec.get_all_parent_edges())
+            if draw_children:
+                edgeset.update(rec.get_all_child_edges())
 
         edgeset = [(self._label_wrap(a), self._label_wrap(b))
                    for (a, b) in edgeset]
+
+        # add nodes explicitly via add_node
+        # adding nodes implicitly via add_edge misses nodes without at least one edge
+        for rec in recs:
+            G.add_node(self._label_wrap(rec.id))
+
         for src, target in edgeset:
             # default layout in graphviz is top->bottom, so we invert
             # the direction and plot using dir="back"

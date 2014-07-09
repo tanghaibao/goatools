@@ -20,6 +20,17 @@ if __name__ == '__main__':
                  default=None)
     p.add_option("--gml", action="store_true",
                  help="Write GML output (for Cytoscape) [default: %default]")
+    p.add_option("--disable-draw-parents",
+                 action="store_false",
+                 dest='draw_parents',
+                 help="Do not draw parents of the query term")
+    p.add_option("--disable-draw-children",
+                 action="store_false",
+                 dest='draw_children',
+                 help="Do not draw children of the query term")
+
+    p.set_defaults(draw_parents=True)
+    p.set_defaults(draw_children=True)
 
     opts, args = p.parse_args()
 
@@ -37,4 +48,4 @@ if __name__ == '__main__':
     # run a test case
     if opts.term is not None:
         rec = g.query_term(opts.term, verbose=True)
-        g.draw_lineage([rec], gml=opts.gml)
+        g.draw_lineage([rec], gml=opts.gml, draw_parents=opts.draw_parents, draw_children=opts.draw_children)
