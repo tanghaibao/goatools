@@ -1,6 +1,18 @@
 Tools for Gene Ontology
 ========================
 
+.. image:: https://pypip.in/v/goatools/badge.png
+    :target: https://crate.io/packages/goatools/
+    :alt: Latest PyPI version
+
+.. image:: https://pypip.in/d/goatools/badge.png
+    :target: https://crate.io/packages/goatools/
+    :alt: Number of PyPI downloads
+
+.. image:: https://pypip.in/license/goatools/badge.png
+    :target: https://crate.io/packages/goatools/
+    :alt: License
+
 :Author: Haibao Tang (`tanghaibao <http://github.com/tanghaibao>`_),
          Brent Pedersen (`brentp <http://github.com/brentp>`_),
          Aurelien Naldi (`aurelien-naldi <http://github.com/aurelien-naldi>`_),
