@@ -13,9 +13,10 @@ classifiers = [
     'Topic :: Scientific/Engineering :: Bio-Informatics',
     ]
 
+exec(open("goatools/version.py").read())
 setup(
     name="goatools",
-    version='0.4.7',
+    version=__version__,
     author='Haibao Tang',
     author_email='tanghaibao@gmail.com',
     packages=['goatools'],
