@@ -278,7 +278,8 @@ class GODag(dict):
                    for (a, b) in edgeset]
 
         # add nodes explicitly via add_node
-        # adding nodes implicitly via add_edge misses nodes without at least one edge
+        # adding nodes implicitly via add_edge misses nodes
+        # without at least one edge
         for rec in recs:
             G.add_node(self._label_wrap(rec.id))
 

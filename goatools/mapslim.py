@@ -64,4 +64,3 @@ def mapslim(go_term, go_dag, goslim_dag):
     # ancestor of the GO-Slim in _any_ path (in bottom->top order)
     direct_ancestors = all_ancestors - covered_ancestors
     return direct_ancestors, all_ancestors
-

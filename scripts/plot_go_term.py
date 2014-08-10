@@ -48,4 +48,7 @@ if __name__ == '__main__':
     # run a test case
     if opts.term is not None:
         rec = g.query_term(opts.term, verbose=True)
-        g.draw_lineage([rec], gml=opts.gml, draw_parents=opts.draw_parents, draw_children=opts.draw_children)
+        g.draw_lineage([rec],
+                       gml=opts.gml,
+                       draw_parents=opts.draw_parents,
+                       draw_children=opts.draw_children)

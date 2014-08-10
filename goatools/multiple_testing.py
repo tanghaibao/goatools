@@ -97,7 +97,6 @@ http://www.biomedcentral.com/1471-2105/6/168
 """
 
 
-#class FalseDiscoveryRate(AbstractCorrection):
 def calc_qval(study_count, study_n, pop_count, pop_n,
               pop, assoc, term_pop, obo_dag):
     print >>sys.stderr, ("generating p-value distribution for FDR "
@@ -111,7 +110,10 @@ def calc_qval(study_count, study_n, pop_count, pop_n,
         smallest_p = 1
         for term, study_count in new_term_study.items():
             pop_count = term_pop[term]
-            p = fisher.pvalue_population(study_count, study_n, pop_count, pop_n)
+            p = fisher.pvalue_population(study_count,
+                                         study_n,
+                                         pop_count,
+                                         pop_n)
             if p.two_tail < smallest_p:
                 smallest_p = p.two_tail
 
