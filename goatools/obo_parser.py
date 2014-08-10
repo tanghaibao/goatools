@@ -201,7 +201,7 @@ class GODag(dict):
             print >>out, rec
 
     def query_term(self, term, verbose=False):
-        if not term in self:
+        if term not in self:
             print >>sys.stderr, "Term %s not found!" % term
             return
 
@@ -231,7 +231,7 @@ class GODag(dict):
             - a list of lists of GO Terms
         """
         # error handling consistent with original authors
-        if not term in self:
+        if term not in self:
             print >>sys.stderr, "Term %s not found!" % term
             return
 
@@ -278,7 +278,8 @@ class GODag(dict):
                    for (a, b) in edgeset]
 
         # add nodes explicitly via add_node
-        # adding nodes implicitly via add_edge misses nodes without at least one edge
+        # adding nodes implicitly via add_edge misses nodes
+        # without at least one edge
         for rec in recs:
             G.add_node(self._label_wrap(rec.id))
 

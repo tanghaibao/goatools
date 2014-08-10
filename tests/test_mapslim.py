@@ -64,7 +64,6 @@ if __name__ == '__main__':
         else:
             print >> sys.stderr, ("success!")
 
-
     if tests_succeed:
         print("All test passed successfully!")
         sys.exit(0)

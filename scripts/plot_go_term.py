@@ -16,7 +16,7 @@ if __name__ == '__main__':
                  help="write term descriptions to stdout"
                  " from the obo file specified in args", action="store_true")
     p.add_option("--term", dest="term", help="write the parents and children"
-                 "of the query term", action="store", type="string",
+                 " of the query term", action="store", type="string",
                  default=None)
     p.add_option("--gml", action="store_true",
                  help="Write GML output (for Cytoscape) [default: %default]")
@@ -48,4 +48,7 @@ if __name__ == '__main__':
     # run a test case
     if opts.term is not None:
         rec = g.query_term(opts.term, verbose=True)
-        g.draw_lineage([rec], gml=opts.gml, draw_parents=opts.draw_parents, draw_children=opts.draw_children)
+        g.draw_lineage([rec],
+                       gml=opts.gml,
+                       draw_parents=opts.draw_parents,
+                       draw_children=opts.draw_children)

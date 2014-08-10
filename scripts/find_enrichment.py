@@ -106,7 +106,7 @@ if __name__ == "__main__":
         sys.exit(p.print_help())
 
     min_ratio = opts.ratio
-    if not min_ratio is None:
+    if min_ratio is not None:
         assert 1 <= min_ratio <= 2
 
     assert 0 < opts.alpha < 1, "Test-wise alpha must fall between (0, 1)"
