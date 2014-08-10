@@ -201,7 +201,7 @@ class GODag(dict):
             print >>out, rec
 
     def query_term(self, term, verbose=False):
-        if not term in self:
+        if term not in self:
             print >>sys.stderr, "Term %s not found!" % term
             return
 
@@ -231,7 +231,7 @@ class GODag(dict):
             - a list of lists of GO Terms
         """
         # error handling consistent with original authors
-        if not term in self:
+        if term not in self:
             print >>sys.stderr, "Term %s not found!" % term
             return
 

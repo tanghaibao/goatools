@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
     # check that either --term or --association_file is set
     if (opts.term is None and opts.ass_file_name is None) \
-            or ((not opts.term is None) and (not opts.ass_file_name is None)):
+            or ((opts.term is not None) and (opts.ass_file_name is not None)):
         p.print_help()
         sys.exit(1)
 
@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
     # in case a single term is given as input:
     if opts.term:
-        if not opts.term in go_dag:
+        if opts.term not in go_dag:
             print >> sys.stderr, ("term %s not found!" % opts.term)
             sys.exit(1)
         direct_anc, all_anc = mapslim(opts.term, go_dag, goslim_dag)
@@ -100,7 +100,7 @@ if __name__ == '__main__':
             all_covered_anc = set()
             all_all_anc = set()
             for go_term in go_terms:
-                if not go_term in go_dag:
+                if go_term not in go_dag:
                     continue
                 direct_anc, all_anc = mapslim(go_term, go_dag, goslim_dag)
                 all_all_anc |= all_anc

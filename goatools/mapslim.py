@@ -39,7 +39,7 @@ def mapslim(go_term, go_dag, goslim_dag):
         raise TypeError("go_dag must be an instance of GODag")
     if not isinstance(goslim_dag, GODag):
         raise TypeError("goslim_dag must be an instance of GODag")
-    if not go_term in go_dag:
+    if go_term not in go_dag:
         raise ValueError("go_term must be an accession that is in the go_dag")
 
     all_ancestors = set()
