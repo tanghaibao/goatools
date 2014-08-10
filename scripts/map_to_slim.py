@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
     # check that slim_out is either "direct" or "all" and set according flag
     only_direct = None
-    if (opts.slim_out == "direct"):
+    if opts.slim_out == "direct":
         only_direct = True
     elif opts.slim_out == "all":
         only_direct = False
