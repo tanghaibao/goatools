@@ -35,7 +35,7 @@ if __name__ == '__main__':
     opts, args = p.parse_args()
 
     if not len(args):
-        obo_file = "gene_ontology.1_2.obo"
+        obo_file = "go-basic.obo"
     else:
         obo_file = args[0]
         assert os.path.exists(obo_file), "file %s not found!" % obo_file

@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # configuration for Gene Ontology files
-GO_OBO_FILE=gene_ontology.1_2.obo
+GO_OBO_FILE=go-basic.obo
 GOSLIM_OBO_FILE=goslim_generic.obo
 
-GO_OBO_DOWNLOAD=http://geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo
-GOSLIM_OBO_DOWNLOAD=http://www.geneontology.org/GO_slims/goslim_generic.obo
+GO_OBO_DOWNLOAD=http://purl.obolibrary.org/obo/go/go-basic.obo
+GOSLIM_OBO_DOWNLOAD=http://www.geneontology.org/ontology/subsets/goslim_generic.obo
 
 # if the gene ontology files don't exist, download them
 if [ ! -f $GO_OBO_FILE ]
