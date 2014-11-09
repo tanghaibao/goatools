@@ -18,7 +18,8 @@ Tools for Gene Ontology
          Aurelien Naldi (`aurelien-naldi <http://github.com/aurelien-naldi>`_),
          Patrick Flick (`r4d2 <http://github.com/r4d2>`_),
          Jeff Yunes (`yunesj <http://github.com/yunesj>`_),
-         Kenta Sato (`bicycle1885 <http://github.com/bicycle1885>`_)
+         Kenta Sato (`bicycle1885 <http://github.com/bicycle1885>`_),
+         Chris Mungall (`cmungall <https://github.com/cmungall>`_)
 :Email: tanghaibao@gmail.com
 :License: BSD
 
@@ -44,14 +45,14 @@ Installation
 
     easy_install goatools
 
-- ``.obo`` file for the most current `gene ontology <http://www.geneontology.org/>`_::
+- ``.obo`` file for the most current `GO <http://geneontology.org/page/download-ontology>`_::
 
     wget http://purl.obolibrary.org/obo/go/go-basic.obo
 
-- ``.obo`` file for the most current `GO Slim <http://www.geneontology.org/GO.slims.shtml>`_
+- ``.obo`` file for the most current `GO Slim <http://geneontology.org/page/go-slim-and-subset-guide>`_
   terms (.e.g generic GOslim) ::
 
-    wget http://www.geneontology.org/GO_slims/goslim_generic.obo
+    wget http://www.geneontology.org/ontology/subsets/goslim_generic.obo
 
 
 Dependencies
