@@ -46,7 +46,7 @@ Installation
 
 - ``.obo`` file for the most current `gene ontology <http://www.geneontology.org/>`_::
 
-    wget http://geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo
+    wget http://purl.obolibrary.org/obo/go/go-basic.obo
 
 - ``.obo`` file for the most current `GO Slim <http://www.geneontology.org/GO.slims.shtml>`_
   terms (.e.g generic GOslim) ::
@@ -129,7 +129,7 @@ Map GO terms to GOslim terms
 ::::::::::::::::::::::::::::::::::::
 See ``map_to_slim.py`` for usage. As arguments it takes the gene ontology files:
 
-* the current gene ontology file ``gene_ontology.1_2.obo``
+* the current gene ontology file ``go-basic.obo``
 * the GOslim file to be used (e.g. ``goslim_generic.obo`` or any other GOslim
   file)
 
@@ -139,11 +139,11 @@ with multiple associations to all it's GOslim terms.
 To determine the GOslim terms for a single GO term, you can use the following
 command::
 
-    python scripts/map_to_slim.py --term=GO:0008135 gene_ontology.1_2.obo goslim_generic.obo
+    python scripts/map_to_slim.py --term=GO:0008135 go-basic.obo goslim_generic.obo
 
 To determine the GOslim terms for protein products with multiple associations::
 
-    python scripts/map_to_slim.py --association_file=data/association gene_ontology.1_2.obo goslim_generic.obo
+    python scripts/map_to_slim.py --association_file=data/association go-basic.obo goslim_generic.obo
 
 Where the ``association`` file has the same format as used for
 ``find_enrichment.py``.

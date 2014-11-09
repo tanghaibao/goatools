@@ -29,7 +29,7 @@ def read_until(handle, start):
 class OBOReader:
     """
     parse obo file, usually the most updated can be downloaded from
-    http://www.geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo
+    http://purl.obolibrary.org/obo/go/go-basic.obo
 
     >>> reader = OBOReader()
     >>> for rec in reader:
@@ -37,14 +37,14 @@ class OBOReader:
 
     """
 
-    def __init__(self, obo_file="gene_ontology.1_2.obo"):
+    def __init__(self, obo_file="go-basic.obo"):
 
         try:
             self._handle = file(obo_file)
         except:
             print >>sys.stderr, ("download obo file first\n "
-                                 "[http://geneontology.org/ontology/"
-                                 "obo_format_1_2/gene_ontology.1_2.obo]")
+                                 "[http://purl.obolibrary.org/obo/"
+                                 "go/go-basic.obo]")
             sys.exit(1)
 
     def __iter__(self):
@@ -158,7 +158,7 @@ class GOTerm:
 
 class GODag(dict):
 
-    def __init__(self, obo_file="gene_ontology.1_2.obo"):
+    def __init__(self, obo_file="go-basic.obo"):
 
         self.load_obo_file(obo_file)
 

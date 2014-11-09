@@ -119,7 +119,7 @@ if __name__ == "__main__":
     if opts.fdr:
         methods.append("fdr")
 
-    obo_dag = GODag(obo_file="gene_ontology.1_2.obo")
+    obo_dag = GODag(obo_file="go-basic.obo")
     g = GOEnrichmentStudy(pop, assoc, obo_dag, alpha=opts.alpha,
                           study=study, methods=methods)
     g.print_summary(min_ratio=min_ratio, indent=opts.indent, pval=opts.pval)
