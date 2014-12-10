@@ -266,7 +266,7 @@ class GODag(dict):
             print >>sys.stderr, "try `easy_install pygraphviz`"
             return
 
-        G = pgv.AGraph()
+        G = pgv.AGraph(name="GO tree")
         edgeset = set()
         for rec in recs:
             if draw_parents:
@@ -304,7 +304,6 @@ class GODag(dict):
         if gml:
             import networkx as nx  # use networkx to do the conversion
             pf = lineage_img.rsplit(".", 1)[0]
-            G.name = "GO tree"
             NG = nx.from_agraph(G)
 
             del NG.graph['node']
