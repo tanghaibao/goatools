@@ -12,7 +12,7 @@
     For now this does not implement Bucket Terms.
 """
 
-from obo_parser import GODag
+from .obo_parser import GODag
 
 
 def mapslim(go_term, go_dag, goslim_dag):

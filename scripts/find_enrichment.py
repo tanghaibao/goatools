@@ -14,7 +14,7 @@ About significance cutoff:
 --pval: experiment-wise alpha; for the entire experiment, what significance
         level to apply after Bonferroni correction
 """
-
+from __future__ import print_function
 import sys
 import os.path as op
 sys.path.insert(0, op.join(op.dirname(__file__), ".."))
@@ -33,9 +33,9 @@ def read_geneset(study_fn, pop_fn, compare=False):
         pop |= study
         pop -= common
         study -= common
-        print >>sys.stderr, "removed %d overlapping items" % (len(common), )
-        print >>sys.stderr, "Set 1: {0}, Set 2: {1}".\
-            format(len(study), len(pop))
+        print("removed %d overlapping items" % (len(common), ), file=sys.stderr)
+        print("Set 1: {0}, Set 2: {1}".\
+            format(len(study), len(pop)), file=sys.stderr)
 
     return study, pop
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     (opts, args) = p.parse_args()
     bad = check_bad_args(args)
     if bad:
-        print bad
+        print(bad)
         sys.exit(p.print_help())
 
     min_ratio = opts.ratio

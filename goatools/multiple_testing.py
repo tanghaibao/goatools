@@ -4,12 +4,13 @@
 """
 A list of commonly used multiple correction routines
 """
-
+from __future__ import print_function
+from __future__ import absolute_import
 import sys
 import random
 import fisher
 import numpy as np
-import go_enrichment
+import goatools.go_enrichment
 
 
 class AbstractCorrection(object):
@@ -61,14 +62,14 @@ class HolmBonferroni(AbstractCorrection):
     """
     def set_correction(self):
         if len(self.pvals):
-            idxs, correction = zip(*self.generate_significant())
+            idxs, correction = list(zip(*self.generate_significant()))
             idxs = list(idxs)
             self.corrected_pvals[idxs] *= correction
 
     def generate_significant(self):
 
         pvals = self.pvals
-        pvals_idxs = zip(pvals, xrange(len(pvals)))
+        pvals_idxs = list(zip(pvals, list(range(len(pvals)))))
         pvals_idxs.sort()
 
         lp = len(self.pvals)
@@ -99,16 +100,16 @@ http://www.biomedcentral.com/1471-2105/6/168
 
 def calc_qval(study_count, study_n, pop_count, pop_n,
               pop, assoc, term_pop, obo_dag):
-    print >>sys.stderr, ("generating p-value distribution for FDR "
-                         "calculation (this might take a while)")
+    print(("generating p-value distribution for FDR "
+                         "calculation (this might take a while)"), file=sys.stderr)
     T = 1000    # number of samples
     distribution = []
-    for i in xrange(T):
+    for i in range(T):
         new_study = random.sample(pop, study_n)
         new_term_study = go_enrichment.count_terms(new_study, assoc, obo_dag)
 
         smallest_p = 1
-        for term, study_count in new_term_study.items():
+        for term, study_count in list(new_term_study.items()):
             pop_count = term_pop[term]
             p = fisher.pvalue_population(study_count,
                                          study_n,
@@ -118,7 +119,7 @@ def calc_qval(study_count, study_n, pop_count, pop_n,
                 smallest_p = p.two_tail
 
         distribution.append(smallest_p)
-        print >>sys.stderr, i, smallest_p
+        print(i, smallest_p, file=sys.stderr)
     return distribution
 
 

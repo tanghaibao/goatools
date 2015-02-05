@@ -29,19 +29,19 @@ do
 case $REPLY in
 
 1)
-python scripts/find_enrichment.py --alpha=0.05 --indent data/study data/population data/association
+python3 scripts/find_enrichment.py --alpha=0.05 --indent data/study data/population data/association
 ;;
 
 2)
-python scripts/plot_go_term.py --term=GO:0008135
+python3 scripts/plot_go_term.py --term=GO:0008135
 ;;
 
 3)
-python 'tests/test_mapslim.py'
+python3 'tests/test_mapslim.py'
 ;;
 
 4)
-python scripts/map_to_slim.py --association_file=data/association --slim_out=direct $GO_OBO_FILE $GOSLIM_OBO_FILE
+python3 scripts/map_to_slim.py --association_file=data/association --slim_out=direct $GO_OBO_FILE $GOSLIM_OBO_FILE
 ;;
 
 
