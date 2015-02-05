@@ -11,7 +11,7 @@ GOSLIM_OBO_DOWNLOAD=http://www.geneontology.org/ontology/subsets/goslim_generic.
 if [ ! -f $GO_OBO_FILE ]
 then
     echo "downloading GO file: $GO_OBO_FILE"
-    wget -O $GOSLIM_OBO_FILE $GO_OBO_DOWNLOAD
+    wget -O $GO_OBO_FILE $GO_OBO_DOWNLOAD
 fi
 
 if [ ! -f $GOSLIM_OBO_FILE ]
