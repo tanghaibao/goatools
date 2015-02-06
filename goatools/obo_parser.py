@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-
+from __future__ import print_function
 import sys
-from exceptions import EOFError
+try:
+    from exceptions import EOFError
+except ImportError:
+    pass
 
 typedef_tag, term_tag = "[Typedef]", "[Term]"
 
@@ -40,11 +43,11 @@ class OBOReader:
     def __init__(self, obo_file="go-basic.obo"):
 
         try:
-            self._handle = file(obo_file)
+            self._handle = open(obo_file)
         except:
-            print >>sys.stderr, ("download obo file first\n "
+            print(("download obo file first\n "
                                  "[http://purl.obolibrary.org/obo/"
-                                 "go/go-basic.obo]")
+                                 "go/go-basic.obo]"), file=sys.stderr)
             sys.exit(1)
 
     def __iter__(self):
@@ -53,9 +56,9 @@ class OBOReader:
         if not line.startswith(term_tag):
             read_until(self._handle, term_tag)
         while 1:
-            yield self.next()
+            yield self.__next__()
 
-    def next(self):
+    def __next__(self):
 
         lines = []
         line = self._handle.readline()
@@ -164,7 +167,7 @@ class GODag(dict):
 
     def load_obo_file(self, obo_file):
 
-        print >>sys.stderr, "load obo file %s" % obo_file
+        print("load obo file %s" % obo_file, file=sys.stderr)
         obo_reader = OBOReader(obo_file)
         for rec in obo_reader:
             self[rec.id] = rec
@@ -172,7 +175,7 @@ class GODag(dict):
                 self[alt] = rec
 
         self.populate_terms()
-        print >>sys.stderr, len(self), "nodes imported"
+        print(len(self), "nodes imported", file=sys.stderr)
 
     def populate_terms(self):
 
@@ -185,11 +188,11 @@ class GODag(dict):
             return rec.level
 
         # make the parents references to the GO terms
-        for rec in self.itervalues():
+        for rec in self.values():
             rec.parents = [self[x] for x in rec._parents]
 
         # populate children and levels
-        for rec in self.itervalues():
+        for rec in self.values():
             for p in rec.parents:
                 p.children.append(rec)
 
@@ -198,18 +201,18 @@ class GODag(dict):
 
     def write_dag(self, out=sys.stdout):
         for rec_id, rec in sorted(self.items()):
-            print >>out, rec
+            print(rec, file=out)
 
     def query_term(self, term, verbose=False):
         if term not in self:
-            print >>sys.stderr, "Term %s not found!" % term
+            print("Term %s not found!" % term, file=sys.stderr)
             return
 
         rec = self[term]
-        print >>sys.stderr, rec
+        print(rec, file=sys.stderr)
         if verbose:
-            print >>sys.stderr, "all parents:", rec.get_all_parents()
-            print >>sys.stderr, "all children:", rec.get_all_children()
+            print("all parents:", rec.get_all_parents(), file=sys.stderr)
+            print("all children:", rec.get_all_children(), file=sys.stderr)
 
         return rec
 
@@ -232,7 +235,7 @@ class GODag(dict):
         """
         # error handling consistent with original authors
         if term not in self:
-            print >>sys.stderr, "Term %s not found!" % term
+            print("Term %s not found!" % term, file=sys.stderr)
             return
 
         def _paths_to_top_recursive(rec):
@@ -262,8 +265,8 @@ class GODag(dict):
         try:
             import pygraphviz as pgv
         except:
-            print >>sys.stderr, "pygraphviz not installed, lineage not drawn!"
-            print >>sys.stderr, "try `easy_install pygraphviz`"
+            print("pygraphviz not installed, lineage not drawn!", file=sys.stderr)
+            print("try `easy_install pygraphviz`", file=sys.stderr)
             return
 
         G = pgv.AGraph(name="GO tree")
@@ -311,20 +314,20 @@ class GODag(dict):
             gmlfile = pf + ".gml"
             nx.write_gml(NG, gmlfile)
 
-        print >>sys.stderr, ("lineage info for terms %s written to %s" %
-                             ([rec.id for rec in recs], lineage_img))
+        print(("lineage info for terms %s written to %s" %
+                             ([rec.id for rec in recs], lineage_img)), file=sys.stderr)
 
         G.draw(lineage_img, prog="dot")
 
     def update_association(self, association):
         bad_terms = set()
-        for key, terms in association.items():
+        for key, terms in list(association.items()):
             parents = set()
             for term in terms:
                 try:
                     parents.update(self[term].get_all_parents())
                 except:
-                    bad_terms.add(term)
+                    bad_terms.add(term.strip())
             terms.update(parents)
         if bad_terms:
-            print >>sys.stderr, "terms not found: %s", bad_terms
+            print("terms not found: %s" % (bad_terms,), file=sys.stderr)

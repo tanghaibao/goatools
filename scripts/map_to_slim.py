@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
+from __future__ import print_function
 import os
 import os.path as op
 import sys
@@ -80,7 +81,7 @@ if __name__ == '__main__':
     # in case a single term is given as input:
     if opts.term:
         if opts.term not in go_dag:
-            print >> sys.stderr, ("term %s not found!" % opts.term)
+            print(("term %s not found!" % opts.term), file=sys.stderr)
             sys.exit(1)
         direct_anc, all_anc = mapslim(opts.term, go_dag, goslim_dag)
         # output either all or only direct slims, depending on user command
@@ -95,7 +96,7 @@ if __name__ == '__main__':
         assert os.path.exists(opts.ass_file_name), ("file %s not found!"
                                                     % opts.ass_file_name)
         assocs = read_associations(opts.ass_file_name)
-        for protein_product, go_terms in assocs.iteritems():
+        for protein_product, go_terms in assocs.items():
             all_direct_anc = set()
             all_covered_anc = set()
             all_all_anc = set()
@@ -113,4 +114,4 @@ if __name__ == '__main__':
                 slim_terms_str = ";".join(all_direct_anc)
             else:
                 slim_terms_str = ";".join(all_all_anc)
-            print(protein_product + "\t" + slim_terms_str)
+            print((protein_product + "\t" + slim_terms_str))

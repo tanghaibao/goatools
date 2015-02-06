@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-
+from __future__ import print_function
 import os.path as op
 import sys
 sys.path.insert(0, op.join(op.dirname(__file__), ".."))
@@ -55,18 +55,18 @@ if __name__ == '__main__':
 
     tests_succeed = True
 
-    for go_term, (exp_direct, exp_all) in expected_results.iteritems():
-        print >> sys.stderr, ("Testing for term '" + go_term + "' ..."),
+    for go_term, (exp_direct, exp_all) in expected_results.items():
+        print(("Testing for term '" + go_term + "' ..."), end=' ', file=sys.stderr)
         direct_anc, all_anc = mapslim(go_term, go_dag, goslim_dag)
         if direct_anc != exp_direct or all_anc != exp_all:
             tests_succeed = False
-            print >> sys.stderr, ("failed.")
+            print(("failed."), file=sys.stderr)
         else:
-            print >> sys.stderr, ("success!")
+            print(("success!"), file=sys.stderr)
 
     if tests_succeed:
         print("All test passed successfully!")
         sys.exit(0)
     else:
-        print >>sys.stderr, ("[ERROR] At least one test failed.")
+        print(("[ERROR] At least one test failed."), file=sys.stderr)
         sys.exit(1)

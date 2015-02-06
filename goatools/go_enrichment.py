@@ -8,12 +8,12 @@ This program returns P-values for functional enrichment in a cluster of
 study genes using Fisher's exact test, and corrected for multiple testing
 (including Bonferroni, Holm, Sidak, and false discovery rate)
 """
-
+from __future__ import absolute_import
 import sys
 import collections
 import os.path as op
 import fisher
-from multiple_testing import Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
+from .multiple_testing import Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
 
 
 class GOEnrichmentRecord(object):
@@ -26,7 +26,7 @@ class GOEnrichmentRecord(object):
         for f in self._fields:
             self.__setattr__(f, "n.a.")
 
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             assert k in self._fields, "invalid field name %s" % k
             self.__setattr__(k, v)
 
@@ -57,12 +57,12 @@ class GOEnrichmentRecord(object):
         return "GOEnrichmentRecord(%s)" % self.id
 
     def find_goterm(self, go):
-        if self.id in go.keys():
+        if self.id in list(go.keys()):
             self.goterm = go[self.id]
             self.description = self.goterm.name
 
     def update_fields(self, **kwargs):
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             assert k in self._fields, "invalid field name %s" % k
             self.__setattr__(k, v)
 
@@ -101,7 +101,7 @@ class GOEnrichmentStudy(object):
 
         pop_n, study_n = len(self.pop), len(study)
 
-        for term, study_count in term_study.items():
+        for term, study_count in list(term_study.items()):
             pop_count = self.term_pop[term]
             p = fisher.pvalue_population(study_count, study_n,
                                          pop_count, pop_n)
@@ -160,7 +160,7 @@ class GOEnrichmentStudy(object):
 
     def print_summary(self, min_ratio=None, indent=False, pval=0.05):
         # field names for output
-        print "\t".join(GOEnrichmentRecord()._fields)
+        print("\t".join(GOEnrichmentRecord()._fields))
 
         for rec in self.results:
             # calculate some additional statistics
@@ -171,7 +171,7 @@ class GOEnrichmentStudy(object):
                 continue
 
             if rec.is_ratio_different:
-                print rec.__str__(indent=indent)
+                print(rec.__str__(indent=indent))
 
 
 def count_terms(geneset, assoc, obo_dag):
