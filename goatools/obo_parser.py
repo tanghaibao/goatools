@@ -90,6 +90,8 @@ class OBOReader:
             elif (line.startswith("is_obsolete:") and
                   after_colon(line) == "true"):
                 rec.is_obsolete = True
+            elif line.startswith("relationship: part_of"):
+                rec._parents.append(after_colon(line).split()[1].strip())
 
         return rec
 
