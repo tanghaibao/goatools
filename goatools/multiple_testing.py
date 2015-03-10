@@ -10,7 +10,7 @@ import sys
 import random
 import fisher
 import numpy as np
-import goatools.go_enrichment
+from .ratio import count_terms
 
 
 class AbstractCorrection(object):
@@ -99,14 +99,13 @@ http://www.biomedcentral.com/1471-2105/6/168
 
 
 def calc_qval(study_count, study_n, pop_count, pop_n,
-              pop, assoc, term_pop, obo_dag):
-    print(("generating p-value distribution for FDR "
-                         "calculation (this might take a while)"), file=sys.stderr)
-    T = 1000    # number of samples
+              pop, assoc, term_pop, obo_dag, T=500):
+    print(("Generate p-value distribution for FDR "
+           "based on resampling (this might take a while)"), file=sys.stderr)
     distribution = []
     for i in range(T):
         new_study = random.sample(pop, study_n)
-        new_term_study = go_enrichment.count_terms(new_study, assoc, obo_dag)
+        new_term_study = count_terms(new_study, assoc, obo_dag)
 
         smallest_p = 1
         for term, study_count in list(new_term_study.items()):
@@ -119,7 +118,9 @@ def calc_qval(study_count, study_n, pop_count, pop_n,
                 smallest_p = p.two_tail
 
         distribution.append(smallest_p)
-        print(i, smallest_p, file=sys.stderr)
+        if i % 10  == 0:
+            print("Sample {0} / {1}: p-value {2}".\
+                        format(i, T, smallest_p), file=sys.stderr)
     return distribution
 
 
