@@ -370,7 +370,7 @@ class GODag(dict):
         if engine == "pygraphviz":
             G.draw(lineage_img, prog="dot")
         else:
-            G.draw(lineage_img)
+            G.write_png(lineage_img)
 
     def update_association(self, association):
         bad_terms = set()

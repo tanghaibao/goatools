@@ -20,7 +20,8 @@ Tools for Gene Ontology
          Jeff Yunes (`yunesj <http://github.com/yunesj>`_),
          Kenta Sato (`bicycle1885 <http://github.com/bicycle1885>`_),
          Chris Mungall (`cmungall <https://github.com/cmungall>`_),
-         Greg Stupp (`stuppie <https://github.com/stuppie>`_)
+         Greg Stupp (`stuppie <https://github.com/stuppie>`_),
+         Debra Klopfenstein
 :Email: tanghaibao@gmail.com
 :License: BSD
 
