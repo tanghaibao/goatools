@@ -5,7 +5,7 @@ import os
 import os.path as op
 import sys
 sys.path.insert(0, op.join(op.dirname(__file__), ".."))
-from goatools.obo_parser import GODag
+from goatools.obo_parser import GODag, GraphEngines
 
 
 if __name__ == '__main__':
@@ -18,6 +18,11 @@ if __name__ == '__main__':
     p.add_option("--term", dest="term", help="write the parents and children"
                  " of the query term", action="store", type="string",
                  default=None)
+    p.add_option("--engine", default="pygraphviz",
+                 choices=GraphEngines,
+                 help="Graph plot engine, must be one of {0} [default: %default]".\
+                        format("|".join(GraphEngines))
+                 )
     p.add_option("--gml", action="store_true",
                  help="Write GML output (for Cytoscape) [default: %default]")
     p.add_option("--disable-draw-parents",
@@ -48,7 +53,7 @@ if __name__ == '__main__':
     # run a test case
     if opts.term is not None:
         rec = g.query_term(opts.term, verbose=True)
-        g.draw_lineage([rec],
+        g.draw_lineage([rec], engine=opts.engine,
                        gml=opts.gml,
                        draw_parents=opts.draw_parents,
                        draw_children=opts.draw_children)

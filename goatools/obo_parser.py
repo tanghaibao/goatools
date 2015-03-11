@@ -8,6 +8,7 @@ except ImportError:
     pass
 
 typedef_tag, term_tag = "[Typedef]", "[Term]"
+GraphEngines = ("pygraphviz", "pydot")
 
 
 def after_colon(line):
@@ -257,17 +258,51 @@ class GODag(dict):
                                      self[label].name.replace(",", r"\n"))
         return wrapped_label
 
-    def draw_lineage(self, recs, nodecolor="mediumseagreen",
-                     edgecolor="lightslateblue", dpi=96,
-                     lineage_img="GO_lineage.png", gml=False,
+    def make_graph_pydot(self, recs, nodecolor,
+                     edgecolor, dpi,
+                     draw_parents=True, draw_children=True):
+        """draw AMIGO style network, lineage containing one query record."""
+        import pydot
+        G = pydot.Dot(graph_type='digraph', dpi="{}".format(dpi)) # Directed Graph
+        edgeset = set()
+        usr_ids = [rec.id for rec in recs]
+        for rec in recs:
+            if draw_parents:
+                edgeset.update(rec.get_all_parent_edges())
+            if draw_children:
+                edgeset.update(rec.get_all_child_edges())
+
+        lw = self._label_wrap
+        rec_id_set = set([rec_id for endpts in edgeset for rec_id in endpts])
+        nodes = {str(ID):pydot.Node(
+              lw(ID).replace("GO:",""),  # Node name
+              shape="box",
+              style="rounded, filled",
+              # Highlight query terms in plum:
+              fillcolor="beige" if ID not in usr_ids else "plum",
+              color=nodecolor)
+                for ID in rec_id_set}
+
+        # add nodes explicitly via add_node
+        for rec_id, node in nodes.items():
+            G.add_node(node)
+
+        for src, target in edgeset:
+            # default layout in graphviz is top->bottom, so we invert
+            # the direction and plot using dir="back"
+            G.add_edge(pydot.Edge(nodes[target], nodes[src],
+              shape="normal",
+              color=edgecolor,
+              label="is_a",
+              dir="back"))
+
+        return G
+
+    def make_graph_pygraphviz(self, recs, nodecolor,
+                     edgecolor, dpi,
                      draw_parents=True, draw_children=True):
         # draw AMIGO style network, lineage containing one query record
-        try:
-            import pygraphviz as pgv
-        except:
-            print("pygraphviz not installed, lineage not drawn!", file=sys.stderr)
-            print("try `easy_install pygraphviz`", file=sys.stderr)
-            return
+        import pygraphviz as pgv
 
         G = pgv.AGraph(name="GO tree")
         edgeset = set()
@@ -304,20 +339,38 @@ class GODag(dict):
             except:
                 continue
 
+        return G
+
+    def draw_lineage(self, recs, nodecolor="mediumseagreen",
+                     edgecolor="lightslateblue", dpi=96,
+                     lineage_img="GO_lineage.png", engine="pygraphviz",
+                     gml=False, draw_parents=True, draw_children=True):
+        assert engine in GraphEngines
+        if engine == "pygraphviz":
+            G = self.make_graph_pygraphviz(recs, nodecolor, edgecolor, dpi,
+                              draw_parents=draw_parents, draw_children=draw_children)
+        else:
+            G = self.make_graph_pydot(recs, nodecolor, edgecolor, dpi,
+                              draw_parents=draw_parents, draw_children=draw_children)
+
         if gml:
             import networkx as nx  # use networkx to do the conversion
             pf = lineage_img.rsplit(".", 1)[0]
-            NG = nx.from_agraph(G)
+            NG = nx.from_agraph(G) if engine == "pygraphviz" else nx.from_pydot(G)
 
             del NG.graph['node']
             del NG.graph['edge']
             gmlfile = pf + ".gml"
             nx.write_gml(NG, gmlfile)
+            print("GML graph written to {0}".format(gmlfile), file=sys.stderr)
 
         print(("lineage info for terms %s written to %s" %
                              ([rec.id for rec in recs], lineage_img)), file=sys.stderr)
 
-        G.draw(lineage_img, prog="dot")
+        if engine == "pygraphviz":
+            G.draw(lineage_img, prog="dot")
+        else:
+            G.draw(lineage_img)
 
     def update_association(self, association):
         bad_terms = set()
