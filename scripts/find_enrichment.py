@@ -129,5 +129,3 @@ if __name__ == "__main__":
     g = GOEnrichmentStudy(pop, assoc, obo_dag, alpha=opts.alpha,
                           study=study, methods=methods)
     g.print_summary(min_ratio=min_ratio, indent=opts.indent, pval=opts.pval)
-    print('pval={}'.format(opts.pval))
-    print('min_ratio={}'.format(min_ratio))

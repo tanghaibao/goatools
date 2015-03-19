@@ -99,9 +99,8 @@ class GOEnrichmentStudy(object):
 
         pop_n, study_n = len(self.pop), len(study)
 
-        #Uncomment these to cause tests/test_enrichment_fdr.py to pass:
-        #study_count = 0
-        #pop_count   = 0
+        # Init study_count and pop_count to handle empty sets
+        study_count = pop_count = 0
         for term, study_count in list(term_study.items()):
             pop_count = self.term_pop[term]
             p = fisher.pvalue_population(study_count, study_n,
@@ -160,6 +159,9 @@ class GOEnrichmentStudy(object):
             rec.__setattr__("p_"+method, val)
 
     def print_summary(self, min_ratio=None, indent=False, pval=0.05):
+        # Header contains parameters
+        print("# min_ratio={0} pval={1}".format(min_ratio, pval))
+
         # field names for output
         print("\t".join(GOEnrichmentRecord()._fields))
 
