@@ -99,6 +99,9 @@ class GOEnrichmentStudy(object):
 
         pop_n, study_n = len(self.pop), len(study)
 
+        #Uncomment these to cause tests/test_enrichment_fdr.py to pass:
+        #study_count = 0
+        #pop_count   = 0
         for term, study_count in list(term_study.items()):
             pop_count = self.term_pop[term]
             p = fisher.pvalue_population(study_count, study_n,
