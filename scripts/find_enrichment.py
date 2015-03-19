@@ -98,6 +98,9 @@ if __name__ == "__main__":
                  "Bonferroni but slower)")
     p.add_option('--indent', dest='indent', default=False,
                  action='store_true', help="indent GO terms")
+    p.add_option('--obo', default="go-basic.obo", type="string",
+                 help="Specifies location and name of the obo file"
+                 "[default: %default]")
 
     (opts, args) = p.parse_args()
     bad = check_bad_args(args)
@@ -114,12 +117,17 @@ if __name__ == "__main__":
     study_fn, pop_fn, assoc_fn = args
     study, pop = read_geneset(study_fn, pop_fn, compare=opts.compare)
     assoc = read_associations(assoc_fn)
+    #print("{}".format(assoc))
+    #print("{}".format(study))
+    #print("{}".format(pop))
 
     methods = ["bonferroni", "sidak", "holm"]
     if opts.fdr:
         methods.append("fdr")
 
-    obo_dag = GODag(obo_file="go-basic.obo")
+    obo_dag = GODag(obo_file=opts.obo)
     g = GOEnrichmentStudy(pop, assoc, obo_dag, alpha=opts.alpha,
                           study=study, methods=methods)
     g.print_summary(min_ratio=min_ratio, indent=opts.indent, pval=opts.pval)
+    print('pval={}'.format(opts.pval))
+    print('min_ratio={}'.format(min_ratio))
