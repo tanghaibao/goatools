@@ -76,7 +76,7 @@ Dependencies
 
   2. `pydot <https://code.google.com/p/pydot/>`_, a Python interface to Graphviz's Dot language.      
 
-     * `pyparsing <http://pyparsing.wikispaces.com/>`_ is a requirement for pydot      
+     * `pyparsing <http://pyparsing.wikispaces.com/>`_ is a prerequisite for pydot      
      * Images can be viewed using either:      
 
        * `ImageMagick <http://www.imagemagick.org/>`_'s *display*
