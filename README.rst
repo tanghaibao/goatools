@@ -78,6 +78,7 @@ Dependencies
 
      * `pyparsing <http://pyparsing.wikispaces.com/>`_ is a requirement for pydot      
      * Images can be viewed using either:      
+
        * `ImageMagick <http://www.imagemagick.org/>`_'s *display*
        * `Graphviz <http://www.graphviz.org/>`_
 
