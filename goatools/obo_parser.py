@@ -80,6 +80,9 @@ class OBOReader:
         for line in lines:
             if line.startswith("id:"):
                 rec.id = after_colon(line)
+                num = rec.id.replace("GO:", "", 1)
+                if num.isdigit():
+                  rec.id_num = int(num)
             if line.startswith("alt_id:"):
                 rec.alt_ids.append(after_colon(line))
             elif line.startswith("name:"):
@@ -102,6 +105,7 @@ class GOTerm:
 
     def __init__(self):
         self.id = ""                # GO:xxxxxx
+        self.id_num = None          # GO term integer
         self.name = ""              # description
         self.namespace = ""         # BP, CC, MF
         self._parents = []          # is_a basestring of parents
