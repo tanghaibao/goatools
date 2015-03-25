@@ -64,14 +64,21 @@ Dependencies
 
     easy_install fisher
 
-If you need to plot the ontology lineage, you need the following tools to be
-installed.
+- To plot the ontology lineage, install one of these two options:
 
-- `Graphviz <http://www.graphviz.org/>`_, for graph visualization.
-- `pygraphviz <http://networkx.lanl.gov/pygraphviz/>`_, Python binding for
-  communicating with Graphviz::
+  1. Graphviz
 
-    easy_install pygraphviz
+     - `Graphviz <http://www.graphviz.org/>`_, for graph visualization.
+     - `pygraphviz <http://networkx.lanl.gov/pygraphviz/>`_, Python binding for
+       communicating with Graphviz::
+     
+         easy_install pygraphviz
+
+  2. `pydot <https://code.google.com/p/pydot/>`_, a Python interface to Graphviz's Dot language.    
+     - `pyparsing <http://pyparsing.wikispaces.com/>`_ is a requirement for pydot    
+     - Images can be viewed using either:    
+       - `ImageMagick <http://www.imagemagick.org/>`_'s *display*
+       - `Graphviz <http://www.graphviz.org/>`_
 
 
 Cookbook

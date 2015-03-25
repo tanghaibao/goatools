@@ -26,5 +26,5 @@ setup(
     url='http://github.com/tanghaibao/goatools',
     description="Python scripts to find enrichment of GO terms",
     long_description=open("README.rst").read(),
-    install_requires=['fisher', 'pygraphviz']
+    install_requires=['fisher']
     )
