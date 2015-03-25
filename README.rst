@@ -74,12 +74,12 @@ Dependencies
      
          easy_install pygraphviz
 
-  2. `pydot <https://code.google.com/p/pydot/>`    
+  2. `pydot <https://code.google.com/p/pydot/>`_      
      Pydot is a Python interface to Graphviz's Dot language.
-     - `pyparsing <http://pyparsing.wikispaces.com/>` is a requirement     
+     - `pyparsing <http://pyparsing.wikispaces.com/>`_ is a requirement     
      Images can be viewed using either:    
-     - `ImageMagick <http://www.imagemagick.org/>`'s "display"
-     - `Graphviz <http://www.graphviz.org/>`
+     - `ImageMagick <http://www.imagemagick.org/>`_'s "display"
+     - `Graphviz <http://www.graphviz.org/>`_
 
 
 Cookbook
