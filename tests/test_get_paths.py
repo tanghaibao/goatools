@@ -1,8 +1,6 @@
 
 from goatools.obo_parser import GODag
-from goatools.obo_parser import GOTerm
 import sys
-from StringIO import StringIO
 
 def chk_results(actual_paths, expected_paths):
   for actual_path in actual_paths:
@@ -11,7 +9,7 @@ def chk_results(actual_paths, expected_paths):
     if actual not in expected_paths:
       raise Exception('ACTUAL {} NOT FOUND IN EXPECTED RESULTS\n'.format(actual))
 
-def test_paths_to_top(PRT=sys.stdout):
+def test_paths_to_top():
   dag = GODag("./data/mini_obo.obo")  
   expected_paths = [
     ['GO:0000001', 'GO:0000002', 'GO:0000005', 'GO:0000010'],
