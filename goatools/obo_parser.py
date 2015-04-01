@@ -111,14 +111,15 @@ class GOTerm:
         self._parents = []          # is_a basestring of parents
         self.parents = []           # parent records
         self.children = []          # children records
-        self.level = -1             # distance from root node
+        self.level = None           # shortest distance from root node
+        self.depth = None           # longest distance from root node
         self.is_obsolete = False    # is_obsolete
         self.alt_ids = []           # alternative identifiers
 
     def __str__(self):
         obsolete = "obsolete" if self.is_obsolete else ""
-        return "%s\tlevel-%02d\t%s [%s] %s" % (self.id, self.level, self.name,
-                                               self.namespace, obsolete)
+        return "%s\tlevel-%02d\tdepth-%02d\t%s [%s] %s" % (self.id, self.level, self.depth,
+                                               self.name, self.namespace, obsolete)
 
     def __repr__(self):
         return "GOTerm('%s')" % (self.id)
@@ -184,13 +185,21 @@ class GODag(dict):
 
     def populate_terms(self):
 
-        def depth(rec):
-            if rec.level < 0:
+        def _init_level(rec):
+            if rec.level is None:
                 if not rec.parents:
                     rec.level = 0
                 else:
-                    rec.level = min(depth(rec) for rec in rec.parents) + 1
+                    rec.level = min(_init_level(rec) for rec in rec.parents) + 1
             return rec.level
+
+        def _init_depth(rec):
+            if rec.depth is None:
+                if not rec.parents:
+                    rec.depth = 0
+                else:
+                    rec.depth = max(_init_depth(rec) for rec in rec.parents) + 1
+            return rec.depth
 
         # make the parents references to the GO terms
         for rec in self.values():
@@ -201,8 +210,11 @@ class GODag(dict):
             for p in rec.parents:
                 p.children.append(rec)
 
-            if rec.level < 0:
-                depth(rec)
+            if rec.level is None:
+                _init_level(rec)
+
+            if rec.depth is None:
+                _init_depth(rec)
 
     def write_dag(self, out=sys.stdout):
         for rec_id, rec in sorted(self.items()):
