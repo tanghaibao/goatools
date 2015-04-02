@@ -7,6 +7,8 @@ try:
 except ImportError:
     pass
 
+import collections as cx
+
 typedef_tag, term_tag = "[Typedef]", "[Term]"
 GraphEngines = ("pygraphviz", "pydot")
 
@@ -217,8 +219,31 @@ class GODag(dict):
                 _init_depth(rec)
 
     def write_dag(self, out=sys.stdout):
+        """Write info for all GO Term in obo file, sorted numerically."""
         for rec_id, rec in sorted(self.items()):
             print(rec, file=out)
+
+    def write_summary_cnts(self, out=sys.stdout):
+        """Write summary of level and depth counts for all active GO Terms."""
+        # Count level and depth values for all unique GO Terms.
+        cnts = self.get_cnts_levels_depths(set(self.values()))
+        max_val = max(max(dep for dep in cnts['depth']), max(lev for lev in cnts['level']))
+        nss = ['biological_process', 'molecular_function', 'cellular_component']
+        out.write('Lev <-Depth Counts->  <-Level Counts->\n')
+        out.write('Dep   BP    MF    CC    BP    MF    CC\n')
+        out.write('--- ----  ----  ----  ----  ----  ----\n')
+        for i in range(max_val+1):
+            vals = ['{:>5}'.format(cnts[desc][i][ns]) for desc in cnts for ns in nss]
+            out.write('{:>02} {}\n'.format(i, ' '.join(vals)))
+
+    def get_cnts_levels_depths(self, recs):
+        """Collect counts of levels and depths in a Group of GO Terms."""
+        cnts = cx.defaultdict(lambda: cx.defaultdict(cx.Counter))
+        for rec in recs:
+            if not rec.is_obsolete:
+                cnts['level'][rec.level][rec.namespace] += 1
+                cnts['depth'][rec.depth][rec.namespace] += 1
+        return cnts
 
     def query_term(self, term, verbose=False):
         if term not in self:
@@ -230,7 +255,6 @@ class GODag(dict):
         if verbose:
             print("all parents:", rec.get_all_parents(), file=sys.stderr)
             print("all children:", rec.get_all_children(), file=sys.stderr)
-
         return rec
 
     def paths_to_top(self, term, verbose=False):
