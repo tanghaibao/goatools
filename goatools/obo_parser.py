@@ -82,9 +82,6 @@ class OBOReader:
         for line in lines:
             if line.startswith("id:"):
                 rec.id = after_colon(line)
-                num = rec.id.replace("GO:", "", 1)
-                if num.isdigit():
-                  rec.id_num = int(num)
             if line.startswith("alt_id:"):
                 rec.alt_ids.append(after_colon(line))
             elif line.startswith("name:"):
@@ -106,8 +103,7 @@ class GOTerm:
     """
 
     def __init__(self):
-        self.id = ""                # GO:xxxxxx
-        self.id_num = None          # GO term integer
+        self.id = ""                # GO:NNNNNNN
         self.name = ""              # description
         self.namespace = ""         # BP, CC, MF
         self._parents = []          # is_a basestring of parents
@@ -261,11 +257,9 @@ class GODag(dict):
                 cnts['level'][rec.level][rec.namespace] += 1
                 cnts['depth'][rec.depth][rec.namespace] += 1
         return cnts
-
-    staticmethod
-    def get_leaf_GO_ids(recs):
-      pass
-
+    
+    @staticmethod
+    def id2int(GO_id): return int(GO_id.replace("GO:", "", 1))
 
     def query_term(self, term, verbose=False):
         if term not in self:
