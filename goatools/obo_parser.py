@@ -223,20 +223,37 @@ class GODag(dict):
         for rec_id, rec in sorted(self.items()):
             print(rec, file=out)
 
-    def write_summary_cnts(self, out=sys.stdout):
+    def write_summary_cnts(self, GO_ids, out=sys.stdout):
+        """Write summary of level and depth counts for specific GO ids."""
+        cnts = GODag.get_cnts_levels_depths_recs([self[GO] for GO in GO_ids])
+        self._write_summary_cnts(cnts, out)
+
+    def write_summary_cnts_all(self, out=sys.stdout):
         """Write summary of level and depth counts for all active GO Terms."""
-        # Count level and depth values for all unique GO Terms.
-        cnts = self.get_cnts_levels_depths(set(self.values()))
-        max_val = max(max(dep for dep in cnts['depth']), max(lev for lev in cnts['level']))
+        cnts = self.get_cnts_levels_depths_recs(set(self.values()))
+        self._write_summary_cnts(cnts, out)
+
+    def write_summary_cnts_rec(self, out=sys.stdout):
+        """Write summary of level and depth counts for active GO Terms."""
+        cnts = self.get_cnts_levels_depths_recs(recs)
+        self._write_summary_cnts(cnts, out)
+
+    def _write_summary_cnts(self, cnts, out=sys.stdout):
+        """Write summary of level and depth counts for active GO Terms."""
+        # Count level(shortest path to root) and depth(longest path to root)
+        # values for all unique GO Terms.
+        max_val = max(max(dep for dep in cnts['depth']), 
+                      max(lev for lev in cnts['level']))
         nss = ['biological_process', 'molecular_function', 'cellular_component']
-        out.write('Lev <-Depth Counts->  <-Level Counts->\n')
-        out.write('Dep   BP    MF    CC    BP    MF    CC\n')
+        out.write('Dep <-Depth Counts->  <-Level Counts->\n')
+        out.write('Lev   BP    MF    CC    BP    MF    CC\n')
         out.write('--- ----  ----  ----  ----  ----  ----\n')
         for i in range(max_val+1):
             vals = ['{:>5}'.format(cnts[desc][i][ns]) for desc in cnts for ns in nss]
             out.write('{:>02} {}\n'.format(i, ' '.join(vals)))
 
-    def get_cnts_levels_depths(self, recs):
+    @staticmethod
+    def get_cnts_levels_depths_recs(recs):
         """Collect counts of levels and depths in a Group of GO Terms."""
         cnts = cx.defaultdict(lambda: cx.defaultdict(cx.Counter))
         for rec in recs:
@@ -244,6 +261,11 @@ class GODag(dict):
                 cnts['level'][rec.level][rec.namespace] += 1
                 cnts['depth'][rec.depth][rec.namespace] += 1
         return cnts
+
+    staticmethod
+    def get_leaf_GO_ids(recs):
+      pass
+
 
     def query_term(self, term, verbose=False):
         if term not in self:
@@ -424,3 +446,4 @@ class GODag(dict):
             terms.update(parents)
         if bad_terms:
             print("terms not found: %s" % (bad_terms,), file=sys.stderr)
+
