@@ -162,6 +162,22 @@ class GOTerm:
             all_child_edges |= p.get_all_child_edges()
         return all_child_edges
 
+    def write_hier_rec(self, out=sys.stdout, 
+                      len_dash=1, max_depth=None, num_child=None,
+                      depth=1, dp="-"):
+        """Write hierarchy for a GO Term record."""
+        if len_dash is not None:
+          dp = ''.join(['-']*depth) if len_dash is not None else ''
+          out.write('{DASHES:{N}} '.format(DASHES=dp, N=len_dash))
+        if num_child is not None:
+          out.write('{N:>5} '.format(N=len(self.get_all_children())))
+        out.write('{GO}\n'.format(GO=self))
+        depth += 1
+        if max_depth is not None and depth > max_depth:
+          return
+        for p in self.children:
+            p.write_hier_rec(out, len_dash, max_depth, num_child, depth, dp)
+
 
 class GODag(dict):
 
@@ -206,7 +222,8 @@ class GODag(dict):
         # populate children and levels
         for rec in self.values():
             for p in rec.parents:
-                p.children.append(rec)
+                if rec not in p.children:
+                    p.children.append(rec)
 
             if rec.level is None:
                 _init_level(rec)
@@ -215,9 +232,21 @@ class GODag(dict):
                 _init_depth(rec)
 
     def write_dag(self, out=sys.stdout):
-        """Write info for all GO Term in obo file, sorted numerically."""
+        """Write info for all GO Terms in obo file, sorted numerically."""
         for rec_id, rec in sorted(self.items()):
             print(rec, file=out)
+   
+    def write_hier_all(self, out=sys.stdout, 
+                      len_dash=1, max_depth=None, num_child=None):
+        """Write hierarchy for all GO Terms in obo file."""
+        # Print: [biological_process, molecular_function, and cellular_component]
+        for go_id in ['GO:0008150', 'GO:0003674', 'GO:0005575']:
+          self.write_hier(go_id, out, len_dash, max_depth, num_child) 
+
+    def write_hier(self, GO_id, out=sys.stdout, 
+                       len_dash=1, max_depth=None, num_child=None):
+        """Write hierarchy for a GO Term."""
+        self[GO_id].write_hier_rec(out, len_dash, max_depth, num_child)
 
     def write_summary_cnts(self, GO_ids, out=sys.stdout):
         """Write summary of level and depth counts for specific GO ids."""
