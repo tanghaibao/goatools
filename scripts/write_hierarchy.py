@@ -23,6 +23,19 @@ Print hierarchy for BP, MF, CC only printing the first 2 levels.
 >>> python {SCR} --max_depth=2
 >>> python {SCR} --max_depth=2 --dash_len=2 --num_child
 
+
+Print a shortened version of the hierarchy for BP, MF, and CC.
+This will only print a path to a leaf GO Term once.  
+If the path appears a second time, the term is printed again, but its path is not.
+The presence of a compressed (unprinted) paths is marked by using '=" instead of '-'.
+
+    $ wc -l hier_BP_MF_CC*.rpt
+
+          789583 hier_BP_MF_CC.rpt
+           70152 hier_BP_MF_CC_short.rpt
+
+>>> python {SCR} --o=hier_BP_MF_CC_short.rpt --short
+
 Print hierarchy
 -  26894 GO:0008150	level-00	depth-00	biological_process [biological_process]
 --    30 GO:0001906	level-01	depth-01	cell killing [biological_process]
@@ -62,7 +75,10 @@ if __name__ == "__main__":
     p.add_argument('--max_depth', default=None, type=int,
                  help="max depth for printing relative to GO Term")
     p.add_argument('--num_child', default=None, action='store_true',
-                 help="Print total number of children for each GO")
+                 help="Print count of total number of children for each GO")
+    p.add_argument('--short', default=False, action='store_true',
+                 help="If a branch has already been printed, do not re-print." 
+                      "Print '===' instead of dashes to note the point of compression")
 
     args = p.parse_args()
 
@@ -78,13 +94,15 @@ if __name__ == "__main__":
             file_out, 
             len_dash=lenprt,
             max_depth=args.max_depth,
-            num_child=args.num_child)
+            num_child=args.num_child,
+            short_prt=args.short)
     else:
       obo_dag.write_hier_all(
           file_out, 
           len_dash=lenprt,
           max_depth=args.max_depth,
-          num_child=args.num_child)
+          num_child=args.num_child,
+          short_prt=args.short)
 
     if args.o is not None:
       file_out.close()

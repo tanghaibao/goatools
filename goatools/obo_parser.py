@@ -162,21 +162,31 @@ class GOTerm:
             all_child_edges |= p.get_all_child_edges()
         return all_child_edges
 
-    def write_hier_rec(self, out=sys.stdout, 
-                      len_dash=1, max_depth=None, num_child=None,
+    def write_hier_rec(self, gos_printed, out=sys.stdout, 
+                      len_dash=1, max_depth=None, num_child=None, short_prt=False,
                       depth=1, dp="-"):
         """Write hierarchy for a GO Term record."""
+        GO_id = self.id
+        nrp = short_prt and GO_id in gos_printed
         if len_dash is not None:
-          dp = ''.join(['-']*depth) if len_dash is not None else ''
-          out.write('{DASHES:{N}} '.format(DASHES=dp, N=len_dash))
+            letter = '-' if not nrp or not self.children else '='
+            dp = ''.join([letter]*depth)
+            out.write('{DASHES:{N}} '.format(DASHES=dp, N=len_dash))
         if num_child is not None:
-          out.write('{N:>5} '.format(N=len(self.get_all_children())))
+            out.write('{N:>5} '.format(N=len(self.get_all_children())))
         out.write('{GO}\n'.format(GO=self))
+        # Track GOs previously printed only if needed
+        if short_prt:
+          gos_printed.add(GO_id)
+        # Do not print hierarchy below this turn if it has already been printed
+        if nrp:
+            return 
         depth += 1
         if max_depth is not None and depth > max_depth:
-          return
+            return
         for p in self.children:
-            p.write_hier_rec(out, len_dash, max_depth, num_child, depth, dp)
+            p.write_hier_rec(gos_printed, out, len_dash, max_depth, num_child, short_prt, 
+                depth, dp)
 
 
 class GODag(dict):
@@ -237,16 +247,17 @@ class GODag(dict):
             print(rec, file=out)
    
     def write_hier_all(self, out=sys.stdout, 
-                      len_dash=1, max_depth=None, num_child=None):
+                      len_dash=1, max_depth=None, num_child=None, short_prt=False):
         """Write hierarchy for all GO Terms in obo file."""
         # Print: [biological_process, molecular_function, and cellular_component]
         for go_id in ['GO:0008150', 'GO:0003674', 'GO:0005575']:
-          self.write_hier(go_id, out, len_dash, max_depth, num_child) 
+          self.write_hier(go_id, out, len_dash, max_depth, num_child, short_prt) 
 
     def write_hier(self, GO_id, out=sys.stdout, 
-                       len_dash=1, max_depth=None, num_child=None):
+                       len_dash=1, max_depth=None, num_child=None, short_prt=False):
         """Write hierarchy for a GO Term."""
-        self[GO_id].write_hier_rec(out, len_dash, max_depth, num_child)
+        gos_printed = set()
+        self[GO_id].write_hier_rec(gos_printed, out, len_dash, max_depth, num_child, short_prt)
 
     def write_summary_cnts(self, GO_ids, out=sys.stdout):
         """Write summary of level and depth counts for specific GO ids."""
