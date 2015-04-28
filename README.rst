@@ -13,6 +13,14 @@ Tools for Gene Ontology
     :target: https://crate.io/packages/goatools/
     :alt: License
 
+.. image:: https://scrutinizer-ci.com/g/tanghaibao/goatools/badges/quality-score.png
+    :target: https://scrutinizer-ci.com/g/tanghaibao/goatools
+    :alt: Scrutinizer
+
+.. image:: https://scrutinizer-ci.com/g/tanghaibao/jcvi/badges/build.png
+    :target: https://scrutinizer-ci.com/g/tanghaibao/goatools
+    :alt: Build
+
 :Author: Haibao Tang (`tanghaibao <http://github.com/tanghaibao>`_),
          Brent Pedersen (`brentp <http://github.com/brentp>`_),
          Aurelien Naldi (`aurelien-naldi <http://github.com/aurelien-naldi>`_),
@@ -71,13 +79,13 @@ Dependencies
      - `Graphviz <http://www.graphviz.org/>`_, for graph visualization.
      - `pygraphviz <http://networkx.lanl.gov/pygraphviz/>`_, Python binding for
        communicating with Graphviz::
-     
+
          easy_install pygraphviz
 
-  2. `pydot <https://code.google.com/p/pydot/>`_, a Python interface to Graphviz's Dot language.      
+  2. `pydot <https://code.google.com/p/pydot/>`_, a Python interface to Graphviz's Dot language.
 
-     * `pyparsing <http://pyparsing.wikispaces.com/>`_ is a prerequisite for pydot      
-     * Images can be viewed using either:      
+     * `pyparsing <http://pyparsing.wikispaces.com/>`_ is a prerequisite for pydot
+     * Images can be viewed using either:
 
        * `ImageMagick <http://www.imagemagick.org/>`_'s *display*
        * `Graphviz <http://www.graphviz.org/>`_
