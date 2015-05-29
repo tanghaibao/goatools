@@ -1,17 +1,13 @@
 Tools for Gene Ontology
 ========================
 
-.. image:: https://pypip.in/v/goatools/badge.png
+.. image:: https://img.shields.io/pypi/v/goatools.svg
     :target: https://crate.io/packages/goatools/
     :alt: Latest PyPI version
 
-.. image:: https://pypip.in/d/goatools/badge.png
+.. image:: https://img.shields.io/pypi/dm/goatools.svg
     :target: https://crate.io/packages/goatools/
     :alt: Number of PyPI downloads
-
-.. image:: https://pypip.in/license/goatools/badge.png
-    :target: https://crate.io/packages/goatools/
-    :alt: License
 
 .. image:: https://scrutinizer-ci.com/g/tanghaibao/goatools/badges/quality-score.png
     :target: https://scrutinizer-ci.com/g/tanghaibao/goatools
