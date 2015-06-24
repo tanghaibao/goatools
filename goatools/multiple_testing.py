@@ -36,6 +36,9 @@ class Bonferroni(AbstractCorrection):
     def set_correction(self):
         self.corrected_pvals *= self.n
 
+        # reset all pvals > 1 to 1
+        self.corrected_pvals[self.corrected_pvals > 1] = 1
+
 
 class Sidak(AbstractCorrection):
     """http://en.wikipedia.org/wiki/Bonferroni_correction

@@ -46,8 +46,8 @@ class OBOReader:
     def __init__(self, obo_file="go-basic.obo"):
 
         try:
-            self._handle = open(obo_file)
-        except:
+            self._handle = open(obo_file,buffering=0) #dirty hack to fix seek() inconsistency
+       except:
             print(("download obo file first\n "
                                  "[http://purl.obolibrary.org/obo/"
                                  "go/go-basic.obo]"), file=sys.stderr)
