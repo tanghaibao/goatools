@@ -46,8 +46,8 @@ class OBOReader:
     def __init__(self, obo_file="go-basic.obo"):
 
         try:
-            self._handle = open(obo_file,buffering=0) #dirty hack to fix seek() inconsistency
-       except:
+            self._handle = open(obo_file, buffering=0)  # dirty hack to fix seek() inconsistency
+        except:
             print(("download obo file first\n "
                                  "[http://purl.obolibrary.org/obo/"
                                  "go/go-basic.obo]"), file=sys.stderr)
@@ -162,7 +162,7 @@ class GOTerm:
             all_child_edges |= p.get_all_child_edges()
         return all_child_edges
 
-    def write_hier_rec(self, gos_printed, out=sys.stdout, 
+    def write_hier_rec(self, gos_printed, out=sys.stdout,
                       len_dash=1, max_depth=None, num_child=None, short_prt=False,
                       include_only=None, go_marks=None,
                       depth=1, dp="-"):
@@ -190,12 +190,12 @@ class GOTerm:
           gos_printed.add(GO_id)
         # Do not print hierarchy below this turn if it has already been printed
         if nrp:
-            return 
+            return
         depth += 1
         if max_depth is not None and depth > max_depth:
             return
         for p in self.children:
-            p.write_hier_rec(gos_printed, out, len_dash, max_depth, num_child, short_prt, 
+            p.write_hier_rec(gos_printed, out, len_dash, max_depth, num_child, short_prt,
                 include_only, go_marks,
                 depth, dp)
 
@@ -256,20 +256,20 @@ class GODag(dict):
         """Write info for all GO Terms in obo file, sorted numerically."""
         for rec_id, rec in sorted(self.items()):
             print(rec, file=out)
-   
-    def write_hier_all(self, out=sys.stdout, 
+
+    def write_hier_all(self, out=sys.stdout,
                       len_dash=1, max_depth=None, num_child=None, short_prt=False):
         """Write hierarchy for all GO Terms in obo file."""
         # Print: [biological_process, molecular_function, and cellular_component]
         for go_id in ['GO:0008150', 'GO:0003674', 'GO:0005575']:
-          self.write_hier(go_id, out, len_dash, max_depth, num_child, short_prt, None) 
+          self.write_hier(go_id, out, len_dash, max_depth, num_child, short_prt, None)
 
-    def write_hier(self, GO_id, out=sys.stdout, 
+    def write_hier(self, GO_id, out=sys.stdout,
                        len_dash=1, max_depth=None, num_child=None, short_prt=False,
                        include_only=None, go_marks=None):
         """Write hierarchy for a GO Term."""
         gos_printed = set()
-        self[GO_id].write_hier_rec(gos_printed, out, len_dash, max_depth, num_child, 
+        self[GO_id].write_hier_rec(gos_printed, out, len_dash, max_depth, num_child,
             short_prt, include_only, go_marks)
 
     def write_summary_cnts(self, GO_ids, out=sys.stdout):
@@ -291,7 +291,7 @@ class GODag(dict):
         """Write summary of level and depth counts for active GO Terms."""
         # Count level(shortest path to root) and depth(longest path to root)
         # values for all unique GO Terms.
-        max_val = max(max(dep for dep in cnts['depth']), 
+        max_val = max(max(dep for dep in cnts['depth']),
                       max(lev for lev in cnts['level']))
         nss = ['biological_process', 'molecular_function', 'cellular_component']
         out.write('Dep <-Depth Counts->  <-Level Counts->\n')
@@ -310,7 +310,7 @@ class GODag(dict):
                 cnts['level'][rec.level][rec.namespace] += 1
                 cnts['depth'][rec.depth][rec.namespace] += 1
         return cnts
-    
+
     @staticmethod
     def id2int(GO_id): return int(GO_id.replace("GO:", "", 1))
 
