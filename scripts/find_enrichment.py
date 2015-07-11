@@ -84,9 +84,8 @@ if __name__ == "__main__":
                  help='data/study data/population data/association')
     p.add_argument('--alpha', default=0.05, type=float,
                  help="Test-wise alpha for multiple testing ")
-    p.add_argument('--pval', default=None, type=float,
-                 help="Family-wise alpha (whole experiment), only print out "
-                 "Bonferroni p-value is less than this value. ")
+    p.add_argument('--pval', default=.05, type=float,
+                 help="Only print out when uncorrected p-value < this value.")
     p.add_argument('--compare', dest='compare', default=False,
                  action='store_true',
                  help="the population file as a comparison group. if this "

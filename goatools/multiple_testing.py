@@ -21,6 +21,8 @@ class AbstractCorrection(object):
         self.a = a                  # type-1 error cutoff for each test
 
         self.set_correction()
+        # Reset all pvals > 1 to 1
+        self.corrected_pvals[self.corrected_pvals > 1] = 1
 
     def set_correction(self):
         # the purpose of multiple correction is to lower the alpha
@@ -35,9 +37,6 @@ class Bonferroni(AbstractCorrection):
     """
     def set_correction(self):
         self.corrected_pvals *= self.n
-
-        # reset all pvals > 1 to 1
-        self.corrected_pvals[self.corrected_pvals > 1] = 1
 
 
 class Sidak(AbstractCorrection):
