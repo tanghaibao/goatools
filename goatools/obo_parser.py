@@ -1,13 +1,10 @@
 #!/usr/bin/env python
+"""Read and store Gene Ontology's obo file."""
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
 import sys
 import os
 import re
-try:
-    from exceptions import EOFError
-except ImportError:
-    pass
 
 import collections as cx
 
@@ -15,90 +12,7 @@ typedef_tag, term_tag = "[Typedef]", "[Term]"
 GraphEngines = ("pygraphviz", "pydot")
 
 
-def after_colon(line):
-    # macro for getting anything after the :
-    return line.split(":", 1)[1].strip()
-
-
-def read_until(handle, start):
-    # read each line until it has a certain start, and then puts
-    # the start tag back
-    while 1:
-        pos = handle.tell()
-        line = handle.readline()
-        if not line:
-            break
-        if line.startswith(start):
-            handle.seek(pos)
-            return
-    raise EOFError("%s tag cannot be found" % start)
-
-
-class OBOReader:
-    """
-    parse obo file, usually the most updated can be downloaded from
-    http://purl.obolibrary.org/obo/go/go-basic.obo
-
-    >>> reader = OBOReader()
-    >>> for rec in reader:
-            print rec
-
-    """
-
-    def __init__(self, obo_file="go-basic.obo"):
-
-        try:
-            self._handle = open(obo_file, buffering=0)  # dirty hack to fix seek() inconsistency
-        except:
-            print(("download obo file first\n "
-                                 "[http://purl.obolibrary.org/obo/"
-                                 "go/go-basic.obo]"), file=sys.stderr)
-            sys.exit(1)
-
-    def __iter__(self):
-
-        line = self._handle.readline()
-        if not line.startswith(term_tag):
-            read_until(self._handle, term_tag)
-        while 1:
-            yield self.__next__()
-
-    def __next__(self):
-
-        lines = []
-        line = self._handle.readline()
-        if not line or line.startswith(typedef_tag):
-            raise StopIteration
-
-        # read until the next tag and save everything in between
-        while 1:
-            pos = self._handle.tell()   # save current postion for roll-back
-            line = self._handle.readline()
-            if not line or (line.startswith(typedef_tag)
-                            or line.startswith(term_tag)):
-                self._handle.seek(pos)  # roll-back
-                break
-            lines.append(line)
-
-        rec = GOTerm()
-        for line in lines:
-            if line.startswith("id:"):
-                rec.id = after_colon(line)
-            if line.startswith("alt_id:"):
-                rec.alt_ids.append(after_colon(line))
-            elif line.startswith("name:"):
-                rec.name = after_colon(line)
-            elif line.startswith("namespace:"):
-                rec.namespace = after_colon(line)
-            elif line.startswith("is_a:"):
-                rec._parents.append(after_colon(line).split()[0])
-            elif (line.startswith("is_obsolete:") and
-                  after_colon(line) == "true"):
-                rec.is_obsolete = True
-
-        return rec
-
-class OBOReader_alt(object):
+class OBOReader(object):
     """Read goatools.org's obo file. Load into this iterable class.
 
         Download obo from: http://purl.obolibrary.org/obo/go/go-basic.obo
@@ -126,10 +40,9 @@ class OBOReader_alt(object):
             for lnum, line in enumerate(fstream):
                 # obo lines start with any of: [Term], [Typedef], /^\S+:/, or /^\s*/
                 if line[0:6] == "[Term]":
-                    rec_curr = self._init_GOTerm_ref(rec_curr, "Term", lnum)
+                    rec_curr = self._init_goterm_ref(rec_curr, "Term", lnum)
                 elif line[0:9] == "[Typedef]":
                     pass # Original OBOReader did not store these
-                    #rec_curr = self._init_GOTerm_ref(rec_curr, "Typedef", lnum) # TBD remove
                 elif rec_curr is not None:
                     line = line.rstrip() # chomp
                     if ":" in line:
@@ -144,13 +57,13 @@ class OBOReader_alt(object):
             if rec_curr is not None:
                 yield rec_curr
 
-    def _init_GOTerm_ref(self, rec_curr, name, lnum):
+    def _init_goterm_ref(self, rec_curr, name, lnum):
         """Initialize new reference and perform checks."""
         if rec_curr is None:
             return GOTerm()
         msg = "PREVIOUS {REC} WAS NOT TERMINATED AS EXPECTED".format(REC=name)
         self._die(msg, lnum)
-        
+
     def _add_to_ref(self, rec_curr, line, lnum):
         """Add new fields to the current reference."""
         # Examples of record lines containing ':' include:
@@ -164,15 +77,15 @@ class OBOReader_alt(object):
             field_name = mtch.group(1)
             field_value = mtch.group(2)
             if field_name == "id":
-                self._chk_None(rec_curr.id, lnum)
+                self._chk_none(rec_curr.id, lnum)
                 rec_curr.id = field_value
             if field_name == "alt_id":
                 rec_curr.alt_ids.append(field_value)
             elif field_name == "name":
-                self._chk_None(rec_curr.name, lnum)
+                self._chk_none(rec_curr.name, lnum)
                 rec_curr.name = field_value
             elif field_name == "namespace":
-                self._chk_None(rec_curr.namespace, lnum)
+                self._chk_none(rec_curr.namespace, lnum)
                 rec_curr.namespace = field_value
             elif field_name == "is_a":
                 rec_curr._parents.append(field_value.split()[0])
@@ -186,12 +99,12 @@ class OBOReader_alt(object):
         raise Exception("**FATAL {FILE}({LNUM}): {MSG}\n".format(
             FILE=self.obo_file, LNUM=lnum, MSG=msg))
 
-    def _chk_None(self, init_val, lnum):
+    def _chk_none(self, init_val, lnum):
         """Expect these lines to be uninitialized."""
         if init_val is None or init_val is "":
             return
-        self.die("FIELD IS ALREADY INITIALIZED", lnum)
-       
+        self._die("FIELD IS ALREADY INITIALIZED", lnum)
+
 
 
 
@@ -300,19 +213,14 @@ class GOTerm:
 
 class GODag(dict):
 
-    def __init__(self, obo_file="go-basic.obo", OBOReader_test=False):
+    def __init__(self, obo_file="go-basic.obo"):
 
-        self.load_obo_file(obo_file, OBOReader_test)
+        self.load_obo_file(obo_file)
 
-    def load_obo_file(self, obo_file, OBOReader_test):
+    def load_obo_file(self, obo_file):
 
         print("load obo file %s" % obo_file, file=sys.stderr)
-        obo_reader = None
-        if OBOReader_test:
-          obo_reader = OBOReader_alt(obo_file)
-        else:
-          obo_reader = OBOReader(obo_file)
-        for rec in obo_reader:
+        for rec in OBOReader(obo_file):
             self[rec.id] = rec
             for alt in rec.alt_ids:
                 self[alt] = rec
