@@ -130,12 +130,6 @@ class OBOReader_alt(object):
                 elif line[0:9] == "[Typedef]":
                     pass # Original OBOReader did not store these
                     #rec_curr = self._init_GOTerm_ref(rec_curr, "Typedef", lnum) # TBD remove
-                # Examples of record lines containing ':' include:
-                #   id: GO:0000002
-                #   name: mitochondrial genome maintenance
-                #   namespace: biological_process
-                #   def: "The maintenance of ...
-                #   is_a: GO:0007005 ! mitochondrion organization
                 elif rec_curr is not None:
                     line = line.rstrip() # chomp
                     if ":" in line:
@@ -160,6 +154,12 @@ class OBOReader_alt(object):
         
     def _add_to_ref(self, rec_curr, line, lnum):
         """Add new fields to the current reference."""
+        # Examples of record lines containing ':' include:
+        #   id: GO:0000002
+        #   name: mitochondrial genome maintenance
+        #   namespace: biological_process
+        #   def: "The maintenance of ...
+        #   is_a: GO:0007005 ! mitochondrion organization
         mtch = re.match(r'^(\S+):\s*(\S.*)$', line)
         if mtch:
             field_name = mtch.group(1)
