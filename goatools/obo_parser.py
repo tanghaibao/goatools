@@ -148,8 +148,7 @@ class OBOReader_alt(object):
         """Initialize new reference and perform checks."""
         if rec_curr is None:
             return GOTerm()
-        msg = "PREVIOUS {REC} WAS NOT TERMINATED AS EXPECTED AT LINE({L})".format(
-              REC=name, L=lnum)
+        msg = "PREVIOUS {REC} WAS NOT TERMINATED AS EXPECTED".format(REC=name)
         self._die(msg, lnum)
         
     def _add_to_ref(self, rec_curr, line, lnum):
