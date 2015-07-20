@@ -2,6 +2,8 @@
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
 import sys
+import os
+import re
 try:
     from exceptions import EOFError
 except ImportError:
@@ -95,6 +97,100 @@ class OBOReader:
                 rec.is_obsolete = True
 
         return rec
+
+class OBOReader_alt(object):
+    """Read goatools.org's obo file. Load into this iterable class.
+
+        Download obo from: http://purl.obolibrary.org/obo/go/go-basic.obo
+
+        >>> reader = OBOReader()
+        >>> for rec in reader:
+                print rec
+    """
+
+    def __init__(self, obo_file="go-basic.obo"):
+        """Read obo file. Load dictionary."""
+        # True if obo file exists or if a link to an obo file exists.
+        if os.path.isfile(obo_file):
+            self.obo_file = obo_file
+        else:
+            raise Exception("download obo file first\n "
+                            "[http://purl.obolibrary.org/obo/"
+                            "go/go-basic.obo]")
+
+    def __iter__(self):
+        """Return one GO Term record at a time from an obo file."""
+        # Wait to open file until needed. Automatically close file when done.
+        with open(self.obo_file) as fstream:
+            rec_curr = None # Stores current GO Term
+            for lnum, line in enumerate(fstream):
+                line = line.rstrip() # chomp
+                # obo lines start with any of: [Term], [Typedef], /^\S+:/, or /^\s*/
+                if line[0:6] == "[Term]":
+                    rec_curr = self._init_GOTerm_ref(rec_curr, "Term", lnum)
+                elif line[0:9] == "[Typedef]":
+                    pass # Original OBOReader did not store these
+                    #rec_curr = self._init_GOTerm_ref(rec_curr, "Typedef", lnum) # TBD remove
+                # Examples of record lines containing ':' include:
+                #   id: GO:0000002
+                #   name: mitochondrial genome maintenance
+                #   namespace: biological_process
+                #   def: "The maintenance of ...
+                #   is_a: GO:0007005 ! mitochondrion organization
+                elif rec_curr is not None:
+                    if ":" in line:
+                        self._add_to_ref(rec_curr, line, lnum)
+                    elif line == "":
+                        if rec_curr is not None:
+                            yield rec_curr
+                            rec_curr = None
+                    else:
+                        self._die("UNEXPECTED LINE CONTENT: {L}".format(L=line), lnum)
+
+    def _init_GOTerm_ref(self, rec_curr, name, lnum):
+        """Initialize new reference and perform checks."""
+        if rec_curr is None:
+            return GOTerm()
+        msg = "PREVIOUS {REC} WAS NOT TERMINATED AS EXPECTED AT LINE({L})".format(
+              REC=name, L=lnum)
+        self._die(msg, lnum)
+        
+    def _add_to_ref(self, rec_curr, line, lnum):
+        """Add new fields to the current reference."""
+        mtch = re.match(r'^(\S+):\s*(\S.*)\s*$', line)
+        if mtch:
+            field_name = mtch.group(1)
+            field_value = mtch.group(2)
+            if field_name == "id":
+                self._chk_None(rec_curr.id, lnum)
+                rec_curr.id = field_value
+            if field_name == "alt_id":
+                rec_curr.alt_ids.append(field_value)
+            elif field_name == "name":
+                self._chk_None(rec_curr.name, lnum)
+                rec_curr.name = field_value
+            elif field_name == "namespace":
+                self._chk_None(rec_curr.namespace, lnum)
+                rec_curr.namespace = field_value
+            elif field_name == "is_a":
+                rec_curr._parents.append(field_value.split()[0])
+            elif field_name == "is_obsolete" and field_value == "true":
+                rec_curr.is_obsolete = True
+        else:
+          self._die("UNEXPECTED FIELD CONTENT: {L}\n".format(L=line), lnum)
+
+    def _die(self, msg, lnum):
+        """Raise an Exception if file read is unexpected."""
+        raise Exception("**FATAL {FILE}({LNUM}): {MSG}\n".format(
+            FILE=self.obo_file, LNUM=lnum, MSG=msg))
+
+    def _chk_None(self, init_val, lnum):
+        """Expect these lines to be uninitialized."""
+        if init_val is None or init_val is "":
+            return
+        self.die("FIELD IS ALREADY INITIALIZED", lnum)
+       
+
 
 
 class GOTerm:
@@ -202,14 +298,18 @@ class GOTerm:
 
 class GODag(dict):
 
-    def __init__(self, obo_file="go-basic.obo"):
+    def __init__(self, obo_file="go-basic.obo", OBOReader_test=False):
 
-        self.load_obo_file(obo_file)
+        self.load_obo_file(obo_file, OBOReader_test)
 
-    def load_obo_file(self, obo_file):
+    def load_obo_file(self, obo_file, OBOReader_test):
 
         print("load obo file %s" % obo_file, file=sys.stderr)
-        obo_reader = OBOReader(obo_file)
+        obo_reader = None
+        if OBOReader_test:
+          obo_reader = OBOReader_alt(obo_file)
+        else:
+          obo_reader = OBOReader(obo_file)
         for rec in obo_reader:
             self[rec.id] = rec
             for alt in rec.alt_ids:
