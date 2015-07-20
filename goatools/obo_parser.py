@@ -124,7 +124,6 @@ class OBOReader_alt(object):
         with open(self.obo_file) as fstream:
             rec_curr = None # Stores current GO Term
             for lnum, line in enumerate(fstream):
-                line = line.rstrip() # chomp
                 # obo lines start with any of: [Term], [Typedef], /^\S+:/, or /^\s*/
                 if line[0:6] == "[Term]":
                     rec_curr = self._init_GOTerm_ref(rec_curr, "Term", lnum)
@@ -138,6 +137,7 @@ class OBOReader_alt(object):
                 #   def: "The maintenance of ...
                 #   is_a: GO:0007005 ! mitochondrion organization
                 elif rec_curr is not None:
+                    line = line.rstrip() # chomp
                     if ":" in line:
                         self._add_to_ref(rec_curr, line, lnum)
                     elif line == "":
@@ -146,6 +146,9 @@ class OBOReader_alt(object):
                             rec_curr = None
                     else:
                         self._die("UNEXPECTED LINE CONTENT: {L}".format(L=line), lnum)
+            # Return last record, if necessary
+            if rec_curr is not None:
+                yield rec_curr
 
     def _init_GOTerm_ref(self, rec_curr, name, lnum):
         """Initialize new reference and perform checks."""
@@ -157,7 +160,7 @@ class OBOReader_alt(object):
         
     def _add_to_ref(self, rec_curr, line, lnum):
         """Add new fields to the current reference."""
-        mtch = re.match(r'^(\S+):\s*(\S.*)\s*$', line)
+        mtch = re.match(r'^(\S+):\s*(\S.*)$', line)
         if mtch:
             field_name = mtch.group(1)
             field_value = mtch.group(2)

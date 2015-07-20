@@ -79,18 +79,18 @@ def test_run(msg, tag, use_alt=False):
 def test_oboreader_equal_(dag_fin):
     """Test that the contents of the original DAG and the alternate DAG are the same."""
     sys.stdout.write("\n\nTEST GODag EQUALITY USING {} ...\n\n".format(dag_fin))
-    # 1. Read the obo file using the original OBOReader.
-    tic = timeit.default_timer()
-    dag_orig = GODag(dag_fin)
-    sys.stdout.write("Original OBOReader Elapsed HMS: {}\n\n".format(
-        str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
-    # 2. Read the obo file using the alternate  OBOReader.
+    # 1. Read the obo file using the alternate  OBOReader.
     tic = timeit.default_timer()
     dag_alt = GODag(dag_fin, True)
     sys.stdout.write("Alternate OBOReader Elapsed HMS: {}\n\n".format(
         str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
+    # 2. Read the obo file using the original OBOReader.
+    tic = timeit.default_timer()
+    dag_orig = GODag(dag_fin)
+    sys.stdout.write("Original OBOReader Elapsed HMS: {}\n\n".format(
+        str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
     # 3. Test that the contents of each GODag are the same.
-    #if len(dag_orig) != len(dag_alt): raise Exception("LENGTHES NOT THE SAME")
+    if len(dag_orig) != len(dag_alt): raise Exception("LENGTHES NOT THE SAME")
     for goid, goorig in dag_orig.items():
         goalt = dag_alt[goid]
         if goorig.id != goalt.id: raise Exception("id MISMATCH")
@@ -123,6 +123,8 @@ def test_oboreader_equal_(dag_fin):
     # 5. Test passes
     sys.stdout.write("TEST PASSES({}): Original GODag and Alternate GODag are equal.\n".format(
       dag_fin))
+
+
 
 
 #################################################################
