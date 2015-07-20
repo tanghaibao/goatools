@@ -177,7 +177,7 @@ class OBOReader_alt(object):
             elif field_name == "is_obsolete" and field_value == "true":
                 rec_curr.is_obsolete = True
         else:
-          self._die("UNEXPECTED FIELD CONTENT: {L}\n".format(L=line), lnum)
+            self._die("UNEXPECTED FIELD CONTENT: {L}\n".format(L=line), lnum)
 
     def _die(self, msg, lnum):
         """Raise an Exception if file read is unexpected."""
