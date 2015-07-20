@@ -8,7 +8,6 @@ import re
 
 import collections as cx
 
-typedef_tag, term_tag = "[Typedef]", "[Term]"
 GraphEngines = ("pygraphviz", "pydot")
 
 
