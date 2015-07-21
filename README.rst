@@ -47,7 +47,7 @@ This package contains a Python library to
 
 Installation
 -------------
-- Make sure your Python version >= 2.6, install it via PyPI::
+- Make sure your Python version >= 2.7, install it via PyPI::
 
     easy_install goatools
 

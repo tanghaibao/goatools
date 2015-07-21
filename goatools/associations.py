@@ -1,3 +1,7 @@
+"""
+Rountines to read in association file between genes and GO terms.
+"""
+
 def read_associations(assoc_fn):
     """
     Reads a gene id go term association file. The format of the file
@@ -37,6 +41,3 @@ def read_associations(assoc_fn):
         assoc[gene_id] = go_terms
 
     return assoc
-
-
-
