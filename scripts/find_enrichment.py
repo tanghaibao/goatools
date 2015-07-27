@@ -65,7 +65,7 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(__doc__,
                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    p.add_argument('filenames', type=str, nargs='+',
+    p.add_argument('filenames', type=str, nargs='3',
                  help='data/study data/population data/association')
     p.add_argument('--alpha', default=0.05, type=float,
                  help="Test-wise alpha for multiple testing ")
@@ -100,8 +100,23 @@ if __name__ == "__main__":
 
     assert 0 < args.alpha < 1, "Test-wise alpha must fall between (0, 1)"
 
+
     study_fn, pop_fn, assoc_fn = args.filenames
     study, pop = read_geneset(study_fn, pop_fn, compare=args.compare)
+
+    if len(pop) < len(study):
+        exit("\nERROR: The study file contains more elements than the population file. "
+             "Please check that the study file is a subset of the population file.\n")
+    # check the fraction of genomic ids that overlap between study
+    # and population
+    overlap = float(len(pop.intersection(study)))/len(pop)
+    if 0.7 < overlap < 0.95:
+        sys.stderr.write("\nWARNING: only {} fraction of genes/proteins in study are found in "
+                         "the population  background.\n\n".format(overlap))
+    if overlap <= 0.7:
+        exit("\nERROR: only {} of genes/proteins in the study are found in the "
+             "background population. Please check.\n".format(overlap))
+
     assoc = read_associations(assoc_fn)
 
     methods = ["bonferroni", "sidak", "holm"]
