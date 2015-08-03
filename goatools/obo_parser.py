@@ -1,4 +1,9 @@
-#!/usr/bin/env python
+# Copyright 2010-2015 by Haibao Tang. All rights reserved.
+#
+# This code is part of the goatools distribution and goverend by its
+# license. Please see the LICENSE file included with goatools.
+
+
 """Read and store Gene Ontology's obo file."""
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
@@ -20,12 +25,15 @@ class OBOReader(object):
         >>> for rec in reader:
                 print rec
     """
+    # Revisions by DV Klopfenstein
 
-    def __init__(self, obo_file="go-basic.obo"):
+    def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
         """Read obo file. Load dictionary."""
+        self._init_optional_attrs(optional_attrs)
         # True if obo file exists or if a link to an obo file exists.
         if os.path.isfile(obo_file):
             self.obo_file = obo_file
+            # GOTerm attributes that are necessary for any operations:
         else:
             raise Exception("download obo file first\n "
                             "[http://purl.obolibrary.org/obo/"
@@ -90,8 +98,53 @@ class OBOReader(object):
                 rec_curr._parents.append(field_value.split()[0])
             elif field_name == "is_obsolete" and field_value == "true":
                 rec_curr.is_obsolete = True
+            elif field_name in self.optional_attrs:
+                self.update_rec(rec_curr, field_name, field_value)
         else:
             self._die("UNEXPECTED FIELD CONTENT: {L}\n".format(L=line), lnum)
+
+    def update_rec(self, rec, name, value):
+        """Update current GOTerm with optional record."""
+        # 'def' is a reserved word in python, do not use it as a Class attr.
+        if name == "def":
+            name = "defn"
+        if hasattr(rec, name):
+            if name not in self.attrs_scalar:
+                getattr(rec, name).add(value)
+            else:
+                raise Exception("ATTR({NAME}) ALREADY SET({VAL})".format(
+                    name, getattr(rec, name)))
+        else: # Initialize new GOTerm attr
+            if name in self.attrs_scalar:
+                setattr(rec, name, value)
+            else:
+                setattr(rec, name, set([value]))
+
+    def _init_optional_attrs(self, optional_attrs):
+        """Prepare to store data from user-desired optional fields.
+
+          Not loading these optional fields by default saves in space and speed.
+          But allow the possibility for saving these fields, if the user desires,
+            Including:
+              comment consider def is_class_level is_metadata_tag is_transitive
+              relationship replaced_by subset synonym transitive_over xref
+        """
+        self.attrs_req = ['id', 'alt_id', 'name', 'namespace', 'is_a', 'is_obsolete']
+        self.attrs_scalar = ['comment', 'defn', 
+            'is_class_level', 'is_metadata_tag', 'is_transitive', 'transitive_over']
+        # Allow user to specify either: 'def' or 'defn'
+        #   'def' is an obo field name, but 'defn' is legal Python attribute name
+        fnc = lambda aopt: aopt if aopt != "defn" else "def"
+        if optional_attrs is None:
+            optional_attrs = []
+        elif isinstance(optional_attrs, str):
+            optional_attrs = [fnc(optional_attrs)] if optional_attrs not in self.attrs_req else []
+        elif isinstance(optional_attrs, list) or isinstance(optional_attrs, set):
+            optional_attrs = set([fnc(f) for f in optional_attrs if f not in self.attrs_req])
+        else:
+            raise Exception("optional_attrs arg MUST BE A str, list, or set.")
+        self.optional_attrs = optional_attrs
+
 
     def _die(self, msg, lnum):
         """Raise an Exception if file read is unexpected."""
@@ -130,7 +183,17 @@ class GOTerm:
                                                self.name, self.namespace, obsolete)
 
     def __repr__(self):
-        return "GOTerm('%s')" % (self.id)
+        """Print GO id and all attributes in GOTerm class."""
+        ret = ["GOTerm('{ID}'):".format(ID=self.id)]
+        for key, val in self.__dict__.items():
+            if isinstance(val, int) or isinstance(val, str):
+                ret.append("{K}:{V}".format(K=key, V=val))
+            else:
+                ret.append("{K}: {V} items".format(K=key, V=len(val)))
+                if len(val) < 10:
+                    for elem in val:
+                        ret.append("  {ELEM}".format(ELEM=elem))
+        return "\n  ".join(ret)
 
     def has_parent(self, term):
         for p in self.parents:
@@ -177,6 +240,7 @@ class GOTerm:
                       include_only=None, go_marks=None,
                       depth=1, dp="-"):
         """Write hierarchy for a GO Term record."""
+        # Added by DV Klopfenstein
         GO_id = self.id
         # Shortens hierarchy report by only printing the hierarchy
         # for the sub-set of user-specified GO terms which are connected.
@@ -212,14 +276,14 @@ class GOTerm:
 
 class GODag(dict):
 
-    def __init__(self, obo_file="go-basic.obo"):
+    def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
 
-        self.load_obo_file(obo_file)
+        self.load_obo_file(obo_file, optional_attrs)
 
-    def load_obo_file(self, obo_file):
+    def load_obo_file(self, obo_file, optional_attrs):
 
         print("load obo file %s" % obo_file, file=sys.stderr)
-        for rec in OBOReader(obo_file):
+        for rec in OBOReader(obo_file, optional_attrs):
             self[rec.id] = rec
             for alt in rec.alt_ids:
                 self[alt] = rec
@@ -298,6 +362,7 @@ class GODag(dict):
 
     def _write_summary_cnts(self, cnts, out=sys.stdout):
         """Write summary of level and depth counts for active GO Terms."""
+        # Added by DV Klopfenstein
         # Count level(shortest path to root) and depth(longest path to root)
         # values for all unique GO Terms.
         max_val = max(max(dep for dep in cnts['depth']),
@@ -335,7 +400,7 @@ class GODag(dict):
             print("all children:", rec.get_all_children(), file=sys.stderr)
         return rec
 
-    def paths_to_top(self, term, verbose=False):
+    def paths_to_top(self, term):
         """ Returns all possible paths to the root node
 
             Each path includes the term given. The order of the path is

@@ -7,9 +7,26 @@ http://geneontology.cvs.sourceforge.net/viewvc/geneontology/go-dev/go-perl/doc/m
 
 [Term]
 id: GO:0000001
+name: alpha-1,6-mannosyltransferase activity
+namespace: molecular_function
+def: "Catalysis of the transfer of a mannose residue to an oligosaccharide, forming an alpha-(1->6) linkage." [GOC:mcc, PMID:2644248]
+synonym: "1,6-alpha-mannosyltransferase activity" EXACT []
+xref: EC:2.4.1.-
+xref: Reactome:REACT_22295 "Addition of a third mannose to the N-glycan precursor by Alg2, Saccharomyces cerevisiae"
+xref: Reactome:REACT_22383 "Addition of a third mannose to the N-glycan precursor by ALG2, Homo sapiens"
 
 [Term]
 id: GO:0000002
+name: maltose catabolic process
+namespace: biological_process
+def: "The chemical reactions and pathways resulting in the breakdown of the disaccharide maltose (4-O-alpha-D-glucopyranosyl-D-glucopyranose)." [GOC:jl, ISBN:0198506732]
+subset: gosubset_prok
+synonym: "malt sugar catabolic process" EXACT []
+synonym: "malt sugar catabolism" EXACT []
+synonym: "maltose breakdown" EXACT []
+synonym: "maltose degradation" EXACT []
+synonym: "maltose hydrolysis" NARROW []
+xref: MetaCyc:MALTOSECAT-PWY
 is_a: GO:0000001
 
 [Term]
