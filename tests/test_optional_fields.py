@@ -62,9 +62,9 @@ def _load_dag(dag_fin, opt_fields=None, out=None):
     toc = timeit.default_timer()
     msg = "Elapsed HMS for OBO DAG load: {}\n\n".format(str(datetime.timedelta(seconds=(toc-tic))))
     if out is not None:
-      out.write(msg)
+        out.write(msg)
     else:
-      sys.stdout.write(msg)
+        sys.stdout.write(msg)
     return dag
 
 #################################################################
@@ -92,10 +92,12 @@ def test_all(fout=None):
 def test_full_contents(out):
     """Ensure that obo file can be read with all optional attributes."""
     all_fields = [
-      'comment', 'consider', 'defn', 'is_class_level', 'is_metadata_tag', 'is_transitive',
-      'relationship', 'replaced_by', 'subset', 'synonym', 'transitive_over', 'xref']
-    dag = _load_dag("./go-basic.obo", all_fields, out)
+        'comment', 'consider', 'defn', 'is_class_level', 'is_metadata_tag', 'is_transitive',
+        'relationship', 'replaced_by', 'subset', 'synonym', 'transitive_over', 'xref']
+    dag_all = _load_dag("./go-basic.obo", all_fields, out)
     dag = _load_dag("./go-basic.obo", None, out)
+    if len(dag_all) != len(dag):
+        raise Exception("FAILED: test_full_contents")
 
 def test_full(out, opt_fields=None):
     """Use OBOReader in default operation."""
@@ -113,25 +115,34 @@ def test_mini(out, opt_fields=None):
     test_write_hier_norep("MINI", "GO:0000010", dag, out)
 
 def test_mini_contents(out, opt_fields):
+    """Test that optional terms were loaded."""
     dag = _load_dag("./data/mini_obo.obo", opt_fields, out)
     go_1 = dag["GO:0000001"]
     go_2 = dag["GO:0000002"]
     # CHECK 'xref'
     if 'xref' in opt_fields:
-        if len(go_1.xref) != 3: raise Exception("XREF TEST FAILED")
-        if len(go_2.xref) != 1: raise Exception("XREF TEST FAILED")
+        if len(go_1.xref) != 3:
+            raise Exception("XREF TEST FAILED")
+        if len(go_2.xref) != 1:
+            raise Exception("XREF TEST FAILED")
     else:
-        if hasattr(go_1, 'xref'): raise Exception("XREF TEST FAILED")
-        if hasattr(go_2, 'xref'): raise Exception("XREF TEST FAILED")
+        if hasattr(go_1, 'xref'):
+            raise Exception("XREF TEST FAILED")
+        if hasattr(go_2, 'xref'):
+            raise Exception("XREF TEST FAILED")
     # CHECK 'def'
     if 'def' in opt_fields or 'defn' in opt_fields:
         # 'def' is a keyword in obo, but a reserved word in Python,
         # so access 'def' items in an obo using 'defn' in GODag.
-        if not isinstance(go_1.defn, str): raise Exception("def TEST FAILED")
-        if not isinstance(go_2.defn, str): raise Exception("def TEST FAILED")
+        if not isinstance(go_1.defn, str):
+            raise Exception("def TEST FAILED")
+        if not isinstance(go_2.defn, str):
+            raise Exception("def TEST FAILED")
     else:
-        if hasattr(go_1, 'defn'): raise Exception("def TEST FAILED")
-        if hasattr(go_2, 'defn'): raise Exception("def TEST FAILED")
+        if hasattr(go_1, 'defn'):
+            raise Exception("def TEST FAILED")
+        if hasattr(go_2, 'defn'):
+            raise Exception("def TEST FAILED")
     out.write("GOTerm: {}\n".format(go_1.__repr__()))
     out.write("GOTerm: {}\n".format(go_2.__repr__()))
 

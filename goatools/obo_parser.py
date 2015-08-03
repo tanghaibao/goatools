@@ -113,7 +113,7 @@ class OBOReader(object):
                 getattr(rec, name).add(value)
             else:
                 raise Exception("ATTR({NAME}) ALREADY SET({VAL})".format(
-                    name, getattr(rec, name)))
+                    NAME=name, VAL=getattr(rec, name)))
         else: # Initialize new GOTerm attr
             if name in self.attrs_scalar:
                 setattr(rec, name, value)
@@ -130,8 +130,9 @@ class OBOReader(object):
               relationship replaced_by subset synonym transitive_over xref
         """
         self.attrs_req = ['id', 'alt_id', 'name', 'namespace', 'is_a', 'is_obsolete']
-        self.attrs_scalar = ['comment', 'defn', 
-            'is_class_level', 'is_metadata_tag', 'is_transitive', 'transitive_over']
+        self.attrs_scalar = ['comment', 'defn',
+                             'is_class_level', 'is_metadata_tag',
+                             'is_transitive', 'transitive_over']
         # Allow user to specify either: 'def' or 'defn'
         #   'def' is an obo field name, but 'defn' is legal Python attribute name
         fnc = lambda aopt: aopt if aopt != "defn" else "def"
