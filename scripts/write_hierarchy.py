@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+"""Script for printing GO hierarchy."""
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
 
@@ -25,7 +25,7 @@ Print hierarchy for BP, MF, CC only printing the first 2 levels.
 
 
 Print a shortened version of the hierarchy for BP, MF, and CC.
-This will only print a path to a leaf GO Term once.  
+This will only print a path to a leaf GO Term once.
 If the path appears a second time, the term is printed again, but its path is not.
 The presence of a compressed (unprinted) paths is marked by using '=" instead of '-'.
 
@@ -42,10 +42,10 @@ Print hierarchy
 --   555 GO:0002376	level-01	depth-01	immune system process [biological_process]
 -- 11208 GO:0065007	level-01	depth-01	biological regulation [biological_process]
 
->>> python {SCR} 
+>>> python {SCR}
 
 This program prints the hierarchy for all GO terms, if no argument is provided.
-If a GO term is provided as an argument, then the hierarchy of all children 
+If a GO term is provided as an argument, then the hierarchy of all children
 for that term is printed.
 
 """.format(SCR=__file__)
@@ -56,31 +56,31 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from goatools.obo_parser import GODag
 
 
-if __name__ == "__main__":
-
+def main():
+    """Print a GO term's lower-level hierarchy."""
     import argparse
-    p = argparse.ArgumentParser(__doc__,
-                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    prs = argparse.ArgumentParser(__doc__,
+                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    p.add_argument('go_ids', type=str, nargs='*',
-                 help='GO Term, e.g. GO:0070458')
-    p.add_argument('--o', default=None, type=str,
-                 help="Specifies the name of the output file")
-    p.add_argument('--no_indent', default=False,
-                 help="Do not indent GO terms", action='store_true')
-    p.add_argument('--obo', default="go-basic.obo", type=str,
-                 help="Location and name of the obo file")
-    p.add_argument('--dash_len', default=1, type=int,
-                 help="Printed width of the dashes column")
-    p.add_argument('--max_depth', default=None, type=int,
-                 help="max depth for printing relative to GO Term")
-    p.add_argument('--num_child', default=None, action='store_true',
-                 help="Print count of total number of children for each GO")
-    p.add_argument('--short', default=False, action='store_true',
-                 help="If a branch has already been printed, do not re-print." 
-                      "Print '===' instead of dashes to note the point of compression")
+    prs.add_argument('go_ids', type=str, nargs='*',
+                     help='GO Term, e.g. GO:0070458')
+    prs.add_argument('--o', default=None, type=str,
+                     help="Specifies the name of the output file")
+    prs.add_argument('--no_indent', default=False,
+                     help="Do not indent GO terms", action='store_true')
+    prs.add_argument('--obo', default="go-basic.obo", type=str,
+                     help="Location and name of the obo file")
+    prs.add_argument('--dash_len', default=1, type=int,
+                     help="Printed width of the dashes column")
+    prs.add_argument('--max_depth', default=None, type=int,
+                     help="max depth for printing relative to GO Term")
+    prs.add_argument('--num_child', default=None, action='store_true',
+                     help="Print count of total number of children for each GO")
+    prs.add_argument('--short', default=False, action='store_true',
+                     help="If a branch has already been printed, do not re-print."
+                          "Print '===' instead of dashes to note the point of compression")
 
-    args = p.parse_args()
+    args = prs.parse_args()
 
     obo_dag = GODag(obo_file=args.obo)
 
@@ -88,23 +88,25 @@ if __name__ == "__main__":
     lenprt = args.dash_len if not args.no_indent else None
 
     if args.go_ids:
-      for go_id in args.go_ids:
-        obo_dag.write_hier(
-            go_id, 
-            file_out, 
+        for go_id in args.go_ids:
+            obo_dag.write_hier(
+                go_id,
+                file_out,
+                len_dash=lenprt,
+                max_depth=args.max_depth,
+                num_child=args.num_child,
+                short_prt=args.short)
+    else:
+        obo_dag.write_hier_all(
+            file_out,
             len_dash=lenprt,
             max_depth=args.max_depth,
             num_child=args.num_child,
             short_prt=args.short)
-    else:
-      obo_dag.write_hier_all(
-          file_out, 
-          len_dash=lenprt,
-          max_depth=args.max_depth,
-          num_child=args.num_child,
-          short_prt=args.short)
 
     if args.o is not None:
-      file_out.close()
-      sys.stdout.write("  WROTE: {}\n".format(args.o))
+        file_out.close()
+        sys.stdout.write("  WROTE: {}\n".format(args.o))
 
+if __name__ == "__main__":
+    main()
