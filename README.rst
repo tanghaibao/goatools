@@ -114,6 +114,10 @@ term in the study group is significantly *higher* than those in the population.
 The "p" stands for "purified" - significantly *lower* concentration of the GO
 term in the study group than in the population.
 
+**Important note**: by default, ``find_enrichment.py`` propagates counts to all
+the parents of a GO term. As a result, users may find terms in the output that
+are not present in their ``association`` file. Use ``--no_propagate_counts`` to
+disable this behavior.
 
 Read and plot GO lineage
 ::::::::::::::::::::::::::::::::::::

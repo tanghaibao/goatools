@@ -90,6 +90,8 @@ if __name__ == "__main__":
                  action='store_true', help="indent GO terms")
     p.add_argument('--obo', default="go-basic.obo", type=str,
                  help="Specifies location and name of the obo file")
+    p.add_argument('--no_propagate_counts', default=False, action='store_true',
+                  help="Do not propagate counts to parent terms")
 
     args = p.parse_args()
     check_input_files(args, p)
@@ -124,6 +126,9 @@ if __name__ == "__main__":
         methods.append("fdr")
 
     obo_dag = GODag(obo_file=args.obo)
-    g = GOEnrichmentStudy(pop, assoc, obo_dag, alpha=args.alpha,
+    propagate_counts = not args.no_propagate_counts
+    g = GOEnrichmentStudy(pop, assoc, obo_dag,
+                          propagate_counts=propagate_counts,
+                          alpha=args.alpha,
                           study=study, methods=methods)
     g.print_summary(min_ratio=min_ratio, indent=args.indent, pval=args.pval)

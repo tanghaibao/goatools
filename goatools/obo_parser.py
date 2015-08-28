@@ -568,4 +568,3 @@ class GODag(dict):
             terms.update(parents)
         if bad_terms:
             print("terms not found: %s" % (bad_terms,), file=sys.stderr)
-

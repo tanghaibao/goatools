@@ -8,8 +8,12 @@ This program returns P-values for functional enrichment in a cluster of
 study genes using Fisher's exact test, and corrected for multiple testing
 (including Bonferroni, Holm, Sidak, and false discovery rate)
 """
+
 from __future__ import absolute_import
+
+import sys
 import fisher
+
 from .multiple_testing import Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
 from .ratio import count_terms, is_ratio_different
 
@@ -76,7 +80,8 @@ class GOEnrichmentRecord(object):
 class GOEnrichmentStudy(object):
     """Runs Fisher's exact test, as well as multiple corrections
     """
-    def __init__(self, pop, assoc, obo_dag, alpha=.05, study=None,
+    def __init__(self, pop, assoc, obo_dag, propagate_counts=True,
+                 alpha=.05, study=None,
                  methods=["bonferroni", "sidak", "holm"]):
 
         self.pop = pop
@@ -86,7 +91,9 @@ class GOEnrichmentStudy(object):
         self.methods = methods
         self.results = []
 
-        obo_dag.update_association(assoc)
+        if propagate_counts:
+            print >> sys.stderr, "Propagating term counts to parents .."
+            obo_dag.update_association(assoc)
         self.term_study = count_terms(study, assoc, obo_dag)
         self.term_pop = count_terms(pop, assoc, obo_dag)
 
