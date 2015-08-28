@@ -2,6 +2,9 @@
 Rountines to read in association file between genes and GO terms.
 """
 
+from collections import defaultdict
+
+
 def read_associations(assoc_fn):
     """
     Reads a gene id go term association file. The format of the file
@@ -26,7 +29,7 @@ def read_associations(assoc_fn):
     :param assoc_fn: file name of the association
     :return: dictionary having keys: gene id, values set of GO terms
     """
-    assoc = {}
+    assoc = defaultdict(set)
     for row in open(assoc_fn, 'r'):
         atoms = row.split()
         if len(atoms) == 2:
@@ -35,9 +38,6 @@ def read_associations(assoc_fn):
             gene_id, go_terms = row.split("\t")
         else:
             continue
-        go_terms = set(go_terms.split(";"))
-        if gene_id in assoc:
-            assoc[gene_id] = assoc[gene_id].union(go_terms)
-        assoc[gene_id] = go_terms
+        assoc[gene_id] |= set(go_terms.split(";"))
 
     return assoc

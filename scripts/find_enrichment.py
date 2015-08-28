@@ -104,6 +104,7 @@ if __name__ == "__main__":
 
     study_fn, pop_fn, assoc_fn = args.filenames
     study, pop = read_geneset(study_fn, pop_fn, compare=args.compare)
+    print("Study: {0} vs. Population {1}".format(len(study), len(pop)), file=sys.stderr)
 
     if not args.compare:  # sanity check
         if len(pop) < len(study):
