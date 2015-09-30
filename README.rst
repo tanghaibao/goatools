@@ -1,6 +1,10 @@
 Tools for Gene Ontology
 ========================
 
+.. image:: https://zenodo.org/badge/doi/10.5281/zenodo.31628.svg
+    :target: http://dx.doi.org/10.5281/zenodo.31628
+    :alt: DOI
+
 .. image:: https://img.shields.io/pypi/v/goatools.svg
     :target: https://crate.io/packages/goatools/
     :alt: Latest PyPI version
@@ -12,10 +16,6 @@ Tools for Gene Ontology
 .. image:: https://scrutinizer-ci.com/g/tanghaibao/goatools/badges/quality-score.png
     :target: https://scrutinizer-ci.com/g/tanghaibao/goatools
     :alt: Scrutinizer
-
-.. image:: https://scrutinizer-ci.com/g/tanghaibao/jcvi/badges/build.png
-    :target: https://scrutinizer-ci.com/g/tanghaibao/goatools
-    :alt: Build
 
 :Author: Haibao Tang (`tanghaibao <http://github.com/tanghaibao>`_),
          Brent Pedersen (`brentp <http://github.com/brentp>`_),
@@ -170,3 +170,9 @@ Where the ``association`` file has the same format as used for
 
 The implemented algorithm is described in more detail at the go-perl
 documenation of `map2slim <http://search.cpan.org/~cmungall/go-perl/scripts/map2slim>`_.
+
+
+Reference
+:::::::::
+Haibao Tang et al. (2015). GOATOOLS: Tools for Gene Ontology. Zenodo.
+`10.5281/zenodo.31628 <http://dx.doi.org/10.5281/zenodo.31628>`_.
