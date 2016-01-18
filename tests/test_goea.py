@@ -12,7 +12,6 @@ from goatools.obo_parser import GODag
 from goatools.associations import read_associations
 
 from PyBiocode.enrichanal.enrichanal_GO import GOEA
-from PyBiocode.enrichanal.enrich_params import EnrichmentParams
 
 def test_fdr_bh(log):
     """Test Gene Ontology Enrichment Analysis using Benjamini/Hochberg multiple testing."""
@@ -28,7 +27,7 @@ def test_fdr_bh(log):
     results_nt = goea.find_enrichment(study_ids)
     # Print results 3 ways: to screen, to tsv(tab-separated file), to xlsx(Excel spreadsheet)
     field_names = ['study_cnt', 'fdr_bh', 'name']
-    sort_nts = lambda nts: sorted(nts, key=attrgetter('fdr_bh'))
+    sort_by = lambda nt: nt.fdr_bh # Sort by corrected pval, with smallest first
     # 1. Print results to screen using format in prtfmt. For example:
     #
     #     22 1.353e-03 protein phosphorylation
@@ -39,7 +38,7 @@ def test_fdr_bh(log):
     #      2 2.520e-03 CDP-diacylglycerol-glycerol-3-phosphate 3-phosphatidyltransferase activity
     #      ...
     prtfmt = "{study_cnt:2} {fdr_bh:5.3e} {name}\n"
-    goea.prt_txt(sys.stdout, results_nt, field_names, prtfmt, sort_nts=sort_nts)
+    goea.prt_txt(sys.stdout, results_nt, field_names, prtfmt, sort_by=sort_by)
 
 if __name__ == '__main__':
     test_fdr_bh(log=sys.stdout)
