@@ -1,7 +1,7 @@
 """Tests GOEA using multiple-test corrections from statsmodels."""
 # The tests in this file are intended to be run from the directory in which they reside.
 
-__copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang. All rigths reserved."
+__copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -15,29 +15,38 @@ from PyBiocode.enrichanal.enrichanal_GO import GOEA
 
 def test_fdr_bh(log):
     """Test Gene Ontology Enrichment Analysis using Benjamini/Hochberg multiple testing."""
-    # Initialize
+    # ---------------------------------------------------------------------
+    # Run Gene Ontology Analysis (GOEA)
+    #
+    # 1. Initialize
     obo_dag = GODag("go-basic.obo")
-    assoc = read_associations("../data/association")
+    assoc = read_associations("../data/association", no_top=True)
     popul_ids = [line.rstrip() for line in open("../data/population")]
     study_ids = [line.rstrip() for line in open("../data/study")]
-    # Run enrichment analysis
+    # 2. Run enrichment analysis
     goea = GOEA(obo_dag, assoc, log)
     goea.set_population(popul_ids)
     goea.set_params(alpha=0.05, method='fdr_bh')
     results_nt = goea.find_enrichment(study_ids)
+
+    # ---------------------------------------------------------------------
     # Print results 3 ways: to screen, to tsv(tab-separated file), to xlsx(Excel spreadsheet)
-    field_names = ['study_cnt', 'fdr_bh', 'name']
-    sort_by = lambda nt: nt.fdr_bh # Sort by corrected pval, with smallest first
+    #
+    field_names = ['NS', 'study_cnt', 'fdr_bh', 'level', 'depth', 'GO', 'name']
+    # User customizable sort. Sort by: First: BP, MF, CC; Second: corrected pval, with smallest first.
+    sort_by = lambda nt: [nt.NS, nt.fdr_bh]
     # 1. Print results to screen using format in prtfmt. For example:
     #
-    #     22 1.353e-03 protein phosphorylation
-    #      3 1.409e-03 palmitoyl-(protein) hydrolase activity
-    #      6 1.554e-03 peptidase activity
-    #      4 2.062e-03 proteasome core complex
-    #      2 2.520e-03 CDP-alcohol phosphatidyltransferase activity
-    #      2 2.520e-03 CDP-diacylglycerol-glycerol-3-phosphate 3-phosphatidyltransferase activity
+    #      BP 22 3.073e-03 L06 D07 GO:0006468 protein phosphorylation
+    #      BP  9 1.023e-02 L07 D08 GO:0006511 ubiquitin-dependent protein catabolic process
+    #      BP  2 1.023e-02 L05 D09 GO:0019877 diaminopimelate biosynthetic process
+    #      BP  2 1.223e-02 L04 D08 GO:0006301 postreplication repair
+    #      BP  2 1.223e-02 L05 D09 GO:0030418 nicotianamine biosynthetic process
+    #      BP  2 1.492e-02 L04 D06 GO:0006909 phagocytosis
+    #      BP  2 1.492e-02 L03 D03 GO:0051322 anaphase
     #      ...
-    prtfmt = "{study_cnt:2} {fdr_bh:5.3e} {name}\n"
+    # Print format field names are the same names as in the 'field_names" variable.
+    prtfmt = "{NS} {study_cnt:2} {fdr_bh:5.3e} L{level:02} D{depth:02} {GO} {name}\n"
     goea.prt_txt(sys.stdout, results_nt, field_names, prtfmt, sort_by=sort_by)
 
 if __name__ == '__main__':
