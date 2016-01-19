@@ -25,7 +25,7 @@ Tools for Gene Ontology
          Kenta Sato (`bicycle1885 <http://github.com/bicycle1885>`_),
          Chris Mungall (`cmungall <https://github.com/cmungall>`_),
          Greg Stupp (`stuppie <https://github.com/stuppie>`_),
-         Debra Klopfenstein(`dvklopfenstein <https://github.com/dvklopfenstein>`_)
+         DV Klopfenstein(`dvklopfenstein <https://github.com/dvklopfenstein>`_)
 :Email: tanghaibao@gmail.com
 :License: BSD
 
