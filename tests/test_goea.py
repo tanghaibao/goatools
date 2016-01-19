@@ -32,8 +32,9 @@ def test_fdr_bh(log):
     # ---------------------------------------------------------------------
     # Print results 3 ways: to screen, to tsv(tab-separated file), to xlsx(Excel spreadsheet)
     #
-    field_names = ['NS', 'study_cnt', 'fdr_bh', 'level', 'depth', 'GO', 'name'] # print these
-    # Optional user customizable sort. 
+    field_names = ['NS', 'study_cnt', 'fdr_bh', 'fdr_bh_sig', 'level', 'depth', 'GO', 'name'] # print these
+    #field_names = ['NS', 'study_cnt', 'fdr_bh', 'level', 'depth', 'GO', 'name'] # print these
+    # Optional user customizable sort: 
     #     Sort by: 1st) BP, MF, CC; 2nd) corrected pval, with smallest first.
     sort_by = lambda nt: [nt.NS, nt.fdr_bh]
     # 1. Print results to screen using format in prtfmt. For example:
@@ -48,19 +49,21 @@ def test_fdr_bh(log):
     #      ...
     # Print format field names are the same names as in the "field_names" variable.
     prtfmt = "{NS} {study_cnt:2} {fdr_bh:5.3e} L{level:02} D{depth:02} {GO} {name}\n"
-    goea.prt_txt(sys.stdout, results_nt, field_names, prtfmt, sort_by=sort_by)
+    keep_if = lambda nt: nt.fdr_bh_sig # Keep the GOEA GO Term result only if the result is significant.
+    goea.prt_txt(sys.stdout, results_nt, field_names, prtfmt, sort_by=sort_by, keep_if=keep_if)
 
     # 2. Write results to tsv file
     # Sort by: 1st) BP, MF, CC; 2nd) By GO depth, deepest GO first.
     sort_by = lambda nt: [nt.NS, -1*nt.depth] 
     fld2fmt = {'fdr_bh':'{:8.2e}'} # Optional user defined formatting for specific fields
-    goea.wr_tsv("test_goea_results.tsv", results_nt, field_names, sort_by=sort_by, fld2fmt=fld2fmt)
+    goea.wr_tsv("test_goea_results.tsv", results_nt, field_names, 
+        keep_if=keep_if, sort_by=sort_by, fld2fmt=fld2fmt)
 
     # 3. Write results to xlsx file
     # Use these headers instead of the field_names for the xlsx header
     hdrs = ['NS', 'Cnt', 'fdr_bh', 'L', 'D', 'Term', 'Ontology Term Name']
     goea.wr_xlsx("test_goea_results.xlsx", results_nt, field_names, 
-        sort_by=sort_by, hdrs=hdrs, fld2fmt=fld2fmt) # optional key-word args (ie, kwargs, kws)
+        keep_if=keep_if, sort_by=sort_by, hdrs=hdrs, fld2fmt=fld2fmt) # optional key-word args (ie, kwargs, kws)
 
 if __name__ == '__main__':
     test_fdr_bh(log=sys.stdout)
