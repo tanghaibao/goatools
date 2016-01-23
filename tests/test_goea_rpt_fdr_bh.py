@@ -5,7 +5,6 @@ __copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserve
 __author__ = "DV Klopfenstein"
 
 import sys
-from operator import attrgetter
 
 sys.path.insert(0, '..') # Use local version of goatools during test
 from goatools.obo_parser import GODag
