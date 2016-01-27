@@ -1,5 +1,8 @@
-"""GOEA and report generation w/bonferroni multiple test corrections from statsmodels."""
-# The tests in this file are intended to be run from the directory in which they reside.
+"""GOEA and report generation w/bonferroni multiple test corrections from statsmodels.
+
+        python test_goea_rpt_bonferroni.py
+        python test_goea_rpt_bonferroni.py [LOG FILENAME]
+"""
 
 __copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
