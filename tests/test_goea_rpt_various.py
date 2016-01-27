@@ -16,7 +16,7 @@ from goatools.associations import read_associations
 from PyBiocode.enrichanal.enrichanal_GO import GOEA
 
 def test_bonferronis(log, goeaobj):
-    current_methods = ['local_bonferroni', 'statsmodels_bonferroni']
+    current_methods = ['local_Bonferroni', 'statsmodels_bonferroni']
     goeaobj.set_params(methods=current_methods)
     study_ids = [line.rstrip() for line in open("../data/study")]
     run_goea(study_ids, "bonferronis", goeaobj, log)
@@ -31,13 +31,13 @@ def run_goea(study_ids, fout_base, goea, log):
 
     # Print these in tsv and xlsx in this order
     print_names = ['NS', 'study_cnt', 'pval_uncor', 
-              'local_bonferroni_star',       'local_bonferroni', 
+              'local_Bonferroni_star',       'local_Bonferroni', 
         'statsmodels_bonferroni_star', 'statsmodels_bonferroni', 
         'level', 'depth', 'GO', 'name'] 
     # Collect this. Used in prt_if to only print significant GO terms
-    field_names = print_names + ['local_bonferroni_sig', 'statsmodels_bonferroni_sig'] 
+    field_names = print_names + ['local_Bonferroni_sig', 'statsmodels_bonferroni_sig'] 
     # *_sig is True or False: Print the GOEA GO Term only if it is significant
-    prt_if = lambda nt: nt.local_bonferroni_sig or nt.statsmodels_bonferroni_sig
+    prt_if = lambda nt: nt.local_Bonferroni_sig or nt.statsmodels_bonferroni_sig
 
     # 1. Print results to screen using format in prtfmt. For example:
     #
@@ -51,7 +51,7 @@ def run_goea(study_ids, fout_base, goea, log):
     #      ...
     # Print format field names are the same names as in the "field_names" variable.
     prtfmt = " ".join(["{NS} {study_cnt:2} {pval_uncor:5.3e}",
-             "{local_bonferroni_star:1} {local_bonferroni:5}",
+             "{local_Bonferroni_star:1} {local_Bonferroni:5.3e}",
              "{statsmodels_bonferroni_star:1} {statsmodels_bonferroni:5.3e}",
              "L{level:02} D{depth:02} {GO} {name}\n"])
     goea.prt_txt(log, results_nt, field_names, prtfmt, prt_if=prt_if)
@@ -66,7 +66,7 @@ def run_goea(study_ids, fout_base, goea, log):
 
     ## 3. Write results to xlsx file
     ## Use these headers instead of the print_names for the xlsx header
-    ## TBD Check that header and size of fields printed match
+    ## current_methods Check that header and size of fields printed match
     #goea.wr_xlsx(fout_xls, results_nt, field_names, 
     #    # optional key-word args (ie, kwargs, kws)
     #    prt_if=prt_if, sort_by=sort_by, fld2fmt=fld2fmt, print_names=print_names) 

@@ -93,6 +93,13 @@ class FDR(object):
                  * 1.0 / len(p_val_distribution))
             fdr.append(q)
 
+def mcorrection_factory(pvals, alpha, method):
+    """Return 'multiple correction' object of requested AbstractCorrection class."""
+    correctioncls = globals().get(method, None)
+    if correctioncls is not None:
+        return correctioncls(pvals, alpha)
+    
+
 
 """
 Generate a p-value distribution based on re-sampling, as described in:
