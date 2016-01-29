@@ -1,9 +1,12 @@
 """
-Rountines to read in association file between genes and GO terms.
+Routines to read in association file between genes and GO terms.
 """
 
-from collections import defaultdict
+__copyright__ = "Copyright (C) 2016, H Tang. All rights reserved."
+__author__ = "various"
 
+from collections import defaultdict
+import os
 
 def read_associations(assoc_fn, no_top=False):
     """
@@ -45,3 +48,34 @@ def read_associations(assoc_fn, no_top=False):
         assoc[gene_id] |= gos
 
     return assoc
+
+def get_assoc_ncbi_taxids(taxids, force_dnld=False):
+    """Download NCBI's gene2go. Return annotations for user-specified taxid(s)."""
+    # Written by DV Klopfenstein, Jan 2016
+    import wget
+    if not os.path.exists("gene2go") or force_dnld:
+        wget.download("ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz")
+        os.system("gunzip gene2go.gz")
+    return read_ncbi_gene2go("gene2go", taxids)
+
+def read_ncbi_gene2go(fin_gene2go, taxids):
+    """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
+    # Written by DV Klopfenstein, Jan 2016
+    taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
+    with open(fin_gene2go) as ifstrm:
+        for line in ifstrm:
+            if line[0] != '#': # Line contains data. Not a comment
+                line = line.rstrip() # chomp
+                flds = line.split('\t')
+                if len(flds) >= 5:
+                    taxid, geneid, go_id, evidence, qualifier = line.split('\t')[:5]
+                    taxid = int(taxid)
+                    # NOT: Used when gene is expected to have function F, but does NOT.
+                    # ND : GO function not seen after exhaustive annotation attempts to the gene.
+                    if taxid in taxids and qualifier != 'NOT' and evidence != 'ND':
+                        geneid = int(geneid)
+                        taxid2asscs[taxid]['geneid2GOs'][geneid].add(go_id)
+                        taxid2asscs[taxid]['GO2geneids'][go_id].add(geneid)
+    return taxid2asscs
+
+
