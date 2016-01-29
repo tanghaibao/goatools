@@ -74,8 +74,8 @@ def read_ncbi_gene2go(fin_gene2go, taxids):
                     # ND : GO function not seen after exhaustive annotation attempts to the gene.
                     if taxid in taxids and qualifier != 'NOT' and evidence != 'ND':
                         geneid = int(geneid)
-                        taxid2asscs[taxid]['geneid2GOs'][geneid].add(go_id)
-                        taxid2asscs[taxid]['GO2geneids'][go_id].add(geneid)
+                        taxid2asscs[taxid]['GeneID2GOs'][geneid].add(go_id)
+                        taxid2asscs[taxid]['GO2GeneIDs'][go_id].add(geneid)
     return taxid2asscs
 
 
