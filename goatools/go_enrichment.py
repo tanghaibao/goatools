@@ -10,6 +10,7 @@ study genes using Fisher's exact test, and corrected for multiple testing
 """
 
 from __future__ import absolute_import
+from __future__ import print_function
 
 import sys
 import fisher
@@ -92,7 +93,7 @@ class GOEnrichmentStudy(object):
         self.results = []
 
         if propagate_counts:
-            print >> sys.stderr, "Propagating term counts to parents .."
+            print("Propagating term counts to parents ..", file=sys.stderr)
             obo_dag.update_association(assoc)
         self.term_study = count_terms(study, assoc, obo_dag)
         self.term_pop = count_terms(pop, assoc, obo_dag)
