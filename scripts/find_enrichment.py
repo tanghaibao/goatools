@@ -131,5 +131,8 @@ if __name__ == "__main__":
     g = GOEnrichmentStudy(pop, assoc, obo_dag,
                           propagate_counts=propagate_counts,
                           alpha=args.alpha,
-                          study=study, methods=methods)
-    g.print_summary(min_ratio=min_ratio, indent=args.indent, pval=args.pval)
+                          methods=methods)
+    results = g.run_study(study)
+    g.print_summary(results, min_ratio=min_ratio, indent=args.indent, pval=args.pval)
+
+

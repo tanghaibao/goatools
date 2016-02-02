@@ -81,7 +81,7 @@ class GOEnrichmentStudy(object):
     """Runs Fisher's exact test, as well as multiple corrections
     """
     def __init__(self, pop, assoc, obo_dag, propagate_counts=True,
-                 alpha=.05, study=None,
+                 alpha=.05,
                  methods=["bonferroni", "sidak", "holm"]):
 
         self.pop = pop
@@ -89,35 +89,15 @@ class GOEnrichmentStudy(object):
         self.obo_dag = obo_dag
         self.alpha = alpha
         self.methods = methods
-        self.results = []
 
         if propagate_counts:
             print >> sys.stderr, "Propagating term counts to parents .."
             obo_dag.update_association(assoc)
-        self.term_study = count_terms(study, assoc, obo_dag)
         self.term_pop = count_terms(pop, assoc, obo_dag)
 
-        if study:
-            self.run_study(study)
 
     def run_study(self, study):
-        results = self.results
-        pop_n, study_n = len(self.pop), len(study)
-        allterms = set(self.term_study.keys() + self.term_pop.keys())
-
-        for term in allterms:
-            study_count = self.term_study.get(term, 0)
-            pop_count = self.term_pop.get(term, 0)
-            p = fisher.pvalue_population(study_count, study_n,
-                                         pop_count, pop_n)
-
-            one_record = GOEnrichmentRecord(
-                id=term,
-                p_uncorrected=p.two_tail,
-                ratio_in_study=(study_count, study_n),
-                ratio_in_pop=(pop_count, pop_n))
-
-            results.append(one_record)
+        results = self.get_pval_uncorr(study)
 
         # Calculate multiple corrections
         pvals = [r.p_uncorrected for r in results]
@@ -146,10 +126,9 @@ class GOEnrichmentStudy(object):
         all_corrections = (bonferroni, sidak, holm, fdr)
 
         for method, corrected_pvals in zip(all_methods, all_corrections):
-            self.update_results(method, corrected_pvals)
+            self._update_results(results, method, corrected_pvals)
 
         results.sort(key=lambda r: r.p_uncorrected)
-        self.results = results
 
         for rec in results:
             # get go term for description and level
@@ -157,13 +136,38 @@ class GOEnrichmentStudy(object):
 
         return results
 
-    def update_results(self, method, corrected_pvals):
+    def get_pval_uncorr(self, study):
+        """Calculate the uncorrected pvalues for study items."""
+        results = []
+        term_study = count_terms(study, self.assoc, self.obo_dag)
+        pop_n, study_n = len(self.pop), len(study)
+        allterms = set(term_study.keys() + self.term_pop.keys())
+
+        for term in allterms:
+            study_count = term_study.get(term, 0)
+            pop_count = self.term_pop.get(term, 0)
+            p = fisher.pvalue_population(study_count, study_n,
+                                         pop_count, pop_n)
+
+            one_record = GOEnrichmentRecord(
+                id=term,
+                p_uncorrected=p.two_tail,
+                ratio_in_study=(study_count, study_n),
+                ratio_in_pop=(pop_count, pop_n))
+
+            results.append(one_record)
+        return results
+        
+    @staticmethod
+    def _update_results(results, method, corrected_pvals):
+        """Add data members to store multiple test corrections."""
         if corrected_pvals is None:
             return
-        for rec, val in zip(self.results, corrected_pvals):
+        for rec, val in zip(results, corrected_pvals):
             rec.__setattr__("p_"+method, val)
 
-    def print_summary(self, min_ratio=None, indent=False, pval=0.05):
+    @staticmethod
+    def print_summary(results, min_ratio=None, indent=False, pval=0.05):
         from .version import __version__ as version
         from datetime import date
 
@@ -174,7 +178,7 @@ class GOEnrichmentStudy(object):
         # field names for output
         print("\t".join(GOEnrichmentRecord()._fields))
 
-        for rec in self.results:
+        for rec in results:
             # calculate some additional statistics
             # (over_under, is_ratio_different)
             rec.update_remaining_fields(min_ratio=min_ratio)
