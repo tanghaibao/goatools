@@ -80,6 +80,8 @@ class GOEnrichmentRecord(object):
 class GOEnrichmentStudy(object):
     """Runs Fisher's exact test, as well as multiple corrections
     """
+    all_methods = ("bonferroni", "sidak", "holm", "fdr")
+
     def __init__(self, pop, assoc, obo_dag, propagate_counts=True,
                  alpha=.05,
                  methods=["bonferroni", "sidak", "holm"]):
@@ -96,15 +98,15 @@ class GOEnrichmentStudy(object):
         self.term_pop = count_terms(pop, assoc, obo_dag)
 
 
-    def run_study(self, study):
-        results = self.get_pval_uncorr(study)
+    def run_study(self, study, **kws):
+        results = self._get_pval_uncorr(study)
 
         # Calculate multiple corrections
         pvals = [r.p_uncorrected for r in results]
-        all_methods = ("bonferroni", "sidak", "holm", "fdr")
         bonferroni, sidak, holm, fdr = None, None, None, None
 
-        for method in self.methods:
+        methods = kws['methods'] if 'methods' in kws else self.methods
+        for method in methods:
             if method == "bonferroni":
                 bonferroni = Bonferroni(pvals, self.alpha).corrected_pvals
             elif method == "sidak":
@@ -120,12 +122,12 @@ class GOEnrichmentStudy(object):
                 fdr = FDR(p_val_distribution,
                           results, self.alpha).corrected_pvals
             else:
-                raise Exception("multiple test correction methods must be "
-                                "one of %s" % all_methods)
+                raise Exception("INVALID METHOD({MX}). VALID METHODS: {Ms}".format(
+                                MX=method, Ms=" ".join(self.all_methods)))
 
         all_corrections = (bonferroni, sidak, holm, fdr)
 
-        for method, corrected_pvals in zip(all_methods, all_corrections):
+        for method, corrected_pvals in zip(self.all_methods, all_corrections):
             self._update_results(results, method, corrected_pvals)
 
         results.sort(key=lambda r: r.p_uncorrected)
@@ -136,7 +138,7 @@ class GOEnrichmentStudy(object):
 
         return results
 
-    def get_pval_uncorr(self, study):
+    def _get_pval_uncorr(self, study):
         """Calculate the uncorrected pvalues for study items."""
         results = []
         term_study = count_terms(study, self.assoc, self.obo_dag)
