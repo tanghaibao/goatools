@@ -103,14 +103,10 @@ class GOEnrichmentStudy(object):
         # Calculate uncorrected pvalues
         results = self._get_pval_uncorr(study)
 
-        # Do multipletest corrections on uncorrected pvalues
-        pvals = [r.p_uncorrected for r in results]
+        # Do multipletest corrections on uncorrected pvalues and update results
         methods = kws['methods'] if 'methods' in kws else self.methods
         alpha = kws['alpha'] if 'alpha' in kws else self.alpha
-        all_corrections = self._run_multitest_corr(pvals, methods, alpha)
-
-        for method, corrected_pvals in zip(self.all_methods, all_corrections):
-            self._update_results(results, method, corrected_pvals)
+        self._run_multitest_corr(results, methods, alpha)
 
         results.sort(key=lambda r: r.p_uncorrected)
 
@@ -142,8 +138,9 @@ class GOEnrichmentStudy(object):
             results.append(one_record)
         return results
         
-    def _run_multitest_corr(self, pvals, methods, alpha):
+    def _run_multitest_corr(self, results, methods, alpha):
         """Do multiple-test corrections on uncorrected pvalues."""
+        pvals = [r.p_uncorrected for r in results]
         bonferroni, sidak, holm, fdr = None, None, None, None
 
         for method in methods:
@@ -164,8 +161,11 @@ class GOEnrichmentStudy(object):
             else:
                 raise Exception("INVALID METHOD({MX}). VALID METHODS: {Ms}".format(
                                 MX=method, Ms=" ".join(self.all_methods)))
+
         all_corrections = (bonferroni, sidak, holm, fdr)
-        return all_corrections
+
+        for method, corrected_pvals in zip(self.all_methods, all_corrections):
+            self._update_results(results, method, corrected_pvals)
 
 
     @staticmethod
