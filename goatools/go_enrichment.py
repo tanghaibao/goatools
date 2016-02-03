@@ -106,7 +106,8 @@ class GOEnrichmentStudy(object):
         # Do multipletest corrections on uncorrected pvalues
         pvals = [r.p_uncorrected for r in results]
         methods = kws['methods'] if 'methods' in kws else self.methods
-        all_corrections = self._run_multitest_corr(pvals, methods)
+        alpha = kws['alpha'] if 'alpha' in kws else self.alpha
+        all_corrections = self._run_multitest_corr(pvals, methods, alpha)
 
         for method, corrected_pvals in zip(self.all_methods, all_corrections):
             self._update_results(results, method, corrected_pvals)
@@ -141,17 +142,17 @@ class GOEnrichmentStudy(object):
             results.append(one_record)
         return results
         
-    def _run_multitest_corr(self, pvals, methods):
+    def _run_multitest_corr(self, pvals, methods, alpha):
         """Do multiple-test corrections on uncorrected pvalues."""
         bonferroni, sidak, holm, fdr = None, None, None, None
 
         for method in methods:
             if method == "bonferroni":
-                bonferroni = Bonferroni(pvals, self.alpha).corrected_pvals
+                bonferroni = Bonferroni(pvals, alpha).corrected_pvals
             elif method == "sidak":
-                sidak = Sidak(pvals, self.alpha).corrected_pvals
+                sidak = Sidak(pvals, alpha).corrected_pvals
             elif method == "holm":
-                holm = HolmBonferroni(pvals, self.alpha).corrected_pvals
+                holm = HolmBonferroni(pvals, alpha).corrected_pvals
             elif method == "fdr":
                 # get the empirical p-value distributions for FDR
                 p_val_distribution = calc_qval(study_count, study_n,
@@ -159,7 +160,7 @@ class GOEnrichmentStudy(object):
                                                self.pop, self.assoc,
                                                self.term_pop, self.obo_dag)
                 fdr = FDR(p_val_distribution,
-                          results, self.alpha).corrected_pvals
+                          results, alpha).corrected_pvals
             else:
                 raise Exception("INVALID METHOD({MX}). VALID METHODS: {Ms}".format(
                                 MX=method, Ms=" ".join(self.all_methods)))
