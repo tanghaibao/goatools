@@ -99,33 +99,14 @@ class GOEnrichmentStudy(object):
 
 
     def run_study(self, study, **kws):
+        """Run Gene Ontology Enrichment Study (GOEA) on study ids."""
+        # Calculate uncorrected pvalues
         results = self._get_pval_uncorr(study)
 
-        # Calculate multiple corrections
+        # Do multipletest corrections on uncorrected pvalues
         pvals = [r.p_uncorrected for r in results]
-        bonferroni, sidak, holm, fdr = None, None, None, None
-
         methods = kws['methods'] if 'methods' in kws else self.methods
-        for method in methods:
-            if method == "bonferroni":
-                bonferroni = Bonferroni(pvals, self.alpha).corrected_pvals
-            elif method == "sidak":
-                sidak = Sidak(pvals, self.alpha).corrected_pvals
-            elif method == "holm":
-                holm = HolmBonferroni(pvals, self.alpha).corrected_pvals
-            elif method == "fdr":
-                # get the empirical p-value distributions for FDR
-                p_val_distribution = calc_qval(study_count, study_n,
-                                               pop_count, pop_n,
-                                               self.pop, self.assoc,
-                                               self.term_pop, self.obo_dag)
-                fdr = FDR(p_val_distribution,
-                          results, self.alpha).corrected_pvals
-            else:
-                raise Exception("INVALID METHOD({MX}). VALID METHODS: {Ms}".format(
-                                MX=method, Ms=" ".join(self.all_methods)))
-
-        all_corrections = (bonferroni, sidak, holm, fdr)
+        all_corrections = self._run_multitest_corr(pvals, methods)
 
         for method, corrected_pvals in zip(self.all_methods, all_corrections):
             self._update_results(results, method, corrected_pvals)
@@ -160,6 +141,32 @@ class GOEnrichmentStudy(object):
             results.append(one_record)
         return results
         
+    def _run_multitest_corr(self, pvals, methods):
+        """Do multiple-test corrections on uncorrected pvalues."""
+        bonferroni, sidak, holm, fdr = None, None, None, None
+
+        for method in methods:
+            if method == "bonferroni":
+                bonferroni = Bonferroni(pvals, self.alpha).corrected_pvals
+            elif method == "sidak":
+                sidak = Sidak(pvals, self.alpha).corrected_pvals
+            elif method == "holm":
+                holm = HolmBonferroni(pvals, self.alpha).corrected_pvals
+            elif method == "fdr":
+                # get the empirical p-value distributions for FDR
+                p_val_distribution = calc_qval(study_count, study_n,
+                                               pop_count, pop_n,
+                                               self.pop, self.assoc,
+                                               self.term_pop, self.obo_dag)
+                fdr = FDR(p_val_distribution,
+                          results, self.alpha).corrected_pvals
+            else:
+                raise Exception("INVALID METHOD({MX}). VALID METHODS: {Ms}".format(
+                                MX=method, Ms=" ".join(self.all_methods)))
+        all_corrections = (bonferroni, sidak, holm, fdr)
+        return all_corrections
+
+
     @staticmethod
     def _update_results(results, method, corrected_pvals):
         """Add data members to store multiple test corrections."""
