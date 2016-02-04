@@ -21,25 +21,26 @@ from .ratio import count_terms, is_ratio_different
 class GOEnrichmentRecord(object):
     """Represents one result (from a single GOTerm) in the GOEnrichmentStudy
     """
-    _fields = "id enrichment description ratio_in_study ratio_in_pop"\
-              " p_uncorrected p_bonferroni p_holm p_sidak p_fdr".split()
+    # Fields seen in every enrichment result
+    _fields = ["id", "enrichment", "description", "ratio_in_study", "ratio_in_pop", "p_uncorrected"]
+    _fldfmt = ["%s"] * 3 + ["%d/%d"] * 2 + ["%.3g"]
 
     def __init__(self, **kwargs):
-        for f in self._fields:
-            self.__setattr__(f, "n.a.")
-
+        # Methods seen in current enrichment result
+        self._methods = [] 
         for k, v in kwargs.items():
-            assert k in self._fields, "invalid field name %s" % k
-            self.__setattr__(k, v)
+            setattr(self, k, v)
 
         self.goterm = None  # the reference to the GOTerm
 
-    def __setattr__(self, name, value):
-        self.__dict__[name] = value
+    def set_corrected_pval(self, method, pvalue):
+        self._methods.append(method)
+        setattr(self, "".join(["p_", method]), pvalue)
 
     def __str__(self, indent=False):
-        field_data = [self.__dict__[f] for f in self._fields]
-        field_formatter = ["%s"] * 3 + ["%d/%d"] * 2 + ["%.3g"] * 5
+        field_data = [getattr(self, f, "n.a.") for f in self._fields] + \
+                     [getattr(self, "p_{}".format(m)) for m in self._methods]
+        field_formatter = [f for f in self._fldfmt] + ["%.3g"]*len(self._methods)
         assert len(field_data) == len(field_formatter)
 
         # default formatting only works for non-"n.a" data
@@ -56,23 +57,18 @@ class GOEnrichmentRecord(object):
                                 zip(field_formatter, field_data))
 
     def __repr__(self):
-        return "GOEnrichmentRecord(%s)" % self.id
+        return "GOEnrichmentRecord({GO})".format(GO=self.id)
 
-    def find_goterm(self, go):
-        if self.id in list(go.keys()):
-            self.goterm = go[self.id]
-            self.description = self.goterm.name
-
-    def update_fields(self, **kwargs):
-        for k, v in kwargs.items():
-            assert k in self._fields, "invalid field name %s" % k
-            self.__setattr__(k, v)
+    def set_goterm(self, go):
+        self.goterm = go.get(self.id, None)
+        self.description = self.goterm.name if self.goterm is not None else "n.a."
 
     def update_remaining_fields(self, min_ratio=None):
         study_count, study_n = self.ratio_in_study
         pop_count, pop_n = self.ratio_in_pop
         self.enrichment = 'e' if ((1.0 * study_count / study_n) >
                                   (1.0 * pop_count / pop_n)) else 'p'
+
         self.is_ratio_different = is_ratio_different(min_ratio, study_count,
                                                      study_n, pop_count, pop_n)
 
@@ -87,6 +83,7 @@ class GOEnrichmentStudy(object):
                  methods=["bonferroni", "sidak", "holm"]):
 
         self.pop = pop
+        self.pop_n = len(pop)
         self.assoc = assoc
         self.obo_dag = obo_dag
         self.alpha = alpha
@@ -106,13 +103,13 @@ class GOEnrichmentStudy(object):
         # Do multipletest corrections on uncorrected pvalues and update results
         methods = kws['methods'] if 'methods' in kws else self.methods
         alpha = kws['alpha'] if 'alpha' in kws else self.alpha
-        self._run_multitest_corr(results, methods, alpha)
+        self._run_multitest_corr(results, methods, alpha, study)
 
         results.sort(key=lambda r: r.p_uncorrected)
 
         for rec in results:
             # get go term for description and level
-            rec.find_goterm(self.obo_dag)
+            rec.set_goterm(self.obo_dag)
 
         return results
 
@@ -120,7 +117,7 @@ class GOEnrichmentStudy(object):
         """Calculate the uncorrected pvalues for study items."""
         results = []
         term_study = count_terms(study, self.assoc, self.obo_dag)
-        pop_n, study_n = len(self.pop), len(study)
+        pop_n, study_n = self.pop_n, len(study)
         allterms = set(term_study.keys() + self.term_pop.keys())
 
         for term in allterms:
@@ -136,9 +133,10 @@ class GOEnrichmentStudy(object):
                 ratio_in_pop=(pop_count, pop_n))
 
             results.append(one_record)
+          
         return results
         
-    def _run_multitest_corr(self, results, methods, alpha):
+    def _run_multitest_corr(self, results, methods, alpha, study):
         """Do multiple-test corrections on uncorrected pvalues."""
         pvals = [r.p_uncorrected for r in results]
         bonferroni, sidak, holm, fdr = None, None, None, None
@@ -152,8 +150,8 @@ class GOEnrichmentStudy(object):
                 holm = HolmBonferroni(pvals, alpha).corrected_pvals
             elif method == "fdr":
                 # get the empirical p-value distributions for FDR
-                p_val_distribution = calc_qval(study_count, study_n,
-                                               pop_count, pop_n,
+                p_val_distribution = calc_qval(len(study),
+                                               self.pop_n,
                                                self.pop, self.assoc,
                                                self.term_pop, self.obo_dag)
                 fdr = FDR(p_val_distribution,
@@ -167,14 +165,13 @@ class GOEnrichmentStudy(object):
         for method, corrected_pvals in zip(self.all_methods, all_corrections):
             self._update_results(results, method, corrected_pvals)
 
-
     @staticmethod
     def _update_results(results, method, corrected_pvals):
         """Add data members to store multiple test corrections."""
         if corrected_pvals is None:
             return
         for rec, val in zip(results, corrected_pvals):
-            rec.__setattr__("p_"+method, val)
+            rec.set_corrected_pval(method, val)
 
     @staticmethod
     def print_summary(results, min_ratio=None, indent=False, pval=0.05):
@@ -186,7 +183,7 @@ class GOEnrichmentStudy(object):
         print("# min_ratio={0} pval={1}".format(min_ratio, pval))
 
         # field names for output
-        print("\t".join(GOEnrichmentRecord()._fields))
+        print("\t".join(GOEnrichmentRecord._fields))
 
         for rec in results:
             # calculate some additional statistics
