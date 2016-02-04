@@ -13,17 +13,24 @@ from __future__ import absolute_import
 
 import sys
 import fisher
+import collections as cx
 
 from .multiple_testing import Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
 from .ratio import count_terms, is_ratio_different
+import goatools.wr_tbl as RPT
 
 
 class GOEnrichmentRecord(object):
     """Represents one result (from a single GOTerm) in the GOEnrichmentStudy
     """
+    namespace2NS = cx.OrderedDict([
+        ('biological_process', 'BP'),
+        ('molecular_function', 'MF'),
+        ('cellular_component', 'CC')])
+
     # Fields seen in every enrichment result
-    _fields = ["id", "enrichment", "description", "ratio_in_study", "ratio_in_pop", "p_uncorrected"]
-    _fldfmt = ["%s"] * 3 + ["%d/%d"] * 2 + ["%.3g"]
+    _fields = ["GO", "NS", "enrichment", "name", "ratio_in_study", "ratio_in_pop", "p_uncorrected"]
+    _fldfmt = ["%2s"] + ["%s"] * 3 + ["%d/%d"] * 2 + ["%.3g"]
 
     def __init__(self, **kwargs):
         # Methods seen in current enrichment result
@@ -33,6 +40,10 @@ class GOEnrichmentRecord(object):
 
         self.goterm = None  # the reference to the GOTerm
 
+    def get_prtflds_default(self):
+        """Get default fields."""
+        return self._fields + ["p_{M}".format(M=m) for m in self._methods]
+
     def set_corrected_pval(self, method, pvalue):
         self._methods.append(method)
         setattr(self, "".join(["p_", method]), pvalue)
@@ -40,7 +51,7 @@ class GOEnrichmentRecord(object):
     def __str__(self, indent=False):
         field_data = [getattr(self, f, "n.a.") for f in self._fields] + \
                      [getattr(self, "p_{}".format(m)) for m in self._methods]
-        field_formatter = [f for f in self._fldfmt] + ["%.3g"]*len(self._methods)
+        field_formatter = self._fldfmt + ["%.3g"]*len(self._methods)
         assert len(field_data) == len(field_formatter)
 
         # default formatting only works for non-"n.a" data
@@ -53,15 +64,17 @@ class GOEnrichmentRecord(object):
         if self.goterm is not None and indent:
             dots = "." * self.goterm.level
 
-        return dots + "\t".join(a % b for (a, b) in
-                                zip(field_formatter, field_data))
+        prtdata = "\t".join(a % b for (a, b) in zip(field_formatter, field_data))
+        return "".join([dots, prtdata])
 
     def __repr__(self):
-        return "GOEnrichmentRecord({GO})".format(GO=self.id)
+        return "GOEnrichmentRecord({GO})".format(GO=self.GO)
 
     def set_goterm(self, go):
-        self.goterm = go.get(self.id, None)
-        self.description = self.goterm.name if self.goterm is not None else "n.a."
+        self.goterm = go.get(self.GO, None)
+        present = self.goterm is not None
+        self.name = self.goterm.name if present else "n.a."
+        self.NS = self.namespace2NS[self.goterm.namespace] if present else "XX"
 
     def update_remaining_fields(self, min_ratio=None):
         study_count, study_n = self.ratio_in_study
@@ -77,6 +90,17 @@ class GOEnrichmentStudy(object):
     """Runs Fisher's exact test, as well as multiple corrections
     """
     all_methods = ("bonferroni", "sidak", "holm", "fdr")
+
+    # Default Excel table column widths 
+    default_fld2col_widths = {
+        'NS'        :  3,
+        'GO'        : 12,
+        'level'     :  3,
+        'enrichment':  1,
+        'name'      : 60,
+        'ratio_in_study':  8,
+        'ratio_in_pop'  : 12,
+    }
 
     def __init__(self, pop, assoc, obo_dag, propagate_counts=True,
                  alpha=.05,
@@ -105,11 +129,13 @@ class GOEnrichmentStudy(object):
         alpha = kws['alpha'] if 'alpha' in kws else self.alpha
         self._run_multitest_corr(results, methods, alpha, study)
 
-        results.sort(key=lambda r: r.p_uncorrected)
 
         for rec in results:
-            # get go term for description and level
+            # get go term for name and level
             rec.set_goterm(self.obo_dag)
+
+        # Default sort order: 1st sort by BP, MF, CC. 2nd sort by pval
+        results.sort(key=lambda r: [r.NS, r.p_uncorrected])
 
         return results
 
@@ -127,7 +153,7 @@ class GOEnrichmentStudy(object):
                                          pop_count, pop_n)
 
             one_record = GOEnrichmentRecord(
-                id=term,
+                GO=term,
                 p_uncorrected=p.two_tail,
                 ratio_in_study=(study_count, study_n),
                 ratio_in_pop=(pop_count, pop_n))
@@ -165,6 +191,93 @@ class GOEnrichmentStudy(object):
         for method, corrected_pvals in zip(self.all_methods, all_corrections):
             self._update_results(results, method, corrected_pvals)
 
+    # Methods for writing results into tables: text, tab-separated, Excel 
+    def prt_txt(self, prt, results_nt, prtfmt=None, **kws):
+        """Print GOEA results in text format."""
+        if prtfmt is None:
+            raise Exception("TBD: IMPLEMENT DEFAULT format PATTERN.")
+        prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(results_nt)
+        data_nts = self._get_nts(results_nt, prt_flds, **kws)
+        RPT.prt_txt(prt, data_nts, prtfmt, prt_flds, **kws)
+
+    def wr_xlsx(self, fout_xlsx, results_nt, **kws):
+        """Write a xlsx file."""
+        prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(results_nt)
+        xlsx_data = self._get_nts(results_nt, prt_flds, **kws)
+        if 'fld2col_widths' not in kws:
+            kws['fld2col_widths'] = {f:self.default_fld2col_widths.get(f, 8) for f in prt_flds}
+        RPT.wr_xlsx(fout_xlsx, xlsx_data, **kws)
+
+    def wr_tsv(self, fout_tsv, results_nt, **kws):
+        """Write tab-separated table data to file"""
+        prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(results_nt)
+        tsv_data = self._get_nts(results_nt, prt_flds, **kws)
+        RPT.wr_tsv(fout_tsv, tsv_data, prt_flds, **kws)
+
+    def prt_tsv(self, prt, results_nt, **kws):
+        """Write tab-separated table data"""
+        prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(results_nt)
+        tsv_data = self._get_nts(results_nt, prt_flds, **kws)
+        RPT.prt_tsv(prt, tsv_data, prt_flds, **kws)
+
+    def _get_nts(self, results, fldnames, **kws):
+        """Get namedtuples containing user-specified (or default) data from GOEA results.
+
+            Reformats data from GOEnrichmentRecord objects into lists of nts
+            So that generic table writer's may be used.
+        """
+        keep_if = None if 'keep_if' not in kws else kws['keep_if']
+        data_nts = [] # A list of namedtuples containing GOEA results
+        NtGoeaResults = cx.namedtuple("NtGoeaResults", " ".join(fldnames))
+        # Loop through GOEA results stored in a GOEnrichmentRecord object
+        for goerec in results:
+            row = []
+            # Loop through each user field desired
+            for fld in fldnames:
+                # 1. Check the GOEnrichmentRecord's attributes
+                val = getattr(goerec, fld, None)
+                if val is not None:
+                    if fld.startswith("ratio_"):
+                        val = "{N}/{TOT}".format(N=val[0], TOT=val[1])
+                    row.append(val)
+                else:
+                    # 2. Check the GO object for the field
+                    val = getattr(goerec.goterm, fld, None)
+                    if val is not None:
+                        row.append(val)
+                    else:
+                        # 3. Field not found, raise Exception
+                        chk = self._err_fld(goerec, fldnames, row) 
+            nt = NtGoeaResults._make(row)
+            if keep_if is None or keep_if(nt):
+                data_nts.append(nt)
+        return data_nts
+
+    def _err_fld(self, goerec, fldnames, row):
+        """Unrecognized field. Print detailed Failure message."""
+        msg = []
+        actual_flds = set(goerec.get_prtflds_default() + goerec.goterm.__dict__.keys())
+        bad_flds = set(fldnames).difference(set(actual_flds))
+        msg.append("\nGOEA RESULT FIELDS: {}".format(" ".join(goerec._fields)))
+        msg.append("GO FIELDS: {}".format(" ".join(goerec.goterm.__dict__.keys())))
+        msg.append("\nFATAL: UNEXPECTED FIELD(S): {F}\n".format(F=" ".join(bad_flds)))
+        msg.append("  {N} User-provided fields:".format(N=len(fldnames)))
+        for idx, fld in enumerate(fldnames, 1):
+          mrk = "ERROR -->" if fld in bad_flds else ""
+          msg.append("  {M:>9} {I:>2}) {F}".format(M=mrk, I=idx, F=fld))
+        raise Exception("\n".join(msg))
+  
+    @staticmethod
+    def get_prtflds_default(results):
+        """Get default fields names. Used in printing GOEA results.
+
+           Researchers can control which fields they want to print in the GOEA results
+           or they can use the default fields.
+        """
+        if results:
+          return results[0].get_prtflds_default()
+        return []
+
     @staticmethod
     def _update_results(results, method, corrected_pvals):
         """Add data members to store multiple test corrections."""
@@ -183,7 +296,8 @@ class GOEnrichmentStudy(object):
         print("# min_ratio={0} pval={1}".format(min_ratio, pval))
 
         # field names for output
-        print("\t".join(GOEnrichmentRecord._fields))
+        if results:
+            print("\t".join(GOEnrichmentStudy.get_prtflds_default(results)))
 
         for rec in results:
             # calculate some additional statistics
@@ -195,3 +309,4 @@ class GOEnrichmentStudy(object):
 
             if rec.is_ratio_different:
                 print(rec.__str__(indent=indent))
+
