@@ -19,7 +19,7 @@ About significance cutoff:
 import sys
 import os.path as op
 sys.path.insert(0, op.join(op.dirname(__file__), ".."))
-from goatools import GOEnrichmentStudy
+from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.obo_parser import GODag
 from goatools.associations import read_associations
 
