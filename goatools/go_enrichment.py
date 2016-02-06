@@ -9,10 +9,10 @@ study genes using Fisher's exact test, and corrected for multiple testing
 (including Bonferroni, Holm, Sidak, and false discovery rate)
 """
 
+from __future__ import absolute_import
+
 __copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
 __author__ = "various"
-
-from __future__ import absolute_import
 
 import sys
 import fisher
@@ -35,11 +35,19 @@ class GOEnrichmentRecord(object):
     _fields = ["GO", "NS", "enrichment", "name", "ratio_in_study", "ratio_in_pop", "p_uncorrected"]
     _fldfmt = ["%2s"] + ["%s"] * 3 + ["%d/%d"] * 2 + ["%.3g"]
 
+    counts = set(['study_count', 'study_n', 'pop_count', 'pop_n'])
+
     def __init__(self, **kwargs):
         # Methods seen in current enrichment result
         self._methods = [] 
         for k, v in kwargs.items():
             setattr(self, k, v)
+            if k == 'ratio_in_study':
+                setattr(self, 'study_count', v[0])
+                setattr(self, 'study_n', v[1])
+            if k == 'ratio_in_pop':
+                setattr(self, 'pop_count', v[0])
+                setattr(self, 'pop_n', v[1])
         self._init_enrichment()
         self.goterm = None  # the reference to the GOTerm
 
@@ -199,7 +207,7 @@ class GOEnrichmentStudy(object):
         for method, corrected_pvals in zip(self.all_methods, all_corrections):
             self._update_results(results, method, corrected_pvals)
 
-    # Methods for writing results into tables: text, tab-separated, Excel 
+    # Methods for writing results into tables: text, tab-separated, Excel spreadsheets
     def prt_txt(self, prt, results_nt, prtfmt=None, **kws):
         """Print GOEA results in text format."""
         if prtfmt is None:
