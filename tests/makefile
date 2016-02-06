@@ -7,4 +7,5 @@ clean:
 	rm -f goea_*.tsv goea_*.xlsx goea_*.log
 
 clobber:
+	@make --no-print-directory clean
 	rm -f go-basic.obo
