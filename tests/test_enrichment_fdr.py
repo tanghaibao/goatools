@@ -53,6 +53,6 @@ def run_all():
     test_goea_bonferroni()
 
 if __name__ == '__main__':
-    #run_all()
-    test_goea_bonferroni()
+    run_all()
+    #test_goea_bonferroni()
 
