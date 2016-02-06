@@ -89,16 +89,12 @@ class GOEnrichmentRecord(object):
 
     def _init_enrichment(self):
         """Mark as 'enriched' or 'purified'."""
-        study_count, study_n = self.ratio_in_study
-        pop_count, pop_n = self.ratio_in_pop
-        self.enrichment = 'e' if ((1.0 * study_count / study_n) >
-                                  (1.0 * pop_count / pop_n)) else 'p'
+        self.enrichment = 'e' if ((1.0 * self.study_count / self.study_n) >
+                                  (1.0 * self.pop_count / self.pop_n)) else 'p'
 
     def update_remaining_fields(self, min_ratio=None):
-        study_count, study_n = self.ratio_in_study
-        pop_count, pop_n = self.ratio_in_pop
-        self.is_ratio_different = is_ratio_different(min_ratio, study_count,
-                                                     study_n, pop_count, pop_n)
+        self.is_ratio_different = is_ratio_different(min_ratio, self.study_count,
+                                                     self.study_n, self.pop_count, self.pop_n)
 
 
 class GOEnrichmentStudy(object):
