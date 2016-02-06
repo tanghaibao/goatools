@@ -16,6 +16,9 @@ About significance cutoff:
         level to apply after Bonferroni correction
 """.format(__file__)
 
+__copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
+__author__ = "various"
+
 import sys
 import os.path as op
 sys.path.insert(0, op.join(op.dirname(__file__), ".."))
@@ -91,7 +94,9 @@ if __name__ == "__main__":
     p.add_argument('--obo', default="go-basic.obo", type=str,
                  help="Specifies location and name of the obo file")
     p.add_argument('--no_propagate_counts', default=False, action='store_true',
-                  help="Do not propagate counts to parent terms")
+                 help="Do not propagate counts to parent terms")
+    p.add_argument('--outfile', default=None, type=str,
+                 help="Write enrichment results into xlsx or tsv file")
 
     args = p.parse_args()
     check_input_files(args, p)
@@ -99,8 +104,6 @@ if __name__ == "__main__":
     min_ratio = args.ratio
     if min_ratio is not None:
         assert 1 <= min_ratio <= 2
-
-    assert 0 < args.alpha < 1, "Test-wise alpha must fall between (0, 1)"
 
     study_fn, pop_fn, assoc_fn = args.filenames
     study, pop = read_geneset(study_fn, pop_fn, compare=args.compare)
@@ -133,6 +136,19 @@ if __name__ == "__main__":
                           alpha=args.alpha,
                           methods=methods)
     results = g.run_study(study)
-    g.print_summary(results, min_ratio=min_ratio, indent=args.indent, pval=args.pval)
-
-
+    if args.outfile is None:
+        g.print_summary(results, min_ratio=min_ratio, indent=args.indent, pval=args.pval)
+    else:
+        # Users can print to both tab-separated file and xlsx file in one run.
+        outfiles = args.outfile.split(",") 
+        prt_if = None # Print all values
+        if args.pval is not None:
+            # Only print out when uncorrected p-value < this value.
+            prt_if = lambda nt: nt.p_uncorrected < args.pval
+        for outfile in outfiles:
+            if outfile.endswith(".xlsx"):
+                g.wr_xlsx(outfile, results, prt_if=prt_if)
+            else:
+                g.wr_tsv(outfile, results, prt_if=prt_if)
+            
+# Copyright (C) 2010-2016, H Tang et al., All rights reserved.
