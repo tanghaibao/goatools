@@ -4,7 +4,7 @@
 GO_OBO_FILE=go-basic.obo
 GOSLIM_OBO_FILE=goslim_generic.obo
 
-GO_OBO_DOWNLOAD=http://purl.obolibrary.org/obo/go/go-basic.obo
+GO_OBO_DOWNLOAD=http://geneontology.org/ontology/go-basic.obo
 GOSLIM_OBO_DOWNLOAD=http://www.geneontology.org/ontology/subsets/goslim_generic.obo
 
 # if the gene ontology files don't exist, download them

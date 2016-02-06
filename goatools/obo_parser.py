@@ -19,7 +19,7 @@ GraphEngines = ("pygraphviz", "pydot")
 class OBOReader(object):
     """Read goatools.org's obo file. Load into this iterable class.
 
-        Download obo from: http://purl.obolibrary.org/obo/go/go-basic.obo
+        Download obo from: http://geneontology.org/ontology/go-basic.obo
 
         >>> reader = OBOReader()
         >>> for rec in reader:
@@ -36,7 +36,7 @@ class OBOReader(object):
             # GOTerm attributes that are necessary for any operations:
         else:
             raise Exception("download obo file first\n "
-                            "[http://purl.obolibrary.org/obo/"
+                            "[http://geneontology.org/ontology/"
                             "go/go-basic.obo]")
 
     def __iter__(self):

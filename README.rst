@@ -53,7 +53,7 @@ Installation
 
 - ``.obo`` file for the most current `GO <http://geneontology.org/page/download-ontology>`_::
 
-    wget http://purl.obolibrary.org/obo/go/go-basic.obo
+    wget http://geneontology.org/ontology/go-basic.obo
 
 - ``.obo`` file for the most current `GO Slim <http://geneontology.org/page/go-slim-and-subset-guide>`_
   terms (.e.g generic GOslim) ::
