@@ -132,13 +132,17 @@ def _fmt_fields(fld_vals, fld2fmt):
 
 def _chk_flds_fmt(nt_fields, prtfmt):
     """Check that all fields in the prtfmt have corresponding data in the namedtuple."""
-    fmtflds = set(get_fmtflds(prtfmt))
-    missing_data = fmtflds.difference(set(nt_fields))
+    fmtflds = get_fmtflds(prtfmt)
+    missing_data = set(fmtflds).difference(set(nt_fields))
     # All data needed for print is present, return.
     if not missing_data:
         return
-    raise Exception('MISSING DATA({M}). CANNOT PRINT USING: "{PF}'.format(
-        M=" ".join(missing_data), PF=prtfmt))
+    #raise Exception('MISSING DATA({M}).'.format(M=" ".join(missing_data)))
+    msg = ['CANNOT PRINT USING: "{PF}"'.format(PF=prtfmt.rstrip())]
+    for fld in fmtflds:
+        errmrk = "" if fld in nt_fields else "ERROR-->"
+        msg.append("  {ERR:8} {FLD}".format(ERR=errmrk, FLD=fld)) 
+    raise Exception('\n'.join(msg))
 
 def get_fmtflds(prtfmt):
     """Return the fieldnames in the formatter text."""
