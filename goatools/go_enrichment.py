@@ -9,6 +9,9 @@ study genes using Fisher's exact test, and corrected for multiple testing
 (including Bonferroni, Holm, Sidak, and false discovery rate)
 """
 
+__copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
+__author__ = "various"
+
 from __future__ import absolute_import
 
 import sys
@@ -37,7 +40,7 @@ class GOEnrichmentRecord(object):
         self._methods = [] 
         for k, v in kwargs.items():
             setattr(self, k, v)
-
+        self._init_enrichment()
         self.goterm = None  # the reference to the GOTerm
 
     def get_prtflds_default(self):
@@ -76,12 +79,16 @@ class GOEnrichmentRecord(object):
         self.name = self.goterm.name if present else "n.a."
         self.NS = self.namespace2NS[self.goterm.namespace] if present else "XX"
 
-    def update_remaining_fields(self, min_ratio=None):
+    def _init_enrichment(self):
+        """Mark as 'enriched' or 'purified'."""
         study_count, study_n = self.ratio_in_study
         pop_count, pop_n = self.ratio_in_pop
         self.enrichment = 'e' if ((1.0 * study_count / study_n) >
                                   (1.0 * pop_count / pop_n)) else 'p'
 
+    def update_remaining_fields(self, min_ratio=None):
+        study_count, study_n = self.ratio_in_study
+        pop_count, pop_n = self.ratio_in_pop
         self.is_ratio_different = is_ratio_different(min_ratio, study_count,
                                                      study_n, pop_count, pop_n)
 
@@ -164,6 +171,7 @@ class GOEnrichmentStudy(object):
         
     def _run_multitest_corr(self, results, methods, alpha, study):
         """Do multiple-test corrections on uncorrected pvalues."""
+        assert 0 < alpha < 1, "Test-wise alpha must fall between (0, 1)"
         pvals = [r.p_uncorrected for r in results]
         bonferroni, sidak, holm, fdr = None, None, None, None
 
@@ -247,24 +255,25 @@ class GOEnrichmentStudy(object):
                         row.append(val)
                     else:
                         # 3. Field not found, raise Exception
-                        chk = self._err_fld(goerec, fldnames, row) 
+                        chk = self._err_fld(goerec, fld, fldnames, row) 
             nt = NtGoeaResults._make(row)
             if keep_if is None or keep_if(nt):
                 data_nts.append(nt)
         return data_nts
 
-    def _err_fld(self, goerec, fldnames, row):
+    def _err_fld(self, goerec, fld, fldnames, row):
         """Unrecognized field. Print detailed Failure message."""
-        msg = []
+        msg = ['ERROR. UNRECOGNIZED FIELD({F})'.format(F=fld)]
         actual_flds = set(goerec.get_prtflds_default() + goerec.goterm.__dict__.keys())
         bad_flds = set(fldnames).difference(set(actual_flds))
-        msg.append("\nGOEA RESULT FIELDS: {}".format(" ".join(goerec._fields)))
-        msg.append("GO FIELDS: {}".format(" ".join(goerec.goterm.__dict__.keys())))
-        msg.append("\nFATAL: UNEXPECTED FIELD(S): {F}\n".format(F=" ".join(bad_flds)))
-        msg.append("  {N} User-provided fields:".format(N=len(fldnames)))
-        for idx, fld in enumerate(fldnames, 1):
-          mrk = "ERROR -->" if fld in bad_flds else ""
-          msg.append("  {M:>9} {I:>2}) {F}".format(M=mrk, I=idx, F=fld))
+        if bad_flds:
+            msg.append("\nGOEA RESULT FIELDS: {}".format(" ".join(goerec._fields)))
+            msg.append("GO FIELDS: {}".format(" ".join(goerec.goterm.__dict__.keys())))
+            msg.append("\nFATAL: {N} UNEXPECTED FIELDS({F})\n".format(N=len(bad_flds), F=" ".join(bad_flds)))
+            msg.append("  {N} User-provided fields:".format(N=len(fldnames)))
+            for idx, fld in enumerate(fldnames, 1):
+              mrk = "ERROR -->" if fld in bad_flds else ""
+              msg.append("  {M:>9} {I:>2}) {F}".format(M=mrk, I=idx, F=fld))
         raise Exception("\n".join(msg))
   
     @staticmethod
@@ -310,3 +319,4 @@ class GOEnrichmentStudy(object):
             if rec.is_ratio_different:
                 print(rec.__str__(indent=indent))
 
+# Copyright (C) 2010-2016, H Tang et al., All rights reserved.
