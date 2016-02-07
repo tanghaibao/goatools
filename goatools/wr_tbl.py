@@ -1,20 +1,20 @@
 """Contains generic table-writing functions. Data is expected to be a list of namedtuples.
 
        kwargs (kws):
-           'hdrs' : A list of column headers to use when printing the table.
-               default: The fields in the data's namedtuple is used as the column headers.
-           'print_names': Used when the user wants to print a subset of the nt fields.
-               This may occur if a field is to be used in either sort_by or prt_if,
-               but not to be printed.
+           'prt_if': Only print a line if user-specfied test returns True.
+               prt_if is a lambda function with the data item's namedtuple as input.
            'sort_by' : User-customizable sort when printing.
                sortby is a lambda function with the data item's namedtuple as input.
                It is the 'key' used in the sorted function.
-           'prt_if': Only print a line if user-specfied test returns True.
-               prt_if is a lambda function with the data item's namedtuple as input.
+           'hdrs' : A list of column headers to use when printing the table.
+               default: The fields in the data's namedtuple is used as the column headers.
            'sep': Separator used when printing the tab-separated table format.
                default: sep = '\t'
            'fld2col_widths: A dictionary of column widths used when writing xlsx files.
            'fld2fmt': Used in tsv files and xlsx files for formatting specific fields
+           'print_names': Used when the user wants to print a subset of the nt fields.
+               This may occur if a field is to be used in either sort_by or prt_if,
+               but not to be printed.
 """
 
 __copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang, All rights reserved."
