@@ -21,13 +21,7 @@ def test_bonferroni(fout_log=None):
     #
     # 1. Initialize
     log = sys.stdout if fout_log is None else open(fout_log, 'w')
-    obo_dag = GODag("go-basic.obo")
-    assoc = read_associations("../data/association", no_top=True)
-    popul_ids = [line.rstrip() for line in open("../data/population")]
-    study_ids = [line.rstrip() for line in open("../data/study")]
-    # 2. Run enrichment analysis
-    goea = GOEnrichmentStudy(popul_ids, assoc, obo_dag, alpha=0.05, methods=['bonferroni'])
-    results_nt = goea.run_study(study_ids)
+    results_nt, goea = run_bonferroni(log)
 
     # ---------------------------------------------------------------------
     # Print results 3 ways: to screen, to tsv (tab-separated file), to xlsx (Excel spreadsheet)
@@ -59,16 +53,31 @@ def test_bonferroni(fout_log=None):
     goea.wr_tsv(fout_tsv, results_nt,
         prt_if=prt_if, sort_by=sort_by, fld2fmt=fld2fmt, prt_flds=print_fields)
 
-    # 3. Write results to xlsx file
+    # 3. Write results to xlsx file, including specific study genes assc. w/significant GOs
     # Use these headers instead of the print_fields for the xlsx header
-    hdrs = ['NS', 'Cnt', 'pval', 'bonferroni', 'L', 'D', 'Term', 'Ontology Term Name']
-    # TBD Check that header and size of fields printed match
+    hdrs = ['NS', 'pval', 'bonferroni', 'L', 'D', 'Term', 'Ontology Term Name', 'Cnt', 'Genes']
+    print_fields = ['NS', 'p_uncorrected', 'p_bonferroni', 'level', 'depth', 'GO', 'name', 'study_count', 'study_items']
     goea.wr_xlsx(fout_xls, results_nt, 
         # optional key-word args (ie, kwargs, kws)
         prt_if=prt_if, sort_by=sort_by, hdrs=hdrs, fld2fmt=fld2fmt, prt_flds=print_fields) 
     if fout_log is not None:
         log.close()
         sys.stdout.write("  WROTE: {}\n".format(fout_log))
+
+def run_bonferroni(log):
+    """Do Gene Ontology Enrichment Analysis w/Bonferroni multipletest. Print results 3 ways."""
+    # ---------------------------------------------------------------------
+    # Run Gene Ontology Analysis (GOEA)
+    #
+    # 1. Initialize
+    obo_dag = GODag("go-basic.obo")
+    assoc = read_associations("../data/association", no_top=True)
+    popul_ids = [line.rstrip() for line in open("../data/population")]
+    study_ids = [line.rstrip() for line in open("../data/study")]
+    # 2. Run enrichment analysis
+    goea = GOEnrichmentStudy(popul_ids, assoc, obo_dag, alpha=0.05, methods=['bonferroni'])
+    results_nt = goea.run_study(study_ids)
+    return results_nt, goea
 
 if __name__ == '__main__':
     test_bonferroni()
