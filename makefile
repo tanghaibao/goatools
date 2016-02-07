@@ -35,6 +35,9 @@ map_slim: $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
 	python scripts/map_to_slim.py --association_file=data/association --slim_out=direct $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
 
 
+goea_all: goea goea_to_xlsx goea_xlsx_bonferroni goea_to_tsv goea_to_files
+
+
 # if the gene ontology files don't exist, download them
 $(GO_OBO_FILE):
 	@echo "downloading GO file: $(GO_OBO_FILE)"
