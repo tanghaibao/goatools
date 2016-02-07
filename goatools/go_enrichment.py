@@ -214,13 +214,13 @@ class GOEnrichmentStudy(object):
     def prt_txt(self, prt, results_nt, prtfmt, **kws):
         """Print GOEA results in text format."""
         prt_flds = RPT.get_fmtflds(prtfmt)
-        data_nts = self._get_nts(results_nt, prt_flds, **kws)
+        data_nts = self._get_nts(results_nt, prt_flds, True, **kws)
         RPT.prt_txt(prt, data_nts, prtfmt, prt_flds, **kws)
 
     def wr_xlsx(self, fout_xlsx, results_nt, **kws):
         """Write a xlsx file."""
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(results_nt)
-        xlsx_data = self._get_nts(results_nt, prt_flds, **kws)
+        xlsx_data = self._get_nts(results_nt, prt_flds, True, **kws)
         if 'fld2col_widths' not in kws:
             kws['fld2col_widths'] = {f:self.default_fld2col_widths.get(f, 8) for f in prt_flds}
         RPT.wr_xlsx(fout_xlsx, xlsx_data, **kws)
@@ -228,16 +228,16 @@ class GOEnrichmentStudy(object):
     def wr_tsv(self, fout_tsv, results_nt, **kws):
         """Write tab-separated table data to file"""
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(results_nt)
-        tsv_data = self._get_nts(results_nt, prt_flds, **kws)
+        tsv_data = self._get_nts(results_nt, prt_flds, True, **kws)
         RPT.wr_tsv(fout_tsv, tsv_data, prt_flds, **kws)
 
     def prt_tsv(self, prt, results_nt, **kws):
         """Write tab-separated table data"""
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(results_nt)
-        tsv_data = self._get_nts(results_nt, prt_flds, **kws)
+        tsv_data = self._get_nts(results_nt, prt_flds, True, **kws)
         RPT.prt_tsv(prt, tsv_data, prt_flds, **kws)
 
-    def _get_nts(self, results, fldnames, **kws):
+    def _get_nts(self, results, fldnames, rpt_fmt, **kws):
         """Get namedtuples containing user-specified (or default) data from GOEA results.
 
             Reformats data from GOEnrichmentRecord objects into lists of nts
@@ -254,8 +254,8 @@ class GOEnrichmentStudy(object):
                 # 1. Check the GOEnrichmentRecord's attributes
                 val = getattr(goerec, fld, None)
                 if val is not None:
-                    if fld.startswith("ratio_"):
-                        val = "{N}/{TOT}".format(N=val[0], TOT=val[1])
+                    if rpt_fmt:
+                        val = self._get_rpt_fmt(fld, val)
                     row.append(val)
                 else:
                     # 2. Check the GO object for the field
@@ -269,6 +269,15 @@ class GOEnrichmentStudy(object):
             if keep_if is None or keep_if(nt):
                 data_nts.append(nt)
         return data_nts
+
+    @staticmethod
+    def _get_rpt_fmt(fld, val):
+        """Return values in a format amenable to printing in a table."""
+        if fld.startswith("ratio_"):
+            return "{N}/{TOT}".format(N=val[0], TOT=val[1])
+        elif fld == 'study_items':
+            return ", ".join(val)
+        return val
 
     def _err_fld(self, goerec, fld, fldnames, row):
         """Unrecognized field. Print detailed Failure message."""
