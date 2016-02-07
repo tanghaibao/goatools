@@ -19,7 +19,7 @@ import fisher
 import collections as cx
 
 from .multiple_testing import Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
-from .ratio import count_terms, is_ratio_different
+from .ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
 
 
@@ -32,10 +32,11 @@ class GOEnrichmentRecord(object):
         ('cellular_component', 'CC')])
 
     # Fields seen in every enrichment result
-    _fields = ["GO", "NS", "enrichment", "name", "ratio_in_study", "ratio_in_pop", "p_uncorrected"]
-    _fldfmt = ["%2s"] + ["%s"] * 3 + ["%d/%d"] * 2 + ["%.3g"]
+    _fldsdefprt = ["GO", "NS", "enrichment", "name", "ratio_in_study", "ratio_in_pop", "p_uncorrected"]
+    _fldsdeffmt = ["%2s"] + ["%s"] * 3 + ["%d/%d"] * 2 + ["%.3g"]
 
-    counts = set(['study_count', 'study_n', 'pop_count', 'pop_n'])
+    _flds = set(_fldsdefprt).intersection(
+            set(['study_items', 'study_count', 'study_n', 'pop_items', 'pop_count', 'pop_n']))
 
     def __init__(self, **kwargs):
         # Methods seen in current enrichment result
@@ -53,16 +54,16 @@ class GOEnrichmentRecord(object):
 
     def get_prtflds_default(self):
         """Get default fields."""
-        return self._fields + ["p_{M}".format(M=m) for m in self._methods]
+        return self._fldsdefprt + ["p_{M}".format(M=m) for m in self._methods]
 
     def set_corrected_pval(self, method, pvalue):
         self._methods.append(method)
         setattr(self, "".join(["p_", method]), pvalue)
 
     def __str__(self, indent=False):
-        field_data = [getattr(self, f, "n.a.") for f in self._fields] + \
+        field_data = [getattr(self, f, "n.a.") for f in self._fldsdefprt] + \
                      [getattr(self, "p_{}".format(m)) for m in self._methods]
-        field_formatter = self._fldfmt + ["%.3g"]*len(self._methods)
+        field_formatter = self._fldsdeffmt + ["%.3g"]*len(self._methods)
         assert len(field_data) == len(field_formatter)
 
         # default formatting only works for non-"n.a" data
@@ -92,7 +93,7 @@ class GOEnrichmentRecord(object):
         self.enrichment = 'e' if ((1.0 * self.study_count / self.study_n) >
                                   (1.0 * self.pop_count / self.pop_n)) else 'p'
 
-    def update_remaining_fields(self, min_ratio=None):
+    def update_remaining_fldsdefprt(self, min_ratio=None):
         self.is_ratio_different = is_ratio_different(min_ratio, self.study_count,
                                                      self.study_n, self.pop_count, self.pop_n)
 
@@ -127,8 +128,7 @@ class GOEnrichmentStudy(object):
         if propagate_counts:
             print >> sys.stderr, "Propagating term counts to parents .."
             obo_dag.update_association(assoc)
-        self.term_pop = count_terms(pop, assoc, obo_dag)
-
+        self.go2popitems = get_terms(pop, assoc, obo_dag)
 
     def run_study(self, study, **kws):
         """Run Gene Ontology Enrichment Study (GOEA) on study ids."""
@@ -153,19 +153,23 @@ class GOEnrichmentStudy(object):
     def _get_pval_uncorr(self, study):
         """Calculate the uncorrected pvalues for study items."""
         results = []
-        term_study = count_terms(study, self.assoc, self.obo_dag)
+        go2studyitems = get_terms(study, self.assoc, self.obo_dag)
         pop_n, study_n = self.pop_n, len(study)
-        allterms = set(term_study.keys() + self.term_pop.keys())
+        allterms = set(go2studyitems.keys() + self.go2popitems.keys())
 
         for term in allterms:
-            study_count = term_study.get(term, 0)
-            pop_count = self.term_pop.get(term, 0)
+            study_items = go2studyitems.get(term, set())
+            study_count = len(study_items)
+            pop_items = self.go2popitems.get(term, set())
+            pop_count = len(pop_items)
             p = fisher.pvalue_population(study_count, study_n,
                                          pop_count, pop_n)
 
             one_record = GOEnrichmentRecord(
                 GO=term,
                 p_uncorrected=p.two_tail,
+                study_items=study_items,
+                pop_items=pop_items,
                 ratio_in_study=(study_count, study_n),
                 ratio_in_pop=(pop_count, pop_n))
 
@@ -188,10 +192,13 @@ class GOEnrichmentStudy(object):
                 holm = HolmBonferroni(pvals, alpha).corrected_pvals
             elif method == "fdr":
                 # get the empirical p-value distributions for FDR
+                term_pop = getattr(self, 'term_pop', None)
+                if term_pop is None:
+                    term_pop = count_terms(self.pop, self.assoc, self.obo_dag) 
                 p_val_distribution = calc_qval(len(study),
                                                self.pop_n,
                                                self.pop, self.assoc,
-                                               self.term_pop, self.obo_dag)
+                                               term_pop, self.obo_dag)
                 fdr = FDR(p_val_distribution,
                           results, alpha).corrected_pvals
             else:
@@ -204,11 +211,9 @@ class GOEnrichmentStudy(object):
             self._update_results(results, method, corrected_pvals)
 
     # Methods for writing results into tables: text, tab-separated, Excel spreadsheets
-    def prt_txt(self, prt, results_nt, prtfmt=None, **kws):
+    def prt_txt(self, prt, results_nt, prtfmt, **kws):
         """Print GOEA results in text format."""
-        if prtfmt is None:
-            raise Exception("TBD: IMPLEMENT DEFAULT format PATTERN.")
-        prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(results_nt)
+        prt_flds = RPT.get_fmtflds(prtfmt)
         data_nts = self._get_nts(results_nt, prt_flds, **kws)
         RPT.prt_txt(prt, data_nts, prtfmt, prt_flds, **kws)
 
@@ -271,7 +276,7 @@ class GOEnrichmentStudy(object):
         actual_flds = set(goerec.get_prtflds_default() + goerec.goterm.__dict__.keys())
         bad_flds = set(fldnames).difference(set(actual_flds))
         if bad_flds:
-            msg.append("\nGOEA RESULT FIELDS: {}".format(" ".join(goerec._fields)))
+            msg.append("\nGOEA RESULT FIELDS: {}".format(" ".join(goerec._fldsdefprt)))
             msg.append("GO FIELDS: {}".format(" ".join(goerec.goterm.__dict__.keys())))
             msg.append("\nFATAL: {N} UNEXPECTED FIELDS({F})\n".format(N=len(bad_flds), F=" ".join(bad_flds)))
             msg.append("  {N} User-provided fields:".format(N=len(fldnames)))
@@ -315,7 +320,7 @@ class GOEnrichmentStudy(object):
         for rec in results:
             # calculate some additional statistics
             # (over_under, is_ratio_different)
-            rec.update_remaining_fields(min_ratio=min_ratio)
+            rec.update_remaining_fldsdefprt(min_ratio=min_ratio)
 
             if pval is not None and rec.p_uncorrected >= pval:
                 continue

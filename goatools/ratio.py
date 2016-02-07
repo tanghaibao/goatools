@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
+__copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
+__author__ = "various"
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 
 def count_terms(geneset, assoc, obo_dag):
     """count the number of terms in the study group
     """
-    term_cnt = defaultdict(int)
+    term_cnt = Counter()
     for gene in (g for g in geneset if g in assoc):
         for x in assoc[gene]:
             if x in obo_dag:
@@ -16,6 +18,16 @@ def count_terms(geneset, assoc, obo_dag):
 
     return term_cnt
 
+def get_terms(geneset, assoc, obo_dag):
+    """Get the terms in the study group
+    """
+    term2itemids = defaultdict(set)
+    for gene in (g for g in geneset if g in assoc):
+        for x in assoc[gene]:
+            if x in obo_dag:
+                term2itemids[obo_dag[x].id].add(gene)
+
+    return term2itemids
 
 def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
     """
@@ -29,3 +41,5 @@ def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
     if s > p:
         return s / p > min_ratio
     return p / s > min_ratio
+
+# Copyright (C) 2010-2016, H Tang et al., All rights reserved.
