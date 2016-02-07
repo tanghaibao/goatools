@@ -27,14 +27,18 @@ import sys
 
 def prt_txt(prt, data_nts, prtfmt, nt_fields, **kws):
     """Print list of namedtuples into a table using prtfmt."""
-    _chk_flds_fmt(nt_fields, prtfmt)
-    _prt_txt_hdr(prt, prtfmt)
-    if 'sort_by' in kws:
-        data_nts = sorted(data_nts, key=kws['sort_by'])
-    prt_if = kws['prt_if'] if 'prt_if' in kws else None
-    for data_nt in data_nts:
-        if prt_if is None or prt_if(data_nt):
-            prt.write(prtfmt.format(**data_nt._asdict()))
+    if data_nts:
+        _chk_flds_fmt(nt_fields, prtfmt)
+        _prt_txt_hdr(prt, prtfmt)
+        if 'sort_by' in kws:
+            data_nts = sorted(data_nts, key=kws['sort_by'])
+        prt_if = kws['prt_if'] if 'prt_if' in kws else None
+        for data_nt in data_nts:
+            if prt_if is None or prt_if(data_nt):
+                prt.write(prtfmt.format(**data_nt._asdict()))
+    else:
+        sys.stdout.write("      0 items. NOT WRITING w/format_string({F})\n".format(F=prtfmt))
+        
 
 def wr_xlsx(fout_xlsx, xlsx_data, **kws):
     """Write a spreadsheet into a xlsx file."""

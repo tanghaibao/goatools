@@ -12,6 +12,71 @@ import fisher
 import numpy as np
 from .ratio import count_terms
 
+__copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
+__author__ = "various"
+
+class Methods(object):
+    """Class to manage multipletest methods from both local and remote sources."""
+
+    all_methods = [
+        ("local", ("bonferroni", "sidak", "holm", "fdr")),
+        ("statsmodels", (
+             'bonferroni',     # 0) bonferroni one-step correction
+             'sidak',          # 1) sidak one-step correction
+             'holm-sidak',     # 2) holm-sidak step-down method using Sidak adjustments
+             'holm',           # 3) holm step-down method using Bonferroni adjustments
+             'simes-hochberg', # 4) simes-hochberg step-up method  (independent)
+             'hommel',         # 5) hommel closed method based on Simes tests (non-negative)
+             'fdr_bh',         # 6) fdr_bh Benjamini/Hochberg  (non-negative)
+             'fdr_by',         # 7) fdr_by Benjamini/Yekutieli (negative)
+             'fdr_tsbh',       # 8) fdr_tsbh two stage fdr correction (non-negative)
+             'fdr_tsbky',      # 9) fdr_tsbky two stage fdr correction (non-negative)
+            )),
+    ]
+
+    def __init__(self, usr_methods=None):
+        if usr_methods is None:
+            usr_methods = ['bonferroni']
+        self.set_methods(usr_methods)
+
+    def set_methods(self, usr_methods):
+       """From the methods list, set list of methods to be used during GOEA."""
+       self.methods = []
+       for usr_method in usr_methods:
+           self.add_method(usr_method)
+
+    def add_method(self, method, method_source=None):
+        try:
+            if method_source is not None:
+                self._add_method_src(method_source, method)
+            else:
+                self._add_method_nosrc(method)
+        except:
+            e = sys.exc_info()[0]
+            raise Exception("{ERRMSG}".format(ERRMSG=e))
+
+    def _add_method_nosrc(self, usr_method):
+        """Add method source and method to list of methods."""
+        for method_source, available_methods in self.all_methods:
+            if usr_method in available_methods:
+                self.methods.append((usr_method, (method_source, usr_method)))
+                return
+        raise Exception("ERROR: UNRECOGNIZED METHOD({M})".format(
+            M=usr_method))
+            
+    def _add_method_src(self, method_source, usr_method, field_name=None):
+        """Add method source and method to list of methods."""
+        if field_name is None:
+            field_name = usr_method
+        available_methods = self.all_methods.get(method_source, None)
+        if usr_method in available_methods:
+            self.methods.append((field_name, (method_source, usr_method)))
+        else: raise Exception("ERROR: FIELD({FN}) METHOD_SOURCE({MS}) AND METHOD({M})".format(
+          FN=field_name, MS=method_source, M=usr_method))
+
+    def __iter__(self):
+        return iter(self.methods)
+
 
 class AbstractCorrection(object):
 
@@ -136,3 +201,5 @@ def calc_qval(study_n, pop_n,
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
+
+# Copyright (C) 2010-2016, H Tang et al., All rights reserved.

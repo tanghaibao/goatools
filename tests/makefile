@@ -1,5 +1,6 @@
 
 run_goea:
+	python test_goea_local.py
 	python test_goea_rpt_bonferroni.py goea_bonferroni.log
 	python test_goea_rpt_fdr_bh.py goea_fdr_bh.log
 

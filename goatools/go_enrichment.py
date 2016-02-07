@@ -18,7 +18,7 @@ import sys
 import fisher
 import collections as cx
 
-from .multiple_testing import Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
+from .multiple_testing import Methods, Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
 from .ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
 
@@ -101,9 +101,7 @@ class GOEnrichmentRecord(object):
 class GOEnrichmentStudy(object):
     """Runs Fisher's exact test, as well as multiple corrections
     """
-    all_methods = ("bonferroni", "sidak", "holm", "fdr")
-
-    # Default Excel table column widths 
+    # Default Excel table column widths for GOEA results
     default_fld2col_widths = {
         'NS'        :  3,
         'GO'        : 12,
@@ -117,13 +115,15 @@ class GOEnrichmentStudy(object):
     def __init__(self, pop, assoc, obo_dag, propagate_counts=True,
                  alpha=.05,
                  methods=["bonferroni", "sidak", "holm"]):
-
+        self._run_multitest = {
+            'local':lambda iargs: self._run_multitest_local(iargs),
+            'statsmodels':lambda iargs: self._run_multitest_statsmodels(iargs)}
         self.pop = pop
         self.pop_n = len(pop)
         self.assoc = assoc
         self.obo_dag = obo_dag
         self.alpha = alpha
-        self.methods = methods
+        self.methods = Methods(methods)
 
         if propagate_counts:
             print >> sys.stderr, "Propagating term counts to parents .."
@@ -136,10 +136,9 @@ class GOEnrichmentStudy(object):
         results = self._get_pval_uncorr(study)
 
         # Do multipletest corrections on uncorrected pvalues and update results
-        methods = kws['methods'] if 'methods' in kws else self.methods
+        methods = Methods(kws['methods']) if 'methods' in kws else self.methods
         alpha = kws['alpha'] if 'alpha' in kws else self.alpha
         self._run_multitest_corr(results, methods, alpha, study)
-
 
         for rec in results:
             # get go term for name and level
@@ -177,38 +176,39 @@ class GOEnrichmentStudy(object):
           
         return results
         
-    def _run_multitest_corr(self, results, methods, alpha, study):
+    def _run_multitest_corr(self, results, usr_methods, alpha, study):
         """Do multiple-test corrections on uncorrected pvalues."""
         assert 0 < alpha < 1, "Test-wise alpha must fall between (0, 1)"
         pvals = [r.p_uncorrected for r in results]
-        bonferroni, sidak, holm, fdr = None, None, None, None
+        NtMt = cx.namedtuple("NtMt", "results pvals alpha method method_field study")
 
-        for method in methods:
-            if method == "bonferroni":
-                bonferroni = Bonferroni(pvals, alpha).corrected_pvals
-            elif method == "sidak":
-                sidak = Sidak(pvals, alpha).corrected_pvals
-            elif method == "holm":
-                holm = HolmBonferroni(pvals, alpha).corrected_pvals
-            elif method == "fdr":
-                # get the empirical p-value distributions for FDR
-                term_pop = getattr(self, 'term_pop', None)
-                if term_pop is None:
-                    term_pop = count_terms(self.pop, self.assoc, self.obo_dag) 
-                p_val_distribution = calc_qval(len(study),
-                                               self.pop_n,
-                                               self.pop, self.assoc,
-                                               term_pop, self.obo_dag)
-                fdr = FDR(p_val_distribution,
-                          results, alpha).corrected_pvals
-            else:
-                raise Exception("INVALID METHOD({MX}). VALID METHODS: {Ms}".format(
-                                MX=method, Ms=" ".join(self.all_methods)))
+        for method_field, (method_source, method) in usr_methods:
+            ntmt = NtMt(results, pvals, alpha, method, method_field, study)
+            self._run_multitest[method_source](ntmt)
 
-        all_corrections = (bonferroni, sidak, holm, fdr)
+    def _run_multitest_local(self, ntmt):
+        """Use multitest mthods that have been implemented locally."""
+        corrected_pvals = None
+        method = ntmt.method
+        if method == "bonferroni":
+            corrected_pvals = Bonferroni(ntmt.pvals, ntmt.alpha).corrected_pvals
+        elif method == "sidak":
+            corrected_pvals = Sidak(ntmt.pvals, ntmt.alpha).corrected_pvals
+        elif method == "holm":
+            corrected_pvals = HolmBonferroni(ntmt.pvals, ntmt.alpha).corrected_pvals
+        elif method == "fdr":
+            # get the empirical p-value distributions for FDR
+            term_pop = getattr(self, 'term_pop', None)
+            if term_pop is None:
+                term_pop = count_terms(self.pop, self.assoc, self.obo_dag) 
+            p_val_distribution = calc_qval(len(ntmt.study),
+                                           self.pop_n,
+                                           self.pop, self.assoc,
+                                           term_pop, self.obo_dag)
+            corrected_pvals = FDR(p_val_distribution,
+                      ntmt.results, ntmt.alpha).corrected_pvals
 
-        for method, corrected_pvals in zip(self.all_methods, all_corrections):
-            self._update_results(results, method, corrected_pvals)
+        self._update_results(ntmt.results, method, corrected_pvals)
 
     # Methods for writing results into tables: text, tab-separated, Excel spreadsheets
     def prt_txt(self, prt, results_nt, prtfmt, **kws):
