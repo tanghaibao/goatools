@@ -11,6 +11,7 @@ import random
 import fisher
 import numpy as np
 from .ratio import count_terms
+import collections as cx
 
 __copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
 __author__ = "various"
@@ -33,46 +34,63 @@ class Methods(object):
              'fdr_tsbky',      # 9) fdr_tsbky two stage fdr correction (non-negative)
             )),
     ]
+    NtMethodInfo = cx.namedtuple("NtMethodInfo", "source method fieldname") 
 
     def __init__(self, usr_methods=None):
+        self.statsmodels_multicomp = None
         if usr_methods is None:
             usr_methods = ['bonferroni']
-        self.set_methods(usr_methods)
+        self._init_methods(usr_methods)
 
-    def set_methods(self, usr_methods):
+    def _init_methods(self, usr_methods):
        """From the methods list, set list of methods to be used during GOEA."""
        self.methods = []
        for usr_method in usr_methods:
-           self.add_method(usr_method)
+           self._add_method(usr_method)
 
-    def add_method(self, method, method_source=None):
+    def _add_method(self, method, method_source=None):
         try:
             if method_source is not None:
                 self._add_method_src(method_source, method)
             else:
                 self._add_method_nosrc(method)
-        except:
-            e = sys.exc_info()[0]
-            raise Exception("{ERRMSG}".format(ERRMSG=e))
+        except Exception as inst:
+            raise Exception("{ERRMSG}".format(ERRMSG=inst))
 
     def _add_method_nosrc(self, usr_method):
         """Add method source and method to list of methods."""
         for method_source, available_methods in self.all_methods:
             if usr_method in available_methods:
-                self.methods.append((usr_method, (method_source, usr_method)))
+                fieldname = self.get_fieldname(usr_method, method_source)
+                nt = self.NtMethodInfo(method_source, usr_method, fieldname)
+                self.methods.append(nt)
                 return
         raise Exception("ERROR: UNRECOGNIZED METHOD({M})".format(
             M=usr_method))
             
-    def _add_method_src(self, method_source, usr_method, field_name=None):
+    def _add_method_src(self, method_source, usr_method, fieldname=None):
         """Add method source and method to list of methods."""
-        if field_name is None:
-            field_name = usr_method
+        fieldname = self.get_fieldname(usr_method, method_source)
         available_methods = self.all_methods.get(method_source, None)
         if usr_method in available_methods:
-            self.methods.append((field_name, (method_source, usr_method)))
+            nt = self.NtMethodInfo(method_source, usr_method, fieldname)
+            self.methods.append(nt)
         else: raise Exception("ERROR: FIELD({FN}) METHOD_SOURCE({MS}) AND METHOD({M})".format(
-          FN=field_name, MS=method_source, M=usr_method))
+          FN=fieldname, MS=method_source, M=usr_method))
+
+    @staticmethod
+    def get_fieldname(usr_method, method_src):
+        """Given method and source, return fieldname for method."""
+        fieldname = usr_method.replace('-', '_')
+        return fieldname
+
+    def get_statsmodels_multipletests(self):
+        """Only load statsmodels package if it is used."""
+        if self.statsmodels_multicomp is not None:
+            return self.statsmodels_multicomp
+        from statsmodels.sandbox.stats.multicomp import multipletests
+        self.statsmodels_multicomp = multipletests
+        return self.statsmodels_multicomp
 
     def __iter__(self):
         return iter(self.methods)

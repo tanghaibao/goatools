@@ -54,15 +54,17 @@ class GOEnrichmentRecord(object):
 
     def get_prtflds_default(self):
         """Get default fields."""
-        return self._fldsdefprt + ["p_{M}".format(M=m) for m in self._methods]
+        return self._fldsdefprt + ["p_{M}".format(M=m.fieldname) for m in self._methods]
 
-    def set_corrected_pval(self, method, pvalue):
-        self._methods.append(method)
-        setattr(self, "".join(["p_", method]), pvalue)
+    #def set_corrected_pval(self, method_str, method, pvalue):
+    def set_corrected_pval(self, nt_method, pvalue):
+        self._methods.append(nt_method)
+        fieldname = "".join(["p_", nt_method.fieldname])
+        setattr(self, fieldname, pvalue)
 
     def __str__(self, indent=False):
         field_data = [getattr(self, f, "n.a.") for f in self._fldsdefprt] + \
-                     [getattr(self, "p_{}".format(m)) for m in self._methods]
+                     [getattr(self, "p_{}".format(m.fieldname)) for m in self._methods]
         field_formatter = self._fldsdeffmt + ["%.3g"]*len(self._methods)
         assert len(field_data) == len(field_formatter)
 
@@ -180,16 +182,25 @@ class GOEnrichmentStudy(object):
         """Do multiple-test corrections on uncorrected pvalues."""
         assert 0 < alpha < 1, "Test-wise alpha must fall between (0, 1)"
         pvals = [r.p_uncorrected for r in results]
-        NtMt = cx.namedtuple("NtMt", "results pvals alpha method method_field study")
+        NtMt = cx.namedtuple("NtMt", "results pvals alpha nt_method study")
 
-        for method_field, (method_source, method) in usr_methods:
-            ntmt = NtMt(results, pvals, alpha, method, method_field, study)
-            self._run_multitest[method_source](ntmt)
+        #for method_field, (method_source, method) in usr_methods:
+        for nt_method in usr_methods:
+            ntmt = NtMt(results, pvals, alpha, nt_method, study)
+            self._run_multitest[nt_method.source](ntmt)
+
+    def _run_multitest_statsmodels(self, ntmt):
+        """Use multitest mthods that have been implemented in statsmodels."""
+        # Only load statsmodels if it is used
+        multipletests = self.methods.get_statsmodels_multipletests()
+        method = ntmt.nt_method.method
+        reject_lst, pvals_corrected, alphacSidak, alphacBonf = multipletests(ntmt.pvals, ntmt.alpha, method)
+        self._update_pvalcorr(ntmt, pvals_corrected)
 
     def _run_multitest_local(self, ntmt):
         """Use multitest mthods that have been implemented locally."""
         corrected_pvals = None
-        method = ntmt.method
+        method = ntmt.nt_method_method
         if method == "bonferroni":
             corrected_pvals = Bonferroni(ntmt.pvals, ntmt.alpha).corrected_pvals
         elif method == "sidak":
@@ -208,12 +219,22 @@ class GOEnrichmentStudy(object):
             corrected_pvals = FDR(p_val_distribution,
                       ntmt.results, ntmt.alpha).corrected_pvals
 
-        self._update_results(ntmt.results, method, corrected_pvals)
+        self._update_pvalcorr(ntmt, corrected_pvals)
+
+    @staticmethod
+    def _update_pvalcorr(ntmt, corrected_pvals):
+        """Add data members to store multiple test corrections."""
+        if corrected_pvals is None:
+            return
+        for rec, val in zip(ntmt.results, corrected_pvals):
+            rec.set_corrected_pval(ntmt.nt_method, val)
 
     # Methods for writing results into tables: text, tab-separated, Excel spreadsheets
     def prt_txt(self, prt, results_nt, prtfmt, **kws):
         """Print GOEA results in text format."""
+        prtfmt = self.adjust_prtfmt(prtfmt)
         prt_flds = RPT.get_fmtflds(prtfmt)
+        print "PPPP", prt_flds
         data_nts = self._get_nts(results_nt, prt_flds, True, **kws)
         RPT.prt_txt(prt, data_nts, prtfmt, prt_flds, **kws)
 
@@ -236,6 +257,12 @@ class GOEnrichmentStudy(object):
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(results_nt)
         tsv_data = self._get_nts(results_nt, prt_flds, True, **kws)
         RPT.prt_tsv(prt, tsv_data, prt_flds, **kws)
+
+    def adjust_prtfmt(self, prtfmt):
+        """Adjust format_strings for legal values."""
+        prtfmt = prtfmt.replace("{p_holm-sidak", "{p_holm_sidak")
+        prtfmt = prtfmt.replace("{p_simes-hochberg", "{p_simes_hochberg")
+        return prtfmt
 
     def _get_nts(self, results, fldnames, rpt_fmt, **kws):
         """Get namedtuples containing user-specified (or default) data from GOEA results.
@@ -304,14 +331,6 @@ class GOEnrichmentStudy(object):
         if results:
           return results[0].get_prtflds_default()
         return []
-
-    @staticmethod
-    def _update_results(results, method, corrected_pvals):
-        """Add data members to store multiple test corrections."""
-        if corrected_pvals is None:
-            return
-        for rec, val in zip(results, corrected_pvals):
-            rec.set_corrected_pval(method, val)
 
     @staticmethod
     def print_summary(results, min_ratio=None, indent=False, pval=0.05):
