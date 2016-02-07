@@ -3,9 +3,11 @@
        kwargs (kws):
            'prt_if': Only print a line if user-specfied test returns True.
                prt_if is a lambda function with the data item's namedtuple as input.
+               Example: prt_if = lambda nt: nt.p_uncorrected < 0.05
            'sort_by' : User-customizable sort when printing.
                sortby is a lambda function with the data item's namedtuple as input.
                It is the 'key' used in the sorted function.
+               Example: sort_by = lambda nt: [nt.NS, -1*nt.depth]
            'hdrs' : A list of column headers to use when printing the table.
                default: The fields in the data's namedtuple is used as the column headers.
            'sep': Separator used when printing the tab-separated table format.
