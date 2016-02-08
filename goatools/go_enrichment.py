@@ -184,21 +184,22 @@ class GOEnrichmentStudy(object):
         pvals = [r.p_uncorrected for r in results]
         NtMt = cx.namedtuple("NtMt", "results pvals alpha nt_method study")
 
-        #for method_field, (method_source, method) in usr_methods:
         for nt_method in usr_methods:
             ntmt = NtMt(results, pvals, alpha, nt_method, study)
             self._run_multitest[nt_method.source](ntmt)
 
-    def _run_multitest_statsmodels(self, ntmt):
+    def _run_multitest_statsmodels(self, ntmt, log=sys.stdout):
         """Use multitest mthods that have been implemented in statsmodels."""
+        log.write("STATSMODELS MULTITEST METHODS: {NT}\n".format(NT=ntmt.nt_method))
         # Only load statsmodels if it is used
         multipletests = self.methods.get_statsmodels_multipletests()
         method = ntmt.nt_method.method
         reject_lst, pvals_corrected, alphacSidak, alphacBonf = multipletests(ntmt.pvals, ntmt.alpha, method)
         self._update_pvalcorr(ntmt, pvals_corrected)
 
-    def _run_multitest_local(self, ntmt):
+    def _run_multitest_local(self, ntmt, log=sys.stdout):
         """Use multitest mthods that have been implemented locally."""
+        log.write("LOCAL MULTITEST METHODS: {NT}\n".format(NT=ntmt.nt_method))
         corrected_pvals = None
         method = ntmt.nt_method_method
         if method == "bonferroni":
@@ -234,7 +235,6 @@ class GOEnrichmentStudy(object):
         """Print GOEA results in text format."""
         prtfmt = self.adjust_prtfmt(prtfmt)
         prt_flds = RPT.get_fmtflds(prtfmt)
-        print "PPPP", prt_flds
         data_nts = self._get_nts(results_nt, prt_flds, True, **kws)
         RPT.prt_txt(prt, data_nts, prtfmt, prt_flds, **kws)
 

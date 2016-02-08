@@ -61,10 +61,16 @@ class Methods(object):
         """Add method source and method to list of methods."""
         for method_source, available_methods in self.all_methods:
             if usr_method in available_methods:
-                fieldname = self.get_fieldname(usr_method, method_source)
+                fieldname = self.get_fldnm_method(usr_method)
                 nt = self.NtMethodInfo(method_source, usr_method, fieldname)
                 self.methods.append(nt)
                 return
+        if usr_method.startswith('sm_'):
+            method_source = 'statsmodels'
+            method = usr_method[3:]
+            nt = self.NtMethodInfo(method_source, method, usr_method)
+            self.methods.append(nt)
+            return
         raise Exception("ERROR: UNRECOGNIZED METHOD({M})".format(
             M=usr_method))
             
@@ -79,9 +85,9 @@ class Methods(object):
           FN=fieldname, MS=method_source, M=usr_method))
 
     @staticmethod
-    def get_fieldname(usr_method, method_src):
+    def get_fldnm_method(method):
         """Given method and source, return fieldname for method."""
-        fieldname = usr_method.replace('-', '_')
+        fieldname = method.replace('-', '_')
         return fieldname
 
     def get_statsmodels_multipletests(self):
