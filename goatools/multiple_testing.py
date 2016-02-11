@@ -71,8 +71,16 @@ class Methods(object):
             nt = self.NtMethodInfo(method_source, method, usr_method)
             self.methods.append(nt)
             return
-        raise Exception("ERROR: UNRECOGNIZED METHOD({M})".format(
-            M=usr_method))
+        raise self.rpt_invalid_method(usr_method)
+
+    def rpt_invalid_method(self, usr_method):
+        msg = ["ERROR: UNRECOGNIZED METHOD({M})".format(
+            M=usr_method)]
+        raise Exception(msg)
+ 
+    def rpt_valid_methods(self):
+        """Report valid methods."""
+        pass
             
     def _add_method_src(self, method_source, usr_method, fieldname=None):
         """Add method source and method to list of methods."""

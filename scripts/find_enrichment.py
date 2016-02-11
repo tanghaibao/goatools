@@ -97,7 +97,7 @@ if __name__ == "__main__":
                  help="Do not propagate counts to parent terms")
     p.add_argument('--outfile', default=None, type=str,
                  help="Write enrichment results into xlsx or tsv file")
-    p.add_argument('--method', default=None, type=str,
+    p.add_argument('--method', default="bonferroni,sidak,holm", type=str,
                  help="multipletest corrections")
 
     args = p.parse_args()
@@ -127,10 +127,7 @@ if __name__ == "__main__":
 
     assoc = read_associations(assoc_fn)
 
-    if args.method is None:
-        methods = ["bonferroni", "sidak", "holm"]
-    else:
-        methods = args.method.split(",")
+    methods = args.method.split(",")
   
     if args.fdr:
         methods.append("fdr")

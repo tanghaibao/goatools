@@ -151,8 +151,9 @@ class GOEnrichmentStudy(object):
 
         return results
 
-    def _get_pval_uncorr(self, study):
+    def _get_pval_uncorr(self, study, log=sys.stdout):
         """Calculate the uncorrected pvalues for study items."""
+        log.write("Calculating uncorrected p-values using Fisher's exact test\n")
         results = []
         go2studyitems = get_terms(study, self.assoc, self.obo_dag)
         pop_n, study_n = self.pop_n, len(study)
@@ -199,9 +200,10 @@ class GOEnrichmentStudy(object):
 
     def _run_multitest_local(self, ntmt, log=sys.stdout):
         """Use multitest mthods that have been implemented locally."""
-        log.write("LOCAL MULTITEST METHODS: {NT}\n".format(NT=ntmt.nt_method))
+        log.write("Running multitest correction: {MSRC} {METHOD}\n".format(
+            MSRC=ntmt.nt_method.source, METHOD=ntmt.nt_method.method))
         corrected_pvals = None
-        method = ntmt.nt_method_method
+        method = ntmt.nt_method.method
         if method == "bonferroni":
             corrected_pvals = Bonferroni(ntmt.pvals, ntmt.alpha).corrected_pvals
         elif method == "sidak":
