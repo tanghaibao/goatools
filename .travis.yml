@@ -1,0 +1,29 @@
+language: c
+env: TRAVIS_PYTHON_VERSION="2.7"
+os:
+  - linux
+  - osx
+
+# Setup anaconda
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then curl http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -o miniconda.sh ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -o miniconda.sh ; fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+
+  # Useful for debugging any issues with conda
+  - conda info -a
+
+# Install packages
+install:
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy
+  - python setup.py install
+
+# command to run tests
+script:
+  - cd test && makefile
+sudo: false
+
