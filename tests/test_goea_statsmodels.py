@@ -6,7 +6,7 @@ from goatools.associations import read_associations
 
 """Test Gene Ontology Enrichement Analysis using mutipletest methods in statsmodels."""
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.abspath(__file__)) + "/data/"
 
 __copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
 
@@ -14,7 +14,7 @@ __copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
 def test_goea_statsmodels(log=sys.stdout):
     """Test GOEA with local multipletest correction methods."""
     goeaobj = get_goeaobj()
-    study_ids = [line.rstrip() for line in open(ROOT + "/../data/study")]
+    study_ids = [line.rstrip() for line in open(ROOT + "small_study")]
     prt_if = lambda nt: nt.p_uncorrected < 0.00005
     ## These will specify to use the statsmodels methods
     methods_sm0 = ['holm-sidak', 'simes-hochberg', 'hommel', 
@@ -41,9 +41,10 @@ def test_goea_statsmodels(log=sys.stdout):
 
 def get_goeaobj(methods=None):
     """Test GOEA with method, fdr."""
-    obo_dag = GODag(ROOT + "/../data/go-basic.obo")
-    assoc = read_associations(ROOT + "/../data/association", no_top=True)
-    popul_ids = [line.rstrip() for line in open(ROOT + "/../data/population")]
+#    obo_dag = GODag(ROOT + "data/go-basic.obo")
+    obo_dag = GODag(ROOT + "goslim_generic.obo")
+    assoc = read_associations(ROOT + "slim_association", no_top=True)
+    popul_ids = [line.rstrip() for line in open(ROOT + "small_population")]
     goeaobj = GOEnrichmentStudy(popul_ids, assoc, obo_dag, methods=methods)
     return goeaobj
 
