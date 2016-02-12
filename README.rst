@@ -23,7 +23,7 @@ Tools for Gene Ontology
 
 :Author: Haibao Tang (`tanghaibao <http://github.com/tanghaibao>`_),
          Brent Pedersen (`brentp <http://github.com/brentp>`_),
-         Fidel Ramirez (`fidelram https://github.com/fidelram`_),
+         Fidel Ramirez (`fidelram <https://github.com/fidelram>`_),
          Aurelien Naldi (`aurelien-naldi <http://github.com/aurelien-naldi>`_),
          Jeff Yunes (`yunesj <http://github.com/yunesj>`_),
          Chris Mungall (`cmungall <https://github.com/cmungall>`_),
