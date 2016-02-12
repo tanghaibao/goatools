@@ -187,21 +187,20 @@ class GOEnrichmentStudy(object):
 
         for nt_method in usr_methods:
             ntmt = NtMt(results, pvals, alpha, nt_method, study)
+            sys.stdout.write("Running multitest correction: {MSRC} {METHOD}\n".format(
+                MSRC=ntmt.nt_method.source, METHOD=ntmt.nt_method.method))
             self._run_multitest[nt_method.source](ntmt)
 
-    def _run_multitest_statsmodels(self, ntmt, log=sys.stdout):
+    def _run_multitest_statsmodels(self, ntmt):
         """Use multitest mthods that have been implemented in statsmodels."""
-        log.write("STATSMODELS MULTITEST METHODS: {NT}\n".format(NT=ntmt.nt_method))
         # Only load statsmodels if it is used
         multipletests = self.methods.get_statsmodels_multipletests()
         method = ntmt.nt_method.method
         reject_lst, pvals_corrected, alphacSidak, alphacBonf = multipletests(ntmt.pvals, ntmt.alpha, method)
         self._update_pvalcorr(ntmt, pvals_corrected)
 
-    def _run_multitest_local(self, ntmt, log=sys.stdout):
+    def _run_multitest_local(self, ntmt):
         """Use multitest mthods that have been implemented locally."""
-        log.write("Running multitest correction: {MSRC} {METHOD}\n".format(
-            MSRC=ntmt.nt_method.source, METHOD=ntmt.nt_method.method))
         corrected_pvals = None
         method = ntmt.nt_method.method
         if method == "bonferroni":
@@ -269,8 +268,8 @@ class GOEnrichmentStudy(object):
     def _get_nts(self, results, fldnames, rpt_fmt, **kws):
         """Get namedtuples containing user-specified (or default) data from GOEA results.
 
-            Reformats data from GOEnrichmentRecord objects into lists of nts
-            So that generic table writer's may be used.
+            Reformats data from GOEnrichmentRecord objects into lists of
+            namedtuples so the generic table writers may be used.
         """
         keep_if = None if 'keep_if' not in kws else kws['keep_if']
         data_nts = [] # A list of namedtuples containing GOEA results
