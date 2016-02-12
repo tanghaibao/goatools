@@ -17,14 +17,16 @@ Tools for Gene Ontology
     :target: https://scrutinizer-ci.com/g/tanghaibao/goatools
     :alt: Scrutinizer
 
+.. image:: https://travis-ci.org/tanghaibao/goatools.svg?branch=master
+    :target: https://travis-ci.org/tanghaibao/goatools
+    :alt: Travis-CI
+
 :Author: Haibao Tang (`tanghaibao <http://github.com/tanghaibao>`_),
          Brent Pedersen (`brentp <http://github.com/brentp>`_),
+         Fidel Ramirez (`fidelram https://github.com/fidelram`_),
          Aurelien Naldi (`aurelien-naldi <http://github.com/aurelien-naldi>`_),
-         Patrick Flick (`r4d2 <http://github.com/r4d2>`_),
          Jeff Yunes (`yunesj <http://github.com/yunesj>`_),
-         Kenta Sato (`bicycle1885 <http://github.com/bicycle1885>`_),
          Chris Mungall (`cmungall <https://github.com/cmungall>`_),
-         Greg Stupp (`stuppie <https://github.com/stuppie>`_),
          DV Klopfenstein(`dvklopfenstein <https://github.com/dvklopfenstein>`_)
 :Email: tanghaibao@gmail.com
 :License: BSD
