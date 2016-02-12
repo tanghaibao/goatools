@@ -19,7 +19,7 @@ before_install:
 
 # Install packages
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy nose statsmodels
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy nose
   - python setup.py install
 
 # command to run tests
