@@ -19,7 +19,8 @@ before_install:
 
 # Install packages
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy nose
+  # scipy and pandas are required by the package 'statsmodels'
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy nose scipy pandas
   - python setup.py install
 
 # command to run tests
