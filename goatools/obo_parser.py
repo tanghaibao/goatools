@@ -1,4 +1,4 @@
-# Copyright 2010-2015 by Haibao Tang. All rights reserved.
+# Copyright 2010-2016 by Haibao Tang et al. All rights reserved.
 #
 # This code is part of the goatools distribution and goverend by its
 # license. Please see the LICENSE file included with goatools.
@@ -15,6 +15,8 @@ import collections as cx
 
 GraphEngines = ("pygraphviz", "pydot")
 
+__copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
+__author__ = "various"
 
 class OBOReader(object):
     """Read goatools.org's obo file. Load into this iterable class.
@@ -25,7 +27,6 @@ class OBOReader(object):
         >>> for rec in reader:
                 print rec
     """
-    # Revisions by DV Klopfenstein
 
     def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
         """Read obo file. Load dictionary."""
@@ -41,6 +42,7 @@ class OBOReader(object):
 
     def __iter__(self):
         """Return one GO Term record at a time from an obo file."""
+        # Written by DV Klopfenstein
         # Wait to open file until needed. Automatically close file when done.
         with open(self.obo_file) as fstream:
             rec_curr = None # Stores current GO Term
@@ -73,6 +75,7 @@ class OBOReader(object):
 
     def _add_to_ref(self, rec_curr, line, lnum):
         """Add new fields to the current reference."""
+        # Written by DV Klopfenstein
         # Examples of record lines containing ':' include:
         #   id: GO:0000002
         #   name: mitochondrial genome maintenance
@@ -129,6 +132,8 @@ class OBOReader(object):
               comment consider def is_class_level is_metadata_tag is_transitive
               relationship replaced_by subset synonym transitive_over xref
         """
+        # Written by DV Klopfenstein
+        # Required attributes are always loaded. All others are optionally loaded.
         self.attrs_req = ['id', 'alt_id', 'name', 'namespace', 'is_a', 'is_obsolete']
         self.attrs_scalar = ['comment', 'defn',
                              'is_class_level', 'is_metadata_tag',
@@ -568,3 +573,5 @@ class GODag(dict):
             terms.update(parents)
         if bad_terms:
             print("terms not found: %s" % (bad_terms,), file=sys.stderr)
+
+# Copyright (C) 2010-2016, H Tang et al., All rights reserved.
