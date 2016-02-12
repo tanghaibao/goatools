@@ -25,6 +25,7 @@ sys.path.insert(0, op.join(op.dirname(__file__), ".."))
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.obo_parser import GODag
 from goatools.associations import read_associations
+from goatools.multiple_testing import Methods
 
 
 def read_geneset(study_fn, pop_fn, compare=False):
@@ -98,7 +99,7 @@ if __name__ == "__main__":
     p.add_argument('--outfile', default=None, type=str,
                  help="Write enrichment results into xlsx or tsv file")
     p.add_argument('--method', default="bonferroni,sidak,holm", type=str,
-                 help="multipletest corrections")
+                 help=Methods().getmsg_valid_methods())
 
     args = p.parse_args()
     check_input_files(args, p)

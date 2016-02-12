@@ -33,7 +33,9 @@ class Methods(object):
              'fdr_tsbh',       # 8) fdr_tsbh two stage fdr correction (non-negative)
              'fdr_tsbky',      # 9) fdr_tsbky two stage fdr correction (non-negative)
             )),
+ 
     ]
+    prefixes = {'statsmodels':'sm_'}
     NtMethodInfo = cx.namedtuple("NtMethodInfo", "source method fieldname") 
 
     def __init__(self, usr_methods=None):
@@ -49,6 +51,7 @@ class Methods(object):
            self._add_method(usr_method)
 
     def _add_method(self, method, method_source=None):
+        """Determine method source if needed. Add method to list."""
         try:
             if method_source is not None:
                 self._add_method_src(method_source, method)
@@ -58,25 +61,49 @@ class Methods(object):
             raise Exception("{ERRMSG}".format(ERRMSG=inst))
 
     def _add_method_nosrc(self, usr_method):
-        """Add method source and method to list of methods."""
+        """Add method source, method, and fieldname to list of methods."""
         for method_source, available_methods in self.all_methods:
             if usr_method in available_methods:
                 fieldname = self.get_fldnm_method(usr_method)
                 nt = self.NtMethodInfo(method_source, usr_method, fieldname)
                 self.methods.append(nt)
                 return
-        if usr_method.startswith('sm_'):
-            method_source = 'statsmodels'
-            method = usr_method[3:]
-            nt = self.NtMethodInfo(method_source, method, usr_method)
-            self.methods.append(nt)
-            return
+        for src, prefix in self.prefixes.items():
+          if usr_method.startswith(prefix):
+              method_source = src
+              method = usr_method[len(prefix):]
+              nt = self.NtMethodInfo(method_source, method, usr_method)
+              self.methods.append(nt)
+              return
         raise self.rpt_invalid_method(usr_method)
 
+    def getmsg_valid_methods(self):
+        """Report the valid methods."""
+        msg = []
+        msg.append("    Available methods:")
+        ctr = self._get_method_cnts()
+        for midx, (method_source, methods) in enumerate(self.all_methods):
+            msg.append("        {SRC}(".format(SRC=method_source))
+            for method in methods:
+                prefix = self.prefixes.get(method_source, "")
+                prefix = prefix if ctr[method] != 1 else ""
+                msg.append("            {P}{M}".format(P=prefix, M=method))
+            msg.append("        )")
+        return "\n".join(msg)
+
     def rpt_invalid_method(self, usr_method):
-        msg = ["ERROR: UNRECOGNIZED METHOD({M})".format(
-            M=usr_method)]
-        raise Exception(msg)
+        """Report which methods are available."""
+        msgerr = "FATAL: UNRECOGNIZED METHOD({M})".format(M=usr_method)
+        msg = [msgerr, self.getmsg_valid_methods(), msgerr]
+        raise Exception("\n".join(msg))
+
+    def _get_method_cnts(self):
+        """Count the number of times a method is seen."""
+        ctr = cx.Counter()
+        for method_source, methods in self.all_methods:
+            for method in methods:
+                ctr[method] += 1
+        return ctr
  
     def rpt_valid_methods(self):
         """Report valid methods."""
