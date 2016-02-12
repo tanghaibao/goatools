@@ -24,7 +24,6 @@ install:
 
 # command to run tests
 script:
-  - nose test/test_goea_statsmodels.py test/test_get_paths.py
-
+  - cd test && makefile
 sudo: false
 
