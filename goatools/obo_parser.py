@@ -38,7 +38,7 @@ class OBOReader(object):
         else:
             raise Exception("download obo file first\n "
                             "[http://geneontology.org/ontology/"
-                            "go/go-basic.obo]")
+                            "go-basic.obo]")
 
     def __iter__(self):
         """Return one GO Term record at a time from an obo file."""
