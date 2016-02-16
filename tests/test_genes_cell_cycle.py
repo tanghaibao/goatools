@@ -35,7 +35,7 @@ def test_cell_cycle(log=sys.stdout):
     # Researcher removes 'lysosome' from 'cell cycle' results
     gos = gos.difference(['GO:0005764'])
     # Add children GOs of cell cycle GOs
-    gos_all = srch.add_children_GOs(gos)
+    gos_all = srch.add_children_gos(gos)
     # Get Entrez GeneIDs for cell cycle GOs
     geneids = srch.get_items(gos_all)
     # Print genes related to cell cycle
