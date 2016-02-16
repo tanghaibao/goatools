@@ -25,10 +25,11 @@ __author__ = "DV Klopfenstein"
 import re
 import sys
 
-def prt_txt(prt, data_nts, prtfmt, nt_fields, **kws):
+def prt_txt(prt, data_nts, prtfmt, nt_fields=None, **kws):
     """Print list of namedtuples into a table using prtfmt."""
     if data_nts:
-        _chk_flds_fmt(nt_fields, prtfmt)
+        if nt_fields is not None:
+            _chk_flds_fmt(nt_fields, prtfmt)
         _prt_txt_hdr(prt, prtfmt)
         if 'sort_by' in kws:
             data_nts = sorted(data_nts, key=kws['sort_by'])
