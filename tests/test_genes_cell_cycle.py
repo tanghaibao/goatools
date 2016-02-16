@@ -9,7 +9,7 @@ from goatools.associations import get_assoc_ncbi_taxids
 from genes_NCBI_hsa_All import GeneID2nt
 from goatools.wr_tbl import prt_txt
 
-__copyright__ = "Copyright (C) 2010-2016, DV Klopfenstein, H Tang et al., All rights reserved."
+__copyright__ = "Copyright (C) 2010-2016, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 def test_cell_cycle(log=sys.stdout):
@@ -50,4 +50,4 @@ def test_cell_cycle(log=sys.stdout):
 if __name__ == '__main__':
     test_cell_cycle()
 
-# Copyright (C) 2010-2016, DV Klopfenstein, H Tang et al., All rights reserved.
+# Copyright (C) 2010-2016, DV Klopfenstein, H Tang, All rights reserved.
