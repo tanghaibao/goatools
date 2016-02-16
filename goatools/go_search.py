@@ -61,7 +61,7 @@ class GoSearch(object):
             matches.append(fld_val)
 
     def add_children_gos(self, gos):
-        """Return all GOs who have parents which match the user's compiled regex pattern."""
+        """Return children of input gos plus input gos."""
         lst = []
         obo_dag = self.obo_dag
         get_children = lambda go_obj: list(go_obj.get_all_children()) + [go_obj.id]
