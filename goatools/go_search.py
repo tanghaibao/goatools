@@ -9,8 +9,9 @@ __author__ = "DV Klopfenstein"
 class GoSearch(object):
     """Returns GOs matching a regex pattern."""
 
-    def __init__(self, fin_go_basic_obo, go2items, log=sys.stdout):
-        self.log = log
+    def __init__(self, fin_go_basic_obo, go2items, log=None):
+        self.log = sys.stdout if log is None else log
+        self.bstdout = True if log is None else log
         # Some obo fields often used in searching. Many are optional to load when reading obo
         self.goa_srch_hdrs = ['defn', 'comment', 'name', 'is_a', 'relationship', 'synonym', 'xref']
         self.obo_dag = GODag(fin_go_basic_obo, optional_attrs=self.goa_srch_hdrs)
@@ -22,6 +23,10 @@ class GoSearch(object):
         matching_gos = []
         obo_dag = self.obo_dag
         prt = kws['prt'] if 'prt' in kws else self.log
+        prt_screen = True if 'prt' in kws else not self.bstdout # Print summary to screen
+        prt.write('\nPATTERN SEARCH: "{P}"\n'.format(P=compiled_pattern.pattern))
+        if prt_screen:
+            sys.stdout.write("\nPATTERN SEARCH: {P}\n".format(P=compiled_pattern.pattern))
         # Only look through GOs in annotation or user-specified GOs
         srchgos = kws['gos'] if 'gos' in kws else self.go2items.keys()
         for go_id in srchgos:
@@ -40,9 +45,19 @@ class GoSearch(object):
                 prt.write("**WARNING: {GO} found in annotation is not found in obo\n".format(
                     GO=go_id))
         matching_gos = set(matching_gos)
-        prt.write("{N} GOs out of {M} found for matching pattern({P})\n".format(
-            N=len(matching_gos), M=len(self.go2items), P=compiled_pattern.pattern))
+        # Print summary message
+        self._summary_matching_gos(prt, prt_screen, compiled_pattern.pattern, matching_gos, srchgos)
         return matching_gos
+
+    @staticmethod
+    def _summary_matching_gos(prt, prt_screen, pattern, matching_gos, all_gos):
+        """Print summary for get_matching_gos."""
+        msg = 'Found {N} GO(s) out of {M} matching pattern("{P}")\n'
+        num_gos = len(matching_gos)
+        num_all = len(all_gos)
+        prt.write(msg.format(N=num_gos, M=num_all, P=pattern))
+        if prt_screen:
+            sys.stdout.write(msg.format(N=num_gos, M=num_all, P=pattern))
 
     def _search_vals(self, compiled_pattern, fld_val):
         """Search for user-regex in scalar or iterable data values."""
