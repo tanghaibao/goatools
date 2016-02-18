@@ -16,14 +16,15 @@ class GoSearch(object):
         self.obo_dag = GODag(fin_go_basic_obo, optional_attrs=self.goa_srch_hdrs)
         self.go2items = go2items
 
-    def get_matching_gos(self, compiled_pattern, prt=None):
+    def get_matching_gos(self, compiled_pattern, **kws):
         """Return all GOs which match the user regex pattern."""
+        # kws: prt gos
         matching_gos = []
         obo_dag = self.obo_dag
-        if prt is None:
-            prt = self.log
-        # Only look through GOs in annotation
-        for go_id in self.go2items:
+        prt = kws['prt'] if 'prt' in kws else self.log
+        # Only look through GOs in annotation or user-specified GOs
+        srchgos = kws['gos'] if 'gos' in kws else self.go2items.keys()
+        for go_id in srchgos:
             go_obj = obo_dag.get(go_id, None)
             if go_obj is not None:
                 for hdr in self.goa_srch_hdrs:
