@@ -156,9 +156,14 @@ def get_fmtflds(prtfmt):
     # Example prtfmt: "{NS} {study_cnt:2} {fdr_bh:5.3e} L{level:02} D{depth:02} {GO} {name}\n"
     return [f.split(':')[0] for f in re.findall(r'{(\S+)}', prtfmt)]
 
+def get_fmtfldsdict(prtfmt):
+    """Return the fieldnames in the formatter text."""
+    # Example prtfmt: "{NS} {study_cnt:2} {fdr_bh:5.3e} L{level:02} D{depth:02} {GO} {name}\n"
+    return {v:v for v in get_fmtflds(prtfmt)}
+
 def _prt_txt_hdr(prt, prtfmt):
     """Print header for text report."""
-    tblhdrs = get_fmtflds(prtfmt)
-    prt.write("{}\n".format(" ".join(tblhdrs)))
+    tblhdrs = get_fmtfldsdict(prtfmt)
+    prt.write("#{}".format(prtfmt.format(**tblhdrs)))
 
 # Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved.
