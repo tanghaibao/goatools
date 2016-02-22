@@ -166,6 +166,7 @@ def _prt_txt_hdr(prt, prtfmt):
     tblhdrs = get_fmtfldsdict(prtfmt)
     # If needed, reformat for format_string for header, which has strings, not floats.
     hdrfmt = re.sub(r':(\d+)\.\S+}', r':\1}', prtfmt)
+    hdrfmt = re.sub(r':(0+)(\d+)}', r':\2}', hdrfmt)
     prt.write("#{}".format(hdrfmt.format(**tblhdrs)))
 
 # Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved.

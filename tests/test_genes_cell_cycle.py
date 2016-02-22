@@ -3,7 +3,6 @@
 import sys
 import os
 import re
-# sys.path.insert(0, "..") # Use local version of goatools during test
 from goatools.go_search import GoSearch
 from goatools.associations import get_assoc_ncbi_taxids
 from goatools.wr_tbl import prt_txt

@@ -4,8 +4,6 @@ import sys
 import timeit
 import datetime
 
-# Test local version of goatools
-sys.path.insert(0, '..')
 from goatools.obo_parser import GODag
 
 #################################################################

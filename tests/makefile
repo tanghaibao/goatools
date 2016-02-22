@@ -2,8 +2,13 @@
 run_goea:
 	python test_goea_local.py
 	python test_goea_rpt_bonferroni.py goea_bonferroni.log
-	python test_goea_rpt_fdr_bh.py goea_fdr_bh.log
 	python test_goea_statsmodels.py
+	python test_get_paths.py
+	python test_genes_cell_cycle.py
+	python test_mapslim.py
+	python test_ncbi_entrez_annotations.py
+	python test_optional_fields.py
+	python test_write_hier.py
 
 run_goea_scripts:
 	cd ..; make goea_all

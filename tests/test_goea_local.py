@@ -2,7 +2,6 @@
 
 import sys
 import os
-sys.path.insert(0, "..") # Use local version of goatools during test
 from goatools.obo_parser import GODag
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.associations import read_associations

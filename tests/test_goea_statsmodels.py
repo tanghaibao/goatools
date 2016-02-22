@@ -1,6 +1,5 @@
 import sys
 import os
-#sys.path.insert(0, "..") # Use local version of goatools during test
 from goatools.obo_parser import GODag
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.associations import read_associations
@@ -16,7 +15,7 @@ def test_goea_statsmodels(log=sys.stdout):
     """Test GOEA with local multipletest correction methods."""
     goeaobj = get_goeaobj()
     study_ids = [line.rstrip() for line in open(ROOT + "small_study")]
-    prt_if = lambda nt: nt.p_uncorrected < 0.00005
+    prt_if = lambda nt: nt.p_uncorrected < 0.0005
     ## These will specify to use the statsmodels methods
     methods_sm0 = ['holm-sidak', 'simes-hochberg', 'hommel', 
                    'fdr_bh', 'fdr_by', 'fdr_tsbh', 'fdr_tsbky']
@@ -32,7 +31,6 @@ def test_goea_statsmodels(log=sys.stdout):
         fmtstr = "".join(["{NS} {p_uncorrected:5.3e} {",
                   "p_{M}:5.3e".format(M=method), 
                   "} {name} ({study_count} gene(s))\n"])
-        goeaobj.prt_txt(log, goea_results, fmtstr, prt_if=prt_if)
         fout_xlsx = "goea_statsmodels_{M}.xlsx".format(M=method)
         fout_tsv = "goea_statsmodels_{M}.tsv".format(M=method)
         goeaobj.prt_txt(log, goea_results, fmtstr, prt_if=prt_if)

@@ -7,7 +7,6 @@ __copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserve
 __author__ = "DV Klopfenstein"
 
 import sys
-sys.path.insert(0, '..') # Use local version of goatools during test
 from goatools.associations import get_assoc_ncbi_taxids
 
 def test_ncbi_gene2go(log=sys.stdout):

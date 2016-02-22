@@ -9,7 +9,6 @@ __author__ = "DV Klopfenstein"
 
 import sys
 
-sys.path.insert(0, '..') # Use local version of goatools during test
 from goatools.obo_parser import GODag
 from goatools.associations import read_associations
 from goatools.go_enrichment import GOEnrichmentStudy
