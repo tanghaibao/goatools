@@ -164,6 +164,8 @@ def get_fmtfldsdict(prtfmt):
 def _prt_txt_hdr(prt, prtfmt):
     """Print header for text report."""
     tblhdrs = get_fmtfldsdict(prtfmt)
-    prt.write("#{}".format(prtfmt.format(**tblhdrs)))
+    # If needed, reformat for format_string for header, which has strings, not floats.
+    hdrfmt = re.sub(r':(\d+)\.\S+}', r':\1}', prtfmt)
+    prt.write("#{}".format(hdrfmt.format(**tblhdrs)))
 
 # Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved.
