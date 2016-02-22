@@ -2,7 +2,7 @@
 Routines to read in association file between genes and GO terms.
 """
 
-__copyright__ = "Copyright (C) 2016, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2010-2016, H Tang et al. All rights reserved."
 __author__ = "various"
 
 from collections import defaultdict
@@ -58,10 +58,12 @@ def get_assoc_ncbi_taxids(taxids, force_dnld=False):
         os.system("gunzip gene2go.gz")
     return read_ncbi_gene2go("gene2go", taxids)
 
-def read_ncbi_gene2go(fin_gene2go, taxids):
+def read_ncbi_gene2go(fin_gene2go, taxids, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
     # Written by DV Klopfenstein, Jan 2016
-    taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
+    # kws: taxid2asscs evidence_set
+    taxid2asscs = _get_taxid2asscs(**kws)
+    evs = kws['evidence_set'] if 'evidence_set' in kws else None
     with open(fin_gene2go) as ifstrm:
         for line in ifstrm:
             if line[0] != '#': # Line contains data. Not a comment
@@ -73,9 +75,36 @@ def read_ncbi_gene2go(fin_gene2go, taxids):
                     # NOT: Used when gene is expected to have function F, but does NOT.
                     # ND : GO function not seen after exhaustive annotation attempts to the gene.
                     if taxid in taxids and qualifier != 'NOT' and evidence != 'ND':
-                        geneid = int(geneid)
-                        taxid2asscs[taxid]['GeneID2GOs'][geneid].add(go_id)
-                        taxid2asscs[taxid]['GO2GeneIDs'][go_id].add(geneid)
+                        if evs is None or Evidence_Code in evs:
+                            geneid = int(geneid)
+                            taxid2asscs[taxid]['GeneID2GOs'][geneid].add(go_id)
+                            taxid2asscs[taxid]['GO2GeneIDs'][go_id].add(geneid)
     return taxid2asscs
 
+def read_gaf(fin_gaf, **kws):
+    """Read Gene Association File (GAF). Return data."""
+    # Written by DV Klopfenstein, Feb 2016
+    # kws: taxid2asscs evidence_set
+    from goatools.gaf_reader import GafReader
+    gafobj = GafReader()
+    gafnts = gafobj.read_gaf(fin_gaf)
+    taxid2asscs = _get_taxid2asscs(**kws)
+    evs = kws['evidence_set'] if 'evidence_set' in kws else None
+    for nt in gafnts:
+        Evidence_Code = nt.Evidence_Code
+        if 'NOT' not in nt.Qualifier and Evidence_Code != 'ND':
+            if evs is None or Evidence_Code in evs:
+                taxid = nt.Taxon[0]
+                geneid = nt.DB_ID
+                go_id = nt.GO_ID
+                taxid2asscs[taxid]['ID2GOs'][geneid].add(go_id)
+                taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
+    return taxid2asscs
 
+def _get_taxid2asscs(**kws):
+    """Researcher may provide a taxid2asscs, if desired."""
+    if 'taxid2asscs' not in kws:
+        return defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
+    return kws['taxid2asscs']
+
+# Copyright (C) 2010-2016, H Tang et al. All rights reserved."
