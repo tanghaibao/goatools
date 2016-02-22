@@ -16,7 +16,7 @@ fi
 
 if [ ! -f $GOSLIM_OBO_FILE ]
 then
-    echo "downlaoding GOslim file: $GOSLIM_OBO_FILE"
+    echo "downloading GOslim file: $GOSLIM_OBO_FILE"
     wget -O $GOSLIM_OBO_FILE $GOSLIM_OBO_DOWNLOAD
 fi
 
