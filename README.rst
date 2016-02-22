@@ -49,16 +49,20 @@ This package contains a Python library to
 
 Installation
 -------------
-- Make sure your Python version >= 2.7, install it via PyPI::
+Make sure your Python version >= 2.7, install the latest stable version via PyPI::
 
     easy_install goatools
 
-- ``.obo`` file for the most current `GO <http://geneontology.org/page/download-ontology>`_::
+To install the development version::
+
+    pip install git+git://github.com/tanghaibao/goatools.git
+
+``.obo`` file for the most current `GO <http://geneontology.org/page/download-ontology>`_::
 
     wget http://geneontology.org/ontology/go-basic.obo
 
-- ``.obo`` file for the most current `GO Slim <http://geneontology.org/page/go-slim-and-subset-guide>`_
-  terms (.e.g generic GOslim) ::
+``.obo`` file for the most current `GO Slim <http://geneontology.org/page/go-slim-and-subset-guide>`_
+terms (e.g. generic GOslim) ::
 
     wget http://www.geneontology.org/ontology/subsets/goslim_generic.obo
 
