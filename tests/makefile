@@ -7,9 +7,10 @@ run_goea:
 	$(PYTHON) test_get_paths.py
 	$(PYTHON) test_genes_cell_cycle.py
 	$(PYTHON) test_mapslim.py
-	$(PYTHON) test_ncbi_entrez_annotations.py
 	$(PYTHON) test_optional_fields.py
 	$(PYTHON) test_write_hier.py
+	$(PYTHON) test_ncbi_entrez_annotations.py
+	$(PYTHON) test_annotations_gaf.py
 
 run_goea_scripts:
 	cd ..; make goea_all

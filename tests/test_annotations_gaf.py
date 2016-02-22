@@ -15,11 +15,13 @@ def test_gaf_read(log=sys.stdout):
     """Return GO associations from a GAF file. Download if necessary."""
     # Get associations for human(9606), mouse(10090), and fly(7227)
     species_ids = ['goa_human', 'mgi', 'fb']
+    # (optional) multi-level dictionary separate associations by taxid
     taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
     fin_gafs = dnld_gafs(species_ids)
     for fin_gaf in fin_gafs:
-        read_gaf(fin_gaf, taxid2asscs=taxid2asscs)
-    # Report findings
+        id2gos = read_gaf(fin_gaf, taxid2asscs=taxid2asscs)
+        log.write("  {N} items found in {F}\n".format(N=len(id2gos), F=fin_gaf))
+    # Report findings stored in optional taxid dictionary
     for taxid, asscs in taxid2asscs.items():
         num_gene2gos = len(asscs['ID2GOs'])
         num_go2genes = len(asscs['GO2IDs'])

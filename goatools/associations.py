@@ -49,46 +49,57 @@ def read_associations(assoc_fn, no_top=False):
 
     return assoc
 
-def get_assoc_ncbi_taxids(taxids, force_dnld=False):
+def get_assoc_ncbi_taxids(taxids, force_dnld=False, **kws):
     """Download NCBI's gene2go. Return annotations for user-specified taxid(s)."""
     # Written by DV Klopfenstein, Jan 2016
     import wget
     if not os.path.exists("gene2go") or force_dnld:
         wget.download("ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz")
         os.system("gunzip gene2go.gz")
-    return read_ncbi_gene2go("gene2go", taxids)
+    return read_ncbi_gene2go("gene2go", taxids, **kws)
 
-def read_ncbi_gene2go(fin_gene2go, taxids, **kws):
+def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
     # Written by DV Klopfenstein, Jan 2016
     # kws: taxid2asscs evidence_set
-    taxid2asscs = _get_taxid2asscs(**kws)
+    # Simple associations 
+    id2gos = defaultdict(set)
+    # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
+    taxid2asscs = kws['taxid2asscs'] if 'taxid2asscs' in kws else None
     evs = kws['evidence_set'] if 'evidence_set' in kws else None
+    if taxids is None: # Default taxid is Human
+        taxids = [9606]
     with open(fin_gene2go) as ifstrm:
         for line in ifstrm:
             if line[0] != '#': # Line contains data. Not a comment
                 line = line.rstrip() # chomp
                 flds = line.split('\t')
                 if len(flds) >= 5:
-                    taxid, geneid, go_id, evidence, qualifier = line.split('\t')[:5]
-                    taxid = int(taxid)
+                    taxid_curr, geneid, go_id, evidence, qualifier = line.split('\t')[:5]
+                    taxid_curr = int(taxid_curr)
                     # NOT: Used when gene is expected to have function F, but does NOT.
                     # ND : GO function not seen after exhaustive annotation attempts to the gene.
-                    if taxid in taxids and qualifier != 'NOT' and evidence != 'ND':
+                    if taxid_curr in taxids and qualifier != 'NOT' and evidence != 'ND':
                         if evs is None or Evidence_Code in evs:
                             geneid = int(geneid)
-                            taxid2asscs[taxid]['GeneID2GOs'][geneid].add(go_id)
-                            taxid2asscs[taxid]['GO2GeneIDs'][go_id].add(geneid)
-    return taxid2asscs
+                            id2gos[geneid].add(go_id)
+                            if taxid2asscs is not None:
+                                taxid2asscs[taxid_curr]['GeneID2GOs'][geneid].add(go_id)
+                                taxid2asscs[taxid_curr]['GO2GeneIDs'][go_id].add(geneid)
+    return id2gos # return simple associations
 
 def read_gaf(fin_gaf, **kws):
     """Read Gene Association File (GAF). Return data."""
     # Written by DV Klopfenstein, Feb 2016
     # kws: taxid2asscs evidence_set
     from goatools.gaf_reader import GafReader
+    # Simple associations 
+    id2gos = defaultdict(set)
+    # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
+    taxid2asscs = kws['taxid2asscs'] if 'taxid2asscs' in kws else None
     gafobj = GafReader()
     gafnts = gafobj.read_gaf(fin_gaf)
-    taxid2asscs = _get_taxid2asscs(**kws)
+    # You can specify
     evs = kws['evidence_set'] if 'evidence_set' in kws else None
     for nt in gafnts:
         Evidence_Code = nt.Evidence_Code
@@ -97,14 +108,10 @@ def read_gaf(fin_gaf, **kws):
                 taxid = nt.Taxon[0]
                 geneid = nt.DB_ID
                 go_id = nt.GO_ID
-                taxid2asscs[taxid]['ID2GOs'][geneid].add(go_id)
-                taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
-    return taxid2asscs
-
-def _get_taxid2asscs(**kws):
-    """Researcher may provide a taxid2asscs, if desired."""
-    if 'taxid2asscs' not in kws:
-        return defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
-    return kws['taxid2asscs']
+                id2gos[geneid].add(go_id)
+                if taxid2asscs is not None:
+                    taxid2asscs[taxid]['ID2GOs'][geneid].add(go_id)
+                    taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
+    return id2gos # return simple associations
 
 # Copyright (C) 2010-2016, H Tang et al. All rights reserved."

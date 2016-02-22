@@ -3,6 +3,7 @@
 import sys
 import os
 import re
+from collections import defaultdict
 from goatools.go_search import GoSearch
 from goatools.associations import get_assoc_ncbi_taxids
 from goatools.wr_tbl import prt_txt
@@ -17,7 +18,11 @@ def test_cell_cycle(log=sys.stdout):
     fin_go_obo = "go-basic.obo"
     if not os.path.exists(fin_go_obo):
         os.system("wget http://geneontology.org/ontology/go-basic.obo")
-    taxid2asscs = get_assoc_ncbi_taxids([taxid])
+    # Because get_assoc_ncbi_taxids returns id2gos, we will opt to 
+    # use the (optional) multi-level dictionary separate associations by taxid
+    # taxid2asscs contains both GO2GeneIDs and GeneID2GOs.
+    taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
+    get_assoc_ncbi_taxids([taxid], taxid2asscs=taxid2asscs)
     # Initialize GO-search helper object with obo and annotations(go2items)
     srch = GoSearch(fin_go_obo, go2items=taxid2asscs[taxid]['GO2GeneIDs'])
     # Compile search pattern for 'cell cycle'
