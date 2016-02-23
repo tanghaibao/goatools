@@ -17,7 +17,7 @@ __author__ = "DV Klopfenstein"
 class GafReader(object):
     """Reads a Gene Annotation File (GAF). Returns a Python object."""
 
-    gafhdr = [ #             Col Req?     Cardinality    Example
+    gafhdr = [ #           Col Req?     Cardinality    Example
         #                  --- -------- -------------- -----------------
         'DB',             #  0 required 1              UniProtKB
         'DB_ID',          #  1 required 1              P12345
