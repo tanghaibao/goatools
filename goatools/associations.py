@@ -80,6 +80,7 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
                     # NOT: Used when gene is expected to have function F, but does NOT.
                     # ND : GO function not seen after exhaustive annotation attempts to the gene.
                     if taxid_curr in taxids and qualifier != 'NOT' and evidence != 'ND':
+                        # Optionaly specify a subset of GOs based on their evidence.
                         if evs is None or Evidence_Code in evs:
                             geneid = int(geneid)
                             id2gos[geneid].add(go_id)
@@ -99,7 +100,7 @@ def read_gaf(fin_gaf, **kws):
     taxid2asscs = kws['taxid2asscs'] if 'taxid2asscs' in kws else None
     gafobj = GafReader()
     gafnts = gafobj.read_gaf(fin_gaf)
-    # You can specify
+    # Optionaly specify a subset of GOs based on their evidence.
     evs = kws['evidence_set'] if 'evidence_set' in kws else None
     for nt in gafnts:
         Evidence_Code = nt.Evidence_Code
