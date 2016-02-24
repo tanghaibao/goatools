@@ -30,7 +30,7 @@ def prt_txt(prt, data_nts, prtfmt, nt_fields=None, **kws):
     if data_nts:
         if nt_fields is not None:
             _chk_flds_fmt(nt_fields, prtfmt)
-        _prt_txt_hdr(prt, prtfmt)
+        #_prt_txt_hdr(prt, prtfmt)
         if 'sort_by' in kws:
             data_nts = sorted(data_nts, key=kws['sort_by'])
         prt_if = kws['prt_if'] if 'prt_if' in kws else None

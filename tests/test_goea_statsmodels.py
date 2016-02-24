@@ -4,7 +4,7 @@ from goatools.obo_parser import GODag
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.associations import read_associations
 
-"""Test Gene Ontology Enrichement Analysis using mutipletest methods in statsmodels."""
+"""Test Gene Ontology Enrichment Analysis using mutipletest methods in statsmodels."""
 
 ROOT = os.path.dirname(os.path.abspath(__file__)) + "/data/"
 
@@ -40,7 +40,6 @@ def test_goea_statsmodels(log=sys.stdout):
 
 def get_goeaobj(methods=None):
     """Test GOEA with method, fdr."""
-#    obo_dag = GODag(ROOT + "data/go-basic.obo")
     obo_dag = GODag(ROOT + "goslim_generic.obo")
     assoc = read_associations(ROOT + "slim_association", no_top=True)
     popul_ids = [line.rstrip() for line in open(ROOT + "small_population")]

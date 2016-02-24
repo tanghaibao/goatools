@@ -21,6 +21,8 @@ import collections as cx
 from .multiple_testing import Methods, Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
 from .ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
+from goatools.godag_obosm import get_godag
+from goatools.godag_plot import GODagSmallPlot
 
 
 class GOEnrichmentRecord(object):
@@ -32,8 +34,17 @@ class GOEnrichmentRecord(object):
         ('cellular_component', 'CC')])
 
     # Fields seen in every enrichment result
-    _fldsdefprt = ["GO", "NS", "enrichment", "name", "ratio_in_study", "ratio_in_pop", "p_uncorrected"]
-    _fldsdeffmt = ["%2s"] + ["%s"] * 3 + ["%d/%d"] * 2 + ["%.3g"]
+    _fldsdefprt = [
+        "GO", 
+        "NS", 
+        "enrichment", 
+        "name", 
+        "ratio_in_study", 
+        "ratio_in_pop", 
+        "p_uncorrected", 
+        "depth",
+        "study_count"]
+    _fldsdeffmt = ["%2s"] + ["%s"] * 3 + ["%d/%d"] * 2 + ["%.3g"] + ["%d"] * 2
 
     _flds = set(_fldsdefprt).intersection(
             set(['study_items', 'study_count', 'study_n', 'pop_items', 'pop_count', 'pop_n']))
@@ -51,10 +62,6 @@ class GOEnrichmentRecord(object):
                 setattr(self, 'pop_n', v[1])
         self._init_enrichment()
         self.goterm = None  # the reference to the GOTerm
-
-    def get_prtflds_default(self):
-        """Get default fields."""
-        return self._fldsdefprt + ["p_{M}".format(M=m.fieldname) for m in self._methods]
 
     #def set_corrected_pval(self, method_str, method, pvalue):
     def set_corrected_pval(self, nt_method, pvalue):
@@ -99,6 +106,67 @@ class GOEnrichmentRecord(object):
         self.is_ratio_different = is_ratio_different(min_ratio, self.study_count,
                                                      self.study_n, self.pop_count, self.pop_n)
 
+
+    # -------------------------------------------------------------------------------------
+    # Methods for getting flat namedtuple values from GOEnrichmentRecord object
+    def get_prtflds_default(self):
+        """Get default fields."""
+        return self._fldsdefprt + ["p_{M}".format(M=m.fieldname) for m in self._methods]
+
+    def get_prtflds_all(self):
+        """Get all possible fields used when creating a namedtuple."""
+        flds = set.union(
+            set(self.get_prtflds_default()), 
+            set(vars(self).keys()), 
+            set(vars(self.goterm).keys()))
+        flds = flds.difference(set(['_parents', '_methods']))
+        return flds
+
+    def get_field_values(self, fldnames, rpt_fmt=True):
+       """Get flat namedtuple fields for one GOEnrichmentRecord."""
+       row = []
+       # Loop through each user field desired
+       for fld in fldnames:
+           # 1. Check the GOEnrichmentRecord's attributes
+           val = getattr(self, fld, None)
+           if val is not None:
+               if rpt_fmt:
+                   val = self._get_rpt_fmt(fld, val)
+               row.append(val)
+           else:
+               # 2. Check the GO object for the field
+               val = getattr(self.goterm, fld, None)
+               if val is not None:
+                   row.append(val)
+               else:
+                   # 3. Field not found, raise Exception
+                   chk = self._err_fld(fld, fldnames, row) 
+       return row
+
+    @staticmethod
+    def _get_rpt_fmt(fld, val):
+        """Return values in a format amenable to printing in a table."""
+        if fld.startswith("ratio_"):
+            return "{N}/{TOT}".format(N=val[0], TOT=val[1])
+        elif fld == 'study_items':
+            return ", ".join(val)
+        return val
+
+    def _err_fld(self, fld, fldnames, row):
+        """Unrecognized field. Print detailed Failure message."""
+        msg = ['ERROR. UNRECOGNIZED FIELD({F})'.format(F=fld)]
+        actual_flds = set(self.get_prtflds_default() + self.goterm.__dict__.keys())
+        bad_flds = set(fldnames).difference(set(actual_flds))
+        if bad_flds:
+            msg.append("\nGOEA RESULT FIELDS: {}".format(" ".join(self._fldsdefprt)))
+            msg.append("GO FIELDS: {}".format(" ".join(self.goterm.__dict__.keys())))
+            msg.append("\nFATAL: {N} UNEXPECTED FIELDS({F})\n".format(N=len(bad_flds), F=" ".join(bad_flds)))
+            msg.append("  {N} User-provided fields:".format(N=len(fldnames)))
+            for idx, fld in enumerate(fldnames, 1):
+              mrk = "ERROR -->" if fld in bad_flds else ""
+              msg.append("  {M:>9} {I:>2}) {F}".format(M=mrk, I=idx, F=fld))
+        raise Exception("\n".join(msg))
+  
 
 class GOEnrichmentStudy(object):
     """Runs Fisher's exact test, as well as multiple corrections
@@ -146,10 +214,14 @@ class GOEnrichmentStudy(object):
             # get go term for name and level
             rec.set_goterm(self.obo_dag)
 
+        if 'keep_if' in kws:
+            keep_if = kws['keep_if']
+            results = [r for r in results if keep_if(r)]
+
         # Default sort order: 1st sort by BP, MF, CC. 2nd sort by pval
         results.sort(key=lambda r: [r.NS, r.p_uncorrected])
 
-        return results
+        return results # list of GOEnrichmentRecord objects
 
     def _get_pval_uncorr(self, study, log=sys.stdout):
         """Calculate the uncorrected pvalues for study items."""
@@ -236,13 +308,13 @@ class GOEnrichmentStudy(object):
         """Print GOEA results in text format."""
         prtfmt = self.adjust_prtfmt(prtfmt)
         prt_flds = RPT.get_fmtflds(prtfmt)
-        data_nts = self._get_nts(results_nt, prt_flds, True, **kws)
+        data_nts = self.get_nts(results_nt, prt_flds, rpt_fmt=True, **kws)
         RPT.prt_txt(prt, data_nts, prtfmt, prt_flds, **kws)
 
     def wr_xlsx(self, fout_xlsx, results_nt, **kws):
         """Write a xlsx file."""
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(results_nt)
-        xlsx_data = self._get_nts(results_nt, prt_flds, True, **kws)
+        xlsx_data = self.get_nts(results_nt, prt_flds, rpt_fmt=True, **kws)
         if 'fld2col_widths' not in kws:
             kws['fld2col_widths'] = {f:self.default_fld2col_widths.get(f, 8) for f in prt_flds}
         RPT.wr_xlsx(fout_xlsx, xlsx_data, **kws)
@@ -250,13 +322,13 @@ class GOEnrichmentStudy(object):
     def wr_tsv(self, fout_tsv, results_nt, **kws):
         """Write tab-separated table data to file"""
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(results_nt)
-        tsv_data = self._get_nts(results_nt, prt_flds, True, **kws)
+        tsv_data = self.get_nts(results_nt, prt_flds, rpt_fmt=True, **kws)
         RPT.wr_tsv(fout_tsv, tsv_data, prt_flds, **kws)
 
     def prt_tsv(self, prt, results_nt, **kws):
         """Write tab-separated table data"""
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(results_nt)
-        tsv_data = self._get_nts(results_nt, prt_flds, True, **kws)
+        tsv_data = self.get_nts(results_nt, prt_flds, rpt_fmt=True, **kws)
         RPT.prt_tsv(prt, tsv_data, prt_flds, **kws)
 
     def adjust_prtfmt(self, prtfmt):
@@ -265,63 +337,63 @@ class GOEnrichmentStudy(object):
         prtfmt = prtfmt.replace("{p_simes-hochberg", "{p_simes_hochberg")
         return prtfmt
 
-    def _get_nts(self, results, fldnames, rpt_fmt, **kws):
+    def get_NS2nts(self, results, fldnames=None, **kws):
+       """Get namedtuples of GOEA results, split into BP, MF, CC."""
+       NS2nts = cx.defaultdict(list)
+       nts = self.get_nts(results, fldnames, **kws)
+       for nt in nts:
+           NS2nts[nt.NS].append(nt)
+       return NS2nts
+
+    def plot(self, png_pat, goea_results, **kws):
+        # Get flattened GOEA results, split by NS, whose alpha is < 0.05
+        NS2nts = self.get_NS2nts(goea_results, **kws)
+        # Plot results, split by BP, MF, CC
+        fmtstr = "{GO} L{level:>02} D{depth:>02}\n{name}\n{study_count} genes"
+        for NS, nts in NS2nts.items():
+            #print nts[0]._fields
+            # Create subset DAG containing only GOs to be plotted
+            goids = [nt.GO for nt in nts]
+            godagsmall = get_godag(goids, self.obo_dag)
+            # Create Plot
+            png = png_pat.format(NS=NS)
+            go2nt = {nt.id:nt for nt in NS2nts[NS]}
+            godagplot = GODagSmallPlot(
+                godagsmall, 
+                go2nt = go2nt, 
+                alpha_str = 'p_fdr_bh',
+                fmtstr = fmtstr)
+            godagplot.plt_pydot(png)
+
+    def get_study_items(self, results):
+        """Get all study items (e.g., geneids)."""
+        study_items = set()
+        for rec in results:
+            study_items |= rec.study_items
+        return study_items
+
+    def get_nts(self, results, fldnames=None, **kws):
         """Get namedtuples containing user-specified (or default) data from GOEA results.
 
             Reformats data from GOEnrichmentRecord objects into lists of
             namedtuples so the generic table writers may be used.
         """
-        keep_if = None if 'keep_if' not in kws else kws['keep_if']
         data_nts = [] # A list of namedtuples containing GOEA results
+        if not results:
+            return data_nts
+        keep_if = None if 'keep_if' not in kws else kws['keep_if']
+        rpt_fmt = False if 'rpt_fmt' not in kws else kws['rpt_fmt']
+        if fldnames is None:
+            fldnames = results[0].get_prtflds_all()
         NtGoeaResults = cx.namedtuple("NtGoeaResults", " ".join(fldnames))
         # Loop through GOEA results stored in a GOEnrichmentRecord object
         for goerec in results:
-            row = []
-            # Loop through each user field desired
-            for fld in fldnames:
-                # 1. Check the GOEnrichmentRecord's attributes
-                val = getattr(goerec, fld, None)
-                if val is not None:
-                    if rpt_fmt:
-                        val = self._get_rpt_fmt(fld, val)
-                    row.append(val)
-                else:
-                    # 2. Check the GO object for the field
-                    val = getattr(goerec.goterm, fld, None)
-                    if val is not None:
-                        row.append(val)
-                    else:
-                        # 3. Field not found, raise Exception
-                        chk = self._err_fld(goerec, fld, fldnames, row) 
-            nt = NtGoeaResults._make(row)
+            vals = goerec.get_field_values(fldnames, rpt_fmt)
+            nt = NtGoeaResults._make(vals)
             if keep_if is None or keep_if(nt):
                 data_nts.append(nt)
         return data_nts
 
-    @staticmethod
-    def _get_rpt_fmt(fld, val):
-        """Return values in a format amenable to printing in a table."""
-        if fld.startswith("ratio_"):
-            return "{N}/{TOT}".format(N=val[0], TOT=val[1])
-        elif fld == 'study_items':
-            return ", ".join(val)
-        return val
-
-    def _err_fld(self, goerec, fld, fldnames, row):
-        """Unrecognized field. Print detailed Failure message."""
-        msg = ['ERROR. UNRECOGNIZED FIELD({F})'.format(F=fld)]
-        actual_flds = set(goerec.get_prtflds_default() + goerec.goterm.__dict__.keys())
-        bad_flds = set(fldnames).difference(set(actual_flds))
-        if bad_flds:
-            msg.append("\nGOEA RESULT FIELDS: {}".format(" ".join(goerec._fldsdefprt)))
-            msg.append("GO FIELDS: {}".format(" ".join(goerec.goterm.__dict__.keys())))
-            msg.append("\nFATAL: {N} UNEXPECTED FIELDS({F})\n".format(N=len(bad_flds), F=" ".join(bad_flds)))
-            msg.append("  {N} User-provided fields:".format(N=len(fldnames)))
-            for idx, fld in enumerate(fldnames, 1):
-              mrk = "ERROR -->" if fld in bad_flds else ""
-              msg.append("  {M:>9} {I:>2}) {F}".format(M=mrk, I=idx, F=fld))
-        raise Exception("\n".join(msg))
-  
     @staticmethod
     def get_prtflds_default(results):
         """Get default fields names. Used in printing GOEA results.

@@ -51,20 +51,28 @@ def read_associations(assoc_fn, no_top=False):
 
 def get_assoc_ncbi_taxids(taxids, force_dnld=False, **kws):
     """Download NCBI's gene2go. Return annotations for user-specified taxid(s)."""
-    # Written by DV Klopfenstein, Jan 2016
+    # Written by DV Klopfenstein
+    fin = "gene2go"
+    dnld_ncbi_gene_file(fin, force_dnld)
+    return read_ncbi_gene2go(fin, taxids, **kws)
+
+def dnld_ncbi_gene_file(fin, force_dnld=False):
+    """Download a file from NCBI Gene's ftp server."""
+    # Written by DV Klopfenstein
     import wget
-    if not os.path.exists("gene2go") or force_dnld:
-        wget.download("ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz")
-        os.system("gunzip gene2go.gz")
-    return read_ncbi_gene2go("gene2go", taxids, **kws)
+    if not os.path.exists(fin) or force_dnld:
+        fin_ftp = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{F}.gz".format(F=fin)
+        wget.download(fin_ftp)
+        os.system("gunzip {F}.gz".format(F=fin))
 
 def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
-    # Written by DV Klopfenstein, Jan 2016
+    # Written by DV Klopfenstein
     # kws: taxid2asscs evidence_set
     # Simple associations 
     id2gos = defaultdict(set)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
+    # e.g., taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set))
     taxid2asscs = kws['taxid2asscs'] if 'taxid2asscs' in kws else None
     evs = kws['evidence_set'] if 'evidence_set' in kws else None
     if taxids is None: # Default taxid is Human
@@ -91,7 +99,7 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
 
 def read_gaf(fin_gaf, **kws):
     """Read Gene Association File (GAF). Return data."""
-    # Written by DV Klopfenstein, Feb 2016
+    # Written by DV Klopfenstein
     # kws: taxid2asscs evidence_set
     from goatools.gaf_reader import GafReader
     # Simple associations 

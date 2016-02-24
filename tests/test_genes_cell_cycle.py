@@ -43,13 +43,14 @@ def test_cell_cycle(log=sys.stdout):
         # Add children GOs of cell cycle GOs
         gos_all = srch.add_children_gos(gos)
         log.write('    FOUND {N:>5} GOs:   {F}\n'.format(N=len(gos), F=fout_allgos))
-    prt_genes("cell_cycle_genes.txt", gos_all, srch, log)
-
-def prt_genes(fout_genes, gos_all, srch, log):
-    """Print genes in association related to gos_all."""
-    from genes_NCBI_hsa_All import GeneID2nt
     # Get Entrez GeneIDs for cell cycle GOs
     geneids = srch.get_items(gos_all)
+    prt_genes("cell_cycle_genes.txt", geneids, srch, log)
+    return geneids
+
+def prt_genes(fout_genes, geneids, srch, log):
+    """Print genes."""
+    from genes_NCBI_hsa_All import GeneID2nt
     # Print genes related to cell cycle
     fmtstr = "{GeneID:>9} {Symbol:>16} {description}\n"
     nts = [GeneID2nt[geneid] for geneid in sorted(geneids) if geneid in GeneID2nt]
