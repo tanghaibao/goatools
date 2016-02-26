@@ -184,7 +184,9 @@ class GOEnrichmentStudy(object):
 
     def __init__(self, pop, assoc, obo_dag, propagate_counts=True,
                  alpha=.05,
-                 methods=["bonferroni", "sidak", "holm"]):
+                 methods=["bonferroni", "sidak", "holm"],
+                 **kws):
+        self.log = kws['log'] if 'log' in kws else sys.stdout
         self._run_multitest = {
             'local':lambda iargs: self._run_multitest_local(iargs),
             'statsmodels':lambda iargs: self._run_multitest_statsmodels(iargs)}
@@ -214,12 +216,20 @@ class GOEnrichmentStudy(object):
             # get go term for name and level
             rec.set_goterm(self.obo_dag)
 
+        # 'keep_if' can be used to keep only significant GO terms. Example:
+        # >>> keep_if = lambda nt: nt.p_fdr_bh < 0.05 # if results are significant
+        # >>> goea_results = goeaobj.run_study(geneids_study, keep_if=keep_if)
         if 'keep_if' in kws:
             keep_if = kws['keep_if']
             results = [r for r in results if keep_if(r)]
 
         # Default sort order: 1st sort by BP, MF, CC. 2nd sort by pval
         results.sort(key=lambda r: [r.NS, r.p_uncorrected])
+
+        if self.log is not None:
+            study_items = self.get_study_items(results)
+            self.log.write("{M} GO terms are associated with {N} study items\n".format(
+                N=len(study_items), M=len(results)))
 
         return results # list of GOEnrichmentRecord objects
 
@@ -304,31 +314,41 @@ class GOEnrichmentStudy(object):
             rec.set_corrected_pval(ntmt.nt_method, val)
 
     # Methods for writing results into tables: text, tab-separated, Excel spreadsheets
-    def prt_txt(self, prt, results_nt, prtfmt, **kws):
+    def wr_txt(self, fout_txt, goea_results, prtfmt=None, **kws):
+        """Print GOEA results to text file."""
+        with open(fout_txt, 'w') as prt:
+            data_nts = self.prt_txt(prt, goea_results, prtfmt, **kws)
+            self.log.write("  {N:>5} items WROTE: {F}\n".format(
+                N=len(data_nts), F=fout_txt))
+
+    def prt_txt(self, prt, goea_results, prtfmt=None, **kws):
         """Print GOEA results in text format."""
+        if prtfmt is None:
+            prtfmt = "{GO} {NS} {p_uncorrected:5.2e} {study_count:>5} {name}\n"
         prtfmt = self.adjust_prtfmt(prtfmt)
         prt_flds = RPT.get_fmtflds(prtfmt)
-        data_nts = self.get_nts(results_nt, prt_flds, rpt_fmt=True, **kws)
+        data_nts = self.get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
         RPT.prt_txt(prt, data_nts, prtfmt, prt_flds, **kws)
+        return data_nts
 
-    def wr_xlsx(self, fout_xlsx, results_nt, **kws):
+    def wr_xlsx(self, fout_xlsx, goea_results, **kws):
         """Write a xlsx file."""
-        prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(results_nt)
-        xlsx_data = self.get_nts(results_nt, prt_flds, rpt_fmt=True, **kws)
+        prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(goea_results)
+        xlsx_data = self.get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
         if 'fld2col_widths' not in kws:
             kws['fld2col_widths'] = {f:self.default_fld2col_widths.get(f, 8) for f in prt_flds}
         RPT.wr_xlsx(fout_xlsx, xlsx_data, **kws)
 
-    def wr_tsv(self, fout_tsv, results_nt, **kws):
+    def wr_tsv(self, fout_tsv, goea_results, **kws):
         """Write tab-separated table data to file"""
-        prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(results_nt)
-        tsv_data = self.get_nts(results_nt, prt_flds, rpt_fmt=True, **kws)
+        prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(goea_results)
+        tsv_data = self.get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
         RPT.wr_tsv(fout_tsv, tsv_data, prt_flds, **kws)
 
-    def prt_tsv(self, prt, results_nt, **kws):
+    def prt_tsv(self, prt, goea_results, **kws):
         """Write tab-separated table data"""
-        prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(results_nt)
-        tsv_data = self.get_nts(results_nt, prt_flds, rpt_fmt=True, **kws)
+        prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(goea_results)
+        tsv_data = self.get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
         RPT.prt_tsv(prt, tsv_data, prt_flds, **kws)
 
     def adjust_prtfmt(self, prtfmt):
@@ -345,7 +365,7 @@ class GOEnrichmentStudy(object):
            NS2nts[nt.NS].append(nt)
        return NS2nts
 
-    def plot(self, png_pat, goea_results, **kws):
+    def plot_results(self, png_pat, goea_results, **kws):
         # Get flattened GOEA results, split by NS, whose alpha is < 0.05
         NS2nts = self.get_NS2nts(goea_results, **kws)
         # Plot results, split by BP, MF, CC
