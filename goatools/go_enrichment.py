@@ -21,7 +21,6 @@ import collections as cx
 from .multiple_testing import Methods, Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
 from .ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
-from goatools.godag_obosm import get_godag
 from goatools.godag_plot import GODagSmallPlot
 
 
@@ -63,8 +62,14 @@ class GOEnrichmentRecord(object):
         self._init_enrichment()
         self.goterm = None  # the reference to the GOTerm
 
-    #def set_corrected_pval(self, method_str, method, pvalue):
+    def get_pvalue(self):
+        """Returns pval for 1st method, if it exists. Else returns uncorrected pval."""
+        if self._methods:
+            return getattr(self, "p_{m}".format(m=self._methods[0].fieldname))
+        return getattr(self, "p_uncorrected")
+
     def set_corrected_pval(self, nt_method, pvalue):
+        """Add object attribute based on method name."""
         self._methods.append(nt_method)
         fieldname = "".join(["p_", nt_method.fieldname])
         setattr(self, fieldname, pvalue)
@@ -364,26 +369,6 @@ class GOEnrichmentStudy(object):
        for nt in nts:
            NS2nts[nt.NS].append(nt)
        return NS2nts
-
-    def plot_results(self, png_pat, goea_results, **kws):
-        # Get flattened GOEA results, split by NS, whose alpha is < 0.05
-        NS2nts = self.get_NS2nts(goea_results, **kws)
-        # Plot results, split by BP, MF, CC
-        fmtstr = "{GO} L{level:>02} D{depth:>02}\n{name}\n{study_count} genes"
-        for NS, nts in NS2nts.items():
-            #print nts[0]._fields
-            # Create subset DAG containing only GOs to be plotted
-            goids = [nt.GO for nt in nts]
-            godagsmall = get_godag(goids, self.obo_dag)
-            # Create Plot
-            png = png_pat.format(NS=NS)
-            go2nt = {nt.id:nt for nt in NS2nts[NS]}
-            godagplot = GODagSmallPlot(
-                godagsmall, 
-                go2nt = go2nt, 
-                alpha_str = 'p_fdr_bh',
-                fmtstr = fmtstr)
-            godagplot.plt_pydot(png)
 
     def get_study_items(self, results):
         """Get all study items (e.g., geneids)."""

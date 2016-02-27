@@ -10,6 +10,7 @@ class GODagSmall(object):
 
     def __init__(self):
         # Sub-graph of input DAG. User has option of using a subset of children/parents
+        self.go_sources = None
         self.go2obj = {}
         self.p_from_cs = defaultdict(set) # GO ids for child->parents
         self.c_from_ps = defaultdict(set) # GO ids for parent->children

@@ -4,11 +4,46 @@ __copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang, All rights reserve
 __author__ = "DV Klopfenstein"
 
 import sys 
+import collections as cx
 from collections import OrderedDict
 from goatools.wr_tbl import get_fmtflds
+from goatools.godag_obosm import OboToGoDagSmall
 
-class GODagSmallPlot(object):
-    """Plot a GODagSmall."""
+def plot_gos(fout_png, goids, obo_dag, *args, **kws):
+    """Given GO ids and the obo_dag, create a plot of paths from GO ids."""
+    engine = kws['engine'] if 'engine' in kws else 'pydot'
+    godagsmall = OboToGoDagSmall(goids=goids, obodag=obo_dag).godag
+    godagplot = GODagSmallPlot(godagsmall, *args, **kws)
+    godagplot.plt(fout_png, engine)
+
+def plot_goid2goobj(fout_png, goid2goobj, *args, **kws):
+    """Given a dict containing GO id and its goobj, create a plot of paths from GO ids."""
+    engine = kws['engine'] if 'engine' in kws else 'pydot'
+    godagsmall = OboToGoDagSmall(goid2goobj=goid2goobj).godag
+    godagplot = GODagSmallPlot(godagsmall, *args, **kws)
+    godagplot.plt(fout_png, engine)
+
+def plot_results(fout_png, goea_results, *args, **kws):
+    """Given a list og GOEA results, plot result GOs up to top."""
+    if "{NS}" not in fout_png:
+        plt_goea_results(fout_png, goea_results, *args, **kws)
+    else:
+        # Plot separately by NS: BP, MF, CC
+        ns2goea_results = cx.defaultdict(list)
+        for rec in goea_results:
+            ns2goea_results[rec.NS].append(rec)
+        for ns, ns_res in ns2goea_results.items():
+            png = fout_png.format(NS=ns)
+            plt_goea_results(png, ns_res, *args, **kws)
+
+def plt_goea_results(fout_png, goea_results, *args, **kws):
+    """Plot a single page."""
+    engine = kws['engine'] if 'engine' in kws else 'pydot'
+    godagsmall = OboToGoDagSmall(goea_results=goea_results).godag
+    godagplot = GODagSmallPlot(godagsmall, *args, goea_results=goea_results, **kws)
+    godagplot.plt(fout_png, engine)
+
+class GODagPltVars(object):
 
     # http://www.graphviz.org/doc/info/colors.html
     rel2col = {
@@ -23,35 +58,94 @@ class GODagSmallPlot(object):
     }
 
     alpha2col = OrderedDict([
-        (0.005, 'Yellow4'),
-        (0.01,  'Yellow3'),
-        (0.05,  'Yellow2'),
+        (0.005, 'mistyrose'),
+        (0.01,  'moccasin'),
+        (0.05,  'lemonchiffon1'),
     ])
 
-    fmtstr = "{GO} L{level:>02} D{depth:>02}\n{name}"
+    key2col = {
+        'level_01': 'lightcyan',
+        'go_sources': 'palegreen',
+    }
 
-    def __init__(self, godagsmall, **kws):
-        # init fmtstr_usr
-        self.fmtstr_usr = None
-        self.fmtfld_usr = None
-        self._init_fmtstr_usr(**kws)
-        #
+    fmthdr = "{GO} L{level:>02} D{depth:>02}"
+    fmtres = "{study_count} genes"
+    # study items per line on GO Terms:
+    items_p_line = 5 
+
+
+class GODagSmallPlot(object):
+    """Plot a GODagSmall."""
+
+    def __init__(self, godagsmall, *args, **kws):
+        self.args = args
         self.log = kws['log'] if 'log' in kws else sys.stdout
-        self.go2nt = kws['go2nt'] if 'go2nt' in kws else None
+        self.go2res = self._init_go2res(**kws)
+        self.id2symbol = kws['id2symbol'] if 'id2symbol' in kws else {}
+        self.study_items = kws['study_items'] if 'study_items' in kws else None
+        self.study_items_max = self._init_study_items_max()
         self.alpha_str = kws['alpha_str'] if 'alpha_str' in kws else None
+        self.pltvars = kws['GODagPltVars'] if 'GODagPltVars' in kws else GODagPltVars()
+        if 'items_p_line' in kws:
+            self.pltvars.items_p_line = kws['items_p_line']
+        self.dpi = kws['dpi'] if 'dpi' in kws else 150
         self.godag = godagsmall
-        self.dpi = 150
+        self.goid2color = self._init_goid2color()
         self.pydot = None
 
-    def _init_fmtstr_usr(self, **kws):
-        if 'fmtstr' in kws:
-            self.fmtstr_usr = kws['fmtstr']
-            self.fmtfld_usr = get_fmtflds(self.fmtstr_usr)
+    def _init_study_items_max(self):
+        """User can limit the number of genes printed in a GO term."""
+        if self.study_items is None:
+            return None
+        if self.study_items is True:
+            return None
+        if isinstance(self.study_items, int):
+            return self.study_items
         return None
+
+    def _init_go2res(self, **kws):
+        if 'goea_results' in kws:
+            return {res.GO:res for res in kws['goea_results']}
+
+    def _init_goid2color(self):
+        """Set colors of GO terms."""
+        goid2color = {}
+        # 1. colors based on p-value override colors based on source GO
+        alpha2col = self.pltvars.alpha2col
+        if self.go2res is not None:
+            for res in self.go2res.values():
+                pval = res.get_pvalue()
+                for alpha, color in alpha2col.items():
+                    if pval < alpha:
+                        goid = getattr(res, 'GO')
+                        if goid not in goid2color:
+                            goid2color[goid] = color
+        # 2. GO source color
+        color = self.pltvars.key2col['go_sources']
+        for goid in self.godag.go_sources:
+            if goid not in goid2color:
+                goid2color[goid] = color
+        # 3. Level-01 GO color
+        color = self.pltvars.key2col['level_01']
+        for goid, goobj in self.godag.go2obj.items():
+            if goobj.level == 1: 
+                if goid not in goid2color:
+                    goid2color[goid] = color
+        return goid2color
+
+    def plt(self, fout_png, engine="pydot"):
+        """Plot using pydot, graphviz, or GML."""
+        if engine == "pydot":
+            self.plt_pydot(fout_png)
+        elif engine == "pygraphviz":
+            raise Exception("TO BE IMPLEMENTED SOON: ENGINE pygraphvis")
+        else:
+            raise Exception("UNKNOWN ENGINE({E})".format(E=engine))
 
     # ----------------------------------------------------------------------------------
     # pydot
     def plt_pydot(self, fout_png):
+        """Plot using the pydot graphics engine."""
         dag = self.get_pydot_graph()
         dag.write_png(fout_png)
         self.log.write("  WROTE: {F}\n".format(F=fout_png))
@@ -67,10 +161,11 @@ class GODagSmallPlot(object):
         for node in go2node.values():
             dag.add_node(node)
         # Add edges to graph
+        rel2col = self.pltvars.rel2col
         for src, tgt in self.godag.get_edges():
             dag.add_edge(pydot.Edge(go2node[tgt], go2node[src],
                 shape = "normal",
-                color = self.rel2col[rel],
+                color = rel2col[rel],
                 dir = "back")) # invert arrow direction for obo dag convention
         return dag
 
@@ -79,39 +174,15 @@ class GODagSmallPlot(object):
         go2node = {}
         for goid, goobj in self.godag.go2obj.items():
             txt = self.get_node_text(goid, goobj)
-            fillcolor, colorscheme = self._get_fillcolor(goid)
+            fillcolor = self.goid2color.get(goid, "white")
             node = self.pydot.Node(
                 txt,
                 shape = "box",
                 style = "rounded, filled",
                 fillcolor = fillcolor,
-                #colorscheme = colorscheme,
                 color = "mediumseagreen")
             go2node[goid] = node
         return go2node
-
-    def _get_fillcolor(self, goid):
-        # fillcolor default
-        fillcolor = "white"
-        colorscheme = None
-        # fillcolor based on pvalue
-        if self.alpha_str is not None and self.go2nt is not None and goid in self.go2nt:
-            nt = self.go2nt[goid]
-            pval = getattr(nt, self.alpha_str, None)
-            if pval is not None:
-                for alpha, color in self.alpha2col.items():
-                    if pval < alpha:
-                        return color, colorscheme
-        return fillcolor, colorscheme
-
-    def get_node_text(self, goid, goobj):
-        #if self.fmtfld_usr is not None and self.go2nt is not None and goid in self.go2nt:
-        txt = self.fmtstr.format(
-            GO = goobj.id.replace("GO:", ""),
-            level = goobj.level,
-            depth = goobj.depth,
-            name = goobj.name)
-        return txt.replace(",", "\n")
 
     def get_pydot(self):
         """Return pydot package. Load pydot, if necessary."""
@@ -119,5 +190,67 @@ class GODagSmallPlot(object):
             return self.pydot
         self.pydot = __import__("pydot")
         return self.pydot
+
+    # ----------------------------------------------------------------------------------
+    # Methods for text printed inside GO terms
+    def get_node_text(self, goid, goobj):
+        """Return a string to be printed in a GO term box."""
+        txt = []
+        # Header line: "GO:0036464 L04 D06"
+        txt.append(self.pltvars.fmthdr.format(
+            GO = goobj.id.replace("GO:", "GO"),
+            level = goobj.level,
+            depth = goobj.depth))
+        # GO name line: "cytoplamic ribonucleoprotein"
+        name = goobj.name.replace(",", "\n")
+        txt.append(name)
+        # study info line: "24 genes"
+        study_txt = self.get_study_txt(goid)
+        if study_txt is not None:
+            txt.append(study_txt)
+        # return text string
+        return "\n".join(txt)
+
+    def get_study_txt(self, goid):
+        """Get GO text from GOEA study."""
+        if self.go2res is not None:
+            res = self.go2res.get(goid, None)
+            if res is not None:
+                if self.study_items is not None:
+                    return self.get_item_str(res)
+                else:
+                    return self.pltvars.fmtres.format(
+                        study_count = res.study_count)
+
+    def get_item_str(self, res):
+        """Return genes in any of these formats:
+              1. 19264, 17319, 12520, 12043, 74131, 22163, 12575
+              2. Ptprc, Mif, Cd81, Bcl2, Sash3, Tnfrsf4, Cdkn1a
+              3. 7: Ptprc, Mif, Cd81, Bcl2, Sash3...
+        """
+        N = self.pltvars.items_p_line
+        prt_items = sorted([self.get_genestr(itemid) for itemid in res.study_items])
+        prt_multiline = [prt_items[i:i+N] for i in range(0, len(prt_items), N)]
+        if self.study_items_max is None:
+            return "\n".join([", ".join(str(e) for e in sublist) for sublist in prt_multiline])
+        else:
+            num_items = len(prt_items)
+            if num_items <= self.study_items_max:
+                return "\n".join([", ".join(str(e) for e in sublist) for sublist in prt_multiline])
+            else:
+                short_list = prt_items[:self.study_items_max]
+                short_mult = [short_list[i:i+N] for i in range(0, len(short_list), N)]
+                short_str = "\n".join([", ".join(str(e) for e in sublist) for sublist in short_mult])
+                return "".join(["{N} genes; ".format(N=num_items), short_str, "..."])
+
+    def get_genestr(self, itemid):
+        """Given a geneid, return the string geneid or a gene symbol."""
+        if self.id2symbol is not None:
+            symbol = self.id2symbol.get(itemid, None)
+            if symbol is not None:
+                return symbol
+        if isinstance(itemid, int):
+            return str(itemid)
+        return itemid
 
 # Copyright (C) 2016, DV Klopfenstein, H Tang, All rights reserved.

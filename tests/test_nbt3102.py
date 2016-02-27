@@ -35,6 +35,7 @@ from PyBiocode.dnld.NCBI.genes_NCBI_mus_ProteinCoding import GeneID2nt as GeneID
 from goatools.obo_parser import GODag
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.associations import get_assoc_ncbi_taxids
+from goatools.godag_plot import plot_gos, plot_results, plot_goid2goobj
 
 __copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
@@ -45,7 +46,7 @@ def test_example(log=sys.stdout):
     taxid = 10090
     # Load ontologies, associations, and population ids
     geneids_pop = GeneID2nt_mus.keys()
-    geneids_study = get_geneids("nbt.3102-S4_GeneIDs.xlsx", log)
+    geneids_study = get_geneid2symbol("nbt.3102-S4_GeneIDs.xlsx", log)
     goeaobj = get_goeaobj("fdr_bh", geneids_pop, taxid)
     # Run GOEA on study
     keep_if = lambda nt: nt.p_fdr_bh < 0.05 # keep if results are significant
@@ -55,13 +56,35 @@ def test_example(log=sys.stdout):
     goeaobj.wr_xlsx("nbt3102.xlsx", goea_results)
     goeaobj.wr_txt("nbt3102.txt", goea_results)
     # Plot significant GO terms w/annotated study info
-    goeaobj.plot_results("nbt3102_{NS}.png", goea_results)
-    go_subset = [
+    # with a variety of different plot options.
+    plot_results("nbt3102_{NS}.png", goea_results)
+    plot_results("nbt3102_{NS}_sym.png", goea_results, study_items=5, items_p_line=2, id2symbol=geneids_study)
+    goid_subset = [
         'GO:0006096', # BP 4.24e-12 10 glycolytic process
         'GO:0071353', # BP 7.45e-06  5 cellular response to interleukin-4
         'GO:0030890', # BP 8.22e-07  7 positive regulation of B cell proliferation
     ]
-    #goeaobj.plot_GOs("nbt3102_{NS}.png", go_subset, goea_results=goea_results)
+    obo = goeaobj.obo_dag
+    plot_gos("nbt3102_GOs.png", goid_subset, obo)
+    plot_gos("nbt3102_GOs_genecnt.png", goid_subset, obo, goea_results=goea_results)
+    plot_gos("nbt3102_GOs_genelst.png", goid_subset, obo, 
+        study_items=True, goea_results=goea_results)
+    plot_gos("nbt3102_GOs_symlst.png", goid_subset, obo, 
+        study_items=True, id2symbol=geneids_study, goea_results=goea_results)
+    plot_gos("nbt3102_GOs_symlst_small.png", goid_subset, obo, 
+        study_items=5, id2symbol=geneids_study, goea_results=goea_results)
+    plot_gos("nbt3102_GOs_GO0005743.png", ["GO:0005743"], obo, 
+        items_p_line=2, study_items=6, 
+        id2symbol=geneids_study, goea_results=goea_results)
+    # One GO sub-plot per significant GO term from study
+    for rec in goea_results:
+        png = "nbt3102_{GO}.png".format(GO=rec.GO)
+        goid2obo = {rec.GO:rec.goterm}
+        plot_goid2goobj(png,
+            goid2obo, # source GOs and their GOTerm object
+            study_items=15, # Max number of gene symbols to print in each GO term
+            id2symbol=geneids_study, # Contains GeneID-to-Symbol
+            goea_results=goea_results) # pvals used for GO Term coloring
     # Are any significant geneids related to cell cycle?
     import test_genes_cell_cycle as CC
     genes_cell_cycle = CC.get_genes_cell_cycle(taxid, log=None)
@@ -85,24 +108,18 @@ def get_goeaobj(method, geneids_pop, taxid):
         methods = [method])
     return goeaobj
 
-def get_geneids(fin_xlsx, log):
-    """Return Entrez GeneIDs for Nature gene list."""
-    sym_gis_pval_lst = get_tbl_data(fin_xlsx, log)
-    # All Entrez GeneIDs
-    geneids_all = [g for s, g, p in sym_gis_pval_lst if g]
-    # Keep protein-coding Entrez GeneIDs
-    return set(geneids_all).intersection(set(GeneID2nt_mus.keys()))
-
-def get_tbl_data(fin_xlsx, log):
+def get_geneid2symbol(fin_xlsx, log):
     """Read xlsx file."""
+    gene2symbol = {}
     data_dir = os.path.dirname(os.path.abspath(__file__)) + "/data/nbt_3102"
     tbl_genes = "{DIR}/{FIN}".format(DIR=data_dir, FIN=fin_xlsx)
     book = xlrd.open_workbook(tbl_genes)
     pg = book.sheet_by_index(0)
-    gene_pval_lst = [[pg.cell_value(r, c) for c in range(pg.ncols)] for r in range(pg.nrows)]
-    log.write("  READ: {N:>3} items {FIN}\n".format(FIN=fin_xlsx, N=len(gene_pval_lst)))
-    return gene_pval_lst
-    #tbl_gos= "{DIR}/nbt.3102-S6.xlsx".format(DIR=data_dir)
+    for r in range(pg.nrows):
+        symbol, geneid, pval = [pg.cell_value(r, c) for c in range(pg.ncols)]
+        if geneid:
+            gene2symbol[int(geneid)] = symbol
+    return gene2symbol
     
 if __name__ == '__main__':
     test_example()
