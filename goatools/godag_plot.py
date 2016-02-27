@@ -24,7 +24,7 @@ def plot_goid2goobj(fout_png, goid2goobj, *args, **kws):
     godagplot.plt(fout_png, engine)
 
 def plot_results(fout_png, goea_results, *args, **kws):
-    """Given a list og GOEA results, plot result GOs up to top."""
+    """Given a list of GOEA results, plot result GOs up to top."""
     if "{NS}" not in fout_png:
         plt_goea_results(fout_png, goea_results, *args, **kws)
     else:
