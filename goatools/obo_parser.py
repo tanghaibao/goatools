@@ -31,6 +31,8 @@ class OBOReader(object):
     def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
         """Read obo file. Load dictionary."""
         self._init_optional_attrs(optional_attrs)
+        self.format_version = None
+        self.data_version = None
         # True if obo file exists or if a link to an obo file exists.
         if os.path.isfile(obo_file):
             self.obo_file = obo_file
@@ -48,6 +50,8 @@ class OBOReader(object):
             rec_curr = None # Stores current GO Term
             for lnum, line in enumerate(fstream):
                 # obo lines start with any of: [Term], [Typedef], /^\S+:/, or /^\s*/
+                if self.data_version is None:
+                    self._init_obo_version(line)
                 if line[0:6] == "[Term]":
                     rec_curr = self._init_goterm_ref(rec_curr, "Term", lnum)
                 elif line[0:9] == "[Typedef]":
@@ -65,6 +69,13 @@ class OBOReader(object):
             # Return last record, if necessary
             if rec_curr is not None:
                 yield rec_curr
+
+    def _init_obo_version(self, line):
+        """Save obo version and release."""
+        if line[0:14] == "format-version":
+            self.format_version = line[16:-1]
+        if line[0:12] == "data-version":
+            self.data_version = line[14:-1]
 
     def _init_goterm_ref(self, rec_curr, name, lnum):
         """Initialize new reference and perform checks."""
@@ -283,16 +294,19 @@ class GOTerm:
 class GODag(dict):
 
     def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
-
         self.load_obo_file(obo_file, optional_attrs)
 
     def load_obo_file(self, obo_file, optional_attrs):
 
         print("load obo file %s" % obo_file, file=sys.stderr)
-        for rec in OBOReader(obo_file, optional_attrs):
+        reader = OBOReader(obo_file, optional_attrs)
+        for rec in reader:
             self[rec.id] = rec
             for alt in rec.alt_ids:
                 self[alt] = rec
+
+        print("{OBO}: format-version({FMT}) data-version({REL})".format(
+            OBO=obo_file, FMT=reader.format_version, REL=reader.data_version))
 
         self.populate_terms()
         print(len(self), "nodes imported", file=sys.stderr)
