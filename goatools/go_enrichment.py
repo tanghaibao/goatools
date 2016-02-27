@@ -205,7 +205,7 @@ class GOEnrichmentStudy(object):
         if propagate_counts:
             print >> sys.stderr, "Propagating term counts to parents .."
             obo_dag.update_association(assoc)
-        self.go2popitems = get_terms(pop, assoc, obo_dag)
+        self.go2popitems = get_terms("population", pop, assoc, obo_dag, self.log)
 
     def run_study(self, study, **kws):
         """Run Gene Ontology Enrichment Study (GOEA) on study ids."""
@@ -233,8 +233,9 @@ class GOEnrichmentStudy(object):
 
         if self.log is not None:
             study_items = self.get_study_items(results)
-            self.log.write("{M} GO terms are associated with {N} study items\n".format(
-                N=len(study_items), M=len(results)))
+            msg = "{M:,} GO terms are associated with {N:,} of {NT:,} study items in a population of {P:,}\n"
+            self.log.write(msg.format(
+                N=len(study_items), NT=len(study), M=len(results), P=len(self.pop)))
 
         return results # list of GOEnrichmentRecord objects
 
@@ -242,7 +243,7 @@ class GOEnrichmentStudy(object):
         """Calculate the uncorrected pvalues for study items."""
         log.write("Calculating uncorrected p-values using Fisher's exact test\n")
         results = []
-        go2studyitems = get_terms(study, self.assoc, self.obo_dag)
+        go2studyitems = get_terms("study", study, self.assoc, self.obo_dag, log)
         pop_n, study_n = self.pop_n, len(study)
         allterms = set(go2studyitems.keys() + self.go2popitems.keys())
 
@@ -251,8 +252,8 @@ class GOEnrichmentStudy(object):
             study_count = len(study_items)
             pop_items = self.go2popitems.get(term, set())
             pop_count = len(pop_items)
-            p = fisher.pvalue_population(study_count, study_n,
-                                         pop_count, pop_n)
+            p = fisher.pvalue_population(study_count, study_n-study_count,
+                                         pop_count, pop_n-pop_count)
 
             one_record = GOEnrichmentRecord(
                 GO=term,

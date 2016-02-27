@@ -18,15 +18,17 @@ def count_terms(geneset, assoc, obo_dag):
 
     return term_cnt
 
-def get_terms(geneset, assoc, obo_dag):
+def get_terms(desc, geneset, assoc, obo_dag, log):
     """Get the terms in the study group
     """
     term2itemids = defaultdict(set)
-    for gene in (g for g in geneset if g in assoc):
+    genes = [g for g in geneset if g in assoc]
+    for gene in genes:
         for x in assoc[gene]:
             if x in obo_dag:
                 term2itemids[obo_dag[x].id].add(gene)
-
+    log.write("{N:>6,} out of {M:>6,} {DESC} items found in association\n".format(
+        DESC=desc, N=len(genes), M=len(geneset)))
     return term2itemids
 
 def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
