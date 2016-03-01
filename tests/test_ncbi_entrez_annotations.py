@@ -9,8 +9,8 @@ __author__ = "DV Klopfenstein"
 import sys
 from goatools.associations import get_assoc_ncbi_taxids
 from collections import defaultdict
-from genes_NCBI_hsa_ProteinCoding import GeneID2nt as GeneID2nt_hsa
-from genes_NCBI_dme_ProteinCoding import GeneID2nt as GeneID2nt_dme
+from goatools.test_data.genes_NCBI_9606_ProteinCoding import GeneID2nt as GeneID2nt_hsa
+from goatools.test_data.genes_NCBI_7227_ProteinCoding import GeneID2nt as GeneID2nt_dme
 
 def test_ncbi_gene2go(log=sys.stdout):
     """Return GO associations to Entrez GeneIDs. Download if necessary.
