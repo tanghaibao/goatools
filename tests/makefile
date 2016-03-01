@@ -22,6 +22,7 @@ clean:
 	rm -f cell_cycle_*.log cell_cycle_*.txt
 	rm -f *.pyc
 	rm -f gene_association.*
+	rm -f *.png
 
 clobber:
 	@make --no-print-directory clean
