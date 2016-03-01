@@ -8,7 +8,6 @@ from __future__ import print_function
 from __future__ import absolute_import
 import sys
 import random
-import fisher
 import numpy as np
 from .ratio import count_terms
 import collections as cx
@@ -233,6 +232,7 @@ http://www.biomedcentral.com/1471-2105/6/168
 
 def calc_qval(study_n, pop_n,
               pop, assoc, term_pop, obo_dag, T=500):
+    import fisher
     print(("Generate p-value distribution for FDR "
            "based on resampling (this might take a while)"), file=sys.stderr)
     distribution = []
