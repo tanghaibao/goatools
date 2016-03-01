@@ -11,16 +11,20 @@ run_goea:
 	$(PYTHON) test_write_hier.py
 	$(PYTHON) test_ncbi_entrez_annotations.py
 	$(PYTHON) test_annotations_gaf.py
+	$(PYTHON) test_nbt3102.py
 
 run_goea_scripts:
 	cd ..; make goea_all
 
 clean:
+	rm -f nbt3102*.txt nbt3102*.xlsx
 	rm -f goea_*.tsv goea_*.xlsx goea_*.log
-	rm -f cell_cycle_gos.log cell_cycle_genes.txt
-	rm -f genes_NCBI_hsa_All.pyc
+	rm -f cell_cycle_*.log cell_cycle_*.txt
+	rm -f *.pyc
 	rm -f gene_association.*
 
 clobber:
 	@make --no-print-directory clean
 	rm -f go-basic.obo
+	rm -f gene2go
+	rm -f gene2go.gz
