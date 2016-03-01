@@ -3,6 +3,7 @@
 import sys
 import os
 import re
+import wget
 from collections import defaultdict
 from goatools.go_search import GoSearch
 from goatools.associations import get_assoc_ncbi_taxids
@@ -22,7 +23,7 @@ def get_genes_cell_cycle(taxid=9606, log=sys.stdout):
     # Download ontologies and annotations, if necessary
     fin_go_obo = "go-basic.obo"
     if not os.path.exists(fin_go_obo):
-        os.system("wget http://geneontology.org/ontology/go-basic.obo")
+        wget.download("http://geneontology.org/ontology/go-basic.obo")
     # Because get_assoc_ncbi_taxids returns id2gos, we will opt to 
     # use the (optional) multi-level dictionary separate associations by taxid
     # taxid2asscs contains both GO2GeneIDs and GeneID2GOs.
@@ -62,7 +63,8 @@ def prt_genes(fout_genes, geneids, taxid, log):
     # If gene Symbol information is available, print geneid and Symbol
     if os.path.isfile(fin_symbols):
         import importlib
-        module = importlib.import_module(fin_symbols[:-3])
+        module_name = "".join(["goatools.test_data.", fin_symbols[:-3]])
+        module = importlib.import_module(module_name)
         GeneID2nt = module.GeneID2nt
         fmtstr = "{GeneID:>9} {Symbol:<16} {description}\n"
         nts = [GeneID2nt[geneid] for geneid in sorted(geneids) if geneid in GeneID2nt]
