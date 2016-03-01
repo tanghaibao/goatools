@@ -8,6 +8,8 @@ __author__ = "DV Klopfenstein"
 
 import os
 import sys
+import wget
+import gzip
 from collections import defaultdict
 from goatools.associations import read_gaf
 
@@ -38,17 +40,21 @@ def dnld_gafs(species):
     #   http://geneontology.org/gene-associations/gene_association.mgi.gz
     #   http://geneontology.org/gene-associations/gene_association.fb.gz
     fin_gafs = []
-    for fileid in species:
+    for species_txt in species: # e.g., goa_human mgi fb
         gaf_ftp = "http://geneontology.org/gene-associations/gene_association.{S}".format(
-            S = fileid)
-        gaf_loc = "gene_association.{ID}".format(ID=fileid)
-        if not os.path.isfile(gaf_loc):
-            os.system("wget {GAF}.gz".format(GAF=gaf))
-            os.system("gunzip -f {GAF}.gz".format(GAF=gaf_loc))
-        fin_gafs.append(gaf_loc)
+            S=species_txt)
+        gaf_local = "gene_association.{SPECIES}".format(SPECIES=species_txt)
+        if not os.path.isfile(gaf_local):
+            wget.download("{GAF}.gz".format(GAF=gaf_ftp))
+            gaf_gz = "{GAF_LOCAL}.gz".format(GAF_LOCAL=gaf_local)
+            with gzip.open(gaf_gz, 'rb') as zstrm:
+                with  open(gaf_local, 'w') as ostrm:
+                    ostrm.write(zstrm.read())
+            os.remove(gaf_gz)
+        fin_gafs.append(gaf_local)
     return fin_gafs
 
 if __name__ == '__main__':
     test_gaf_read()
 
-# Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved.
