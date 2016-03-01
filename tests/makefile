@@ -12,6 +12,7 @@ run_goea:
 	$(PYTHON) test_ncbi_entrez_annotations.py
 	$(PYTHON) test_annotations_gaf.py
 	$(PYTHON) test_nbt3102.py
+	$(PYTHON) test_write_summary_cnts.py
 
 run_goea_scripts:
 	cd ..; make goea_all

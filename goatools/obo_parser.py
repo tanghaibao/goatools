@@ -365,46 +365,6 @@ class GODag(dict):
         self[GO_id].write_hier_rec(gos_printed, out, len_dash, max_depth, num_child,
             short_prt, include_only, go_marks)
 
-    def write_summary_cnts(self, GO_ids, out=sys.stdout):
-        """Write summary of level and depth counts for specific GO ids."""
-        cnts = GODag.get_cnts_levels_depths_recs([self[GO] for GO in GO_ids])
-        self._write_summary_cnts(cnts, out)
-
-    def write_summary_cnts_all(self, out=sys.stdout):
-        """Write summary of level and depth counts for all active GO Terms."""
-        cnts = self.get_cnts_levels_depths_recs(set(self.values()))
-        self._write_summary_cnts(cnts, out)
-
-    def write_summary_cnts_rec(self, out=sys.stdout):
-        """Write summary of level and depth counts for active GO Terms."""
-        cnts = self.get_cnts_levels_depths_recs(recs)
-        self._write_summary_cnts(cnts, out)
-
-    def _write_summary_cnts(self, cnts, out=sys.stdout):
-        """Write summary of level and depth counts for active GO Terms."""
-        # Added by DV Klopfenstein
-        # Count level(shortest path to root) and depth(longest path to root)
-        # values for all unique GO Terms.
-        max_val = max(max(dep for dep in cnts['depth']),
-                      max(lev for lev in cnts['level']))
-        nss = ['biological_process', 'molecular_function', 'cellular_component']
-        out.write('Dep <-Depth Counts->  <-Level Counts->\n')
-        out.write('Lev   BP    MF    CC    BP    MF    CC\n')
-        out.write('--- ----  ----  ----  ----  ----  ----\n')
-        for i in range(max_val+1):
-            vals = ['{:>5}'.format(cnts[desc][i][ns]) for desc in cnts for ns in nss]
-            out.write('{:>02} {}\n'.format(i, ' '.join(vals)))
-
-    @staticmethod
-    def get_cnts_levels_depths_recs(recs):
-        """Collect counts of levels and depths in a Group of GO Terms."""
-        cnts = cx.defaultdict(lambda: cx.defaultdict(cx.Counter))
-        for rec in recs:
-            if not rec.is_obsolete:
-                cnts['level'][rec.level][rec.namespace] += 1
-                cnts['depth'][rec.depth][rec.namespace] += 1
-        return cnts
-
     @staticmethod
     def id2int(GO_id): return int(GO_id.replace("GO:", "", 1))
 
