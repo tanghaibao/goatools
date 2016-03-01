@@ -7,6 +7,7 @@ __author__ = "various"
 
 from collections import defaultdict
 import os
+import sys
 
 def read_associations(assoc_fn, no_top=False):
     """
@@ -51,19 +52,27 @@ def read_associations(assoc_fn, no_top=False):
 
 def get_assoc_ncbi_taxids(taxids, force_dnld=False, **kws):
     """Download NCBI's gene2go. Return annotations for user-specified taxid(s)."""
-    # Written by DV Klopfenstein
-    fin = "gene2go"
+    fin = kws['gene2go'] if 'gene2go' in kws else os.path.join(os.getcwd(), "gene2go")
     dnld_ncbi_gene_file(fin, force_dnld)
     return read_ncbi_gene2go(fin, taxids, **kws)
 
-def dnld_ncbi_gene_file(fin, force_dnld=False):
+def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout):
     """Download a file from NCBI Gene's ftp server."""
-    # Written by DV Klopfenstein
-    import wget
     if not os.path.exists(fin) or force_dnld:
-        fin_ftp = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{F}.gz".format(F=fin)
+        import wget
+        import gzip
+        fin_dir, fin_base = os.path.split(fin)
+        fin_gz = "{F}.gz".format(F=fin_base)
+        fin_gz = os.path.join(fin_dir, fin_gz)
+        if os.path.exists(fin_gz):
+            os.remove(fin_gz)
+        fin_ftp = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{F}.gz".format(F=fin_base)
         wget.download(fin_ftp)
-        os.system("gunzip {F}.gz".format(F=fin))
+        with gzip.open(fin_gz, 'rb') as zstrm:
+            log.write("\n  READ:  {F}\n".format(F=fin_gz))
+            with open(fin, 'w') as ostrm:
+                ostrm.write(zstrm.read())
+                log.write("  WROTE: {F}\n".format(F=fin))
 
 def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
@@ -75,6 +84,9 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     # e.g., taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set))
     taxid2asscs = kws['taxid2asscs'] if 'taxid2asscs' in kws else None
     evs = kws['evidence_set'] if 'evidence_set' in kws else None
+    # By default, return id2gos. User can cause go2geneids to be returned by:
+    #   >>> read_ncbi_gene2go(..., go2geneids=True
+    b_go2geneids = kws['go2geneids'] if 'go2geneids' in kws else False
     if taxids is None: # Default taxid is Human
         taxids = [9606]
     with open(fin_gene2go) as ifstrm:
@@ -91,7 +103,10 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
                         # Optionaly specify a subset of GOs based on their evidence.
                         if evs is None or Evidence_Code in evs:
                             geneid = int(geneid)
-                            id2gos[geneid].add(go_id)
+                            if b_go2geneids:
+                              id2gos[go_id].add(geneid)
+                            else:
+                              id2gos[geneid].add(go_id)
                             if taxid2asscs is not None:
                                 taxid2asscs[taxid_curr]['GeneID2GOs'][geneid].add(go_id)
                                 taxid2asscs[taxid_curr]['GO2GeneIDs'][go_id].add(geneid)
