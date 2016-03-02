@@ -177,8 +177,27 @@ Where the ``association`` file has the same format as used for
 The implemented algorithm is described in more detail at the go-perl
 documenation of `map2slim <http://search.cpan.org/~cmungall/go-perl/scripts/map2slim>`_.
 
+iPython Notebooks
+-----------------
+
+Run a Gene Ontology Enrichment Analysis (GOEA)
+::::::::::::::::::::::::::::::::::::::::::::::
+https://github.com/tanghaibao/goatools/blob/master/notebook/goea_nbt3102.ipynb
+
+Report level and depth counts of a set of GO terms
+::::::::::::::::::::::::::::::::::::::::::::::::::
+https://github.com/tanghaibao/goatools/blob/master/notebook/report_depth_level.ipynb
+
+Find all human protein-coding genes associated with cell cycle
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+https://github.com/tanghaibao/goatools/blob/master/notebook/cell_cycle.ipynb
+
+Calculate annotation coverage of GO terms on various species
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+https://github.com/tanghaibao/goatools/blob/master/notebook/annotation_coverage.ipynb
+
 
 Reference
-:::::::::
+---------
 Haibao Tang et al. (2015). GOATOOLS: Tools for Gene Ontology. Zenodo.
 `10.5281/zenodo.31628 <http://dx.doi.org/10.5281/zenodo.31628>`_.
