@@ -27,8 +27,8 @@
 
 """
 
-__copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
-__author__ = "various"
+__copyright__ = "Copyright (C) 2015-2016, DV Klopfenstein, H Tang, All rights reserved."
+__author__ = "DV Klopfenstein"
 
 import sys
 import collections as cx
@@ -44,18 +44,18 @@ class RptLevDepth(object):
         """Write summary of level and depth counts for all active GO Terms."""
         cnts = self.get_cnts_levels_depths_recs(set(self.obo.values()))
         self._write_summary_cnts(cnts)
-    
-    def write_summary_cnts(self, GO_ids):
+
+    def write_summary_cnts(self, go_ids):
         """Write summary of level and depth counts for specific GO ids."""
         obo = self.obo
-        cnts = self.get_cnts_levels_depths_recs([obo[GO] for GO in GO_ids])
+        cnts = self.get_cnts_levels_depths_recs([obo[GO] for GO in go_ids])
         self._write_summary_cnts(cnts)
-    
+
     def write_summary_cnts_goobjs(self, goobjs):
         """Write summary of level and depth counts for active GO Terms."""
         cnts = self.get_cnts_levels_depths_recs(goobjs)
         self._write_summary_cnts(cnts)
-    
+
     def _write_summary_cnts(self, cnts):
         """Write summary of level and depth counts for active GO Terms."""
         # Added by DV Klopfenstein
@@ -70,7 +70,7 @@ class RptLevDepth(object):
         for i in range(max_val+1):
             vals = ['{:>5}'.format(cnts[desc][i][ns]) for desc in cnts for ns in nss]
             self.log.write('{:>02} {}\n'.format(i, ' '.join(vals)))
-    
+
     @staticmethod
     def get_cnts_levels_depths_recs(recs):
         """Collect counts of levels and depths in a Group of GO Terms."""
@@ -81,4 +81,4 @@ class RptLevDepth(object):
                 cnts['depth'][rec.depth][rec.namespace] += 1
         return cnts
 
-# Copyright (C) 2010-2016, H Tang et al., All rights reserved.
+# Copyright (C) 2015-2016, DV Klopfenstein, H Tang, All rights reserved."
