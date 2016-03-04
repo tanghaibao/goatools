@@ -101,6 +101,9 @@ if __name__ == "__main__":
     p.add_argument('--method', default="bonferroni,sidak,holm", type=str,
                  help=Methods().getmsg_valid_methods())
 
+    if len(sys.argv) == 1:
+        sys.exit(not p.print_help())
+
     args = p.parse_args()
     check_input_files(args, p)
 
@@ -129,7 +132,7 @@ if __name__ == "__main__":
     assoc = read_associations(assoc_fn)
 
     methods = args.method.split(",")
-  
+
     if args.fdr:
         methods.append("fdr")
 
@@ -144,7 +147,7 @@ if __name__ == "__main__":
         g.print_summary(results, min_ratio=min_ratio, indent=args.indent, pval=args.pval)
     else:
         # Users can print to both tab-separated file and xlsx file in one run.
-        outfiles = args.outfile.split(",") 
+        outfiles = args.outfile.split(",")
         prt_if = None # Print all values
         if args.pval is not None:
             # Only print out when uncorrected p-value < this value.
@@ -154,5 +157,5 @@ if __name__ == "__main__":
                 g.wr_xlsx(outfile, results, prt_if=prt_if)
             else:
                 g.wr_tsv(outfile, results, prt_if=prt_if)
-            
+
 # Copyright (C) 2010-2016, H Tang et al., All rights reserved.
