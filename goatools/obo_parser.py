@@ -374,8 +374,8 @@ class GODag(dict):
             return
 
         rec = self[term]
-        print(rec, file=sys.stderr)
         if verbose:
+            print(rec)
             print("all parents:", rec.get_all_parents(), file=sys.stderr)
             print("all children:", rec.get_all_children(), file=sys.stderr)
         return rec
