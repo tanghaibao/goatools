@@ -13,6 +13,13 @@ The output format is the same as for
     fap7    GO:0016887;GO:0005634;GO:0000462;GO:0004017;GO:0005524;GO:0017111;GO:0005829
     SPCC594.01      GO:0008150;GO:0005575;GO:0003674
 
+Other useful taxon IDs:
+
+ - 9606 Human
+ - 10090 Mouse
+
+Note that sometimes it is necessary to use the strain ID. See: http://geneontology.org/page/download-annotations
+
 TODO: allow use of taxon labels, allow custom filtering
 
 """.format(SCR=__file__)
