@@ -180,23 +180,28 @@ documenation of `map2slim <http://search.cpan.org/~cmungall/go-perl/scripts/map2
 
 Available significance tests
 ::::::::::::::::::::::::::::
-We have implemented several significance tests::
-    "bonferroni", "sidak", "holm", "fdr"
+We have implemented several significance tests:
 
-Additional methods are available if `statsmodels` is installed::
-    'sm_bonferroni',  # 0) bonferroni one-step correction
-    'sm_sidak',       # 1) sidak one-step correction
-    'sm_holm-sidak',  # 2) holm-sidak step-down method using Sidak adjustments
-    'sm_holm',        # 3) holm step-down method using Bonferroni adjustments
-    'simes-hochberg', # 4) simes-hochberg step-up method  (independent)
-    'hommel',         # 5) hommel closed method based on Simes tests (non-negative)
-    'fdr_bh',         # 6) fdr_bh Benjamini/Hochberg  (non-negative)
-    'fdr_by',         # 7) fdr_by Benjamini/Yekutieli (negative)
-    'fdr_tsbh',       # 8) fdr_tsbh two stage fdr correction (non-negative)
-    'fdr_tsbky',      # 9) fdr_tsbky two stage fdr correction (non-negative)
+* ``bonferroni``, bonferroni correction
+* ``sidak``, sidak correction
+* ``holm``, hold correction
+* ``fdr``, false discvery rate (fdr) implementation using resampling
+
+Additional methods are available if `statsmodels` is installed:
+
+* ``sm_bonferroni``, bonferroni one-step correction
+* ``sm_sidak``, sidak one-step correction
+* ``sm_holm-sidak``, holm-sidak step-down method using Sidak adjustments
+* ``sm_holm``, holm step-down method using Bonferroni adjustments
+* ``simes-hochberg``, simes-hochberg step-up method (independent)
+* ``hommel``, hommel closed method based on Simes tests (non-negative)
+* ``fdr_bh``, fdr correction with Benjamini/Hochberg (non-negative)
+* ``fdr_by``, fdr correction with Benjamini/Yekutieli (negative)
+* ``fdr_tsbh``, two stage fdr correction (non-negative)
+* ``fdr_tsbky``, two stage fdr correction (non-negative)
 
 In total 14 tests are availble, which can be selected using option ``--method``.
-Please note that the default FDR procedure uses a resampling strategy which may
+Please note that the default FDR (``fdr``) uses a resampling strategy which may
 lead to slightly different q-values between runs.
 
 
