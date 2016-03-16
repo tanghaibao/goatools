@@ -86,10 +86,6 @@ if __name__ == "__main__":
                  "excluding GO categories with small differences, but "
                  "containing large numbers of genes. should be a value "
                  "between 1 and 2. ")
-    p.add_argument('--fdr', dest='fdr', default=False,
-                 action='store_true',
-                 help="Calculate the false discovery rate (alt. to the "
-                 "Bonferroni but slower)")
     p.add_argument('--indent', dest='indent', default=False,
                  action='store_true', help="indent GO terms")
     p.add_argument('--obo', default="go-basic.obo", type=str,
@@ -132,9 +128,6 @@ if __name__ == "__main__":
     assoc = read_associations(assoc_fn)
 
     methods = args.method.split(",")
-
-    if args.fdr:
-        methods.append("fdr")
 
     obo_dag = GODag(obo_file=args.obo)
     propagate_counts = not args.no_propagate_counts
