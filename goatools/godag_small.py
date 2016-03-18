@@ -20,7 +20,7 @@ class GODagSmall(object):
         return len(self.go2obj)
 
     def get_edges(self):
-        """Get edges."""
+        """Get the directed edges from GO term to GO term."""
         edge_from_to = []
         for parent, children in self.p_from_cs.items():
             for child in children:
