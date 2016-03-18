@@ -48,7 +48,7 @@ $(GOSLIM_OBO_FILE):
 	wget -O $(GOSLIM_OBO_FILE) $(GOSLIM_OBO_DOWNLOAD)
 
 clean:
-	rm -f goea.xlsx goea.tsv GO_lineage.png
+	rm -f goea*.xlsx goea.tsv GO_lineage.png
 	cd tests; make --no-print-directory clean
 
 clobber:
