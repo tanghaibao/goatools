@@ -18,36 +18,39 @@ __author__ = "various"
 class Methods(object):
     """Class to manage multipletest methods from both local and remote sources."""
 
+    # https://github.com/statsmodels/statsmodels/blob/master/statsmodels/stats/multitest.py
     all_methods = [
         ("local", ("bonferroni", "sidak", "holm", "fdr")),
         ("statsmodels", (
-             'bonferroni',     # 0) bonferroni one-step correction
-             'sidak',          # 1) sidak one-step correction
-             'holm-sidak',     # 2) holm-sidak step-down method using Sidak adjustments
-             'holm',           # 3) holm step-down method using Bonferroni adjustments
-             'simes-hochberg', # 4) simes-hochberg step-up method  (independent)
-             'hommel',         # 5) hommel closed method based on Simes tests (non-negative)
-             'fdr_bh',         # 6) fdr_bh Benjamini/Hochberg  (non-negative)
-             'fdr_by',         # 7) fdr_by Benjamini/Yekutieli (negative)
-             'fdr_tsbh',       # 8) fdr_tsbh two stage fdr correction (non-negative)
-             'fdr_tsbky',      # 9) fdr_tsbky two stage fdr correction (non-negative)
+            'bonferroni',     #  0) Bonferroni one-step correction
+            'sidak',          #  1) Sidak one-step correction
+            'holm-sidak',     #  2) Holm-Sidak step-down method using Sidak adjustments
+            'holm',           #  3) Holm step-down method using Bonferroni adjustments
+            'simes-hochberg', #  4) Simes-Hochberg step-up method  (independent)
+            'hommel',         #  5) Hommel closed method based on Simes tests (non-negative)
+            'fdr_bh',         #  6) FDR Benjamini/Hochberg  (non-negative)
+            'fdr_by',         #  7) FDR Benjamini/Yekutieli (negative)
+            'fdr_tsbh',       #  8) FDR 2-stage Benjamini-Hochberg (non-negative)
+            'fdr_tsbky',      #  9) FDR 2-stage Benjamini-Krieger-Yekutieli (non-negative)
+            'fdr_gbs',        # 10) FDR adaptive Gavrilov-Benjamini-Sarkar
             )),
- 
+
     ]
     prefixes = {'statsmodels':'sm_'}
-    NtMethodInfo = cx.namedtuple("NtMethodInfo", "source method fieldname") 
+    NtMethodInfo = cx.namedtuple("NtMethodInfo", "source method fieldname")
 
     def __init__(self, usr_methods=None):
+        self._srcmethod2fieldname = self._init_srcmethod2fieldname()
         self.statsmodels_multicomp = None
         if usr_methods is None:
             usr_methods = ['bonferroni']
         self._init_methods(usr_methods)
 
     def _init_methods(self, usr_methods):
-       """From the methods list, set list of methods to be used during GOEA."""
-       self.methods = []
-       for usr_method in usr_methods:
-           self._add_method(usr_method)
+        """From the methods list, set list of methods to be used during GOEA."""
+        self.methods = []
+        for usr_method in usr_methods:
+            self._add_method(usr_method)
 
     def _add_method(self, method, method_source=None):
         """Determine method source if needed. Add method to list."""
@@ -64,31 +67,41 @@ class Methods(object):
         for method_source, available_methods in self.all_methods:
             if usr_method in available_methods:
                 fieldname = self.get_fldnm_method(usr_method)
-                nt = self.NtMethodInfo(method_source, usr_method, fieldname)
-                self.methods.append(nt)
+                nmtup = self.NtMethodInfo(method_source, usr_method, fieldname)
+                self.methods.append(nmtup)
                 return
         for src, prefix in self.prefixes.items():
-          if usr_method.startswith(prefix):
-              method_source = src
-              method = usr_method[len(prefix):]
-              nt = self.NtMethodInfo(method_source, method, usr_method)
-              self.methods.append(nt)
-              return
+            if usr_method.startswith(prefix):
+                method_source = src
+                method = usr_method[len(prefix):]
+                nmtup = self.NtMethodInfo(method_source, method, usr_method)
+                self.methods.append(nmtup)
+                return
         raise self.rpt_invalid_method(usr_method)
 
     def getmsg_valid_methods(self):
-        """Report the valid methods."""
+        """Return a string containing valid method names."""
         msg = []
         msg.append("    Available methods:")
-        ctr = self._get_method_cnts()
-        for midx, (method_source, methods) in enumerate(self.all_methods):
+        for method_source, methods in self.all_methods:
             msg.append("        {SRC}(".format(SRC=method_source))
+            for method in methods:
+                attrname = self._srcmethod2fieldname[(method_source, method)]
+                msg.append("            {ATTR}".format(ATTR=attrname))
+            msg.append("        )")
+        return "\n".join(msg)
+
+    def _init_srcmethod2fieldname(self):
+        """Return an OrderedDict with key, (method_src, method), and value, attrname."""
+        srcmethod_fieldname = []
+        ctr = self._get_method_cnts()
+        for method_source, methods in self.all_methods:
             for method in methods:
                 prefix = self.prefixes.get(method_source, "")
                 prefix = prefix if ctr[method] != 1 else ""
-                msg.append("            {P}{M}".format(P=prefix, M=method))
-            msg.append("        )")
-        return "\n".join(msg)
+                fieldname = "{P}{M}".format(P=prefix, M=method.replace('-', '_'))
+                srcmethod_fieldname.append(((method_source, method), fieldname))
+        return cx.OrderedDict(srcmethod_fieldname)
 
     def rpt_invalid_method(self, usr_method):
         """Report which methods are available."""
@@ -99,24 +112,19 @@ class Methods(object):
     def _get_method_cnts(self):
         """Count the number of times a method is seen."""
         ctr = cx.Counter()
-        for method_source, methods in self.all_methods:
-            for method in methods:
+        for source_methods in self.all_methods:
+            for method in source_methods[1]:
                 ctr[method] += 1
         return ctr
- 
-    def rpt_valid_methods(self):
-        """Report valid methods."""
-        pass
-            
+
     def _add_method_src(self, method_source, usr_method, fieldname=None):
         """Add method source and method to list of methods."""
-        fieldname = self.get_fieldname(usr_method, method_source)
-        available_methods = self.all_methods.get(method_source, None)
-        if usr_method in available_methods:
-            nt = self.NtMethodInfo(method_source, usr_method, fieldname)
-            self.methods.append(nt)
+        fieldname = self._srcmethod2fieldname.get((method_source, usr_method), None)
+        if fieldname is not None:
+            nmtup = self.NtMethodInfo(method_source, usr_method, fieldname)
+            self.methods.append(nmtup)
         else: raise Exception("ERROR: FIELD({FN}) METHOD_SOURCE({MS}) AND METHOD({M})".format(
-          FN=fieldname, MS=method_source, M=usr_method))
+            FN=fieldname, MS=method_source, M=usr_method))
 
     @staticmethod
     def get_fldnm_method(method):
@@ -136,7 +144,8 @@ class Methods(object):
         return iter(self.methods)
 
 
-class AbstractCorrection(object):
+class _AbstractCorrection(object):
+    """Base class for local multiple test correction calculations."""
 
     def __init__(self, pvals, a=.05):
         self.pvals = self.corrected_pvals = np.array(pvals)
@@ -153,22 +162,24 @@ class AbstractCorrection(object):
         pass
 
 
-class Bonferroni(AbstractCorrection):
+class Bonferroni(_AbstractCorrection):
     """
     >>> Bonferroni([0.01, 0.01, 0.03, 0.05, 0.005], a=0.05).corrected_pvals
     array([ 0.05 ,  0.05 ,  0.15 ,  0.25 ,  0.025])
     """
     def set_correction(self):
+        """Do Bonferroni multiple test correction on original p-values."""
         self.corrected_pvals *= self.n
 
 
-class Sidak(AbstractCorrection):
+class Sidak(_AbstractCorrection):
     """http://en.wikipedia.org/wiki/Bonferroni_correction
     >>> Sidak([0.01, 0.01, 0.03, 0.05, 0.005], a=0.05).corrected_pvals
     array([ 0.04898974,  0.04898974,  0.14696923,  0.24494871,  0.02449487])
     """
 
     def set_correction(self):
+        """Do Sidak multiple test correction on original p-values."""
         if self.n != 0:
             correction = self.a * 1. / (1 - (1 - self.a) ** (1. / self.n))
         else:
@@ -176,7 +187,7 @@ class Sidak(AbstractCorrection):
         self.corrected_pvals *= correction
 
 
-class HolmBonferroni(AbstractCorrection):
+class HolmBonferroni(_AbstractCorrection):
 
     """http://en.wikipedia.org/wiki/Holm-Bonferroni_method
     given a list of pvals, perform the Holm-Bonferroni correction
@@ -186,29 +197,34 @@ class HolmBonferroni(AbstractCorrection):
     array([ 0.04 ,  0.04 ,  0.06 ,  0.05 ,  0.025])
     """
     def set_correction(self):
+        """Do Holm-Bonferroni multiple test correction on original p-values."""
         if len(self.pvals):
-            idxs, correction = list(zip(*self.generate_significant()))
+            idxs, correction = list(zip(*self._generate_significant()))
             idxs = list(idxs)
             self.corrected_pvals[idxs] *= correction
 
-    def generate_significant(self):
+    def _generate_significant(self):
 
         pvals = self.pvals
         pvals_idxs = list(zip(pvals, list(range(len(pvals)))))
         pvals_idxs.sort()
 
-        lp = len(self.pvals)
+        num_pvals = len(self.pvals)
 
         from itertools import groupby
         for pval, idxs in groupby(pvals_idxs, lambda x: x[0]):
             idxs = list(idxs)
             for p, i in idxs:
-                if p * 1. / lp < self.a:
-                    yield (i, lp)
-            lp -= len(idxs)
+                if p * 1. / num_pvals < self.a:
+                    yield (i, num_pvals)
+            num_pvals -= len(idxs)
 
 
 class FDR(object):
+    """
+    Generate a p-value distribution based on re-sampling, as described in:
+    http://www.biomedcentral.com/1471-2105/6/168
+    """
     def __init__(self, p_val_distribution, results, a=.05):
         self.corrected_pvals = fdr = []
         for rec in results:
@@ -217,21 +233,18 @@ class FDR(object):
             fdr.append(q)
 
 def mcorrection_factory(pvals, alpha, method):
-    """Return 'multiple correction' object of requested AbstractCorrection class."""
+    """Return 'multiple correction' object of requested AbstractCorrection base class."""
     correctioncls = globals().get(method, None)
     if correctioncls is not None:
         return correctioncls(pvals, alpha)
-    
 
 
-"""
-Generate a p-value distribution based on re-sampling, as described in:
-http://www.biomedcentral.com/1471-2105/6/168
-"""
+
 
 
 def calc_qval(study_n, pop_n,
               pop, assoc, term_pop, obo_dag, T=500):
+    """Generate p-value distribution for FDR based on resampling."""
     import fisher
     print(("Generate p-value distribution for FDR "
            "based on resampling (this might take a while)"), file=sys.stderr)
@@ -251,7 +264,7 @@ def calc_qval(study_n, pop_n,
                 smallest_p = p.two_tail
 
         distribution.append(smallest_p)
-        if i % 10  == 0:
+        if i % 10 == 0:
             print("Sample {0} / {1}: p-value {2}".\
                         format(i, T, smallest_p), file=sys.stderr)
     return distribution

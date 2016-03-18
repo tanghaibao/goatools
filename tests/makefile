@@ -13,6 +13,7 @@ run_goea:
 	$(PYTHON) test_annotations_gaf.py
 	$(PYTHON) test_nbt3102.py
 	$(PYTHON) test_write_summary_cnts.py
+	$(PYTHON) tests_methodsobj.py
 
 run_goea_scripts:
 	cd ..; make goea_all
