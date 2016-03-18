@@ -1,3 +1,9 @@
 *.png
 *.obo
 gene2go
+gene2go.gz
+*.pyc
+
+# Sphinx working directories
+_static
+_templates
