@@ -73,10 +73,14 @@ terms (e.g. generic GOslim) ::
 
 Dependencies
 -------------
-- `fisher <http://pypi.python.org/pypi/fisher/>`_ module for calculating
+- `fisher <http://pypi.python.org/pypi/fisher/>`_ (required) for calculating
   Fisher's exact test::
 
     easy_install fisher
+
+- `statsmodels` (optional) for access to a variety of statistical tests for GOEA::
+
+    easy_install statsmodels
 
 - To plot the ontology lineage, install one of these two options:
 
@@ -191,7 +195,7 @@ We have implemented several significance tests:
 * ``holm``, hold correction
 * ``fdr``, false discvery rate (fdr) implementation using resampling
 
-Additional methods are available if `statsmodels` is installed:
+Additional methods are available if ``statsmodels`` is installed:
 
 * ``sm_bonferroni``, bonferroni one-step correction
 * ``sm_sidak``, sidak one-step correction
