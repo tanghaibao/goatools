@@ -75,7 +75,7 @@ class GODagPltVars(object):
 
 
 class GODagSmallPlot(object):
-    """Plot a GODagSmall."""
+    """Plot a graph contained in an object of type GODagSmall ."""
 
     def __init__(self, godagsmall, *args, **kws):
         self.args = args
@@ -136,7 +136,7 @@ class GODagSmallPlot(object):
     def plt(self, fout_png, engine="pydot"):
         """Plot using pydot, graphviz, or GML."""
         if engine == "pydot":
-            self.plt_pydot(fout_png)
+            self._plt_pydot(fout_png)
         elif engine == "pygraphviz":
             raise Exception("TO BE IMPLEMENTED SOON: ENGINE pygraphvis")
         else:
@@ -144,19 +144,20 @@ class GODagSmallPlot(object):
 
     # ----------------------------------------------------------------------------------
     # pydot
-    def plt_pydot(self, fout_png):
+    def _plt_pydot(self, fout_png):
         """Plot using the pydot graphics engine."""
-        dag = self.get_pydot_graph()
+        dag = self._get_pydot_graph()
         dag.write_png(fout_png)
         self.log.write("  WROTE: {F}\n".format(F=fout_png))
 
-    def get_pydot_graph(self):
+    def _get_pydot_graph(self):
+        """Given a DAG, return a pydot digraph object."""
         rel = "is_a"
-        pydot = self.get_pydot()
+        pydot = self._get_pydot()
         # Initialize empty dag
         dag = pydot.Dot(graph_type='digraph', dpi="{}".format(self.dpi)) # Directed Graph
         # Initialize nodes
-        go2node = self.get_go2pydotnode()
+        go2node = self._get_go2pydotnode()
         # Add nodes to graph
         for node in go2node.values():
             dag.add_node(node)
@@ -169,11 +170,11 @@ class GODagSmallPlot(object):
                 dir = "back")) # invert arrow direction for obo dag convention
         return dag
 
-    def get_go2pydotnode(self):
-        """Get pydot Nodes.""" 
+    def _get_go2pydotnode(self):
+        """Create pydot Nodes.""" 
         go2node = {}
         for goid, goobj in self.godag.go2obj.items():
-            txt = self.get_node_text(goid, goobj)
+            txt = self._get_node_text(goid, goobj)
             fillcolor = self.goid2color.get(goid, "white")
             node = self.pydot.Node(
                 txt,
@@ -184,7 +185,7 @@ class GODagSmallPlot(object):
             go2node[goid] = node
         return go2node
 
-    def get_pydot(self):
+    def _get_pydot(self):
         """Return pydot package. Load pydot, if necessary."""
         if self.pydot:
             return self.pydot
@@ -193,7 +194,7 @@ class GODagSmallPlot(object):
 
     # ----------------------------------------------------------------------------------
     # Methods for text printed inside GO terms
-    def get_node_text(self, goid, goobj):
+    def _get_node_text(self, goid, goobj):
         """Return a string to be printed in a GO term box."""
         txt = []
         # Header line: "GO:0036464 L04 D06"
@@ -205,31 +206,31 @@ class GODagSmallPlot(object):
         name = goobj.name.replace(",", "\n")
         txt.append(name)
         # study info line: "24 genes"
-        study_txt = self.get_study_txt(goid)
+        study_txt = self._get_study_txt(goid)
         if study_txt is not None:
             txt.append(study_txt)
         # return text string
         return "\n".join(txt)
 
-    def get_study_txt(self, goid):
+    def _get_study_txt(self, goid):
         """Get GO text from GOEA study."""
         if self.go2res is not None:
             res = self.go2res.get(goid, None)
             if res is not None:
                 if self.study_items is not None:
-                    return self.get_item_str(res)
+                    return self._get_item_str(res)
                 else:
                     return self.pltvars.fmtres.format(
                         study_count = res.study_count)
 
-    def get_item_str(self, res):
+    def _get_item_str(self, res):
         """Return genes in any of these formats:
               1. 19264, 17319, 12520, 12043, 74131, 22163, 12575
               2. Ptprc, Mif, Cd81, Bcl2, Sash3, Tnfrsf4, Cdkn1a
               3. 7: Ptprc, Mif, Cd81, Bcl2, Sash3...
         """
         N = self.pltvars.items_p_line
-        prt_items = sorted([self.get_genestr(itemid) for itemid in res.study_items])
+        prt_items = sorted([self.__get_genestr(itemid) for itemid in res.study_items])
         prt_multiline = [prt_items[i:i+N] for i in range(0, len(prt_items), N)]
         if self.study_items_max is None:
             return "\n".join([", ".join(str(e) for e in sublist) for sublist in prt_multiline])
@@ -243,7 +244,7 @@ class GODagSmallPlot(object):
                 short_str = "\n".join([", ".join(str(e) for e in sublist) for sublist in short_mult])
                 return "".join(["{N} genes; ".format(N=num_items), short_str, "..."])
 
-    def get_genestr(self, itemid):
+    def __get_genestr(self, itemid):
         """Given a geneid, return the string geneid or a gene symbol."""
         if self.id2symbol is not None:
             symbol = self.id2symbol.get(itemid, None)
