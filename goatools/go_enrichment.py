@@ -252,8 +252,11 @@ class GOEnrichmentStudy(object):
             study_count = len(study_items)
             pop_items = self.go2popitems.get(term, set())
             pop_count = len(pop_items)
-            p = fisher.pvalue_population(study_count, study_n-study_count,
-                                         pop_count, pop_n-pop_count)
+
+            # k, n = study_true, study_tot,
+            # K, N = population_true, population_tot
+            # def pvalue_population(int k, int n, int K, int N): ...
+            p = fisher.pvalue_population(study_count, study_n, pop_count, pop_n)
 
             one_record = GOEnrichmentRecord(
                 GO=term,
