@@ -1,7 +1,13 @@
-"""Various level/depth summaries of the GO terms.
+"""Report the level/depth summaries of all GO terms or a subset of GO terms.
+
+   Level is the length of a shortest path to a GO term.
+   Depth is the length of a longest path to a GO term.
 
     Example:
 
+    >>> obodag = GODag("go-basic.obo")
+    >>> reporter = RptLevDepth(obodag)
+    >>> reporter.write_summary_cnts_all()
         go-basic.obo: format-version(1.2) data-version(releases/2016-03-01)
         46162 nodes imported
         Dep <-Depth Counts->  <-Level Counts->
