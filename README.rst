@@ -38,8 +38,12 @@ Description
 This package contains a Python library to
 
 - process over- and under-representation of certain GO terms, based on Fisher's
-  exact test. Also implemented several multiple correction routines (including
-  Bonferroni, Sidak, and false discovery rate).
+  exact test. With numerous multiple correction routines including locally 
+  implemented routines for Bonferroni, Sidak, Holm, and false discovery rate. Also included are
+  multiple test corrections from `statsmodels <http://www.statsmodels.org/stable/index.html>`_:
+  FDR Benjamini/Hochberg, FDR Benjamini/Yekutieli, Holm-Sidak, Simes-Hochberg,
+  Hommel, FDR 2-stage Benjamini-Hochberg, FDR 2-stage Benjamini-Krieger-Yekutieli,
+  FDR adaptive Gavrilov-Benjamini-Sarkar, Bonferroni, Sidak, and Holm.
 - process the obo-formatted file from `Gene Ontology website <http://geneontology.org>`_.
   The data structure is a directed acyclic graph (DAG) that allows easy traversal
   from leaf to root.
