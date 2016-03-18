@@ -18,7 +18,7 @@ def test_goea_statsmodels(log=sys.stdout):
     prt_if = lambda nt: nt.p_uncorrected < 0.0005
     ## These will specify to use the statsmodels methods
     methods_sm0 = ['holm-sidak', 'simes-hochberg', 'hommel', 
-                   'fdr_bh', 'fdr_by', 'fdr_tsbh', 'fdr_tsbky']
+                   'fdr_bh', 'fdr_by', 'fdr_tsbh', 'fdr_tsbky', 'fdr_gbs']
     # Prepend "sm_" or "statsmodels_" to a method to use that version
     methods_sm1 = ['sm_bonferroni', 'sm_sidak', 'sm_holm']
     methods = methods_sm0 + methods_sm1
