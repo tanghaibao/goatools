@@ -10,6 +10,7 @@
 import sys
 import re
 from collections import namedtuple
+from base import nopen
 
 __copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
@@ -55,8 +56,10 @@ class GafReader(object):
     # Expected values for a Qualifier
     exp_qualifiers = set(['NOT', 'contributes_to', 'colocalizes_with'])
 
-    def __init__(self, log=sys.stdout):
+    def __init__(self, filename, log=sys.stdout):
+        self.filename = filename
         self.log = log
+        self.associations = self.read_gaf(filename)
 
     def _get_ntgaf(self, ntgafobj, flds, ver):
         """Convert fields from string to preferred format for GAF ver 2.1 and 2.0."""
@@ -114,22 +117,22 @@ class GafReader(object):
         return vals if set_list_ft else set(vals)
 
     def read_gaf(self, fin_gaf):
-        """Read GAF file."""
+        """Read GAF file. HTTP address okay. GZIPPED/BZIPPED file okay."""
         ga_lst = []
-        with open(fin_gaf) as ifstrm:
-            ver = None
-            ntgafobj = None
-            exp_numcol = None
-            for line in ifstrm:
-                if ntgafobj is not None and not line.startswith('!'):
-                    flds = self._split_line(line, exp_numcol)
-                    ntgaf = self._get_ntgaf(ntgafobj, flds, ver)
-                    ga_lst.append(ntgaf)
-                elif ntgafobj is None and line.startswith('!gaf-version:'):
-                    ver = line[13:].strip()
-                    ntgafobj = namedtuple("ntgafobj", " ".join(self.gaf_columns[ver]))
-                    exp_numcol = self.gaf_numcol[ver]
-            self.log.write("  READ {N} items: {FIN}\n".format(N=len(ga_lst), FIN=fin_gaf))
+        ifstrm = nopen(fin_gaf)
+        ver = None
+        ntgafobj = None
+        exp_numcol = None
+        for line in ifstrm:
+            if ntgafobj is not None and not line.startswith('!'):
+                flds = self._split_line(line, exp_numcol)
+                ntgaf = self._get_ntgaf(ntgafobj, flds, ver)
+                ga_lst.append(ntgaf)
+            elif ntgafobj is None and line.startswith('!gaf-version:'):
+                ver = line[13:].strip()
+                ntgafobj = namedtuple("ntgafobj", " ".join(self.gaf_columns[ver]))
+                exp_numcol = self.gaf_numcol[ver]
+        self.log.write("  READ {N} items: {FIN}\n".format(N=len(ga_lst), FIN=fin_gaf))
         return ga_lst
 
     @staticmethod

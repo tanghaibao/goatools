@@ -78,7 +78,7 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
     # Written by DV Klopfenstein
     # kws: taxid2asscs evidence_set
-    # Simple associations 
+    # Simple associations
     id2gos = defaultdict(set)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
     # e.g., taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set))
@@ -117,12 +117,11 @@ def read_gaf(fin_gaf, **kws):
     # Written by DV Klopfenstein
     # kws: taxid2asscs evidence_set
     from goatools.gaf_reader import GafReader
-    # Simple associations 
+    # Simple associations
     id2gos = defaultdict(set)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
     taxid2asscs = kws['taxid2asscs'] if 'taxid2asscs' in kws else None
-    gafobj = GafReader()
-    gafnts = gafobj.read_gaf(fin_gaf)
+    gafnts = GafReader(fin_gaf).associations
     # Optionaly specify a subset of GOs based on their evidence.
     evs = kws['evidence_set'] if 'evidence_set' in kws else None
     for nt in gafnts:

@@ -11,8 +11,6 @@ import sys
 import os
 import re
 
-import collections as cx
-
 GraphEngines = ("pygraphviz", "pydot")
 
 __copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."

@@ -38,7 +38,7 @@ Description
 This package contains a Python library to
 
 - process over- and under-representation of certain GO terms, based on Fisher's
-  exact test. With numerous multiple correction routines including locally 
+  exact test. With numerous multiple correction routines including locally
   implemented routines for Bonferroni, Sidak, Holm, and false discovery rate. Also included are
   multiple test corrections from `statsmodels <http://www.statsmodels.org/stable/index.html>`_:
   FDR Benjamini/Hochberg, FDR Benjamini/Yekutieli, Holm-Sidak, Simes-Hochberg,
@@ -218,19 +218,23 @@ iPython Notebooks
 
 Run a Gene Ontology Enrichment Analysis (GOEA)
 ::::::::::::::::::::::::::::::::::::::::::::::
-https://github.com/tanghaibao/goatools/blob/master/notebook/goea_nbt3102.ipynb
+https://github.com/tanghaibao/goatools/blob/master/notebooks/goea_nbt3102.ipynb
 
 Report level and depth counts of a set of GO terms
 ::::::::::::::::::::::::::::::::::::::::::::::::::
-https://github.com/tanghaibao/goatools/blob/master/notebook/report_depth_level.ipynb
+https://github.com/tanghaibao/goatools/blob/master/notebooks/report_depth_level.ipynb
 
 Find all human protein-coding genes associated with cell cycle
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-https://github.com/tanghaibao/goatools/blob/master/notebook/cell_cycle.ipynb
+https://github.com/tanghaibao/goatools/blob/master/notebooks/cell_cycle.ipynb
 
 Calculate annotation coverage of GO terms on various species
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-https://github.com/tanghaibao/goatools/blob/master/notebook/annotation_coverage.ipynb
+https://github.com/tanghaibao/goatools/blob/master/notebooks/annotation_coverage.ipynb
+
+Determine the semantic similarities between GO terms
+::::::::::::::::::::::::::::::::::::::::::::::::::::
+https://github.com/tanghaibao/goatools/blob/master/notebooks/semantic_similarity.ipynb
 
 
 Reference
