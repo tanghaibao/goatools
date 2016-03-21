@@ -5,6 +5,7 @@ import bz2
 import gzip
 import sys
 import urllib
+import os.path as op
 
 
 if sys.version_info[0] < 3:
