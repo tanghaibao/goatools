@@ -22,12 +22,14 @@ def test_gaf_read(log=sys.stdout):
     fin_gafs = dnld_gafs(species_ids)
     for fin_gaf in fin_gafs:
         id2gos = read_gaf(fin_gaf, taxid2asscs=taxid2asscs)
-        log.write("  {N} items found in {F}\n".format(N=len(id2gos), F=fin_gaf))
+        log.write("  {N:>6,} IDs found in {F}\n".format(N=len(id2gos), F=fin_gaf))
+        go2ids = read_gaf(fin_gaf, go2geneids=True)
+        log.write("  {N:>6,} GOs found in {F}\n".format(N=len(go2ids), F=fin_gaf))
     # Report findings stored in optional taxid dictionary
     for taxid, asscs in taxid2asscs.items():
         num_gene2gos = len(asscs['ID2GOs'])
         num_go2genes = len(asscs['GO2IDs'])
-        log.write("{N:>5} GOs and {M:>5} annotated gene ids for tax_id: {TAXID:>6}\n".format(
+        log.write("{N:>6,} GOs and {M:>6,} annotated gene ids for tax_id: {TAXID:>6}\n".format(
             TAXID=taxid, N=num_go2genes, M=num_gene2gos))
         # Basic check to ensure gene2go was downloaded and data was returned.
         assert num_gene2gos > 11000

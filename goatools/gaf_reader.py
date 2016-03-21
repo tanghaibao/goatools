@@ -132,7 +132,7 @@ class GafReader(object):
                 ver = line[13:].strip()
                 ntgafobj = namedtuple("ntgafobj", " ".join(self.gaf_columns[ver]))
                 exp_numcol = self.gaf_numcol[ver]
-        self.log.write("  READ {N} items: {FIN}\n".format(N=len(ga_lst), FIN=fin_gaf))
+        self.log.write("  READ {N:,} items: {FIN}\n".format(N=len(ga_lst), FIN=fin_gaf))
         return ga_lst
 
     @staticmethod

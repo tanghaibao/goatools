@@ -86,7 +86,7 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     evs = kws['evidence_set'] if 'evidence_set' in kws else None
     # By default, return id2gos. User can cause go2geneids to be returned by:
     #   >>> read_ncbi_gene2go(..., go2geneids=True
-    b_go2geneids = kws['go2geneids'] if 'go2geneids' in kws else False
+    b_geneid2gos = not kws['go2geneids'] if 'go2geneids' in kws else True
     if taxids is None: # Default taxid is Human
         taxids = [9606]
     with open(fin_gene2go) as ifstrm:
@@ -101,12 +101,12 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
                     # ND : GO function not seen after exhaustive annotation attempts to the gene.
                     if taxid_curr in taxids and qualifier != 'NOT' and evidence != 'ND':
                         # Optionaly specify a subset of GOs based on their evidence.
-                        if evs is None or Evidence_Code in evs:
+                        if evs is None or evidence in evs:
                             geneid = int(geneid)
-                            if b_go2geneids:
-                              id2gos[go_id].add(geneid)
+                            if b_geneid2gos:
+                                id2gos[geneid].add(go_id)
                             else:
-                              id2gos[geneid].add(go_id)
+                                id2gos[go_id].add(geneid)
                             if taxid2asscs is not None:
                                 taxid2asscs[taxid_curr]['GeneID2GOs'][geneid].add(go_id)
                                 taxid2asscs[taxid_curr]['GO2GeneIDs'][go_id].add(geneid)
@@ -124,14 +124,20 @@ def read_gaf(fin_gaf, **kws):
     gafnts = GafReader(fin_gaf).associations
     # Optionaly specify a subset of GOs based on their evidence.
     evs = kws['evidence_set'] if 'evidence_set' in kws else None
-    for nt in gafnts:
-        Evidence_Code = nt.Evidence_Code
-        if 'NOT' not in nt.Qualifier and Evidence_Code != 'ND':
-            if evs is None or Evidence_Code in evs:
-                taxid = nt.Taxon[0]
-                geneid = nt.DB_ID
-                go_id = nt.GO_ID
-                id2gos[geneid].add(go_id)
+    # By default, return id2gos. User can cause go2geneids to be returned by:
+    #   >>> read_ncbi_gene2go(..., go2geneids=True
+    b_geneid2gos = not kws['go2geneids'] if 'go2geneids' in kws else True
+    for ntgaf in gafnts:
+        evidence_code = ntgaf.Evidence_Code
+        if 'NOT' not in ntgaf.Qualifier and evidence_code != 'ND':
+            if evs is None or evidence_code in evs:
+                taxid = ntgaf.Taxon[0]
+                geneid = ntgaf.DB_ID
+                go_id = ntgaf.GO_ID
+                if b_geneid2gos:
+                    id2gos[geneid].add(go_id)
+                else:
+                    id2gos[go_id].add(geneid)
                 if taxid2asscs is not None:
                     taxid2asscs[taxid]['ID2GOs'][geneid].add(go_id)
                     taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
