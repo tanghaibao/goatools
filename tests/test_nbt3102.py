@@ -274,6 +274,8 @@ this statement in the GOATOOLS manuscript:
 
 """)
       for word, gos in word2gos.items():
+        # Sort first by BP, MF, CC. Sort 2nd by GO id.
+        gos = sorted(gos, key=lambda go: [go2res[go].NS, go])
         genes = set()
         for go in gos:
           genes |= go2res[go].study_items
@@ -281,7 +283,8 @@ this statement in the GOATOOLS manuscript:
         prt.write("\n{WD}: {N} study genes, {M} GOs\n".format(WD=word, N=len(genes), M=len(gos)))
         for i, go in enumerate(gos):
           res = go2res[go]
-          prt.write("{I}) {GO} {NAME} ({N} genes)\n".format(I=i, GO=go, NAME=res.name, N=res.study_count))
+          prt.write("{I}) {NS} {GO} {NAME} ({N} genes)\n".format(
+            I=i, NS=res.NS, GO=go, NAME=res.name, N=res.study_count))
         prt.write("{N} study genes:\n".format(N=len(genes)))
         N = 10 # 10 genes per line
         mult = [genes[i:i+N] for i in range(0, len(genes), N)]
