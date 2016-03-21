@@ -56,10 +56,10 @@ class GafReader(object):
     # Expected values for a Qualifier
     exp_qualifiers = set(['NOT', 'contributes_to', 'colocalizes_with'])
 
-    def __init__(self, filename, log=sys.stdout):
+    def __init__(self, filename=None, log=sys.stdout):
         self.filename = filename
         self.log = log
-        self.associations = self.read_gaf(filename)
+        self.associations = self.read_gaf(filename) if filename is not None else []
 
     def _get_ntgaf(self, ntgafobj, flds, ver):
         """Convert fields from string to preferred format for GAF ver 2.1 and 2.0."""
