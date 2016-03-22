@@ -19,3 +19,6 @@ Study gene counts are annotated to plots. e.g, *32 genes*
 Instead of gene counts, shows a sampling of study gene Symbols on GO term boxes.    
 e.g., *32 genes; Ayh, Csdel, Eef2*
 ![Gene Symbols](./nbt3102_MF_RNA_Symbols.png)
+
+### A subplot showing signficant GO terms related to apoptosis
+![apoptoitic](nbt3102_word_apoptotic.png)
