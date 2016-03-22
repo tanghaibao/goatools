@@ -56,16 +56,17 @@ def test_example(log=sys.stdout):
     geneids_study = get_geneid2symbol("nbt.3102-S4_GeneIDs.xlsx", log)
     goeaobj = get_goeaobj("fdr_bh", geneids_pop, taxid)
     # Run GOEA on study
-    keep_if = lambda nt: getattr(nt, "p_fdr_bh" ) < 0.05 # keep if results are significant
-    goea_results = goeaobj.run_study(geneids_study, keep_if=keep_if)
-    compare_results(goea_results)
-    geneids = goeaobj.get_study_items(goea_results)
+    #keep_if = lambda nt: getattr(nt, "p_fdr_bh" ) < 0.05 # keep if results are significant
+    goea_results_all = goeaobj.run_study(geneids_study)
+    goea_results_sig = [r for r in goea_results_all if r.p_fdr_bh < 0.05]
+    compare_results(goea_results_sig)
+    geneids = goeaobj.get_study_items(goea_results_sig)
     # Print GOEA results to files
-    goeaobj.wr_xlsx("nbt3102.xlsx", goea_results)
-    goeaobj.wr_txt("nbt3102.txt", goea_results)
+    goeaobj.wr_xlsx("nbt3102.xlsx", goea_results_sig)
+    goeaobj.wr_txt("nbt3102.txt", goea_results_sig)
     # Plot all significant GO terms w/annotated study info (large plots)
-    #plot_results("nbt3102_{NS}.png", goea_results)
-    #plot_results("nbt3102_{NS}_sym.png", goea_results, study_items=5, items_p_line=2, id2symbol=geneids_study)
+    #plot_results("nbt3102_{NS}.png", goea_results_sig)
+    #plot_results("nbt3102_{NS}_sym.png", goea_results_sig, study_items=5, items_p_line=2, id2symbol=geneids_study)
 
 
 
@@ -82,13 +83,13 @@ def test_example(log=sys.stdout):
     # Item 1) Words in GO names associated with large numbers of study genes
     # --------------------------------------------------------------------
     # What GO term words are associated with the largest number of study genes?
-    prt_word2genecnt("nbt3102_genecnt_GOword.txt", goea_results, log)
+    prt_word2genecnt("nbt3102_genecnt_GOword.txt", goea_results_sig, log)
     # Curated selection of GO words associated with large numbers of study genes
     freq_seen = ['RNA', 'translation', 'mitochondrial', 'mitochondrion', 'ribosomal', 'ribosome',
         'adhesion', 'endoplasmic', 'nucleotide', 'apoptotic', 'myelin']
     # Collect the GOs which contains the chosen frequently seen words
-    word2gos = get_word2gos(freq_seen, goea_results)
-    go2res = {nt.GO:nt for nt in goea_results}
+    word2gos = get_word2gos(freq_seen, goea_results_sig)
+    go2res = {nt.GO:nt for nt in goea_results_sig}
     # Print words of interest, the sig GO terms which contain that word, and study genes.
     prt_word_GO_genes("nbt3102_GO_word_genes.txt", word2gos, go2res, geneids_study, log)
     # Plot each set of GOs along w/study gene info 
@@ -99,7 +100,7 @@ def test_example(log=sys.stdout):
            goid2goobj, # source GOs and their GOTerm object
            study_items=15, # Max number of gene symbols to print in each GO term
            id2symbol=geneids_study, # Contains GeneID-to-Symbol
-           goea_results=goea_results, # pvals used for GO Term coloring
+           goea_results=goea_results_all, # pvals used for GO Term coloring
            dpi=dpi)
       
     
@@ -119,29 +120,29 @@ def test_example(log=sys.stdout):
         'GO:0030890', # BP 8.22e-07  7 positive regulation of B cell proliferation
     ]
     plot_gos("nbt3102_GOs.png", goid_subset, obo, dpi=dpi)
-    plot_gos("nbt3102_GOs_genecnt.png", goid_subset, obo, goea_results=goea_results, dpi=dpi)
+    plot_gos("nbt3102_GOs_genecnt.png", goid_subset, obo, goea_results=goea_results_all, dpi=dpi)
     plot_gos("nbt3102_GOs_genelst.png", goid_subset, obo, 
-        study_items=True, goea_results=goea_results, dpi=dpi)
+        study_items=True, goea_results=goea_results_all, dpi=dpi)
     plot_gos("nbt3102_GOs_symlst.png", goid_subset, obo, 
-        study_items=True, id2symbol=geneids_study, goea_results=goea_results, dpi=dpi)
+        study_items=True, id2symbol=geneids_study, goea_results=goea_results_all, dpi=dpi)
     plot_gos("nbt3102_GOs_symlst_trunc.png", goid_subset, obo, 
-        study_items=5, id2symbol=geneids_study, goea_results=goea_results, dpi=dpi)
+        study_items=5, id2symbol=geneids_study, goea_results=goea_results_all, dpi=dpi)
     plot_gos("nbt3102_GOs_GO0005743.png", ["GO:0005743"], obo, 
         items_p_line=2, study_items=6, 
-        id2symbol=geneids_study, goea_results=goea_results, dpi=dpi)
+        id2symbol=geneids_study, goea_results=goea_results_all, dpi=dpi)
 
 
     # --------------------------------------------------------------------
     # Item 3) Create one GO sub-plot per significant GO term from study
     # --------------------------------------------------------------------
-    for rec in goea_results:
+    for rec in goea_results_sig:
         png = "nbt3102_{NS}_{GO}.png".format(GO=rec.GO.replace(':', '_'), NS=rec.NS)
         goid2goobj = {rec.GO:rec.goterm}
         plot_goid2goobj(png,
             goid2goobj, # source GOs and their GOTerm object
             study_items=15, # Max number of gene symbols to print in each GO term
             id2symbol=geneids_study, # Contains GeneID-to-Symbol
-            goea_results=goea_results, # pvals used for GO Term coloring
+            goea_results=goea_results_all, # pvals used for GO Term coloring
             dpi=dpi)
 
 
@@ -160,7 +161,7 @@ def test_example(log=sys.stdout):
     ]
     plot_gos("nbt3102_CC_ribosome.png", goid_subset, obo, 
         study_items=6, id2symbol=geneids_study, items_p_line=3,
-        goea_results=goea_results, dpi=dpi)
+        goea_results=goea_results_sig, dpi=dpi)
 
     goid_subset = [
       'GO:0003723', # MF D04 RNA binding (32 genes)
@@ -169,12 +170,16 @@ def test_example(log=sys.stdout):
       'GO:0019843', # MF D05 rRNA binding (6 genes)
       'GO:0003746', # MF D06 translation elongation factor activity (5 genes)
     ]
+    plot_gos("nbt3102_MF_RNA_genecnt.png", 
+        goid_subset, 
+        obo, 
+        goea_results=goea_results_all, dpi=150)
     for dpi in [150, 1200]: # 150 for review, 1200 for publication
         plot_gos("nbt3102_MF_RNA_dpi{DPI}.png".format(DPI=dpi), 
             goid_subset, 
             obo, 
             study_items=6, id2symbol=geneids_study, items_p_line=3,
-            goea_results=goea_results, dpi=dpi)
+            goea_results=goea_results_all, dpi=dpi)
 
     # --------------------------------------------------------------------
     # Item 5) Are any significant geneids related to cell cycle?
@@ -215,9 +220,9 @@ def get_geneid2symbol(fin_xlsx, log):
             gene2symbol[int(geneid)] = symbol
     return gene2symbol
 
-def compare_results(goea_results):
+def compare_results(goea_results_sig):
     """Compare GOATOOLS to results from Nature paper."""
-    act_goids = [rec.GO for rec in goea_results]
+    act_goids = [rec.GO for rec in goea_results_sig]
     exp_goids = set(paper_top20())
     overlap = set(act_goids).intersection(exp_goids)
     fout_txt = "nbt3102_compare.txt"
@@ -226,7 +231,7 @@ def compare_results(goea_results):
             N = len(overlap), M = len(exp_goids)))
         idx = 1
         gos = set()
-        for rec in goea_results:
+        for rec in goea_results_sig:
             if rec.GO in exp_goids:
                 gos.add(rec.GO)
                 sig = '*' if rec.p_fdr_bh < 0.05 else ' '
@@ -238,10 +243,10 @@ def compare_results(goea_results):
         prt.write("NOT LISTED: {GO}\n".format(GO=", ".join(nogo)))
    
 
-def prt_word2genecnt(fout, goea_results, log):
+def prt_word2genecnt(fout, goea_results_sig, log):
     """Get words in GO term names and the number of study genes associated with GO words."""
     word2genes = defaultdict(set)
-    for rec in goea_results:
+    for rec in goea_results_sig:
         study_items = rec.study_items
         for word in rec.name.split():
             word2genes[word] |= study_items
@@ -251,11 +256,11 @@ def prt_word2genecnt(fout, goea_results, log):
             wordstrm.write("{CNT:>3} {WORD}\n".format(CNT=cnt, WORD=word))
     log.write("  WROTE: {F}\n".format(F=fout))
        
-def get_word2gos(words, goea_results):
+def get_word2gos(words, goea_results_sig):
     """Get all GO terms which contain a word in 'words'."""        
     word2gos = defaultdict(set)
     for word in words: 
-        for rec in goea_results: 
+        for rec in goea_results_sig: 
             if word in rec.name:
                 word2gos[word].add(rec.GO)
     return OrderedDict([(w, word2gos[w]) for w in words])
