@@ -15,7 +15,10 @@ __copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
 __author__ = "various"
 
 import sys
-import fisher
+
+# import fisher DVK
+from scipy import stats
+
 import collections as cx
 
 from .multiple_testing import Methods, Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
@@ -256,11 +259,13 @@ class GOEnrichmentStudy(object):
             # k, n = study_true, study_tot,
             # K, N = population_true, population_tot
             # def pvalue_population(int k, int n, int K, int N): ...
-            p = fisher.pvalue_population(study_count, study_n, pop_count, pop_n)
+            #p = fisher.pvalue_population(study_count, study_n, pop_count, pop_n) #DVK
+            #p_uncorrected = p.two_tail
+            oddsration, p_uncorrected = stats.fisher_exact([[study_count, study_n-study_count], [pop_count, pop_n-pop_count]])
 
             one_record = GOEnrichmentRecord(
                 GO=term,
-                p_uncorrected=p.two_tail,
+                p_uncorrected=p_uncorrected,
                 study_items=study_items,
                 pop_items=pop_items,
                 ratio_in_study=(study_count, study_n),
