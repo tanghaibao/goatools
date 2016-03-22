@@ -9,6 +9,7 @@ this statement in the GOATOOLS manuscript:
 
 
 RNA: 93 study genes, 6 GOs
+RNA GOs: GO:0006364, GO:0003723, GO:0003729, GO:0008097, GO:0019843, GO:0044822
 0) BP GO:0006364 rRNA processing (8 genes)
 1) MF GO:0003723 RNA binding (32 genes)
 2) MF GO:0003729 mRNA binding (11 genes)
@@ -28,6 +29,7 @@ RNA: 93 study genes, 6 GOs
   Syf2, Ywhae, Zc3hav1
 
 translation: 51 study genes, 7 GOs
+translation GOs: GO:0006412, GO:0006414, GO:0006417, GO:0006614, GO:0017148, GO:0003746, GO:0031369
 0) BP GO:0006412 translation (41 genes)
 1) BP GO:0006414 translational elongation (7 genes)
 2) BP GO:0006417 regulation of translation (9 genes)
@@ -44,6 +46,7 @@ translation: 51 study genes, 7 GOs
   Ucp2
 
 mitochondrial: 41 study genes, 10 GOs
+mitochondrial GOs: GO:0008637, GO:0046902, GO:0051560, GO:0051881, GO:0000275, GO:0005743, GO:0005747, GO:0005753, GO:0005758, GO:0031966
 0) BP GO:0008637 apoptotic mitochondrial changes (4 genes)
 1) BP GO:0046902 regulation of mitochondrial membrane permeability (3 genes)
 2) BP GO:0051560 mitochondrial calcium ion homeostasis (3 genes)
@@ -62,6 +65,7 @@ mitochondrial: 41 study genes, 10 GOs
   Vdac1
 
 mitochondrion: 68 study genes, 1 GOs
+mitochondrion GOs: GO:0005739
 0) CC GO:0005739 mitochondrion (68 genes)
 68 study genes:
   1500032L24Rik, 1600014C10Rik, Aco2, Ak2, Aldoa, Aldoc, Ap2m1, Atp5a1, Atp5b, Atp5d
@@ -73,6 +77,7 @@ mitochondrion: 68 study genes, 1 GOs
   Stat3, Suclg1, Ubb, Ucp2, Uqcrc1, Uqcrq, Vdac1, Ywhae
 
 ribosomal: 37 study genes, 6 GOs
+ribosomal GOs: GO:0000028, GO:0042274, GO:0015934, GO:0015935, GO:0022625, GO:0022627
 0) BP GO:0000028 ribosomal small subunit assembly (9 genes)
 1) BP GO:0042274 ribosomal small subunit biogenesis (6 genes)
 2) CC GO:0015934 large ribosomal subunit (4 genes)
@@ -86,6 +91,7 @@ ribosomal: 37 study genes, 6 GOs
   Rps3, Rps3a1, Rps4x, Rps5, Rps7, Rps9, Rpsa
 
 ribosome: 41 study genes, 2 GOs
+ribosome GOs: GO:0005840, GO:0003735
 0) CC GO:0005840 ribosome (35 genes)
 1) MF GO:0003735 structural constituent of ribosome (38 genes)
 41 study genes:
@@ -96,6 +102,7 @@ ribosome: 41 study genes, 2 GOs
   Ucp2
 
 adhesion: 53 study genes, 1 GOs
+adhesion GOs: GO:0005925
 0) CC GO:0005925 focal adhesion (53 genes)
 53 study genes:
   Actb, Actr2, Actr3, Ahnak, Anxa6, Arf1, Arpc1b, Arpc2, Arpc5, B2m
@@ -106,6 +113,7 @@ adhesion: 53 study genes, 1 GOs
   Tln1, Vim, Ywhae
 
 endoplasmic: 49 study genes, 3 GOs
+endoplasmic GOs: GO:0005783, GO:0005790, GO:0070971
 0) CC GO:0005783 endoplasmic reticulum (48 genes)
 1) CC GO:0005790 smooth endoplasmic reticulum (5 genes)
 2) CC GO:0070971 endoplasmic reticulum exit site (4 genes)
@@ -117,6 +125,7 @@ endoplasmic: 49 study genes, 3 GOs
   Ssr2, Ssr3, Stt3b, Surf4, Tg, Tgfbr3, Tmbim6, Tmem50a, Vmp1
 
 nucleotide: 46 study genes, 1 GOs
+nucleotide GOs: GO:0000166
 0) MF GO:0000166 nucleotide binding (46 genes)
 46 study genes:
   Actb, Actg1, Actr2, Actr3, Ak2, Arf1, Atp2b4, Atp5a1, Atp5b, Bub1b
@@ -126,6 +135,7 @@ nucleotide: 46 study genes, 1 GOs
   Sar1b, Sars, Srpk1, Suclg1, Ube2d3, Vdac1
 
 apoptotic: 48 study genes, 4 GOs
+apoptotic GOs: GO:0006915, GO:0008637, GO:0043066, GO:0043154
 0) BP GO:0006915 apoptotic process (26 genes)
 1) BP GO:0008637 apoptotic mitochondrial changes (4 genes)
 2) BP GO:0043066 negative regulation of apoptotic process (28 genes)
@@ -138,6 +148,7 @@ apoptotic: 48 study genes, 4 GOs
   Son, Srgn, Stat3, Tmbim6, Tnfrsf18, Ube2d3, Ucp2, Vdac1
 
 myelin: 31 study genes, 1 GOs
+myelin GOs: GO:0043209
 0) CC GO:0043209 myelin sheath (31 genes)
 31 study genes:
   Aco2, Actb, Actg1, Atp5a1, Atp5b, Atp5f1, Bcl2, Canx, Cdc42, Cox6a1

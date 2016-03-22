@@ -93,10 +93,10 @@ def test_example(log=sys.stdout):
     prt_word_GO_genes("nbt3102_GO_word_genes.txt", word2gos, go2res, geneids_study, log)
     # Plot each set of GOs along w/study gene info 
     for word, gos in word2gos.items():
-       goid2obo = {go:go2res[go].goterm for go in gos}
+       goid2goobj = {go:go2res[go].goterm for go in gos}
        plot_goid2goobj(
            "nbt3102_word_{WORD}.png".format(WORD=word),
-           goid2obo, # source GOs and their GOTerm object
+           goid2goobj, # source GOs and their GOTerm object
            study_items=15, # Max number of gene symbols to print in each GO term
            id2symbol=geneids_study, # Contains GeneID-to-Symbol
            goea_results=goea_results, # pvals used for GO Term coloring
@@ -136,9 +136,9 @@ def test_example(log=sys.stdout):
     # --------------------------------------------------------------------
     for rec in goea_results:
         png = "nbt3102_{NS}_{GO}.png".format(GO=rec.GO.replace(':', '_'), NS=rec.NS)
-        goid2obo = {rec.GO:rec.goterm}
+        goid2goobj = {rec.GO:rec.goterm}
         plot_goid2goobj(png,
-            goid2obo, # source GOs and their GOTerm object
+            goid2goobj, # source GOs and their GOTerm object
             study_items=15, # Max number of gene symbols to print in each GO term
             id2symbol=geneids_study, # Contains GeneID-to-Symbol
             goea_results=goea_results, # pvals used for GO Term coloring
@@ -281,6 +281,7 @@ this statement in the GOATOOLS manuscript:
           genes |= go2res[go].study_items
         genes = sorted([geneids_study[g] for g in genes])
         prt.write("\n{WD}: {N} study genes, {M} GOs\n".format(WD=word, N=len(genes), M=len(gos)))
+        prt.write("{WD} GOs: {GOs}\n".format(WD=word, GOs=", ".join(gos)))
         for i, go in enumerate(gos):
           res = go2res[go]
           prt.write("{I}) {NS} {GO} {NAME} ({N} genes)\n".format(
