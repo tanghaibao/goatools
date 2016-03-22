@@ -13,6 +13,9 @@ GO = GO:0008135
 goea: $(GO_OBO_FILE)
 	python scripts/find_enrichment.py --pval=0.05 --indent $(GOEA_FILES)
 
+goea_basic: $(GO_OBO_FILE)
+	python scripts/find_enrichment.py $(GOEA_FILES)
+
 goea_xlsx: $(GO_OBO_FILE)
 	python scripts/find_enrichment.py --pval=0.05 --indent $(GOEA_FILES) --outfile=goea.xlsx
 
@@ -35,7 +38,7 @@ map_slim: $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
 	python scripts/map_to_slim.py --association_file=data/association --slim_out=direct $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
 
 
-goea_all: goea goea_xlsx goea_xlsx_bonferroni goea_tsv goea_files
+goea_all: goea goea_basic goea_xlsx goea_xlsx_bonferroni goea_tsv goea_files
 
 
 # if the gene ontology files don't exist, download them
