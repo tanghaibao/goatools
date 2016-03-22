@@ -9,7 +9,6 @@ from __future__ import absolute_import
 import sys
 import random
 import numpy as np
-from .ratio import count_terms
 import collections as cx
 
 __copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
@@ -246,6 +245,7 @@ def calc_qval(study_n, pop_n,
               pop, assoc, term_pop, obo_dag, T=500):
     """Generate p-value distribution for FDR based on resampling."""
     import fisher
+    from goatools.ratio import count_terms
     print(("Generate p-value distribution for FDR "
            "based on resampling (this might take a while)"), file=sys.stderr)
     distribution = []
