@@ -1,6 +1,7 @@
 
 clean:
 	rm -f *.log
+	rm -f *.png
 
 clobber:
 	make clean
