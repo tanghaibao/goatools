@@ -223,7 +223,7 @@ Run a Gene Ontology Enrichment Analysis (GOEA)
 ::::::::::::::::::::::::::::::::::::::::::::::
 https://github.com/tanghaibao/goatools/blob/master/notebooks/goea_nbt3102.ipynb
 
-Show many study genes are associated with RNA, translation, mitochondria, and robosomal
+Show many study genes are associated with RNA, translation, mitochondria, and ribosomal
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 https://github.com/tanghaibao/goatools/blob/master/notebooks/goea_nbt3102_group_results.ipynb
 
