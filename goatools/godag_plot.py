@@ -58,9 +58,12 @@ class GODagPltVars(object):
     }
 
     alpha2col = OrderedDict([
+        # GOEA GO terms that are significant
         (0.005, 'mistyrose'),
         (0.01,  'moccasin'),
         (0.05,  'lemonchiffon1'),
+        # GOEA GO terms that are not significant
+        (1.00,  'grey95'),
     ])
 
     key2col = {
@@ -116,7 +119,7 @@ class GODagSmallPlot(object):
             for res in self.go2res.values():
                 pval = res.get_pvalue()
                 for alpha, color in alpha2col.items():
-                    if pval < alpha:
+                    if pval <= alpha and res.study_count != 0:
                         goid = getattr(res, 'GO')
                         if goid not in goid2color:
                             goid2color[goid] = color
