@@ -1,7 +1,0 @@
-map_to_slim module
-==================
-
-.. automodule:: map_to_slim
-    :members:
-    :undoc-members:
-    :show-inheritance:

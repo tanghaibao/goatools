@@ -1,7 +1,0 @@
-plot_go_term module
-===================
-
-.. automodule:: plot_go_term
-    :members:
-    :undoc-members:
-    :show-inheritance:

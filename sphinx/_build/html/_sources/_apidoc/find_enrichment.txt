@@ -1,7 +1,0 @@
-find_enrichment module
-======================
-
-.. automodule:: find_enrichment
-    :members:
-    :undoc-members:
-    :show-inheritance:
