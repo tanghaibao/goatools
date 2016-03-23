@@ -1,0 +1,265 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>goatools.wr_tbl &mdash; GOATOOLS 2.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="GOATOOLS 2.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">GOATOOLS 2.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for goatools.wr_tbl</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Contains generic table-writing functions. Data is expected to be a list of namedtuples.</span>
+
+<span class="sd">       kwargs (kws):</span>
+<span class="sd">           &#39;prt_if&#39;: Only print a line if user-specfied test returns True.</span>
+<span class="sd">               prt_if is a lambda function with the data item&#39;s namedtuple as input.</span>
+<span class="sd">               Example: prt_if = lambda nt: nt.p_uncorrected &lt; 0.05</span>
+<span class="sd">           &#39;sort_by&#39; : User-customizable sort when printing.</span>
+<span class="sd">               sortby is a lambda function with the data item&#39;s namedtuple as input.</span>
+<span class="sd">               It is the &#39;key&#39; used in the sorted function.</span>
+<span class="sd">               Example: sort_by = lambda nt: [nt.NS, -1*nt.depth]</span>
+<span class="sd">           &#39;hdrs&#39; : A list of column headers to use when printing the table.</span>
+<span class="sd">               default: The fields in the data&#39;s namedtuple is used as the column headers.</span>
+<span class="sd">           &#39;sep&#39;: Separator used when printing the tab-separated table format.</span>
+<span class="sd">               default: sep = &#39;\t&#39;</span>
+<span class="sd">           &#39;fld2col_widths: A dictionary of column widths used when writing xlsx files.</span>
+<span class="sd">           &#39;fld2fmt&#39;: Used in tsv files and xlsx files for formatting specific fields</span>
+<span class="sd">           &#39;print_names&#39;: Used when the user wants to print a subset of the nt fields</span>
+<span class="sd">               This may occur if a field is to be used in either sort_by or prt_if,</span>
+<span class="sd">               but not to be printed.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright (C) 2016, DV Klopfenstein, H Tang, All rights reserved.&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;DV Klopfenstein&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<div class="viewcode-block" id="prt_txt"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.wr_tbl.prt_txt">[docs]</a><span class="k">def</span> <span class="nf">prt_txt</span><span class="p">(</span><span class="n">prt</span><span class="p">,</span> <span class="n">data_nts</span><span class="p">,</span> <span class="n">prtfmt</span><span class="p">,</span> <span class="n">nt_fields</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print list of namedtuples into a table using prtfmt.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">data_nts</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">nt_fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">_chk_flds_fmt</span><span class="p">(</span><span class="n">nt_fields</span><span class="p">,</span> <span class="n">prtfmt</span><span class="p">)</span>
+        <span class="c">#_prt_txt_hdr(prt, prtfmt)</span>
+        <span class="k">if</span> <span class="s">&#39;sort_by&#39;</span> <span class="ow">in</span> <span class="n">kws</span><span class="p">:</span>
+            <span class="n">data_nts</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data_nts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">kws</span><span class="p">[</span><span class="s">&#39;sort_by&#39;</span><span class="p">])</span>
+        <span class="n">prt_if</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;prt_if&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;prt_if&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="bp">None</span>
+        <span class="k">for</span> <span class="n">data_nt</span> <span class="ow">in</span> <span class="n">data_nts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">prt_if</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">prt_if</span><span class="p">(</span><span class="n">data_nt</span><span class="p">):</span>
+                <span class="n">prt</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">prtfmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">data_nt</span><span class="o">.</span><span class="n">_asdict</span><span class="p">()))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;      0 items. NOT WRITING w/format_string({F})</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">F</span><span class="o">=</span><span class="n">prtfmt</span><span class="p">))</span>
+        
+</div>
+<div class="viewcode-block" id="wr_xlsx"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.wr_tbl.wr_xlsx">[docs]</a><span class="k">def</span> <span class="nf">wr_xlsx</span><span class="p">(</span><span class="n">fout_xlsx</span><span class="p">,</span> <span class="n">xlsx_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write a spreadsheet into a xlsx file.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">xlsx_data</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">xlsxwriter</span> <span class="kn">import</span> <span class="n">Workbook</span>
+        <span class="n">workbook</span> <span class="o">=</span> <span class="n">Workbook</span><span class="p">(</span><span class="n">fout_xlsx</span><span class="p">)</span>
+        <span class="n">worksheet</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_worksheet</span><span class="p">()</span>
+        <span class="c"># Cell formatting</span>
+        <span class="n">fmt_hdr</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">({</span><span class="s">&#39;top&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;bottom&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;left&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s">&#39;right&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s">&#39;bold&#39;</span><span class="p">:</span><span class="bp">True</span><span class="p">})</span>
+        <span class="n">fmt_txt</span> <span class="o">=</span> <span class="n">workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">({</span><span class="s">&#39;border&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">})</span>
+        <span class="n">flds</span> <span class="o">=</span> <span class="n">xlsx_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_fields</span>
+        <span class="k">if</span> <span class="s">&#39;fld2col_widths&#39;</span> <span class="ow">in</span> <span class="n">kws</span><span class="p">:</span>
+            <span class="n">_set_xlsx_colwidths</span><span class="p">(</span><span class="n">worksheet</span><span class="p">,</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;fld2col_widths&#39;</span><span class="p">],</span> <span class="n">flds</span><span class="p">)</span>
+        <span class="c"># Print header</span>
+        <span class="n">hdrs</span> <span class="o">=</span> <span class="n">flds</span> <span class="k">if</span> <span class="s">&#39;hdrs&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;hdrs&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">hdr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hdrs</span><span class="p">):</span>
+            <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">hdr</span><span class="p">,</span> <span class="n">fmt_hdr</span><span class="p">)</span>
+        <span class="n">row_data_start</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c"># Print data</span>
+        <span class="n">row_idx</span> <span class="o">=</span> <span class="n">_wrxlsxdata</span><span class="p">(</span><span class="n">xlsx_data</span><span class="p">,</span> <span class="n">row_data_start</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">,</span> <span class="n">fmt_txt</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+        <span class="n">workbook</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;  {:&gt;5} items WROTE: {}</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">row_idx</span><span class="o">-</span><span class="n">row_data_start</span><span class="p">,</span> <span class="n">fout_xlsx</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;      0 items. NOT WRITING {}</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fout_xlsx</span><span class="p">))</span>
+</div>
+<span class="k">def</span> <span class="nf">_wrxlsxdata</span><span class="p">(</span><span class="n">xlsx_data</span><span class="p">,</span> <span class="n">row_idx</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">,</span> <span class="n">fmt_txt</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write data into xlsx worksheet.&quot;&quot;&quot;</span>
+    <span class="n">fld2fmt</span> <span class="o">=</span> <span class="bp">None</span> <span class="k">if</span> <span class="s">&#39;fld2fmt&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;fld2fmt&#39;</span><span class="p">]</span>
+    <span class="n">prt_if</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;prt_if&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;prt_if&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="s">&#39;sort_by&#39;</span> <span class="ow">in</span> <span class="n">kws</span><span class="p">:</span>
+        <span class="n">xlsx_data</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">xlsx_data</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">kws</span><span class="p">[</span><span class="s">&#39;sort_by&#39;</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">data_nt</span> <span class="ow">in</span> <span class="n">xlsx_data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">prt_if</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">prt_if</span><span class="p">(</span><span class="n">data_nt</span><span class="p">):</span>
+            <span class="n">_wrxlsxrow</span><span class="p">(</span><span class="n">worksheet</span><span class="p">,</span> <span class="n">row_idx</span><span class="p">,</span> <span class="n">data_nt</span><span class="p">,</span> <span class="n">fmt_txt</span><span class="p">,</span> <span class="n">fld2fmt</span><span class="p">)</span>
+            <span class="n">row_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">row_idx</span>
+
+<span class="k">def</span> <span class="nf">_wrxlsxrow</span><span class="p">(</span><span class="n">worksheet</span><span class="p">,</span> <span class="n">row_idx</span><span class="p">,</span> <span class="n">data_nt</span><span class="p">,</span> <span class="n">fmt_txt</span><span class="p">,</span> <span class="n">fld2fmt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print an xlsx row by printing each column in order.&quot;&quot;&quot;</span>
+    <span class="n">row_fld_vals</span> <span class="o">=</span> <span class="n">data_nt</span><span class="o">.</span><span class="n">_asdict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">col_idx</span><span class="p">,</span> <span class="p">(</span><span class="n">fld</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row_fld_vals</span><span class="p">):</span>
+        <span class="c"># Optional user-formatting of specific fields, eg, pval: &quot;{:8.2e}&quot;</span>
+        <span class="k">if</span> <span class="n">fld2fmt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">fld</span> <span class="ow">in</span> <span class="n">fld2fmt</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">fld2fmt</span><span class="p">[</span><span class="n">fld</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="n">worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">row_idx</span><span class="p">,</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">fmt_txt</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_set_xlsx_colwidths</span><span class="p">(</span><span class="n">worksheet</span><span class="p">,</span> <span class="n">fld2col_widths</span><span class="p">,</span> <span class="n">fldnames</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Set xlsx column widths using fld2col_widths.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">fld</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fldnames</span><span class="p">):</span>
+        <span class="n">col_width</span> <span class="o">=</span> <span class="n">fld2col_widths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fld</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">col_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">worksheet</span><span class="o">.</span><span class="n">set_column</span><span class="p">(</span><span class="n">col_idx</span><span class="p">,</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">col_width</span><span class="p">)</span>
+
+<div class="viewcode-block" id="wr_tsv"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.wr_tbl.wr_tsv">[docs]</a><span class="k">def</span> <span class="nf">wr_tsv</span><span class="p">(</span><span class="n">fout_tsv</span><span class="p">,</span> <span class="n">tsv_data</span><span class="p">,</span> <span class="n">fldnames</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write a file of tab-separated table data&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tsv_data</span><span class="p">:</span>
+        <span class="n">ifstrm</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="k">if</span> <span class="n">fout_tsv</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="nb">open</span><span class="p">(</span><span class="n">fout_tsv</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="n">prt_tsv</span><span class="p">(</span><span class="n">ifstrm</span><span class="p">,</span> <span class="n">tsv_data</span><span class="p">,</span> <span class="n">fldnames</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fout_tsv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;  {:&gt;5} items WROTE: {}</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">fout_tsv</span><span class="p">))</span>
+            <span class="n">ifstrm</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;      0 items. NOT WRITING {}</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fout_tsv</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="prt_tsv"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.wr_tbl.prt_tsv">[docs]</a><span class="k">def</span> <span class="nf">prt_tsv</span><span class="p">(</span><span class="n">prt</span><span class="p">,</span> <span class="n">data_nts</span><span class="p">,</span> <span class="n">fldnames</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print tab-separated table data&quot;&quot;&quot;</span>
+    <span class="c"># User-controlled printing options</span>
+    <span class="n">sep</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span> <span class="k">if</span> <span class="s">&#39;sep&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;sep&#39;</span><span class="p">]</span>
+    <span class="n">hdrs</span> <span class="o">=</span> <span class="n">fldnames</span> <span class="k">if</span> <span class="s">&#39;hdrs&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;hdrs&#39;</span><span class="p">]</span>
+    <span class="n">fld2fmt</span> <span class="o">=</span> <span class="bp">None</span> <span class="k">if</span> <span class="s">&#39;fld2fmt&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;fld2fmt&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s">&#39;sort_by&#39;</span> <span class="ow">in</span> <span class="n">kws</span><span class="p">:</span>
+        <span class="n">data_nts</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data_nts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">kws</span><span class="p">[</span><span class="s">&#39;sort_by&#39;</span><span class="p">])</span>
+    <span class="n">prt_if</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;prt_if&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;prt_if&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="bp">None</span>
+    <span class="c"># Write header</span>
+    <span class="n">prt</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;{}</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hdrs</span><span class="p">)))</span>
+    <span class="c"># Write data</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">nt_data_row</span> <span class="ow">in</span> <span class="n">data_nts</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">prt_if</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">prt_if</span><span class="p">(</span><span class="n">nt_data_row</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">fld2fmt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">row_fld_vals</span> <span class="o">=</span> <span class="n">nt_data_row</span><span class="o">.</span><span class="n">_asdict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="n">row_vals</span> <span class="o">=</span> <span class="n">_fmt_fields</span><span class="p">(</span><span class="n">row_fld_vals</span><span class="p">,</span> <span class="n">fld2fmt</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">row_vals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nt_data_row</span><span class="p">)</span>
+            <span class="n">prt</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;{}</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">row_vals</span><span class="p">)))</span>
+            <span class="n">items</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">items</span>
+</div>
+<span class="k">def</span> <span class="nf">_fmt_fields</span><span class="p">(</span><span class="n">fld_vals</span><span class="p">,</span> <span class="n">fld2fmt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Optional user-formatting of specific fields, eg, pval: &#39;{:8.2e}&#39;.&quot;&quot;&quot;</span>
+    <span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">fld</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">fld_vals</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fld</span> <span class="ow">in</span> <span class="n">fld2fmt</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">fld2fmt</span><span class="p">[</span><span class="n">fld</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="n">vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vals</span>
+
+<span class="k">def</span> <span class="nf">_chk_flds_fmt</span><span class="p">(</span><span class="n">nt_fields</span><span class="p">,</span> <span class="n">prtfmt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check that all fields in the prtfmt have corresponding data in the namedtuple.&quot;&quot;&quot;</span>
+    <span class="n">fmtflds</span> <span class="o">=</span> <span class="n">get_fmtflds</span><span class="p">(</span><span class="n">prtfmt</span><span class="p">)</span>
+    <span class="n">missing_data</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">fmtflds</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">nt_fields</span><span class="p">))</span>
+    <span class="c"># All data needed for print is present, return.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">missing_data</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="c">#raise Exception(&#39;MISSING DATA({M}).&#39;.format(M=&quot; &quot;.join(missing_data)))</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;CANNOT PRINT USING: &quot;{PF}&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">PF</span><span class="o">=</span><span class="n">prtfmt</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())]</span>
+    <span class="k">for</span> <span class="n">fld</span> <span class="ow">in</span> <span class="n">fmtflds</span><span class="p">:</span>
+        <span class="n">errmrk</span> <span class="o">=</span> <span class="s">&quot;&quot;</span> <span class="k">if</span> <span class="n">fld</span> <span class="ow">in</span> <span class="n">nt_fields</span> <span class="k">else</span> <span class="s">&quot;ERROR--&gt;&quot;</span>
+        <span class="n">msg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;  {ERR:8} {FLD}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ERR</span><span class="o">=</span><span class="n">errmrk</span><span class="p">,</span> <span class="n">FLD</span><span class="o">=</span><span class="n">fld</span><span class="p">))</span> 
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span>
+
+<div class="viewcode-block" id="get_fmtflds"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.wr_tbl.get_fmtflds">[docs]</a><span class="k">def</span> <span class="nf">get_fmtflds</span><span class="p">(</span><span class="n">prtfmt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the fieldnames in the formatter text.&quot;&quot;&quot;</span>
+    <span class="c"># Example prtfmt: &quot;{NS} {study_cnt:2} {fdr_bh:5.3e} L{level:02} D{depth:02} {GO} {name}\n&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r&#39;{(\S+)}&#39;</span><span class="p">,</span> <span class="n">prtfmt</span><span class="p">)]</span>
+</div>
+<div class="viewcode-block" id="get_fmtfldsdict"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.wr_tbl.get_fmtfldsdict">[docs]</a><span class="k">def</span> <span class="nf">get_fmtfldsdict</span><span class="p">(</span><span class="n">prtfmt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the fieldnames in the formatter text.&quot;&quot;&quot;</span>
+    <span class="c"># Example prtfmt: &quot;{NS} {study_cnt:2} {fdr_bh:5.3e} L{level:02} D{depth:02} {GO} {name}\n&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">get_fmtflds</span><span class="p">(</span><span class="n">prtfmt</span><span class="p">)}</span>
+</div>
+<span class="k">def</span> <span class="nf">_prt_txt_hdr</span><span class="p">(</span><span class="n">prt</span><span class="p">,</span> <span class="n">prtfmt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print header for text report.&quot;&quot;&quot;</span>
+    <span class="n">tblhdrs</span> <span class="o">=</span> <span class="n">get_fmtfldsdict</span><span class="p">(</span><span class="n">prtfmt</span><span class="p">)</span>
+    <span class="c"># If needed, reformat for format_string for header, which has strings, not floats.</span>
+    <span class="n">hdrfmt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;:(\d+)\.\S+}&#39;</span><span class="p">,</span> <span class="s">r&#39;:\1}&#39;</span><span class="p">,</span> <span class="n">prtfmt</span><span class="p">)</span>
+    <span class="n">hdrfmt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&#39;:(0+)(\d+)}&#39;</span><span class="p">,</span> <span class="s">r&#39;:\2}&#39;</span><span class="p">,</span> <span class="n">hdrfmt</span><span class="p">)</span>
+    <span class="n">prt</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;#{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hdrfmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">tblhdrs</span><span class="p">)))</span>
+
+<span class="c"># Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved.</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">GOATOOLS 2.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, Haibao Tang et al..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+goatools
+========
+
+.. toctree::
+   :maxdepth: 4
+
+   goatools

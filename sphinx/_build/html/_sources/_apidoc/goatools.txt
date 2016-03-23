@@ -1,0 +1,126 @@
+goatools package
+================
+
+Submodules
+----------
+
+goatools.associations module
+----------------------------
+
+.. automodule:: goatools.associations
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+goatools.gaf_reader module
+--------------------------
+
+.. automodule:: goatools.gaf_reader
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+goatools.go_enrichment module
+-----------------------------
+
+.. automodule:: goatools.go_enrichment
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+goatools.go_search module
+-------------------------
+
+.. automodule:: goatools.go_search
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+goatools.godag_obosm module
+---------------------------
+
+.. automodule:: goatools.godag_obosm
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+goatools.godag_plot module
+--------------------------
+
+.. automodule:: goatools.godag_plot
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+goatools.godag_small module
+---------------------------
+
+.. automodule:: goatools.godag_small
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+goatools.mapslim module
+-----------------------
+
+.. automodule:: goatools.mapslim
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+goatools.multiple_testing module
+--------------------------------
+
+.. automodule:: goatools.multiple_testing
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+goatools.obo_parser module
+--------------------------
+
+.. automodule:: goatools.obo_parser
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+goatools.ratio module
+---------------------
+
+.. automodule:: goatools.ratio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+goatools.rpt_lev_depth module
+-----------------------------
+
+.. automodule:: goatools.rpt_lev_depth
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+goatools.version module
+-----------------------
+
+.. automodule:: goatools.version
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+goatools.wr_tbl module
+----------------------
+
+.. automodule:: goatools.wr_tbl
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: goatools
+    :members:
+    :undoc-members:
+    :show-inheritance:

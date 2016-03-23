@@ -1,0 +1,1009 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>goatools package &mdash; GOATOOLS 2.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="GOATOOLS 2.0 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">GOATOOLS 2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="goatools-package">
+<h1>goatools package<a class="headerlink" href="#goatools-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-goatools.associations">
+<span id="goatools-associations-module"></span><h2>goatools.associations module<a class="headerlink" href="#module-goatools.associations" title="Permalink to this headline">¶</a></h2>
+<p>Routines to read in association file between genes and GO terms.</p>
+<dl class="function">
+<dt id="goatools.associations.dnld_ncbi_gene_file">
+<tt class="descclassname">goatools.associations.</tt><tt class="descname">dnld_ncbi_gene_file</tt><big>(</big><em>fin</em>, <em>force_dnld=False</em>, <em>log=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x6fffffe2150&gt;</em><big>)</big><a class="reference internal" href="../_modules/goatools/associations.html#dnld_ncbi_gene_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.associations.dnld_ncbi_gene_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download a file from NCBI Gene&#8217;s ftp server.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.associations.get_assoc_ncbi_taxids">
+<tt class="descclassname">goatools.associations.</tt><tt class="descname">get_assoc_ncbi_taxids</tt><big>(</big><em>taxids</em>, <em>force_dnld=False</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/associations.html#get_assoc_ncbi_taxids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.associations.get_assoc_ncbi_taxids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download NCBI&#8217;s gene2go. Return annotations for user-specified taxid(s).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.associations.read_associations">
+<tt class="descclassname">goatools.associations.</tt><tt class="descname">read_associations</tt><big>(</big><em>assoc_fn</em>, <em>no_top=False</em><big>)</big><a class="reference internal" href="../_modules/goatools/associations.html#read_associations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.associations.read_associations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a gene id go term association file. The format of the file
+is as follows:</p>
+<p>AAR1        <a class="reference external" href="GO:0005575;GO:0003674;GO:0006970;GO:0006970;GO:0040029">GO:0005575;GO:0003674;GO:0006970;GO:0006970;GO:0040029</a>
+AAR2        <a class="reference external" href="GO:0005575;GO:0003674;GO:0040029;GO:0009845">GO:0005575;GO:0003674;GO:0040029;GO:0009845</a>
+ACD5        <a class="reference external" href="GO:0005575;GO:0003674;GO:0008219">GO:0005575;GO:0003674;GO:0008219</a>
+ACL1        <a class="reference external" href="GO:0005575;GO:0003674;GO:0009965;GO:0010073">GO:0005575;GO:0003674;GO:0009965;GO:0010073</a>
+ACL2        <a class="reference external" href="GO:0005575;GO:0003674;GO:0009826">GO:0005575;GO:0003674;GO:0009826</a>
+ACL3        <a class="reference external" href="GO:0005575;GO:0003674;GO:0009826;GO:0009965">GO:0005575;GO:0003674;GO:0009826;GO:0009965</a></p>
+<p>Also, the following format is accepted (gene ids are repeated):</p>
+<p>AAR1        <a class="reference external" href="GO:0005575">GO:0005575</a>
+AAR1    <a class="reference external" href="GO:0003674">GO:0003674</a>
+AAR1    <a class="reference external" href="GO:0006970">GO:0006970</a>
+AAR2        <a class="reference external" href="GO:0005575">GO:0005575</a>
+AAR2    <a class="reference external" href="GO:0003674">GO:0003674</a>
+AAR2    <a class="reference external" href="GO:0040029">GO:0040029</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>assoc_fn</strong> &#8211; file name of the association</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">dictionary having keys: gene id, values set of GO terms</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.associations.read_gaf">
+<tt class="descclassname">goatools.associations.</tt><tt class="descname">read_gaf</tt><big>(</big><em>fin_gaf</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/associations.html#read_gaf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.associations.read_gaf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read Gene Association File (GAF). Return data.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.associations.read_ncbi_gene2go">
+<tt class="descclassname">goatools.associations.</tt><tt class="descname">read_ncbi_gene2go</tt><big>(</big><em>fin_gene2go</em>, <em>taxids=None</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/associations.html#read_ncbi_gene2go"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.associations.read_ncbi_gene2go" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read NCBI&#8217;s gene2go. Return gene2go data for user-specified taxids.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-goatools.gaf_reader">
+<span id="goatools-gaf-reader-module"></span><h2>goatools.gaf_reader module<a class="headerlink" href="#module-goatools.gaf_reader" title="Permalink to this headline">¶</a></h2>
+<p>Read a GO Association File (GAF) and store in Python object.</p>
+<dl class="docutils">
+<dt>Annotations available from the Gene Ontology Consortium:</dt>
+<dd><a class="reference external" href="http://geneontology.org/page/download-annotations">http://geneontology.org/page/download-annotations</a></dd>
+<dt>GAF format:</dt>
+<dd><a class="reference external" href="http://geneontology.org/page/go-annotation-file-formats">http://geneontology.org/page/go-annotation-file-formats</a></dd>
+</dl>
+<dl class="class">
+<dt id="goatools.gaf_reader.GafReader">
+<em class="property">class </em><tt class="descclassname">goatools.gaf_reader.</tt><tt class="descname">GafReader</tt><big>(</big><em>log=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x6fffffe2150&gt;</em><big>)</big><a class="reference internal" href="../_modules/goatools/gaf_reader.html#GafReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.gaf_reader.GafReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>Reads a Gene Annotation File (GAF). Returns a Python object.</p>
+<dl class="attribute">
+<dt id="goatools.gaf_reader.GafReader.exp_qualifiers">
+<tt class="descname">exp_qualifiers</tt><em class="property"> = set(['NOT', 'colocalizes_with', 'contributes_to'])</em><a class="headerlink" href="#goatools.gaf_reader.GafReader.exp_qualifiers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="goatools.gaf_reader.GafReader.gaf_columns">
+<tt class="descname">gaf_columns</tt><em class="property"> = {'2.1': ['DB', 'DB_ID', 'DB_Symbol', 'Qualifier', 'GO_ID', 'DB_Reference', 'Evidence_Code', 'With_From', 'Aspect', 'DB_Name', 'DB_Synonym', 'DB_Type', 'Taxon', 'Date', 'Assigned_By', 'Annotation_Extension', 'Gene_Product_Form_ID'], '2.0': ['DB', 'DB_ID', 'DB_Symbol', 'Qualifier', 'GO_ID', 'DB_Reference', 'Evidence_Code', 'With_From', 'Aspect', 'DB_Name', 'DB_Synonym', 'DB_Type', 'Taxon', 'Date', 'Assigned_By', 'Annotation_Extension', 'Gene_Product_Form_ID'], '1.0': ['DB', 'DB_ID', 'DB_Symbol', 'Qualifier', 'GO_ID', 'DB_Reference', 'Evidence_Code', 'With_From', 'Aspect', 'DB_Name', 'DB_Synonym', 'DB_Type', 'Taxon', 'Date', 'Assigned_By']}</em><a class="headerlink" href="#goatools.gaf_reader.GafReader.gaf_columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="goatools.gaf_reader.GafReader.gaf_numcol">
+<tt class="descname">gaf_numcol</tt><em class="property"> = {'2.1': 17, '2.0': 17, '1.0': 15}</em><a class="headerlink" href="#goatools.gaf_reader.GafReader.gaf_numcol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="goatools.gaf_reader.GafReader.gafhdr">
+<tt class="descname">gafhdr</tt><em class="property"> = ['DB', 'DB_ID', 'DB_Symbol', 'Qualifier', 'GO_ID', 'DB_Reference', 'Evidence_Code', 'With_From', 'Aspect', 'DB_Name', 'DB_Synonym', 'DB_Type', 'Taxon', 'Date', 'Assigned_By']</em><a class="headerlink" href="#goatools.gaf_reader.GafReader.gafhdr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="goatools.gaf_reader.GafReader.gafhdr2">
+<tt class="descname">gafhdr2</tt><em class="property"> = ['Annotation_Extension', 'Gene_Product_Form_ID']</em><a class="headerlink" href="#goatools.gaf_reader.GafReader.gafhdr2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.gaf_reader.GafReader.read_gaf">
+<tt class="descname">read_gaf</tt><big>(</big><em>fin_gaf</em><big>)</big><a class="reference internal" href="../_modules/goatools/gaf_reader.html#GafReader.read_gaf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.gaf_reader.GafReader.read_gaf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read GAF file.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-goatools.go_enrichment">
+<span id="goatools-go-enrichment-module"></span><h2>goatools.go_enrichment module<a class="headerlink" href="#module-goatools.go_enrichment" title="Permalink to this headline">¶</a></h2>
+<p>python %prog study.file population.file gene-association.file</p>
+<p>This program returns P-values for functional enrichment in a cluster of
+study genes using Fisher&#8217;s exact test, and corrected for multiple testing
+(including Bonferroni, Holm, Sidak, and false discovery rate)</p>
+<dl class="class">
+<dt id="goatools.go_enrichment.GOEnrichmentRecord">
+<em class="property">class </em><tt class="descclassname">goatools.go_enrichment.</tt><tt class="descname">GOEnrichmentRecord</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentRecord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>Represents one result (from a single GOTerm) in the GOEnrichmentStudy</p>
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentRecord.get_field_values">
+<tt class="descname">get_field_values</tt><big>(</big><em>fldnames</em>, <em>rpt_fmt=True</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentRecord.get_field_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentRecord.get_field_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get flat namedtuple fields for one GOEnrichmentRecord.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentRecord.get_prtflds_all">
+<tt class="descname">get_prtflds_all</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentRecord.get_prtflds_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentRecord.get_prtflds_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all possible fields used when creating a namedtuple.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentRecord.get_prtflds_default">
+<tt class="descname">get_prtflds_default</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentRecord.get_prtflds_default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentRecord.get_prtflds_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get default fields.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentRecord.get_pvalue">
+<tt class="descname">get_pvalue</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentRecord.get_pvalue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentRecord.get_pvalue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns pval for 1st method, if it exists. Else returns uncorrected pval.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="goatools.go_enrichment.GOEnrichmentRecord.namespace2NS">
+<tt class="descname">namespace2NS</tt><em class="property"> = OrderedDict([('biological_process', 'BP'), ('molecular_function', 'MF'), ('cellular_component', 'CC')])</em><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentRecord.namespace2NS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentRecord.set_corrected_pval">
+<tt class="descname">set_corrected_pval</tt><big>(</big><em>nt_method</em>, <em>pvalue</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentRecord.set_corrected_pval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentRecord.set_corrected_pval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add object attribute based on method name.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentRecord.set_goterm">
+<tt class="descname">set_goterm</tt><big>(</big><em>go</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentRecord.set_goterm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentRecord.set_goterm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentRecord.update_remaining_fldsdefprt">
+<tt class="descname">update_remaining_fldsdefprt</tt><big>(</big><em>min_ratio=None</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentRecord.update_remaining_fldsdefprt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentRecord.update_remaining_fldsdefprt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="goatools.go_enrichment.GOEnrichmentStudy">
+<em class="property">class </em><tt class="descclassname">goatools.go_enrichment.</tt><tt class="descname">GOEnrichmentStudy</tt><big>(</big><em>pop, assoc, obo_dag, propagate_counts=True, alpha=0.05, methods=['bonferroni', 'sidak', 'holm'], **kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentStudy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentStudy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>Runs Fisher&#8217;s exact test, as well as multiple corrections</p>
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentStudy.adjust_prtfmt">
+<tt class="descname">adjust_prtfmt</tt><big>(</big><em>prtfmt</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentStudy.adjust_prtfmt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentStudy.adjust_prtfmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjust format_strings for legal values.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="goatools.go_enrichment.GOEnrichmentStudy.default_fld2col_widths">
+<tt class="descname">default_fld2col_widths</tt><em class="property"> = {'name': 60, 'level': 3, 'ratio_in_study': 8, 'ratio_in_pop': 12, 'GO': 12, 'NS': 3, 'enrichment': 1}</em><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentStudy.default_fld2col_widths" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentStudy.get_NS2nts">
+<tt class="descname">get_NS2nts</tt><big>(</big><em>results</em>, <em>fldnames=None</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentStudy.get_NS2nts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentStudy.get_NS2nts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get namedtuples of GOEA results, split into BP, MF, CC.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentStudy.get_nts">
+<tt class="descname">get_nts</tt><big>(</big><em>results</em>, <em>fldnames=None</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentStudy.get_nts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentStudy.get_nts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get namedtuples containing user-specified (or default) data from GOEA results.</p>
+<p>Reformats data from GOEnrichmentRecord objects into lists of
+namedtuples so the generic table writers may be used.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="goatools.go_enrichment.GOEnrichmentStudy.get_prtflds_default">
+<em class="property">static </em><tt class="descname">get_prtflds_default</tt><big>(</big><em>results</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentStudy.get_prtflds_default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentStudy.get_prtflds_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get default fields names. Used in printing GOEA results.</p>
+<p>Researchers can control which fields they want to print in the GOEA results
+or they can use the default fields.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentStudy.get_study_items">
+<tt class="descname">get_study_items</tt><big>(</big><em>results</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentStudy.get_study_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentStudy.get_study_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all study items (e.g., geneids).</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="goatools.go_enrichment.GOEnrichmentStudy.print_summary">
+<em class="property">static </em><tt class="descname">print_summary</tt><big>(</big><em>results</em>, <em>min_ratio=None</em>, <em>indent=False</em>, <em>pval=0.05</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentStudy.print_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentStudy.print_summary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentStudy.prt_tsv">
+<tt class="descname">prt_tsv</tt><big>(</big><em>prt</em>, <em>goea_results</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentStudy.prt_tsv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentStudy.prt_tsv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write tab-separated table data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentStudy.prt_txt">
+<tt class="descname">prt_txt</tt><big>(</big><em>prt</em>, <em>goea_results</em>, <em>prtfmt=None</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentStudy.prt_txt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentStudy.prt_txt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print GOEA results in text format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentStudy.run_study">
+<tt class="descname">run_study</tt><big>(</big><em>study</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentStudy.run_study"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentStudy.run_study" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run Gene Ontology Enrichment Study (GOEA) on study ids.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentStudy.wr_tsv">
+<tt class="descname">wr_tsv</tt><big>(</big><em>fout_tsv</em>, <em>goea_results</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentStudy.wr_tsv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentStudy.wr_tsv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write tab-separated table data to file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentStudy.wr_txt">
+<tt class="descname">wr_txt</tt><big>(</big><em>fout_txt</em>, <em>goea_results</em>, <em>prtfmt=None</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentStudy.wr_txt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentStudy.wr_txt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print GOEA results to text file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_enrichment.GOEnrichmentStudy.wr_xlsx">
+<tt class="descname">wr_xlsx</tt><big>(</big><em>fout_xlsx</em>, <em>goea_results</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_enrichment.html#GOEnrichmentStudy.wr_xlsx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_enrichment.GOEnrichmentStudy.wr_xlsx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a xlsx file.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-goatools.go_search">
+<span id="goatools-go-search-module"></span><h2>goatools.go_search module<a class="headerlink" href="#module-goatools.go_search" title="Permalink to this headline">¶</a></h2>
+<p>Used to find all genes or gene products annotated w/GO terms that match a regex.</p>
+<dl class="class">
+<dt id="goatools.go_search.GoSearch">
+<em class="property">class </em><tt class="descclassname">goatools.go_search.</tt><tt class="descname">GoSearch</tt><big>(</big><em>fin_go_basic_obo</em>, <em>go2items</em>, <em>log=None</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_search.html#GoSearch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_search.GoSearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>Returns GOs matching a regex pattern.</p>
+<dl class="method">
+<dt id="goatools.go_search.GoSearch.add_children_gos">
+<tt class="descname">add_children_gos</tt><big>(</big><em>gos</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_search.html#GoSearch.add_children_gos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_search.GoSearch.add_children_gos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return children of input gos plus input gos.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_search.GoSearch.get_items">
+<tt class="descname">get_items</tt><big>(</big><em>gos</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_search.html#GoSearch.get_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_search.GoSearch.get_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given GO terms, return genes or gene products for the GOs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.go_search.GoSearch.get_matching_gos">
+<tt class="descname">get_matching_gos</tt><big>(</big><em>compiled_pattern</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/go_search.html#GoSearch.get_matching_gos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.go_search.GoSearch.get_matching_gos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all GOs which match the user regex pattern.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-goatools.godag_obosm">
+<span id="goatools-godag-obosm-module"></span><h2>goatools.godag_obosm module<a class="headerlink" href="#module-goatools.godag_obosm" title="Permalink to this headline">¶</a></h2>
+<p>Given GO ids and an obo, creates a small sub-graph DAG.</p>
+<p>Sub-graphs can be useful if we want to create shortcut paths and eliminate nodes.</p>
+<dl class="class">
+<dt id="goatools.godag_obosm.OboToGoDagSmall">
+<em class="property">class </em><tt class="descclassname">goatools.godag_obosm.</tt><tt class="descname">OboToGoDagSmall</tt><big>(</big><em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/godag_obosm.html#OboToGoDagSmall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.godag_obosm.OboToGoDagSmall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>Given a list of GO ids and the full obo dag, return a sub GO DAG graph.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-goatools.godag_plot">
+<span id="goatools-godag-plot-module"></span><h2>goatools.godag_plot module<a class="headerlink" href="#module-goatools.godag_plot" title="Permalink to this headline">¶</a></h2>
+<p>Plot a GODagSmall.</p>
+<dl class="class">
+<dt id="goatools.godag_plot.GODagPltVars">
+<em class="property">class </em><tt class="descclassname">goatools.godag_plot.</tt><tt class="descname">GODagPltVars</tt><a class="reference internal" href="../_modules/goatools/godag_plot.html#GODagPltVars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.godag_plot.GODagPltVars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<dl class="attribute">
+<dt id="goatools.godag_plot.GODagPltVars.alpha2col">
+<tt class="descname">alpha2col</tt><em class="property"> = OrderedDict([(0.005, 'mistyrose'), (0.01, 'moccasin'), (0.05, 'lemonchiffon1')])</em><a class="headerlink" href="#goatools.godag_plot.GODagPltVars.alpha2col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="goatools.godag_plot.GODagPltVars.fmthdr">
+<tt class="descname">fmthdr</tt><em class="property"> = '{GO} L{level:&gt;02} D{depth:&gt;02}'</em><a class="headerlink" href="#goatools.godag_plot.GODagPltVars.fmthdr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="goatools.godag_plot.GODagPltVars.fmtres">
+<tt class="descname">fmtres</tt><em class="property"> = '{study_count} genes'</em><a class="headerlink" href="#goatools.godag_plot.GODagPltVars.fmtres" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="goatools.godag_plot.GODagPltVars.items_p_line">
+<tt class="descname">items_p_line</tt><em class="property"> = 5</em><a class="headerlink" href="#goatools.godag_plot.GODagPltVars.items_p_line" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="goatools.godag_plot.GODagPltVars.key2col">
+<tt class="descname">key2col</tt><em class="property"> = {'level_01': 'lightcyan', 'go_sources': 'palegreen'}</em><a class="headerlink" href="#goatools.godag_plot.GODagPltVars.key2col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="goatools.godag_plot.GODagPltVars.rel2col">
+<tt class="descname">rel2col</tt><em class="property"> = {'is_a': 'black', 'part_of': 'blue', 'regulates': 'gold', 'capable_of_part_of': 'darkorange', 'positively_regulates': 'green', 'capable_of': 'dodgerblue', 'negatively_regulates': 'red', 'occurs_in': 'aquamarine4'}</em><a class="headerlink" href="#goatools.godag_plot.GODagPltVars.rel2col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="goatools.godag_plot.GODagSmallPlot">
+<em class="property">class </em><tt class="descclassname">goatools.godag_plot.</tt><tt class="descname">GODagSmallPlot</tt><big>(</big><em>godagsmall</em>, <em>*args</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/godag_plot.html#GODagSmallPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.godag_plot.GODagSmallPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>Plot a graph contained in an object of type GODagSmall .</p>
+<dl class="method">
+<dt id="goatools.godag_plot.GODagSmallPlot.plt">
+<tt class="descname">plt</tt><big>(</big><em>fout_png</em>, <em>engine='pydot'</em><big>)</big><a class="reference internal" href="../_modules/goatools/godag_plot.html#GODagSmallPlot.plt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.godag_plot.GODagSmallPlot.plt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot using pydot, graphviz, or GML.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.godag_plot.plot_goid2goobj">
+<tt class="descclassname">goatools.godag_plot.</tt><tt class="descname">plot_goid2goobj</tt><big>(</big><em>fout_png</em>, <em>goid2goobj</em>, <em>*args</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/godag_plot.html#plot_goid2goobj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.godag_plot.plot_goid2goobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a dict containing GO id and its goobj, create a plot of paths from GO ids.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.godag_plot.plot_gos">
+<tt class="descclassname">goatools.godag_plot.</tt><tt class="descname">plot_gos</tt><big>(</big><em>fout_png</em>, <em>goids</em>, <em>obo_dag</em>, <em>*args</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/godag_plot.html#plot_gos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.godag_plot.plot_gos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given GO ids and the obo_dag, create a plot of paths from GO ids.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.godag_plot.plot_results">
+<tt class="descclassname">goatools.godag_plot.</tt><tt class="descname">plot_results</tt><big>(</big><em>fout_png</em>, <em>goea_results</em>, <em>*args</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/godag_plot.html#plot_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.godag_plot.plot_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of GOEA results, plot result GOs up to top.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.godag_plot.plt_goea_results">
+<tt class="descclassname">goatools.godag_plot.</tt><tt class="descname">plt_goea_results</tt><big>(</big><em>fout_png</em>, <em>goea_results</em>, <em>*args</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/godag_plot.html#plt_goea_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.godag_plot.plt_goea_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a single page.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-goatools.godag_small">
+<span id="goatools-godag-small-module"></span><h2>goatools.godag_small module<a class="headerlink" href="#module-goatools.godag_small" title="Permalink to this headline">¶</a></h2>
+<p>Used to operate on a sub-graph of a larger GO DAG.</p>
+<dl class="class">
+<dt id="goatools.godag_small.GODagSmall">
+<em class="property">class </em><tt class="descclassname">goatools.godag_small.</tt><tt class="descname">GODagSmall</tt><a class="reference internal" href="../_modules/goatools/godag_small.html#GODagSmall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.godag_small.GODagSmall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>Contains a sub-graph of the original obo from geneontology.org.</p>
+<dl class="method">
+<dt id="goatools.godag_small.GODagSmall.get_edges">
+<tt class="descname">get_edges</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/godag_small.html#GODagSmall.get_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.godag_small.GODagSmall.get_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the directed edges from GO term to GO term.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.godag_small.GODagSmall.num_goterms">
+<tt class="descname">num_goterms</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/godag_small.html#GODagSmall.num_goterms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.godag_small.GODagSmall.num_goterms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of GO terms in this GO DAG subgraph.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-goatools.mapslim">
+<span id="goatools-mapslim-module"></span><h2>goatools.mapslim module<a class="headerlink" href="#module-goatools.mapslim" title="Permalink to this headline">¶</a></h2>
+<p>Maps gene associations to a &#8216;slim&#8217; ontology.</p>
+<p>This roughly implements the functionality of the perl script map2slim.
+See: [<a class="reference external" href="http://search.cpan.org/~cmungall/go-perl/scripts/map2slim">http://search.cpan.org/~cmungall/go-perl/scripts/map2slim</a>]</p>
+<p>For a description of GO Slims look here:
+<a class="reference external" href="http://geneontology.org/GO.slims.shtml">http://geneontology.org/GO.slims.shtml</a></p>
+<p>For now this does not implement Bucket Terms.</p>
+<dl class="function">
+<dt id="goatools.mapslim.mapslim">
+<tt class="descclassname">goatools.mapslim.</tt><tt class="descname">mapslim</tt><big>(</big><em>go_term</em>, <em>go_dag</em>, <em>goslim_dag</em><big>)</big><a class="reference internal" href="../_modules/goatools/mapslim.html#mapslim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.mapslim.mapslim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps a GO term (accession) to it&#8217;s GO slim terms.</p>
+<p>Parameters:
+- go_term: the accession to be mapped to the slim terms
+- go_dag: the (full) Gene Ontology DAG
+- goslim_dag: the GO Slim DAG</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>Two sets:
+direct_ancestors, all_ancestors</dd>
+</dl>
+<ul>
+<li><dl class="first docutils">
+<dt>direct_ancestors: The direct ancestors of the given term that are in</dt>
+<dd><p class="first last">the GO Slim. Those are the terms that are not
+covered by earlier ancestors of the GO Slims in
+_any_ path (from bottom to top).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>all_ancestors:    All ancestors of the given term that are part of</dt>
+<dd><p class="first last">the GO-Slim terms.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+</div>
+<div class="section" id="module-goatools.multiple_testing">
+<span id="goatools-multiple-testing-module"></span><h2>goatools.multiple_testing module<a class="headerlink" href="#module-goatools.multiple_testing" title="Permalink to this headline">¶</a></h2>
+<p>A list of commonly used multiple correction routines</p>
+<dl class="class">
+<dt id="goatools.multiple_testing.Bonferroni">
+<em class="property">class </em><tt class="descclassname">goatools.multiple_testing.</tt><tt class="descname">Bonferroni</tt><big>(</big><em>pvals</em>, <em>a=0.05</em><big>)</big><a class="reference internal" href="../_modules/goatools/multiple_testing.html#Bonferroni"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.multiple_testing.Bonferroni" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">goatools.multiple_testing._AbstractCorrection</span></tt></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Bonferroni</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.005</span><span class="p">],</span> <span class="n">a</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span><span class="o">.</span><span class="n">corrected_pvals</span>
+<span class="go">array([ 0.05 ,  0.05 ,  0.15 ,  0.25 ,  0.025])</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="goatools.multiple_testing.Bonferroni.set_correction">
+<tt class="descname">set_correction</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/multiple_testing.html#Bonferroni.set_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.multiple_testing.Bonferroni.set_correction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do Bonferroni multiple test correction on original p-values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="goatools.multiple_testing.FDR">
+<em class="property">class </em><tt class="descclassname">goatools.multiple_testing.</tt><tt class="descname">FDR</tt><big>(</big><em>p_val_distribution</em>, <em>results</em>, <em>a=0.05</em><big>)</big><a class="reference internal" href="../_modules/goatools/multiple_testing.html#FDR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.multiple_testing.FDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>Generate a p-value distribution based on re-sampling, as described in:
+<a class="reference external" href="http://www.biomedcentral.com/1471-2105/6/168">http://www.biomedcentral.com/1471-2105/6/168</a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="goatools.multiple_testing.HolmBonferroni">
+<em class="property">class </em><tt class="descclassname">goatools.multiple_testing.</tt><tt class="descname">HolmBonferroni</tt><big>(</big><em>pvals</em>, <em>a=0.05</em><big>)</big><a class="reference internal" href="../_modules/goatools/multiple_testing.html#HolmBonferroni"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.multiple_testing.HolmBonferroni" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">goatools.multiple_testing._AbstractCorrection</span></tt></p>
+<p><a class="reference external" href="http://en.wikipedia.org/wiki/Holm-Bonferroni_method">http://en.wikipedia.org/wiki/Holm-Bonferroni_method</a>
+given a list of pvals, perform the Holm-Bonferroni correction
+and return the indexes from original list that are significant.
+(cant use p-value as that may be repeated.)
+&gt;&gt;&gt; HolmBonferroni([0.01, 0.01, 0.03, 0.05, 0.005], a=0.05).corrected_pvals
+array([ 0.04 ,  0.04 ,  0.06 ,  0.05 ,  0.025])</p>
+<dl class="method">
+<dt id="goatools.multiple_testing.HolmBonferroni.set_correction">
+<tt class="descname">set_correction</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/multiple_testing.html#HolmBonferroni.set_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.multiple_testing.HolmBonferroni.set_correction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do Holm-Bonferroni multiple test correction on original p-values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="goatools.multiple_testing.Methods">
+<em class="property">class </em><tt class="descclassname">goatools.multiple_testing.</tt><tt class="descname">Methods</tt><big>(</big><em>usr_methods=None</em><big>)</big><a class="reference internal" href="../_modules/goatools/multiple_testing.html#Methods"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.multiple_testing.Methods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>Class to manage multipletest methods from both local and remote sources.</p>
+<dl class="class">
+<dt id="goatools.multiple_testing.Methods.NtMethodInfo">
+<em class="property">class </em><tt class="descname">NtMethodInfo</tt><a class="headerlink" href="#goatools.multiple_testing.Methods.NtMethodInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt></p>
+<p>NtMethodInfo(source, method, fieldname)</p>
+<dl class="attribute">
+<dt id="goatools.multiple_testing.Methods.NtMethodInfo.fieldname">
+<tt class="descname">fieldname</tt><a class="headerlink" href="#goatools.multiple_testing.Methods.NtMethodInfo.fieldname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="goatools.multiple_testing.Methods.NtMethodInfo.method">
+<tt class="descname">method</tt><a class="headerlink" href="#goatools.multiple_testing.Methods.NtMethodInfo.method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="goatools.multiple_testing.Methods.NtMethodInfo.source">
+<tt class="descname">source</tt><a class="headerlink" href="#goatools.multiple_testing.Methods.NtMethodInfo.source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="goatools.multiple_testing.Methods.all_methods">
+<tt class="descclassname">Methods.</tt><tt class="descname">all_methods</tt><em class="property"> = [('local', ('bonferroni', 'sidak', 'holm', 'fdr')), ('statsmodels', ('bonferroni', 'sidak', 'holm-sidak', 'holm', 'simes-hochberg', 'hommel', 'fdr_bh', 'fdr_by', 'fdr_tsbh', 'fdr_tsbky'))]</em><a class="headerlink" href="#goatools.multiple_testing.Methods.all_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="goatools.multiple_testing.Methods.get_fldnm_method">
+<em class="property">static </em><tt class="descclassname">Methods.</tt><tt class="descname">get_fldnm_method</tt><big>(</big><em>method</em><big>)</big><a class="reference internal" href="../_modules/goatools/multiple_testing.html#Methods.get_fldnm_method"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.multiple_testing.Methods.get_fldnm_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given method and source, return fieldname for method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.multiple_testing.Methods.get_statsmodels_multipletests">
+<tt class="descclassname">Methods.</tt><tt class="descname">get_statsmodels_multipletests</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/multiple_testing.html#Methods.get_statsmodels_multipletests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.multiple_testing.Methods.get_statsmodels_multipletests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only load statsmodels package if it is used.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.multiple_testing.Methods.getmsg_valid_methods">
+<tt class="descclassname">Methods.</tt><tt class="descname">getmsg_valid_methods</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/multiple_testing.html#Methods.getmsg_valid_methods"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.multiple_testing.Methods.getmsg_valid_methods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report the valid methods.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="goatools.multiple_testing.Methods.prefixes">
+<tt class="descclassname">Methods.</tt><tt class="descname">prefixes</tt><em class="property"> = {'statsmodels': 'sm_'}</em><a class="headerlink" href="#goatools.multiple_testing.Methods.prefixes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.multiple_testing.Methods.rpt_invalid_method">
+<tt class="descclassname">Methods.</tt><tt class="descname">rpt_invalid_method</tt><big>(</big><em>usr_method</em><big>)</big><a class="reference internal" href="../_modules/goatools/multiple_testing.html#Methods.rpt_invalid_method"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.multiple_testing.Methods.rpt_invalid_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report which methods are available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.multiple_testing.Methods.rpt_valid_methods">
+<tt class="descclassname">Methods.</tt><tt class="descname">rpt_valid_methods</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/multiple_testing.html#Methods.rpt_valid_methods"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.multiple_testing.Methods.rpt_valid_methods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report valid methods.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="goatools.multiple_testing.Sidak">
+<em class="property">class </em><tt class="descclassname">goatools.multiple_testing.</tt><tt class="descname">Sidak</tt><big>(</big><em>pvals</em>, <em>a=0.05</em><big>)</big><a class="reference internal" href="../_modules/goatools/multiple_testing.html#Sidak"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.multiple_testing.Sidak" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">goatools.multiple_testing._AbstractCorrection</span></tt></p>
+<p><a class="reference external" href="http://en.wikipedia.org/wiki/Bonferroni_correction">http://en.wikipedia.org/wiki/Bonferroni_correction</a>
+&gt;&gt;&gt; Sidak([0.01, 0.01, 0.03, 0.05, 0.005], a=0.05).corrected_pvals
+array([ 0.04898974,  0.04898974,  0.14696923,  0.24494871,  0.02449487])</p>
+<dl class="method">
+<dt id="goatools.multiple_testing.Sidak.set_correction">
+<tt class="descname">set_correction</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/multiple_testing.html#Sidak.set_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.multiple_testing.Sidak.set_correction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do Sidak multiple test correction on original p-values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.multiple_testing.calc_qval">
+<tt class="descclassname">goatools.multiple_testing.</tt><tt class="descname">calc_qval</tt><big>(</big><em>study_n</em>, <em>pop_n</em>, <em>pop</em>, <em>assoc</em>, <em>term_pop</em>, <em>obo_dag</em>, <em>T=500</em><big>)</big><a class="reference internal" href="../_modules/goatools/multiple_testing.html#calc_qval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.multiple_testing.calc_qval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="goatools.multiple_testing.mcorrection_factory">
+<tt class="descclassname">goatools.multiple_testing.</tt><tt class="descname">mcorrection_factory</tt><big>(</big><em>pvals</em>, <em>alpha</em>, <em>method</em><big>)</big><a class="reference internal" href="../_modules/goatools/multiple_testing.html#mcorrection_factory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.multiple_testing.mcorrection_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return &#8216;multiple correction&#8217; object of requested AbstractCorrection base class.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-goatools.obo_parser">
+<span id="goatools-obo-parser-module"></span><h2>goatools.obo_parser module<a class="headerlink" href="#module-goatools.obo_parser" title="Permalink to this headline">¶</a></h2>
+<p>Read and store Gene Ontology&#8217;s obo file.</p>
+<dl class="class">
+<dt id="goatools.obo_parser.GODag">
+<em class="property">class </em><tt class="descclassname">goatools.obo_parser.</tt><tt class="descname">GODag</tt><big>(</big><em>obo_file='go-basic.obo'</em>, <em>optional_attrs=None</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GODag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GODag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></a></p>
+<dl class="method">
+<dt id="goatools.obo_parser.GODag.draw_lineage">
+<tt class="descname">draw_lineage</tt><big>(</big><em>recs</em>, <em>nodecolor='mediumseagreen'</em>, <em>edgecolor='lightslateblue'</em>, <em>dpi=96</em>, <em>lineage_img='GO_lineage.png'</em>, <em>engine='pygraphviz'</em>, <em>gml=False</em>, <em>draw_parents=True</em>, <em>draw_children=True</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GODag.draw_lineage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GODag.draw_lineage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="goatools.obo_parser.GODag.id2int">
+<em class="property">static </em><tt class="descname">id2int</tt><big>(</big><em>GO_id</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GODag.id2int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GODag.id2int" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GODag.load_obo_file">
+<tt class="descname">load_obo_file</tt><big>(</big><em>obo_file</em>, <em>optional_attrs</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GODag.load_obo_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GODag.load_obo_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GODag.make_graph_pydot">
+<tt class="descname">make_graph_pydot</tt><big>(</big><em>recs</em>, <em>nodecolor</em>, <em>edgecolor</em>, <em>dpi</em>, <em>draw_parents=True</em>, <em>draw_children=True</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GODag.make_graph_pydot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GODag.make_graph_pydot" title="Permalink to this definition">¶</a></dt>
+<dd><p>draw AMIGO style network, lineage containing one query record.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GODag.make_graph_pygraphviz">
+<tt class="descname">make_graph_pygraphviz</tt><big>(</big><em>recs</em>, <em>nodecolor</em>, <em>edgecolor</em>, <em>dpi</em>, <em>draw_parents=True</em>, <em>draw_children=True</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GODag.make_graph_pygraphviz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GODag.make_graph_pygraphviz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GODag.paths_to_top">
+<tt class="descname">paths_to_top</tt><big>(</big><em>term</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GODag.paths_to_top"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GODag.paths_to_top" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all possible paths to the root node</p>
+<p>Each path includes the term given. The order of the path is
+top -&gt; bottom, i.e. it starts with the root and ends with the
+given term (inclusively).</p>
+<ul>
+<li><dl class="first docutils">
+<dt>term:</dt>
+<dd><p class="first last">the id of the GO term, where the paths begin (i.e. the
+accession &#8216;<a class="reference external" href="GO:0003682">GO:0003682</a>&#8216;)</p>
+</dd>
+</dl>
+</li>
+</ul>
+<ul class="simple">
+<li>a list of lists of GO Terms</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GODag.populate_terms">
+<tt class="descname">populate_terms</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GODag.populate_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GODag.populate_terms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GODag.query_term">
+<tt class="descname">query_term</tt><big>(</big><em>term</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GODag.query_term"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GODag.query_term" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GODag.update_association">
+<tt class="descname">update_association</tt><big>(</big><em>association</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GODag.update_association"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GODag.update_association" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GODag.write_dag">
+<tt class="descname">write_dag</tt><big>(</big><em>out=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x6fffffe2150&gt;</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GODag.write_dag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GODag.write_dag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write info for all GO Terms in obo file, sorted numerically.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GODag.write_hier">
+<tt class="descname">write_hier</tt><big>(</big><em>GO_id</em>, <em>out=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x6fffffe2150&gt;</em>, <em>len_dash=1</em>, <em>max_depth=None</em>, <em>num_child=None</em>, <em>short_prt=False</em>, <em>include_only=None</em>, <em>go_marks=None</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GODag.write_hier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GODag.write_hier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write hierarchy for a GO Term.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GODag.write_hier_all">
+<tt class="descname">write_hier_all</tt><big>(</big><em>out=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x6fffffe2150&gt;</em>, <em>len_dash=1</em>, <em>max_depth=None</em>, <em>num_child=None</em>, <em>short_prt=False</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GODag.write_hier_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GODag.write_hier_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write hierarchy for all GO Terms in obo file.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="goatools.obo_parser.GOTerm">
+<em class="property">class </em><tt class="descclassname">goatools.obo_parser.</tt><tt class="descname">GOTerm</tt><a class="reference internal" href="../_modules/goatools/obo_parser.html#GOTerm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GOTerm" title="Permalink to this definition">¶</a></dt>
+<dd><p>GO term, actually contain a lot more properties than interfaced here</p>
+<dl class="method">
+<dt id="goatools.obo_parser.GOTerm.get_all_child_edges">
+<tt class="descname">get_all_child_edges</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GOTerm.get_all_child_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GOTerm.get_all_child_edges" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GOTerm.get_all_children">
+<tt class="descname">get_all_children</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GOTerm.get_all_children"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GOTerm.get_all_children" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GOTerm.get_all_parent_edges">
+<tt class="descname">get_all_parent_edges</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GOTerm.get_all_parent_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GOTerm.get_all_parent_edges" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GOTerm.get_all_parents">
+<tt class="descname">get_all_parents</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GOTerm.get_all_parents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GOTerm.get_all_parents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GOTerm.has_child">
+<tt class="descname">has_child</tt><big>(</big><em>term</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GOTerm.has_child"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GOTerm.has_child" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GOTerm.has_parent">
+<tt class="descname">has_parent</tt><big>(</big><em>term</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GOTerm.has_parent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GOTerm.has_parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="goatools.obo_parser.GOTerm.write_hier_rec">
+<tt class="descname">write_hier_rec</tt><big>(</big><em>gos_printed</em>, <em>out=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x6fffffe2150&gt;</em>, <em>len_dash=1</em>, <em>max_depth=None</em>, <em>num_child=None</em>, <em>short_prt=False</em>, <em>include_only=None</em>, <em>go_marks=None</em>, <em>depth=1</em>, <em>dp='-'</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#GOTerm.write_hier_rec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.GOTerm.write_hier_rec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write hierarchy for a GO Term record.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="goatools.obo_parser.OBOReader">
+<em class="property">class </em><tt class="descclassname">goatools.obo_parser.</tt><tt class="descname">OBOReader</tt><big>(</big><em>obo_file='go-basic.obo'</em>, <em>optional_attrs=None</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#OBOReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.OBOReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>Read goatools.org&#8217;s obo file. Load into this iterable class.</p>
+<p>Download obo from: <a class="reference external" href="http://geneontology.org/ontology/go-basic.obo">http://geneontology.org/ontology/go-basic.obo</a></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">reader</span> <span class="o">=</span> <span class="n">OBOReader</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+<span class="go">        print rec</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="goatools.obo_parser.OBOReader.update_rec">
+<tt class="descname">update_rec</tt><big>(</big><em>rec</em>, <em>name</em>, <em>value</em><big>)</big><a class="reference internal" href="../_modules/goatools/obo_parser.html#OBOReader.update_rec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.obo_parser.OBOReader.update_rec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update current GOTerm with optional record.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-goatools.ratio">
+<span id="goatools-ratio-module"></span><h2>goatools.ratio module<a class="headerlink" href="#module-goatools.ratio" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="goatools.ratio.count_terms">
+<tt class="descclassname">goatools.ratio.</tt><tt class="descname">count_terms</tt><big>(</big><em>geneset</em>, <em>assoc</em>, <em>obo_dag</em><big>)</big><a class="reference internal" href="../_modules/goatools/ratio.html#count_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.ratio.count_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>count the number of terms in the study group</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.ratio.get_terms">
+<tt class="descclassname">goatools.ratio.</tt><tt class="descname">get_terms</tt><big>(</big><em>desc</em>, <em>geneset</em>, <em>assoc</em>, <em>obo_dag</em>, <em>log</em><big>)</big><a class="reference internal" href="../_modules/goatools/ratio.html#get_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.ratio.get_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the terms in the study group</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.ratio.is_ratio_different">
+<tt class="descclassname">goatools.ratio.</tt><tt class="descname">is_ratio_different</tt><big>(</big><em>min_ratio</em>, <em>study_go</em>, <em>study_n</em>, <em>pop_go</em>, <em>pop_n</em><big>)</big><a class="reference internal" href="../_modules/goatools/ratio.html#is_ratio_different"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.ratio.is_ratio_different" title="Permalink to this definition">¶</a></dt>
+<dd><p>check if the ratio go /n is different between the study group and
+the population</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-goatools.rpt_lev_depth">
+<span id="goatools-rpt-lev-depth-module"></span><h2>goatools.rpt_lev_depth module<a class="headerlink" href="#module-goatools.rpt_lev_depth" title="Permalink to this headline">¶</a></h2>
+<p>Report the level/depth summaries of all GO terms or a subset of GO terms.</p>
+<p>Level is the length of a shortest path to a GO term.
+Depth is the length of a longest path to a GO term.</p>
+<blockquote>
+<div><p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">obodag</span> <span class="o">=</span> <span class="n">GODag</span><span class="p">(</span><span class="s">&quot;go-basic.obo&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reporter</span> <span class="o">=</span> <span class="n">RptLevDepth</span><span class="p">(</span><span class="n">obodag</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reporter</span><span class="o">.</span><span class="n">write_summary_cnts_all</span><span class="p">()</span>
+<span class="go">    go-basic.obo: format-version(1.2) data-version(releases/2016-03-01)</span>
+<span class="go">    46162 nodes imported</span>
+<span class="go">    Dep &lt;-Depth Counts-&gt;  &lt;-Level Counts-&gt;</span>
+<span class="go">    Lev   BP    MF    CC    BP    MF    CC</span>
+<span class="go">    --- ----  ----  ----  ----  ----  ----</span>
+<span class="go">    00     1     1     1     1     1     1</span>
+<span class="go">    01    24    19    24    24    19    24</span>
+<span class="go">    02   126   131   195   222   154   336</span>
+<span class="go">    03   955   493   502  1913   739  1145</span>
+<span class="go">    04  1950  1464   566  4506  1812  1300</span>
+<span class="go">    05  3371  3765   994  6958  3985   763</span>
+<span class="go">    06  4275  1784   748  6945  1888   268</span>
+<span class="go">    07  4634  1005   549  4890   903    53</span>
+<span class="go">    08  4125   577   216  2022   352     6</span>
+<span class="go">    09  3478   315    86   739   109     1</span>
+<span class="go">    10  2364   164    12   188    38     0</span>
+<span class="go">    11  1583   170     3    37    21     0</span>
+<span class="go">    12  1014    68     1     1     0     0</span>
+<span class="go">    13   400    49     0     0     0     0</span>
+<span class="go">    14   107    13     0     0     0     0</span>
+<span class="go">    15    28     3     0     0     0     0</span>
+<span class="go">    16    11     0     0     0     0     0</span>
+</pre></div>
+</div>
+</div></blockquote>
+<dl class="class">
+<dt id="goatools.rpt_lev_depth.RptLevDepth">
+<em class="property">class </em><tt class="descclassname">goatools.rpt_lev_depth.</tt><tt class="descname">RptLevDepth</tt><big>(</big><em>obodag</em>, <em>log=&lt;open file '&lt;stdout&gt;'</em>, <em>mode 'w' at 0x6fffffe2150&gt;</em><big>)</big><a class="reference internal" href="../_modules/goatools/rpt_lev_depth.html#RptLevDepth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.rpt_lev_depth.RptLevDepth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></a></p>
+<p>Reports a summary of GO term levels in depths.</p>
+<dl class="staticmethod">
+<dt id="goatools.rpt_lev_depth.RptLevDepth.get_cnts_levels_depths_recs">
+<em class="property">static </em><tt class="descname">get_cnts_levels_depths_recs</tt><big>(</big><em>recs</em><big>)</big><a class="reference internal" href="../_modules/goatools/rpt_lev_depth.html#RptLevDepth.get_cnts_levels_depths_recs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.rpt_lev_depth.RptLevDepth.get_cnts_levels_depths_recs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect counts of levels and depths in a Group of GO Terms.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.rpt_lev_depth.RptLevDepth.write_summary_cnts">
+<tt class="descname">write_summary_cnts</tt><big>(</big><em>go_ids</em><big>)</big><a class="reference internal" href="../_modules/goatools/rpt_lev_depth.html#RptLevDepth.write_summary_cnts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.rpt_lev_depth.RptLevDepth.write_summary_cnts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write summary of level and depth counts for specific GO ids.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.rpt_lev_depth.RptLevDepth.write_summary_cnts_all">
+<tt class="descname">write_summary_cnts_all</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/goatools/rpt_lev_depth.html#RptLevDepth.write_summary_cnts_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.rpt_lev_depth.RptLevDepth.write_summary_cnts_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write summary of level and depth counts for all active GO Terms.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="goatools.rpt_lev_depth.RptLevDepth.write_summary_cnts_goobjs">
+<tt class="descname">write_summary_cnts_goobjs</tt><big>(</big><em>goobjs</em><big>)</big><a class="reference internal" href="../_modules/goatools/rpt_lev_depth.html#RptLevDepth.write_summary_cnts_goobjs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.rpt_lev_depth.RptLevDepth.write_summary_cnts_goobjs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write summary of level and depth counts for active GO Terms.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-goatools.version">
+<span id="goatools-version-module"></span><h2>goatools.version module<a class="headerlink" href="#module-goatools.version" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-goatools.wr_tbl">
+<span id="goatools-wr-tbl-module"></span><h2>goatools.wr_tbl module<a class="headerlink" href="#module-goatools.wr_tbl" title="Permalink to this headline">¶</a></h2>
+<p>Contains generic table-writing functions. Data is expected to be a list of namedtuples.</p>
+<dl class="docutils">
+<dt>kwargs (kws):</dt>
+<dd><dl class="first docutils">
+<dt>&#8216;prt_if&#8217;: Only print a line if user-specfied test returns True.</dt>
+<dd>prt_if is a lambda function with the data item&#8217;s namedtuple as input.
+Example: prt_if = lambda nt: nt.p_uncorrected &lt; 0.05</dd>
+<dt>&#8216;sort_by&#8217; <span class="classifier-delimiter">:</span> <span class="classifier">User-customizable sort when printing.</span></dt>
+<dd>sortby is a lambda function with the data item&#8217;s namedtuple as input.
+It is the &#8216;key&#8217; used in the sorted function.
+Example: sort_by = lambda nt: [nt.NS, -1*nt.depth]</dd>
+<dt>&#8216;hdrs&#8217; <span class="classifier-delimiter">:</span> <span class="classifier">A list of column headers to use when printing the table.</span></dt>
+<dd>default: The fields in the data&#8217;s namedtuple is used as the column headers.</dd>
+<dt>&#8216;sep&#8217;: Separator used when printing the tab-separated table format.</dt>
+<dd>default: sep = &#8216; &#8216;</dd>
+</dl>
+<p>&#8216;fld2col_widths: A dictionary of column widths used when writing xlsx files.
+&#8216;fld2fmt&#8217;: Used in tsv files and xlsx files for formatting specific fields
+&#8216;print_names&#8217;: Used when the user wants to print a subset of the nt fields</p>
+<blockquote class="last">
+<div>This may occur if a field is to be used in either sort_by or prt_if,
+but not to be printed.</div></blockquote>
+</dd>
+</dl>
+<dl class="function">
+<dt id="goatools.wr_tbl.get_fmtflds">
+<tt class="descclassname">goatools.wr_tbl.</tt><tt class="descname">get_fmtflds</tt><big>(</big><em>prtfmt</em><big>)</big><a class="reference internal" href="../_modules/goatools/wr_tbl.html#get_fmtflds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.wr_tbl.get_fmtflds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the fieldnames in the formatter text.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.wr_tbl.get_fmtfldsdict">
+<tt class="descclassname">goatools.wr_tbl.</tt><tt class="descname">get_fmtfldsdict</tt><big>(</big><em>prtfmt</em><big>)</big><a class="reference internal" href="../_modules/goatools/wr_tbl.html#get_fmtfldsdict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.wr_tbl.get_fmtfldsdict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the fieldnames in the formatter text.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.wr_tbl.prt_tsv">
+<tt class="descclassname">goatools.wr_tbl.</tt><tt class="descname">prt_tsv</tt><big>(</big><em>prt</em>, <em>data_nts</em>, <em>fldnames</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/wr_tbl.html#prt_tsv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.wr_tbl.prt_tsv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print tab-separated table data</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.wr_tbl.prt_txt">
+<tt class="descclassname">goatools.wr_tbl.</tt><tt class="descname">prt_txt</tt><big>(</big><em>prt</em>, <em>data_nts</em>, <em>prtfmt</em>, <em>nt_fields=None</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/wr_tbl.html#prt_txt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.wr_tbl.prt_txt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print list of namedtuples into a table using prtfmt.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.wr_tbl.wr_tsv">
+<tt class="descclassname">goatools.wr_tbl.</tt><tt class="descname">wr_tsv</tt><big>(</big><em>fout_tsv</em>, <em>tsv_data</em>, <em>fldnames</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/wr_tbl.html#wr_tsv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.wr_tbl.wr_tsv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a file of tab-separated table data</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="goatools.wr_tbl.wr_xlsx">
+<tt class="descclassname">goatools.wr_tbl.</tt><tt class="descname">wr_xlsx</tt><big>(</big><em>fout_xlsx</em>, <em>xlsx_data</em>, <em>**kws</em><big>)</big><a class="reference internal" href="../_modules/goatools/wr_tbl.html#wr_xlsx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#goatools.wr_tbl.wr_xlsx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a spreadsheet into a xlsx file.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-goatools">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-goatools" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">goatools package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-goatools.associations">goatools.associations module</a></li>
+<li><a class="reference internal" href="#module-goatools.gaf_reader">goatools.gaf_reader module</a></li>
+<li><a class="reference internal" href="#module-goatools.go_enrichment">goatools.go_enrichment module</a></li>
+<li><a class="reference internal" href="#module-goatools.go_search">goatools.go_search module</a></li>
+<li><a class="reference internal" href="#module-goatools.godag_obosm">goatools.godag_obosm module</a></li>
+<li><a class="reference internal" href="#module-goatools.godag_plot">goatools.godag_plot module</a></li>
+<li><a class="reference internal" href="#module-goatools.godag_small">goatools.godag_small module</a></li>
+<li><a class="reference internal" href="#module-goatools.mapslim">goatools.mapslim module</a></li>
+<li><a class="reference internal" href="#module-goatools.multiple_testing">goatools.multiple_testing module</a></li>
+<li><a class="reference internal" href="#module-goatools.obo_parser">goatools.obo_parser module</a></li>
+<li><a class="reference internal" href="#module-goatools.ratio">goatools.ratio module</a></li>
+<li><a class="reference internal" href="#module-goatools.rpt_lev_depth">goatools.rpt_lev_depth module</a></li>
+<li><a class="reference internal" href="#module-goatools.version">goatools.version module</a></li>
+<li><a class="reference internal" href="#module-goatools.wr_tbl">goatools.wr_tbl module</a></li>
+<li><a class="reference internal" href="#module-goatools">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/_apidoc/goatools.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">GOATOOLS 2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, Haibao Tang et al..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

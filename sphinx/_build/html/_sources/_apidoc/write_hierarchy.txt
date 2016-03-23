@@ -1,0 +1,7 @@
+write_hierarchy module
+======================
+
+.. automodule:: write_hierarchy
+    :members:
+    :undoc-members:
+    :show-inheritance:

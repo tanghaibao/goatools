@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to GOATOOLS’s documentation! &mdash; GOATOOLS 2.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="GOATOOLS 2.0 documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">GOATOOLS 2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-goatools-s-documentation">
+<h1>Welcome to GOATOOLS&#8217;s documentation!<a class="headerlink" href="#welcome-to-goatools-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<div class="section" id="installing-goatools">
+<h2>Installing GOATOOLs<a class="headerlink" href="#installing-goatools" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-obo_parser">
+<span id="goatools-quickstart"></span><h2>GOATOOLS QuickStart<a class="headerlink" href="#module-obo_parser" title="Permalink to this headline">¶</a></h2>
+<p>Read and store Gene Ontology&#8217;s obo file.</p>
+<dl class="class">
+<dt id="obo_parser.OBOReader">
+<em class="property">class </em><tt class="descclassname">obo_parser.</tt><tt class="descname">OBOReader</tt><big>(</big><em>obo_file='go-basic.obo'</em>, <em>optional_attrs=None</em><big>)</big><a class="reference internal" href="_modules/obo_parser.html#OBOReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obo_parser.OBOReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read goatools.org&#8217;s obo file. Load into this iterable class.</p>
+<p>Download obo from: <a class="reference external" href="http://geneontology.org/ontology/go-basic.obo">http://geneontology.org/ontology/go-basic.obo</a></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">reader</span> <span class="o">=</span> <span class="n">OBOReader</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+<span class="go">        print rec</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="obo_parser.OBOReader.update_rec">
+<tt class="descname">update_rec</tt><big>(</big><em>rec</em>, <em>name</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/obo_parser.html#OBOReader.update_rec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obo_parser.OBOReader.update_rec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update current GOTerm with optional record.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to GOATOOLS&#8217;s documentation!</a><ul>
+<li><a class="reference internal" href="#installing-goatools">Installing GOATOOLs</a></li>
+<li><a class="reference internal" href="#module-obo_parser">GOATOOLS QuickStart</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">GOATOOLS 2.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, Haibao Tang et al..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

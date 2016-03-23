@@ -1,0 +1,7 @@
+fetch_associations module
+=========================
+
+.. automodule:: fetch_associations
+    :members:
+    :undoc-members:
+    :show-inheritance:

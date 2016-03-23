@@ -1,0 +1,350 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>goatools.godag_plot &mdash; GOATOOLS 2.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="GOATOOLS 2.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">GOATOOLS 2.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for goatools.godag_plot</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Plot a GODagSmall.&quot;&quot;&quot;</span>
+
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright (C) 2016, DV Klopfenstein, H Tang, All rights reserved.&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;DV Klopfenstein&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span> 
+<span class="kn">import</span> <span class="nn">collections</span> <span class="kn">as</span> <span class="nn">cx</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">goatools.wr_tbl</span> <span class="kn">import</span> <span class="n">get_fmtflds</span>
+<span class="kn">from</span> <span class="nn">goatools.godag_obosm</span> <span class="kn">import</span> <span class="n">OboToGoDagSmall</span>
+
+<div class="viewcode-block" id="plot_gos"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.godag_plot.plot_gos">[docs]</a><span class="k">def</span> <span class="nf">plot_gos</span><span class="p">(</span><span class="n">fout_png</span><span class="p">,</span> <span class="n">goids</span><span class="p">,</span> <span class="n">obo_dag</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given GO ids and the obo_dag, create a plot of paths from GO ids.&quot;&quot;&quot;</span>
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;engine&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;engine&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="s">&#39;pydot&#39;</span>
+    <span class="n">godagsmall</span> <span class="o">=</span> <span class="n">OboToGoDagSmall</span><span class="p">(</span><span class="n">goids</span><span class="o">=</span><span class="n">goids</span><span class="p">,</span> <span class="n">obodag</span><span class="o">=</span><span class="n">obo_dag</span><span class="p">)</span><span class="o">.</span><span class="n">godag</span>
+    <span class="n">godagplot</span> <span class="o">=</span> <span class="n">GODagSmallPlot</span><span class="p">(</span><span class="n">godagsmall</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+    <span class="n">godagplot</span><span class="o">.</span><span class="n">plt</span><span class="p">(</span><span class="n">fout_png</span><span class="p">,</span> <span class="n">engine</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="plot_goid2goobj"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.godag_plot.plot_goid2goobj">[docs]</a><span class="k">def</span> <span class="nf">plot_goid2goobj</span><span class="p">(</span><span class="n">fout_png</span><span class="p">,</span> <span class="n">goid2goobj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given a dict containing GO id and its goobj, create a plot of paths from GO ids.&quot;&quot;&quot;</span>
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;engine&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;engine&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="s">&#39;pydot&#39;</span>
+    <span class="n">godagsmall</span> <span class="o">=</span> <span class="n">OboToGoDagSmall</span><span class="p">(</span><span class="n">goid2goobj</span><span class="o">=</span><span class="n">goid2goobj</span><span class="p">)</span><span class="o">.</span><span class="n">godag</span>
+    <span class="n">godagplot</span> <span class="o">=</span> <span class="n">GODagSmallPlot</span><span class="p">(</span><span class="n">godagsmall</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+    <span class="n">godagplot</span><span class="o">.</span><span class="n">plt</span><span class="p">(</span><span class="n">fout_png</span><span class="p">,</span> <span class="n">engine</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="plot_results"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.godag_plot.plot_results">[docs]</a><span class="k">def</span> <span class="nf">plot_results</span><span class="p">(</span><span class="n">fout_png</span><span class="p">,</span> <span class="n">goea_results</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given a list of GOEA results, plot result GOs up to top.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s">&quot;{NS}&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fout_png</span><span class="p">:</span>
+        <span class="n">plt_goea_results</span><span class="p">(</span><span class="n">fout_png</span><span class="p">,</span> <span class="n">goea_results</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># Plot separately by NS: BP, MF, CC</span>
+        <span class="n">ns2goea_results</span> <span class="o">=</span> <span class="n">cx</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">goea_results</span><span class="p">:</span>
+            <span class="n">ns2goea_results</span><span class="p">[</span><span class="n">rec</span><span class="o">.</span><span class="n">NS</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ns</span><span class="p">,</span> <span class="n">ns_res</span> <span class="ow">in</span> <span class="n">ns2goea_results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">png</span> <span class="o">=</span> <span class="n">fout_png</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">NS</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+            <span class="n">plt_goea_results</span><span class="p">(</span><span class="n">png</span><span class="p">,</span> <span class="n">ns_res</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="plt_goea_results"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.godag_plot.plt_goea_results">[docs]</a><span class="k">def</span> <span class="nf">plt_goea_results</span><span class="p">(</span><span class="n">fout_png</span><span class="p">,</span> <span class="n">goea_results</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plot a single page.&quot;&quot;&quot;</span>
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;engine&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;engine&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="s">&#39;pydot&#39;</span>
+    <span class="n">godagsmall</span> <span class="o">=</span> <span class="n">OboToGoDagSmall</span><span class="p">(</span><span class="n">goea_results</span><span class="o">=</span><span class="n">goea_results</span><span class="p">)</span><span class="o">.</span><span class="n">godag</span>
+    <span class="n">godagplot</span> <span class="o">=</span> <span class="n">GODagSmallPlot</span><span class="p">(</span><span class="n">godagsmall</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">goea_results</span><span class="o">=</span><span class="n">goea_results</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+    <span class="n">godagplot</span><span class="o">.</span><span class="n">plt</span><span class="p">(</span><span class="n">fout_png</span><span class="p">,</span> <span class="n">engine</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GODagPltVars"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.godag_plot.GODagPltVars">[docs]</a><span class="k">class</span> <span class="nc">GODagPltVars</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="c"># http://www.graphviz.org/doc/info/colors.html</span>
+    <span class="n">rel2col</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;is_a&#39;</span><span class="p">:</span>      <span class="s">&#39;black&#39;</span><span class="p">,</span>
+        <span class="s">&#39;part_of&#39;</span><span class="p">:</span>   <span class="s">&#39;blue&#39;</span><span class="p">,</span>
+        <span class="s">&#39;regulates&#39;</span><span class="p">:</span> <span class="s">&#39;gold&#39;</span><span class="p">,</span>
+        <span class="s">&#39;positively_regulates&#39;</span><span class="p">:</span> <span class="s">&#39;green&#39;</span><span class="p">,</span>
+        <span class="s">&#39;negatively_regulates&#39;</span><span class="p">:</span> <span class="s">&#39;red&#39;</span><span class="p">,</span>
+        <span class="s">&#39;occurs_in&#39;</span><span class="p">:</span>            <span class="s">&#39;aquamarine4&#39;</span><span class="p">,</span>
+        <span class="s">&#39;capable_of&#39;</span><span class="p">:</span>           <span class="s">&#39;dodgerblue&#39;</span><span class="p">,</span>
+        <span class="s">&#39;capable_of_part_of&#39;</span><span class="p">:</span>   <span class="s">&#39;darkorange&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">alpha2col</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
+        <span class="p">(</span><span class="mf">0.005</span><span class="p">,</span> <span class="s">&#39;mistyrose&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="mf">0.01</span><span class="p">,</span>  <span class="s">&#39;moccasin&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span>  <span class="s">&#39;lemonchiffon1&#39;</span><span class="p">),</span>
+    <span class="p">])</span>
+
+    <span class="n">key2col</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;level_01&#39;</span><span class="p">:</span> <span class="s">&#39;lightcyan&#39;</span><span class="p">,</span>
+        <span class="s">&#39;go_sources&#39;</span><span class="p">:</span> <span class="s">&#39;palegreen&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">fmthdr</span> <span class="o">=</span> <span class="s">&quot;{GO} L{level:&gt;02} D{depth:&gt;02}&quot;</span>
+    <span class="n">fmtres</span> <span class="o">=</span> <span class="s">&quot;{study_count} genes&quot;</span>
+    <span class="c"># study items per line on GO Terms:</span>
+    <span class="n">items_p_line</span> <span class="o">=</span> <span class="mi">5</span> 
+
+</div>
+<div class="viewcode-block" id="GODagSmallPlot"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.godag_plot.GODagSmallPlot">[docs]</a><span class="k">class</span> <span class="nc">GODagSmallPlot</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plot a graph contained in an object of type GODagSmall .&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">godagsmall</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;log&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;log&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">go2res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_go2res</span><span class="p">(</span><span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id2symbol</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;id2symbol&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;id2symbol&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">study_items</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;study_items&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;study_items&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">study_items_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_study_items_max</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_str</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;alpha_str&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;alpha_str&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pltvars</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;GODagPltVars&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;GODagPltVars&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="n">GODagPltVars</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s">&#39;items_p_line&#39;</span> <span class="ow">in</span> <span class="n">kws</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pltvars</span><span class="o">.</span><span class="n">items_p_line</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;items_p_line&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dpi</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;dpi&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;dpi&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="mi">150</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">godag</span> <span class="o">=</span> <span class="n">godagsmall</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goid2color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_goid2color</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pydot</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">_init_study_items_max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;User can limit the number of genes printed in a GO term.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_items</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_items</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">study_items</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_items</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">_init_go2res</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s">&#39;goea_results&#39;</span> <span class="ow">in</span> <span class="n">kws</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">res</span><span class="o">.</span><span class="n">GO</span><span class="p">:</span><span class="n">res</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;goea_results&#39;</span><span class="p">]}</span>
+
+    <span class="k">def</span> <span class="nf">_init_goid2color</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set colors of GO terms.&quot;&quot;&quot;</span>
+        <span class="n">goid2color</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c"># 1. colors based on p-value override colors based on source GO</span>
+        <span class="n">alpha2col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pltvars</span><span class="o">.</span><span class="n">alpha2col</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">go2res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">go2res</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">pval</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">get_pvalue</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">alpha2col</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">pval</span> <span class="o">&lt;</span> <span class="n">alpha</span><span class="p">:</span>
+                        <span class="n">goid</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="s">&#39;GO&#39;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">goid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">goid2color</span><span class="p">:</span>
+                            <span class="n">goid2color</span><span class="p">[</span><span class="n">goid</span><span class="p">]</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="c"># 2. GO source color</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pltvars</span><span class="o">.</span><span class="n">key2col</span><span class="p">[</span><span class="s">&#39;go_sources&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">goid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">godag</span><span class="o">.</span><span class="n">go_sources</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">goid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">goid2color</span><span class="p">:</span>
+                <span class="n">goid2color</span><span class="p">[</span><span class="n">goid</span><span class="p">]</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="c"># 3. Level-01 GO color</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pltvars</span><span class="o">.</span><span class="n">key2col</span><span class="p">[</span><span class="s">&#39;level_01&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">goid</span><span class="p">,</span> <span class="n">goobj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">godag</span><span class="o">.</span><span class="n">go2obj</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">goobj</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> 
+                <span class="k">if</span> <span class="n">goid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">goid2color</span><span class="p">:</span>
+                    <span class="n">goid2color</span><span class="p">[</span><span class="n">goid</span><span class="p">]</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="k">return</span> <span class="n">goid2color</span>
+
+<div class="viewcode-block" id="GODagSmallPlot.plt"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.godag_plot.GODagSmallPlot.plt">[docs]</a>    <span class="k">def</span> <span class="nf">plt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fout_png</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s">&quot;pydot&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot using pydot, graphviz, or GML.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">engine</span> <span class="o">==</span> <span class="s">&quot;pydot&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plt_pydot</span><span class="p">(</span><span class="n">fout_png</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">engine</span> <span class="o">==</span> <span class="s">&quot;pygraphviz&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;TO BE IMPLEMENTED SOON: ENGINE pygraphvis&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;UNKNOWN ENGINE({E})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">E</span><span class="o">=</span><span class="n">engine</span><span class="p">))</span>
+
+    <span class="c"># ----------------------------------------------------------------------------------</span>
+    <span class="c"># pydot</span></div>
+    <span class="k">def</span> <span class="nf">_plt_pydot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fout_png</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot using the pydot graphics engine.&quot;&quot;&quot;</span>
+        <span class="n">dag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_pydot_graph</span><span class="p">()</span>
+        <span class="n">dag</span><span class="o">.</span><span class="n">write_png</span><span class="p">(</span><span class="n">fout_png</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;  WROTE: {F}</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">F</span><span class="o">=</span><span class="n">fout_png</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_get_pydot_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Given a DAG, return a pydot digraph object.&quot;&quot;&quot;</span>
+        <span class="n">rel</span> <span class="o">=</span> <span class="s">&quot;is_a&quot;</span>
+        <span class="n">pydot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_pydot</span><span class="p">()</span>
+        <span class="c"># Initialize empty dag</span>
+        <span class="n">dag</span> <span class="o">=</span> <span class="n">pydot</span><span class="o">.</span><span class="n">Dot</span><span class="p">(</span><span class="n">graph_type</span><span class="o">=</span><span class="s">&#39;digraph&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="s">&quot;{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dpi</span><span class="p">))</span> <span class="c"># Directed Graph</span>
+        <span class="c"># Initialize nodes</span>
+        <span class="n">go2node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_go2pydotnode</span><span class="p">()</span>
+        <span class="c"># Add nodes to graph</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">go2node</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">dag</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="c"># Add edges to graph</span>
+        <span class="n">rel2col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pltvars</span><span class="o">.</span><span class="n">rel2col</span>
+        <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">tgt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">godag</span><span class="o">.</span><span class="n">get_edges</span><span class="p">():</span>
+            <span class="n">dag</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">pydot</span><span class="o">.</span><span class="n">Edge</span><span class="p">(</span><span class="n">go2node</span><span class="p">[</span><span class="n">tgt</span><span class="p">],</span> <span class="n">go2node</span><span class="p">[</span><span class="n">src</span><span class="p">],</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="s">&quot;normal&quot;</span><span class="p">,</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">rel2col</span><span class="p">[</span><span class="n">rel</span><span class="p">],</span>
+                <span class="nb">dir</span> <span class="o">=</span> <span class="s">&quot;back&quot;</span><span class="p">))</span> <span class="c"># invert arrow direction for obo dag convention</span>
+        <span class="k">return</span> <span class="n">dag</span>
+
+    <span class="k">def</span> <span class="nf">_get_go2pydotnode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create pydot Nodes.&quot;&quot;&quot;</span> 
+        <span class="n">go2node</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">goid</span><span class="p">,</span> <span class="n">goobj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">godag</span><span class="o">.</span><span class="n">go2obj</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_node_text</span><span class="p">(</span><span class="n">goid</span><span class="p">,</span> <span class="n">goobj</span><span class="p">)</span>
+            <span class="n">fillcolor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goid2color</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">goid</span><span class="p">,</span> <span class="s">&quot;white&quot;</span><span class="p">)</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pydot</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span>
+                <span class="n">txt</span><span class="p">,</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="s">&quot;box&quot;</span><span class="p">,</span>
+                <span class="n">style</span> <span class="o">=</span> <span class="s">&quot;rounded, filled&quot;</span><span class="p">,</span>
+                <span class="n">fillcolor</span> <span class="o">=</span> <span class="n">fillcolor</span><span class="p">,</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="s">&quot;mediumseagreen&quot;</span><span class="p">)</span>
+            <span class="n">go2node</span><span class="p">[</span><span class="n">goid</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="k">return</span> <span class="n">go2node</span>
+
+    <span class="k">def</span> <span class="nf">_get_pydot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return pydot package. Load pydot, if necessary.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pydot</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pydot</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pydot</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&quot;pydot&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pydot</span>
+
+    <span class="c"># ----------------------------------------------------------------------------------</span>
+    <span class="c"># Methods for text printed inside GO terms</span>
+    <span class="k">def</span> <span class="nf">_get_node_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">goid</span><span class="p">,</span> <span class="n">goobj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a string to be printed in a GO term box.&quot;&quot;&quot;</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c"># Header line: &quot;GO:0036464 L04 D06&quot;</span>
+        <span class="n">txt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pltvars</span><span class="o">.</span><span class="n">fmthdr</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">GO</span> <span class="o">=</span> <span class="n">goobj</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;GO:&quot;</span><span class="p">,</span> <span class="s">&quot;GO&quot;</span><span class="p">),</span>
+            <span class="n">level</span> <span class="o">=</span> <span class="n">goobj</span><span class="o">.</span><span class="n">level</span><span class="p">,</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="n">goobj</span><span class="o">.</span><span class="n">depth</span><span class="p">))</span>
+        <span class="c"># GO name line: &quot;cytoplamic ribonucleoprotein&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">goobj</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="n">txt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="c"># study info line: &quot;24 genes&quot;</span>
+        <span class="n">study_txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_study_txt</span><span class="p">(</span><span class="n">goid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">study_txt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">txt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">study_txt</span><span class="p">)</span>
+        <span class="c"># return text string</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_study_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">goid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get GO text from GOEA study.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">go2res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">go2res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">goid</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_items</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_item_str</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pltvars</span><span class="o">.</span><span class="n">fmtres</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">study_count</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">study_count</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_item_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">res</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return genes in any of these formats:</span>
+<span class="sd">              1. 19264, 17319, 12520, 12043, 74131, 22163, 12575</span>
+<span class="sd">              2. Ptprc, Mif, Cd81, Bcl2, Sash3, Tnfrsf4, Cdkn1a</span>
+<span class="sd">              3. 7: Ptprc, Mif, Cd81, Bcl2, Sash3...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pltvars</span><span class="o">.</span><span class="n">items_p_line</span>
+        <span class="n">prt_items</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_genestr</span><span class="p">(</span><span class="n">itemid</span><span class="p">)</span> <span class="k">for</span> <span class="n">itemid</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">study_items</span><span class="p">])</span>
+        <span class="n">prt_multiline</span> <span class="o">=</span> <span class="p">[</span><span class="n">prt_items</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">N</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">prt_items</span><span class="p">),</span> <span class="n">N</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_items_max</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">)</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">prt_multiline</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">num_items</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">prt_items</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">num_items</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_items_max</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">)</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">prt_multiline</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">short_list</span> <span class="o">=</span> <span class="n">prt_items</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">study_items_max</span><span class="p">]</span>
+                <span class="n">short_mult</span> <span class="o">=</span> <span class="p">[</span><span class="n">short_list</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">N</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">short_list</span><span class="p">),</span> <span class="n">N</span><span class="p">)]</span>
+                <span class="n">short_str</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">)</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">short_mult</span><span class="p">])</span>
+                <span class="k">return</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;{N} genes; &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="n">num_items</span><span class="p">),</span> <span class="n">short_str</span><span class="p">,</span> <span class="s">&quot;...&quot;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">__get_genestr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">itemid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Given a geneid, return the string geneid or a gene symbol.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id2symbol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">symbol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id2symbol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">itemid</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">symbol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">symbol</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">itemid</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">itemid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">itemid</span>
+
+<span class="c"># Copyright (C) 2016, DV Klopfenstein, H Tang, All rights reserved.</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">GOATOOLS 2.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, Haibao Tang et al..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

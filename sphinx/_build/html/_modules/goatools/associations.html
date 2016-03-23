@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>goatools.associations &mdash; GOATOOLS 2.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="GOATOOLS 2.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">GOATOOLS 2.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for goatools.associations</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Routines to read in association file between genes and GO terms.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright (C) 2010-2016, H Tang et al. All rights reserved.&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;various&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<div class="viewcode-block" id="read_associations"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.associations.read_associations">[docs]</a><span class="k">def</span> <span class="nf">read_associations</span><span class="p">(</span><span class="n">assoc_fn</span><span class="p">,</span> <span class="n">no_top</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads a gene id go term association file. The format of the file</span>
+<span class="sd">    is as follows:</span>
+
+<span class="sd">    AAR1	GO:0005575;GO:0003674;GO:0006970;GO:0006970;GO:0040029</span>
+<span class="sd">    AAR2	GO:0005575;GO:0003674;GO:0040029;GO:0009845</span>
+<span class="sd">    ACD5	GO:0005575;GO:0003674;GO:0008219</span>
+<span class="sd">    ACL1	GO:0005575;GO:0003674;GO:0009965;GO:0010073</span>
+<span class="sd">    ACL2	GO:0005575;GO:0003674;GO:0009826</span>
+<span class="sd">    ACL3	GO:0005575;GO:0003674;GO:0009826;GO:0009965</span>
+
+<span class="sd">    Also, the following format is accepted (gene ids are repeated):</span>
+
+<span class="sd">    AAR1	GO:0005575</span>
+<span class="sd">    AAR1    GO:0003674</span>
+<span class="sd">    AAR1    GO:0006970</span>
+<span class="sd">    AAR2	GO:0005575</span>
+<span class="sd">    AAR2    GO:0003674</span>
+<span class="sd">    AAR2    GO:0040029</span>
+
+<span class="sd">    :param assoc_fn: file name of the association</span>
+<span class="sd">    :return: dictionary having keys: gene id, values set of GO terms</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">assoc</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
+    <span class="n">top_terms</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;GO:0008150&#39;</span><span class="p">,</span> <span class="s">&#39;GO:0003674&#39;</span><span class="p">,</span> <span class="s">&#39;GO:0005575&#39;</span><span class="p">])</span> <span class="c"># BP, MF, CC</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">assoc_fn</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">):</span>
+        <span class="n">atoms</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">gene_id</span><span class="p">,</span> <span class="n">go_terms</span> <span class="o">=</span> <span class="n">atoms</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">row</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">gene_id</span><span class="p">,</span> <span class="n">go_terms</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">gos</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">go_terms</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;;&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">no_top</span><span class="p">:</span>
+            <span class="n">gos</span> <span class="o">=</span> <span class="n">gos</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">top_terms</span><span class="p">)</span>
+        <span class="n">assoc</span><span class="p">[</span><span class="n">gene_id</span><span class="p">]</span> <span class="o">|=</span> <span class="n">gos</span>
+
+    <span class="k">return</span> <span class="n">assoc</span>
+</div>
+<div class="viewcode-block" id="get_assoc_ncbi_taxids"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.associations.get_assoc_ncbi_taxids">[docs]</a><span class="k">def</span> <span class="nf">get_assoc_ncbi_taxids</span><span class="p">(</span><span class="n">taxids</span><span class="p">,</span> <span class="n">force_dnld</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Download NCBI&#39;s gene2go. Return annotations for user-specified taxid(s).&quot;&quot;&quot;</span>
+    <span class="n">fin</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;gene2go&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;gene2go&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s">&quot;gene2go&quot;</span><span class="p">)</span>
+    <span class="n">dnld_ncbi_gene_file</span><span class="p">(</span><span class="n">fin</span><span class="p">,</span> <span class="n">force_dnld</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">read_ncbi_gene2go</span><span class="p">(</span><span class="n">fin</span><span class="p">,</span> <span class="n">taxids</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="dnld_ncbi_gene_file"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.associations.dnld_ncbi_gene_file">[docs]</a><span class="k">def</span> <span class="nf">dnld_ncbi_gene_file</span><span class="p">(</span><span class="n">fin</span><span class="p">,</span> <span class="n">force_dnld</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Download a file from NCBI Gene&#39;s ftp server.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fin</span><span class="p">)</span> <span class="ow">or</span> <span class="n">force_dnld</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">wget</span>
+        <span class="kn">import</span> <span class="nn">gzip</span>
+        <span class="n">fin_dir</span><span class="p">,</span> <span class="n">fin_base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">fin</span><span class="p">)</span>
+        <span class="n">fin_gz</span> <span class="o">=</span> <span class="s">&quot;{F}.gz&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">F</span><span class="o">=</span><span class="n">fin_base</span><span class="p">)</span>
+        <span class="n">fin_gz</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fin_dir</span><span class="p">,</span> <span class="n">fin_gz</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fin_gz</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fin_gz</span><span class="p">)</span>
+        <span class="n">fin_ftp</span> <span class="o">=</span> <span class="s">&quot;ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{F}.gz&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">F</span><span class="o">=</span><span class="n">fin_base</span><span class="p">)</span>
+        <span class="n">wget</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">fin_ftp</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fin_gz</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zstrm</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">  READ:  {F}</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">F</span><span class="o">=</span><span class="n">fin_gz</span><span class="p">))</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fin</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ostrm</span><span class="p">:</span>
+                <span class="n">ostrm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">zstrm</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;  WROTE: {F}</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">F</span><span class="o">=</span><span class="n">fin</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="read_ncbi_gene2go"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.associations.read_ncbi_gene2go">[docs]</a><span class="k">def</span> <span class="nf">read_ncbi_gene2go</span><span class="p">(</span><span class="n">fin_gene2go</span><span class="p">,</span> <span class="n">taxids</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read NCBI&#39;s gene2go. Return gene2go data for user-specified taxids.&quot;&quot;&quot;</span>
+    <span class="c"># Written by DV Klopfenstein</span>
+    <span class="c"># kws: taxid2asscs evidence_set</span>
+    <span class="c"># Simple associations </span>
+    <span class="n">id2gos</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
+    <span class="c"># Optional detailed associations split by taxid and having both ID2GOs &amp; GO2IDs</span>
+    <span class="c"># e.g., taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set))</span>
+    <span class="n">taxid2asscs</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;taxid2asscs&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;taxid2asscs&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="bp">None</span>
+    <span class="n">evs</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;evidence_set&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;evidence_set&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="bp">None</span>
+    <span class="c"># By default, return id2gos. User can cause go2geneids to be returned by:</span>
+    <span class="c">#   &gt;&gt;&gt; read_ncbi_gene2go(..., go2geneids=True</span>
+    <span class="n">b_go2geneids</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;go2geneids&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;go2geneids&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="bp">False</span>
+    <span class="k">if</span> <span class="n">taxids</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="c"># Default taxid is Human</span>
+        <span class="n">taxids</span> <span class="o">=</span> <span class="p">[</span><span class="mi">9606</span><span class="p">]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fin_gene2go</span><span class="p">)</span> <span class="k">as</span> <span class="n">ifstrm</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ifstrm</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;#&#39;</span><span class="p">:</span> <span class="c"># Line contains data. Not a comment</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="c"># chomp</span>
+                <span class="n">flds</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">flds</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">:</span>
+                    <span class="n">taxid_curr</span><span class="p">,</span> <span class="n">geneid</span><span class="p">,</span> <span class="n">go_id</span><span class="p">,</span> <span class="n">evidence</span><span class="p">,</span> <span class="n">qualifier</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+                    <span class="n">taxid_curr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">taxid_curr</span><span class="p">)</span>
+                    <span class="c"># NOT: Used when gene is expected to have function F, but does NOT.</span>
+                    <span class="c"># ND : GO function not seen after exhaustive annotation attempts to the gene.</span>
+                    <span class="k">if</span> <span class="n">taxid_curr</span> <span class="ow">in</span> <span class="n">taxids</span> <span class="ow">and</span> <span class="n">qualifier</span> <span class="o">!=</span> <span class="s">&#39;NOT&#39;</span> <span class="ow">and</span> <span class="n">evidence</span> <span class="o">!=</span> <span class="s">&#39;ND&#39;</span><span class="p">:</span>
+                        <span class="c"># Optionaly specify a subset of GOs based on their evidence.</span>
+                        <span class="k">if</span> <span class="n">evs</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">Evidence_Code</span> <span class="ow">in</span> <span class="n">evs</span><span class="p">:</span>
+                            <span class="n">geneid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">geneid</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">b_go2geneids</span><span class="p">:</span>
+                              <span class="n">id2gos</span><span class="p">[</span><span class="n">go_id</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">geneid</span><span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                              <span class="n">id2gos</span><span class="p">[</span><span class="n">geneid</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">go_id</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">taxid2asscs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                                <span class="n">taxid2asscs</span><span class="p">[</span><span class="n">taxid_curr</span><span class="p">][</span><span class="s">&#39;GeneID2GOs&#39;</span><span class="p">][</span><span class="n">geneid</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">go_id</span><span class="p">)</span>
+                                <span class="n">taxid2asscs</span><span class="p">[</span><span class="n">taxid_curr</span><span class="p">][</span><span class="s">&#39;GO2GeneIDs&#39;</span><span class="p">][</span><span class="n">go_id</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">geneid</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">id2gos</span> <span class="c"># return simple associations</span>
+</div>
+<div class="viewcode-block" id="read_gaf"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.associations.read_gaf">[docs]</a><span class="k">def</span> <span class="nf">read_gaf</span><span class="p">(</span><span class="n">fin_gaf</span><span class="p">,</span> <span class="o">**</span><span class="n">kws</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read Gene Association File (GAF). Return data.&quot;&quot;&quot;</span>
+    <span class="c"># Written by DV Klopfenstein</span>
+    <span class="c"># kws: taxid2asscs evidence_set</span>
+    <span class="kn">from</span> <span class="nn">goatools.gaf_reader</span> <span class="kn">import</span> <span class="n">GafReader</span>
+    <span class="c"># Simple associations </span>
+    <span class="n">id2gos</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
+    <span class="c"># Optional detailed associations split by taxid and having both ID2GOs &amp; GO2IDs</span>
+    <span class="n">taxid2asscs</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;taxid2asscs&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;taxid2asscs&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="bp">None</span>
+    <span class="n">gafobj</span> <span class="o">=</span> <span class="n">GafReader</span><span class="p">()</span>
+    <span class="n">gafnts</span> <span class="o">=</span> <span class="n">gafobj</span><span class="o">.</span><span class="n">read_gaf</span><span class="p">(</span><span class="n">fin_gaf</span><span class="p">)</span>
+    <span class="c"># Optionaly specify a subset of GOs based on their evidence.</span>
+    <span class="n">evs</span> <span class="o">=</span> <span class="n">kws</span><span class="p">[</span><span class="s">&#39;evidence_set&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&#39;evidence_set&#39;</span> <span class="ow">in</span> <span class="n">kws</span> <span class="k">else</span> <span class="bp">None</span>
+    <span class="k">for</span> <span class="n">nt</span> <span class="ow">in</span> <span class="n">gafnts</span><span class="p">:</span>
+        <span class="n">Evidence_Code</span> <span class="o">=</span> <span class="n">nt</span><span class="o">.</span><span class="n">Evidence_Code</span>
+        <span class="k">if</span> <span class="s">&#39;NOT&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nt</span><span class="o">.</span><span class="n">Qualifier</span> <span class="ow">and</span> <span class="n">Evidence_Code</span> <span class="o">!=</span> <span class="s">&#39;ND&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">evs</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">Evidence_Code</span> <span class="ow">in</span> <span class="n">evs</span><span class="p">:</span>
+                <span class="n">taxid</span> <span class="o">=</span> <span class="n">nt</span><span class="o">.</span><span class="n">Taxon</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">geneid</span> <span class="o">=</span> <span class="n">nt</span><span class="o">.</span><span class="n">DB_ID</span>
+                <span class="n">go_id</span> <span class="o">=</span> <span class="n">nt</span><span class="o">.</span><span class="n">GO_ID</span>
+                <span class="n">id2gos</span><span class="p">[</span><span class="n">geneid</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">go_id</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">taxid2asscs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">taxid2asscs</span><span class="p">[</span><span class="n">taxid</span><span class="p">][</span><span class="s">&#39;ID2GOs&#39;</span><span class="p">][</span><span class="n">geneid</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">go_id</span><span class="p">)</span>
+                    <span class="n">taxid2asscs</span><span class="p">[</span><span class="n">taxid</span><span class="p">][</span><span class="s">&#39;GO2IDs&#39;</span><span class="p">][</span><span class="n">go_id</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">geneid</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">id2gos</span> <span class="c"># return simple associations</span>
+
+<span class="c"># Copyright (C) 2010-2016, H Tang et al. All rights reserved.&quot;</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">GOATOOLS 2.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, Haibao Tang et al..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

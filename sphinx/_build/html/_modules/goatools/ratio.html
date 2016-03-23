@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>goatools.ratio &mdash; GOATOOLS 2.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="GOATOOLS 2.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">GOATOOLS 2.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for goatools.ratio</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: UTF-8 -*-</span>
+
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright (C) 2010-2016, H Tang et al., All rights reserved.&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;various&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">Counter</span>
+
+
+<div class="viewcode-block" id="count_terms"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.ratio.count_terms">[docs]</a><span class="k">def</span> <span class="nf">count_terms</span><span class="p">(</span><span class="n">geneset</span><span class="p">,</span> <span class="n">assoc</span><span class="p">,</span> <span class="n">obo_dag</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;count the number of terms in the study group</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">term_cnt</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="p">(</span><span class="n">g</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">geneset</span> <span class="k">if</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">assoc</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">assoc</span><span class="p">[</span><span class="n">gene</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">obo_dag</span><span class="p">:</span>
+                <span class="n">term_cnt</span><span class="p">[</span><span class="n">obo_dag</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">term_cnt</span>
+</div>
+<div class="viewcode-block" id="get_terms"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.ratio.get_terms">[docs]</a><span class="k">def</span> <span class="nf">get_terms</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">geneset</span><span class="p">,</span> <span class="n">assoc</span><span class="p">,</span> <span class="n">obo_dag</span><span class="p">,</span> <span class="n">log</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the terms in the study group</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">term2itemids</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
+    <span class="n">genes</span> <span class="o">=</span> <span class="p">[</span><span class="n">g</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">geneset</span> <span class="k">if</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">assoc</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">genes</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">assoc</span><span class="p">[</span><span class="n">gene</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">obo_dag</span><span class="p">:</span>
+                <span class="n">term2itemids</span><span class="p">[</span><span class="n">obo_dag</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">gene</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;{N:&gt;6,} out of {M:&gt;6,} {DESC} items found in association</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">DESC</span><span class="o">=</span><span class="n">desc</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">genes</span><span class="p">),</span> <span class="n">M</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">geneset</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">term2itemids</span>
+</div>
+<div class="viewcode-block" id="is_ratio_different"><a class="viewcode-back" href="../../_apidoc/goatools.html#goatools.ratio.is_ratio_different">[docs]</a><span class="k">def</span> <span class="nf">is_ratio_different</span><span class="p">(</span><span class="n">min_ratio</span><span class="p">,</span> <span class="n">study_go</span><span class="p">,</span> <span class="n">study_n</span><span class="p">,</span> <span class="n">pop_go</span><span class="p">,</span> <span class="n">pop_n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    check if the ratio go /n is different between the study group and</span>
+<span class="sd">    the population</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">min_ratio</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">True</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">study_go</span><span class="p">)</span> <span class="o">/</span> <span class="n">study_n</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pop_go</span><span class="p">)</span> <span class="o">/</span> <span class="n">pop_n</span>
+    <span class="k">if</span> <span class="n">s</span> <span class="o">&gt;</span> <span class="n">p</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span> <span class="o">/</span> <span class="n">p</span> <span class="o">&gt;</span> <span class="n">min_ratio</span>
+    <span class="k">return</span> <span class="n">p</span> <span class="o">/</span> <span class="n">s</span> <span class="o">&gt;</span> <span class="n">min_ratio</span>
+
+<span class="c"># Copyright (C) 2010-2016, H Tang et al., All rights reserved.</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">GOATOOLS 2.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, Haibao Tang et al..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

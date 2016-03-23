@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>find_enrichment &mdash; GOATOOLS 2.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="GOATOOLS 2.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">GOATOOLS 2.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for find_enrichment</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: UTF-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">python {} study.file population.file gene-association.file</span>
+
+<span class="sd">This program returns P-values for functional enrichment in a cluster of study</span>
+<span class="sd">genes using Fisher&#39;s exact test, and corrected for multiple testing (including</span>
+<span class="sd">Bonferroni, Holm, Sidak, and false discovery rate).</span>
+
+<span class="sd">About significance cutoff:</span>
+<span class="sd">--alpha: test-wise alpha; for each GO term, what significance level to apply</span>
+<span class="sd">        (most often you don&#39;t need to change this other than 0.05 or 0.01)</span>
+<span class="sd">--pval: experiment-wise alpha; for the entire experiment, what significance</span>
+<span class="sd">        level to apply after Bonferroni correction</span>
+<span class="sd">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span>
+
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright (C) 2010-2016, H Tang et al., All rights reserved.&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;various&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="kn">as</span> <span class="nn">op</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s">&quot;..&quot;</span><span class="p">))</span>
+<span class="kn">from</span> <span class="nn">goatools.go_enrichment</span> <span class="kn">import</span> <span class="n">GOEnrichmentStudy</span>
+<span class="kn">from</span> <span class="nn">goatools.obo_parser</span> <span class="kn">import</span> <span class="n">GODag</span>
+<span class="kn">from</span> <span class="nn">goatools.associations</span> <span class="kn">import</span> <span class="n">read_associations</span>
+<span class="kn">from</span> <span class="nn">goatools.multiple_testing</span> <span class="kn">import</span> <span class="n">Methods</span>
+
+
+<div class="viewcode-block" id="read_geneset"><a class="viewcode-back" href="../_apidoc/find_enrichment.html#find_enrichment.read_geneset">[docs]</a><span class="k">def</span> <span class="nf">read_geneset</span><span class="p">(</span><span class="n">study_fn</span><span class="p">,</span> <span class="n">pop_fn</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="n">pop</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">_</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">pop_fn</span><span class="p">)</span> <span class="k">if</span> <span class="n">_</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="n">study</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">_</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">study_fn</span><span class="p">)</span> <span class="k">if</span> <span class="n">_</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="c"># some times the pop is a second group to compare, rather than the</span>
+    <span class="c"># population in that case, we need to make sure the overlapping terms</span>
+    <span class="c"># are removed first</span>
+    <span class="k">if</span> <span class="n">compare</span><span class="p">:</span>
+        <span class="n">common</span> <span class="o">=</span> <span class="n">pop</span> <span class="o">&amp;</span> <span class="n">study</span>
+        <span class="n">pop</span> <span class="o">|=</span> <span class="n">study</span>
+        <span class="n">pop</span> <span class="o">-=</span> <span class="n">common</span>
+        <span class="n">study</span> <span class="o">-=</span> <span class="n">common</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;removed </span><span class="si">%d</span><span class="s"> overlapping items&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">common</span><span class="p">),</span> <span class="p">),</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Set 1: {0}, Set 2: {1}&quot;</span><span class="o">.</span>\
+            <span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">study</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pop</span><span class="p">)),</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">study</span><span class="p">,</span> <span class="n">pop</span>
+
+</div>
+<div class="viewcode-block" id="check_input_files"><a class="viewcode-back" href="../_apidoc/find_enrichment.html#find_enrichment.check_input_files">[docs]</a><span class="k">def</span> <span class="nf">check_input_files</span><span class="p">(</span><span class="n">ns</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;check filename args. otherwise if one of the 3 filenames is bad</span>
+<span class="sd">    it&#39;s hard to tell which one&quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">ns</span><span class="o">.</span><span class="n">filenames</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">  3 Expected files; Expected content: study population association&quot;,</span>
+<span class="s">  {} Actual   files: {}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ns</span><span class="o">.</span><span class="n">filenames</span><span class="p">),</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ns</span><span class="o">.</span><span class="n">filenames</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">fin</span> <span class="ow">in</span> <span class="n">ns</span><span class="o">.</span><span class="n">filenames</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fin</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s">&quot;*{}* does not exist&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fin</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="bp">False</span>
+
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="kn">import</span> <span class="nn">argparse</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">__doc__</span><span class="p">,</span>
+                 <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span><span class="p">)</span>
+
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;filenames&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&#39;data/study data/population data/association&#39;</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--alpha&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;Test-wise alpha for multiple testing &quot;</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--pval&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=.</span><span class="mo">05</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;Only print out when uncorrected p-value &lt; this value.&quot;</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--compare&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;compare&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;the population file as a comparison group. if this &quot;</span>
+                 <span class="s">&quot;flag is specified, the population is used as the study &quot;</span>
+                 <span class="s">&quot;plus the `population/comparison`&quot;</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--ratio&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;ratio&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;only show values where the difference between study &quot;</span>
+                 <span class="s">&quot;and population ratios is greater than this. useful for &quot;</span>
+                 <span class="s">&quot;excluding GO categories with small differences, but &quot;</span>
+                 <span class="s">&quot;containing large numbers of genes. should be a value &quot;</span>
+                 <span class="s">&quot;between 1 and 2. &quot;</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--indent&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;indent&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;indent GO terms&quot;</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--obo&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&quot;go-basic.obo&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;Specifies location and name of the obo file&quot;</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--no_propagate_counts&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;Do not propagate counts to parent terms&quot;</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--outfile&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;Write enrichment results into xlsx or tsv file&quot;</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--method&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&quot;bonferroni,sidak,holm&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                 <span class="n">help</span><span class="o">=</span><span class="n">Methods</span><span class="p">()</span><span class="o">.</span><span class="n">getmsg_valid_methods</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">print_help</span><span class="p">())</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">check_input_files</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+
+    <span class="n">min_ratio</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">ratio</span>
+    <span class="k">if</span> <span class="n">min_ratio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">min_ratio</span> <span class="o">&lt;=</span> <span class="mi">2</span>
+
+    <span class="n">study_fn</span><span class="p">,</span> <span class="n">pop_fn</span><span class="p">,</span> <span class="n">assoc_fn</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">filenames</span>
+    <span class="n">study</span><span class="p">,</span> <span class="n">pop</span> <span class="o">=</span> <span class="n">read_geneset</span><span class="p">(</span><span class="n">study_fn</span><span class="p">,</span> <span class="n">pop_fn</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">compare</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Study: {0} vs. Population {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">study</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pop</span><span class="p">)),</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">compare</span><span class="p">:</span>  <span class="c"># sanity check</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">study</span><span class="p">):</span>
+            <span class="nb">exit</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">ERROR: The study file contains more elements than the population file. &quot;</span>
+                 <span class="s">&quot;Please check that the study file is a subset of the population file.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="c"># check the fraction of genomic ids that overlap between study</span>
+        <span class="c"># and population</span>
+        <span class="n">overlap</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">study</span> <span class="o">&amp;</span> <span class="n">pop</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">study</span><span class="p">)</span>
+        <span class="k">if</span> <span class="mf">0.7</span> <span class="o">&lt;</span> <span class="n">overlap</span> <span class="o">&lt;</span> <span class="mf">0.95</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">WARNING: only {} fraction of genes/proteins in study are found in &quot;</span>
+                             <span class="s">&quot;the population  background.</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">overlap</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">overlap</span> <span class="o">&lt;=</span> <span class="mf">0.7</span><span class="p">:</span>
+            <span class="nb">exit</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">ERROR: only {} of genes/proteins in the study are found in the &quot;</span>
+                 <span class="s">&quot;background population. Please check.</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">overlap</span><span class="p">))</span>
+
+    <span class="n">assoc</span> <span class="o">=</span> <span class="n">read_associations</span><span class="p">(</span><span class="n">assoc_fn</span><span class="p">)</span>
+
+    <span class="n">methods</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span>
+
+    <span class="n">obo_dag</span> <span class="o">=</span> <span class="n">GODag</span><span class="p">(</span><span class="n">obo_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">obo</span><span class="p">)</span>
+    <span class="n">propagate_counts</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_propagate_counts</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">GOEnrichmentStudy</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">assoc</span><span class="p">,</span> <span class="n">obo_dag</span><span class="p">,</span>
+                          <span class="n">propagate_counts</span><span class="o">=</span><span class="n">propagate_counts</span><span class="p">,</span>
+                          <span class="n">alpha</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
+                          <span class="n">methods</span><span class="o">=</span><span class="n">methods</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">run_study</span><span class="p">(</span><span class="n">study</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">print_summary</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">min_ratio</span><span class="o">=</span><span class="n">min_ratio</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">indent</span><span class="p">,</span> <span class="n">pval</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">pval</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># Users can print to both tab-separated file and xlsx file in one run.</span>
+        <span class="n">outfiles</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span>
+        <span class="n">prt_if</span> <span class="o">=</span> <span class="bp">None</span> <span class="c"># Print all values</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">pval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># Only print out when uncorrected p-value &lt; this value.</span>
+            <span class="n">prt_if</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">nt</span><span class="p">:</span> <span class="n">nt</span><span class="o">.</span><span class="n">p_uncorrected</span> <span class="o">&lt;</span> <span class="n">args</span><span class="o">.</span><span class="n">pval</span>
+        <span class="k">for</span> <span class="n">outfile</span> <span class="ow">in</span> <span class="n">outfiles</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">outfile</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.xlsx&quot;</span><span class="p">):</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">wr_xlsx</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">prt_if</span><span class="o">=</span><span class="n">prt_if</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">wr_tsv</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">prt_if</span><span class="o">=</span><span class="n">prt_if</span><span class="p">)</span>
+
+<span class="c"># Copyright (C) 2010-2016, H Tang et al., All rights reserved.</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">GOATOOLS 2.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2016, Haibao Tang et al..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
