@@ -7,6 +7,7 @@
 """Read and store Gene Ontology's obo file."""
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
+from collections import defaultdict
 import sys
 import os
 import re
@@ -120,17 +121,36 @@ class OBOReader(object):
         # 'def' is a reserved word in python, do not use it as a Class attr.
         if name == "def":
             name = "defn"
+
+        # If we have a relationship, then we will split this into a further
+        # dictionary.
+
         if hasattr(rec, name):
             if name not in self.attrs_scalar:
-                getattr(rec, name).add(value)
+                if name not in self.attrs_nested:
+                    getattr(rec, name).add(value)
+                else:
+                    self._add_nested(rec, name, value)
             else:
                 raise Exception("ATTR({NAME}) ALREADY SET({VAL})".format(
                     NAME=name, VAL=getattr(rec, name)))
         else: # Initialize new GOTerm attr
             if name in self.attrs_scalar:
                 setattr(rec, name, value)
-            else:
+            elif name not in self.attrs_nested:
                 setattr(rec, name, set([value]))
+            else:
+                name = '_{:s}'.format(name)
+                setattr(rec, name, defaultdict(list))
+                self._add_nested(rec, name, value)
+
+    def _add_nested(self, rec, name, value):
+        """Adds a term's nested attributes."""
+        # Remove comments and split term into typedef / target term.
+        (typedef, target_term) = value.split('!')[0].rstrip().split(' ')
+
+        # Save the nested term.
+        getattr(rec, name)[typedef].append(target_term)
 
     def _init_optional_attrs(self, optional_attrs):
         """Prepare to store data from user-desired optional fields.
@@ -147,6 +167,7 @@ class OBOReader(object):
         self.attrs_scalar = ['comment', 'defn',
                              'is_class_level', 'is_metadata_tag',
                              'is_transitive', 'transitive_over']
+        self.attrs_nested = frozenset(['relationship'])
         # Allow user to specify either: 'def' or 'defn'
         #   'def' is an obo field name, but 'defn' is legal Python attribute name
         fnc = lambda aopt: aopt if aopt != "defn" else "def"
@@ -206,8 +227,16 @@ class GOTerm:
             else:
                 ret.append("{K}: {V} items".format(K=key, V=len(val)))
                 if len(val) < 10:
-                    for elem in val:
-                        ret.append("  {ELEM}".format(ELEM=elem))
+                    if not isinstance(val, dict):
+                        for elem in val:
+                            ret.append("  {ELEM}".format(ELEM=elem))
+                    else:
+                        for (typedef, terms) in val.items():
+                            ret.append("  {TYPEDEF}: {NTERMS} items"
+                                       .format(TYPEDEF=typedef,
+                                               NTERMS=len(terms)))
+                            for t in terms:
+                                ret.append("    {TERM}".format(TERM=t))
         return "\n  ".join(ret)
 
     def has_parent(self, term):
@@ -327,9 +356,15 @@ class GODag(dict):
                     rec.depth = max(_init_depth(rec) for rec in rec.parents) + 1
             return rec.depth
 
-        # make the parents references to the GO terms
+        # Make parents and relationships references to the actual GO terms.
         for rec in self.values():
             rec.parents = [self[x] for x in rec._parents]
+
+            if hasattr(rec, '_relationship'):
+                rec.relationship = defaultdict(list)
+                for (typedef, terms) in rec._relationship.items():
+                    rec.relationship[typedef] = [self[x] for x in terms]
+                delattr(rec, '_relationship')
 
         # populate children and levels
         for rec in self.values():
