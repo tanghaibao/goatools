@@ -7,6 +7,7 @@
 """Read and store Gene Ontology's obo file."""
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
+from collections import defaultdict
 import sys
 import os
 import re
@@ -31,6 +32,8 @@ class OBOReader(object):
         self._init_optional_attrs(optional_attrs)
         self.format_version = None
         self.data_version = None
+        self.typedefs = {}
+
         # True if obo file exists or if a link to an obo file exists.
         if os.path.isfile(obo_file):
             self.obo_file = obo_file
@@ -46,22 +49,30 @@ class OBOReader(object):
         # Wait to open file until needed. Automatically close file when done.
         with open(self.obo_file) as fstream:
             rec_curr = None # Stores current GO Term
+            typedef_curr = None  # Stores current typedef
             for lnum, line in enumerate(fstream):
                 # obo lines start with any of: [Term], [Typedef], /^\S+:/, or /^\s*/
                 if self.data_version is None:
                     self._init_obo_version(line)
-                if line[0:6] == "[Term]":
+                if line[0:6].lower() == "[term]":
                     rec_curr = self._init_goterm_ref(rec_curr, "Term", lnum)
-                elif line[0:9] == "[Typedef]":
-                    pass # Original OBOReader did not store these
-                elif rec_curr is not None:
+                elif line[0:9].lower() == "[typedef]":
+                    typedef_curr = self._init_typedef(rec_curr, "Typedef", lnum)
+                elif rec_curr is not None or typedef_curr is not None:
                     line = line.rstrip() # chomp
                     if ":" in line:
-                        self._add_to_ref(rec_curr, line, lnum)
+                        if rec_curr is not None:
+                            self._add_to_ref(rec_curr, line, lnum)
+                        else:
+                            self._add_to_typedef(typedef_curr, line, lnum)
                     elif line == "":
                         if rec_curr is not None:
                             yield rec_curr
                             rec_curr = None
+                        elif typedef_curr is not None:
+                            # Save typedef.
+                            self.typedefs[typedef_curr.id] = typedef_curr
+                            typedef_curr = None
                     else:
                         self._die("UNEXPECTED LINE CONTENT: {L}".format(L=line), lnum)
             # Return last record, if necessary
@@ -82,6 +93,13 @@ class OBOReader(object):
         msg = "PREVIOUS {REC} WAS NOT TERMINATED AS EXPECTED".format(REC=name)
         self._die(msg, lnum)
 
+    def _init_typedef(self, typedef_curr, name, lnum):
+        """Initialize new typedef and perform checks."""
+        if typedef_curr is None:
+            return TypeDef()
+        msg = "PREVIOUS {REC} WAS NOT TERMINATED AS EXPECTED".format(REC=name)
+        self._die(msg, lnum)
+
     def _add_to_ref(self, rec_curr, line, lnum):
         """Add new fields to the current reference."""
         # Written by DV Klopfenstein
@@ -98,7 +116,7 @@ class OBOReader(object):
             if field_name == "id":
                 self._chk_none(rec_curr.id, lnum)
                 rec_curr.id = field_value
-            if field_name == "alt_id":
+            elif field_name == "alt_id":
                 rec_curr.alt_ids.append(field_value)
             elif field_name == "name":
                 self._chk_none(rec_curr.name, lnum)
@@ -120,17 +138,58 @@ class OBOReader(object):
         # 'def' is a reserved word in python, do not use it as a Class attr.
         if name == "def":
             name = "defn"
+
+        # If we have a relationship, then we will split this into a further
+        # dictionary.
+
         if hasattr(rec, name):
             if name not in self.attrs_scalar:
-                getattr(rec, name).add(value)
+                if name not in self.attrs_nested:
+                    getattr(rec, name).add(value)
+                else:
+                    self._add_nested(rec, name, value)
             else:
                 raise Exception("ATTR({NAME}) ALREADY SET({VAL})".format(
                     NAME=name, VAL=getattr(rec, name)))
         else: # Initialize new GOTerm attr
             if name in self.attrs_scalar:
                 setattr(rec, name, value)
-            else:
+            elif name not in self.attrs_nested:
                 setattr(rec, name, set([value]))
+            else:
+                name = '_{:s}'.format(name)
+                setattr(rec, name, defaultdict(list))
+                self._add_nested(rec, name, value)
+
+    def _add_to_typedef(self, typedef_curr, line, lnum):
+        """Add new fields to the current typedef."""
+        mtch = re.match(r'^(\S+):\s*(\S.*)$', line)
+        if mtch:
+            field_name = mtch.group(1)
+            field_value = mtch.group(2).split('!')[0].rstrip()
+
+            if field_name == "id":
+                self._chk_none(typedef_curr.id, lnum)
+                typedef_curr.id = field_value
+            elif field_name == "name":
+                self._chk_none(typedef_curr.name, lnum)
+                typedef_curr.name = field_value
+            elif field_name == "transitive_over":
+                typedef_curr.transitive_over.append(field_value)
+            elif field_name == "inverse_of":
+                self._chk_none(typedef_curr.inverse_of, lnum)
+                typedef_curr.inverse_of = field_value
+            # Note: there are other tags that aren't imported here.
+        else:
+            self._die("UNEXPECTED FIELD CONTENT: {L}\n".format(L=line), lnum)
+
+    def _add_nested(self, rec, name, value):
+        """Adds a term's nested attributes."""
+        # Remove comments and split term into typedef / target term.
+        (typedef, target_term) = value.split('!')[0].rstrip().split(' ')
+
+        # Save the nested term.
+        getattr(rec, name)[typedef].append(target_term)
 
     def _init_optional_attrs(self, optional_attrs):
         """Prepare to store data from user-desired optional fields.
@@ -147,6 +206,7 @@ class OBOReader(object):
         self.attrs_scalar = ['comment', 'defn',
                              'is_class_level', 'is_metadata_tag',
                              'is_transitive', 'transitive_over']
+        self.attrs_nested = frozenset(['relationship'])
         # Allow user to specify either: 'def' or 'defn'
         #   'def' is an obo field name, but 'defn' is legal Python attribute name
         fnc = lambda aopt: aopt if aopt != "defn" else "def"
@@ -206,8 +266,16 @@ class GOTerm:
             else:
                 ret.append("{K}: {V} items".format(K=key, V=len(val)))
                 if len(val) < 10:
-                    for elem in val:
-                        ret.append("  {ELEM}".format(ELEM=elem))
+                    if not isinstance(val, dict):
+                        for elem in val:
+                            ret.append("  {ELEM}".format(ELEM=elem))
+                    else:
+                        for (typedef, terms) in val.items():
+                            ret.append("  {TYPEDEF}: {NTERMS} items"
+                                       .format(TYPEDEF=typedef,
+                                               NTERMS=len(terms)))
+                            for t in terms:
+                                ret.append("    {TERM}".format(TERM=t))
         return "\n  ".join(ret)
 
     def has_parent(self, term):
@@ -289,6 +357,30 @@ class GOTerm:
                 depth, dp)
 
 
+class TypeDef(object):
+    """
+        TypeDef term. These contain more tags than included here, but these
+        are the most important.
+    """
+
+    def __init__(self):
+        self.id = ""                # GO:NNNNNNN
+        self.name = ""              # description
+        self.transitive_over = []   # List of other typedefs
+        self.inverse_of = ""        # Name of inverse typedef.
+
+    def __str__(self):
+        ret = []
+        ret.append("Typedef - {} ({}):".format(self.id, self.name))
+        ret.append("  Inverse of: {}".format(self.inverse_of
+                                             if self.inverse_of else "None"))
+        if self.transitive_over:
+            ret.append("  Transitive over:")
+            for t in self.transitive_over:
+                ret.append("    - {}".format(t))
+        return "\n".join(ret)
+
+
 class GODag(dict):
 
     def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
@@ -305,6 +397,10 @@ class GODag(dict):
 
         print("{OBO}: format-version({FMT}) data-version({REL})".format(
             OBO=obo_file, FMT=reader.format_version, REL=reader.data_version))
+
+        # Save the typedefs and parsed optional_attrs
+        self.typedefs = reader.typedefs
+        self.optional_attrs = reader.optional_attrs
 
         self.populate_terms()
         print(len(self), "nodes imported", file=sys.stderr)
@@ -327,15 +423,32 @@ class GODag(dict):
                     rec.depth = max(_init_depth(rec) for rec in rec.parents) + 1
             return rec.depth
 
-        # make the parents references to the GO terms
+        # Make parents and relationships references to the actual GO terms.
         for rec in self.values():
             rec.parents = [self[x] for x in rec._parents]
 
-        # populate children and levels
+            if hasattr(rec, '_relationship'):
+                rec.relationship = defaultdict(set)
+                for (typedef, terms) in rec._relationship.items():
+                    rec.relationship[typedef].update(set([self[x] for x in terms]))
+                delattr(rec, '_relationship')
+
+        # populate children, levels and add inverted relationships
         for rec in self.values():
             for p in rec.parents:
                 if rec not in p.children:
                     p.children.append(rec)
+
+            # Add invert relationships
+            if hasattr(rec, 'relationship'):
+                for (typedef, terms) in rec.relationship.items():
+                    invert_typedef = self.typedefs[typedef].inverse_of
+                    if invert_typedef:
+                        # Add inverted relationship
+                        for t in terms:
+                            if not hasattr(t, 'relationship'):
+                                t.relationship = defaultdict(set)
+                            t.relationship[invert_typedef].add(rec)
 
             if rec.level is None:
                 _init_level(rec)
