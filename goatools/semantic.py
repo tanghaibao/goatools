@@ -3,7 +3,8 @@
 
 """
 Compute semantic similarities between GO terms. Borrowed from book chapter from
-Christophe Dessimoz (thanks). For details, please check out:
+Alex Warwick Vesztrocy and Christophe Dessimoz (thanks). For details, please
+check out:
 notebooks/semantic_similarity.ipynb
 """
 
