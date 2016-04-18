@@ -60,7 +60,7 @@ class GoSearch(object):
         if isinstance(fld_val, set):
             for val in fld_val:
                 self._search_val(matches, compiled_pattern, val)
-        else:
+        elif isinstance(fld_val, str):
             self._search_val(matches, compiled_pattern, fld_val)
         return matches
 
