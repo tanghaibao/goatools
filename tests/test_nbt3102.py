@@ -59,11 +59,12 @@ def test_example(log=sys.stdout):
     #keep_if = lambda nt: getattr(nt, "p_fdr_bh" ) < 0.05 # keep if results are significant
     goea_results_all = goeaobj.run_study(geneids_study)
     goea_results_sig = [r for r in goea_results_all if r.p_fdr_bh < 0.05]
-    compare_results(goea_results_sig)
+    compare_results(goea_results_all)
     geneids = goeaobj.get_study_items(goea_results_sig)
     # Print GOEA results to files
     goeaobj.wr_xlsx("nbt3102.xlsx", goea_results_sig)
-    goeaobj.wr_txt("nbt3102.txt", goea_results_sig)
+    goeaobj.wr_txt("nbt3102_sig.txt", goea_results_sig)
+    goeaobj.wr_txt("nbt3102_all.txt", goea_results_all)
     # Plot all significant GO terms w/annotated study info (large plots)
     #plot_results("nbt3102_{NS}.png", goea_results_sig)
     #plot_results("nbt3102_{NS}_sym.png", goea_results_sig, study_items=5, items_p_line=2, id2symbol=geneids_study)
@@ -85,23 +86,32 @@ def test_example(log=sys.stdout):
     # What GO term words are associated with the largest number of study genes?
     prt_word2genecnt("nbt3102_genecnt_GOword.txt", goea_results_sig, log)
     # Curated selection of GO words associated with large numbers of study genes
-    freq_seen = ['RNA', 'translation', 'mitochondrial', 'mitochondrion', 'ribosomal', 'ribosome',
+    freq_seen = ['RNA', 'translation', 'mitochondr', 'ribosom', # 'ribosomal', 'ribosome',
         'adhesion', 'endoplasmic', 'nucleotide', 'apoptotic', 'myelin']
     # Collect the GOs which contains the chosen frequently seen words
-    word2gos = get_word2gos(freq_seen, goea_results_sig)
+    word2NS2gos = get_word2NS2gos(freq_seen, goea_results_sig)
     go2res = {nt.GO:nt for nt in goea_results_sig}
     # Print words of interest, the sig GO terms which contain that word, and study genes.
-    prt_word_GO_genes("nbt3102_GO_word_genes.txt", word2gos, go2res, geneids_study, log)
+    prt_word_GO_genes("nbt3102_GO_word_genes.txt", word2NS2gos, go2res, geneids_study, log)
     # Plot each set of GOs along w/study gene info 
-    for word, gos in word2gos.items():
-       goid2goobj = {go:go2res[go].goterm for go in gos}
-       plot_goid2goobj(
-           "nbt3102_word_{WORD}.png".format(WORD=word),
-           goid2goobj, # source GOs and their GOTerm object
-           study_items=15, # Max number of gene symbols to print in each GO term
-           id2symbol=geneids_study, # Contains GeneID-to-Symbol
-           goea_results=goea_results_all, # pvals used for GO Term coloring
-           dpi=dpi)
+    for word, NS2gos in word2NS2gos.items():
+       for NS in ['BP', 'MF', 'CC']:
+           if NS in NS2gos:
+               gos = NS2gos[NS]
+               goid2goobj = {go:go2res[go].goterm for go in gos}
+               # dpi: 150 for review, 1200 for publication
+               dpis = [150, 1200] if word == "RNA" else [150]
+               for dpi in dpis:
+                   fmts = ['png', 'tif', 'eps'] if word == "RNA" else ['png']
+                   for fmt in fmts:
+                       plot_goid2goobj(
+                           "nbt3102_{WORD}_{NS}_dpi{DPI}.{FMT}".format(WORD=word, NS=NS, DPI=dpi, FMT=fmt),
+                           goid2goobj, # source GOs and their GOTerm object
+                           items_p_line=3,
+                           study_items=6, # Max number of gene symbols to print in each GO term
+                           id2symbol=geneids_study, # Contains GeneID-to-Symbol
+                           goea_results=goea_results_all, # pvals used for GO Term coloring
+                           dpi=dpi)
       
     
     # --------------------------------------------------------------------
@@ -131,7 +141,6 @@ def test_example(log=sys.stdout):
         items_p_line=2, study_items=6, 
         id2symbol=geneids_study, goea_results=goea_results_all, dpi=dpi)
 
-
     # --------------------------------------------------------------------
     # Item 3) Create one GO sub-plot per significant GO term from study
     # --------------------------------------------------------------------
@@ -144,7 +153,6 @@ def test_example(log=sys.stdout):
             id2symbol=geneids_study, # Contains GeneID-to-Symbol
             goea_results=goea_results_all, # pvals used for GO Term coloring
             dpi=dpi)
-
 
     # --------------------------------------------------------------------
     # Item 4) Explore using manually curated lists of GO terms
@@ -195,7 +203,7 @@ def get_goeaobj(method, geneids_pop, taxid):
     """Load: ontologies, associations, and population geneids."""
     fin_obo = "go-basic.obo"
     if not os.path.isfile(fin_obo):
-        wget.download("wget http://geneontology.org/ontology/go-basic.obo") 
+        wget.download("http://geneontology.org/ontology/go-basic.obo") 
     obo_dag = GODag(fin_obo)
     assoc_geneid2gos = get_assoc_ncbi_taxids([taxid])
     goeaobj = GOEnrichmentStudy(
@@ -227,7 +235,7 @@ def compare_results(goea_results_sig):
     overlap = set(act_goids).intersection(exp_goids)
     fout_txt = "nbt3102_compare.txt"
     with open(fout_txt, 'w') as prt:
-        prt.write("{N} GO terms overlapped with {M} top 20 GO terms in Nature paper\n".format(
+        prt.write("{N} GO terms overlapped with {M} top20 GO terms in Nature paper\n".format(
             N = len(overlap), M = len(exp_goids)))
         idx = 1
         gos = set()
@@ -256,45 +264,56 @@ def prt_word2genecnt(fout, goea_results_sig, log):
             wordstrm.write("{CNT:>3} {WORD}\n".format(CNT=cnt, WORD=word))
     log.write("  WROTE: {F}\n".format(F=fout))
        
-def get_word2gos(words, goea_results_sig):
+def get_word2NS2gos(words, goea_results_sig):
     """Get all GO terms which contain a word in 'words'."""        
-    word2gos = defaultdict(set)
+    word2NS2gos = defaultdict(lambda: defaultdict(set))
+    sig_GOs = set([rec.GO for rec in goea_results_sig])
     for word in words: 
-        for rec in goea_results_sig: 
+        for rec in goea_results_sig:
+            NS = rec.NS
             if word in rec.name:
-                word2gos[word].add(rec.GO)
-    return OrderedDict([(w, word2gos[w]) for w in words])
+                word2NS2gos[word][NS].add(rec.GO)
+                # Get significant children under term with word
+                #   (Try it, but don't include for paper for more concise plots.)
+                #_get_word2NS2childgos(word2NS2gos[word][NS], rec, sig_GOs)
+    return OrderedDict([(w, word2NS2gos[w]) for w in words])
 
-def prt_word_GO_genes(fout, word2gos, go2res, geneids_study, log):
+def _get_word2NS2childgos(gos, rec, sig_GOs):
+    """If a GO term contains a word of interest, also collect sig. child terms."""
+    children = rec.goterm.get_all_children()
+    for goid_child in children.intersection(sig_GOs):
+        gos.add(goid_child)
+
+def prt_word_GO_genes(fout, word2NS2gos, go2res, geneids_study, log):
     """Print words in GO names that have large numbers of study genes."""
     with open(fout, "w") as prt:
       prt.write("""This file is generated by test_nbt3102.py and is intended to confirm
 this statement in the GOATOOLS manuscript:
 
         We observed: 
-            93 genes associated with RNA, 
-            47 genes associated with translation, 
-            38 genes associated with mitochondrial, and 
-            37 genes associated with ribosomal, as reported by GOATOOLS.
+            N genes associated with RNA, 
 
 """)
-      for word, gos in word2gos.items():
-        # Sort first by BP, MF, CC. Sort second by GO id.
-        gos = sorted(gos, key=lambda go: [go2res[go].NS, go])
-        genes = set()
-        for go in gos:
-            genes |= go2res[go].study_items
-        genes = sorted([geneids_study[g] for g in genes])
-        prt.write("\n{WD}: {N} study genes, {M} GOs\n".format(WD=word, N=len(genes), M=len(gos)))
-        prt.write("{WD} GOs: {GOs}\n".format(WD=word, GOs=", ".join(gos)))
-        for i, go in enumerate(gos):
-            res = go2res[go]
-            prt.write("{I}) {NS} {GO} {NAME} ({N} genes)\n".format(
-                I=i, NS=res.NS, GO=go, NAME=res.name, N=res.study_count))
-        prt.write("{N} study genes:\n".format(N=len(genes)))
-        N = 10 # 10 genes per line
-        mult = [genes[i:i+N] for i in range(0, len(genes), N)]
-        prt.write("  {}\n".format("\n  ".join([", ".join(str(g) for g in sl) for sl in mult])))
+      for word, NS2gos in word2NS2gos.items():
+          for NS in ['BP', 'MF', 'CC']:
+              if NS in NS2gos:
+                  gos = sorted(NS2gos[NS])
+                  # Sort first by BP, MF, CC. Sort second by GO id.
+                  #####gos = sorted(gos, key=lambda go: [go2res[go].NS, go])
+                  genes = set()
+                  for go in gos:
+                      genes |= go2res[go].study_items
+                  genes = sorted([geneids_study[g] for g in genes])
+                  prt.write("\n{WD}: {N} study genes, {M} GOs\n".format(WD=word, N=len(genes), M=len(gos)))
+                  prt.write("{WD} GOs: {GOs}\n".format(WD=word, GOs=", ".join(gos)))
+                  for i, go in enumerate(gos):
+                      res = go2res[go]
+                      prt.write("{I}) {NS} {GO} {NAME} ({N} genes)\n".format(
+                          I=i, NS=res.NS, GO=go, NAME=res.name, N=res.study_count))
+                  prt.write("{N} study genes:\n".format(N=len(genes)))
+                  N = 10 # 10 genes per line
+                  mult = [genes[i:i+N] for i in range(0, len(genes), N)]
+                  prt.write("  {}\n".format("\n  ".join([", ".join(str(g) for g in sl) for sl in mult])))
       log.write("  WROTE: {F}\n".format(F=fout))
 
 def paper_top20():
@@ -331,14 +350,14 @@ def paper_top20():
            multiple testing.
 
        For the GOATOOLS publication, we use the following:
-           1.   GOATOOLS version 0.5.10
+           1.   GOATOOLS version 0.6.4
            2.   "Fisher's exact test" statistical analysis method
            2a.  "Benjamini/Hochberg" for multiple-test correction
-           3a.  Ontologies from go-basic.obo version 1.2 release 2016-02-06
-           3b.  Annotations from ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz modified 2/27/16
+           3a.  Ontologies from go-basic.obo version 1.2 release 2016-04-16
+           3b.  Annotations from ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz modified 4/17/16
            4.   The population is 28,212 protein-coding genes for mouse
            4a.      18,396 of the 28,212 population genes contain GO annotations
-           5.   The study size is the 400 genes in supplemental table 4 (Rpl41 is listed twice).
+           5.   The study size is the 400 genes in supplemental table 4 (Rpl41 is listed twice in the Nature paper).
            5a.         372 of the 400 study genes contain GO annotations
 
      
