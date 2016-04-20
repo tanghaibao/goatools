@@ -15,10 +15,6 @@ run_goea:
 	$(PYTHON) test_write_summary_cnts.py
 	$(PYTHON) tests_methodsobj.py
 
-png2tif:
-	convert nbt3102_MF_RNA_dpi150.png nbt3102_MF_RNA_dpi150.tif
-	convert nbt3102_MF_RNA_dpi1200.png nbt3102_MF_RNA_dpi1200.tif
-
 run_goea_scripts:
 	cd ..; make goea_all
 
