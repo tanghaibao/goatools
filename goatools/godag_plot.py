@@ -4,6 +4,7 @@ __copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang, All rights reserve
 __author__ = "DV Klopfenstein"
 
 import sys 
+import os
 import collections as cx
 from collections import OrderedDict
 from goatools.wr_tbl import get_fmtflds
@@ -136,10 +137,10 @@ class GODagSmallPlot(object):
                     goid2color[goid] = color
         return goid2color
 
-    def plt(self, fout_png, engine="pydot"):
+    def plt(self, fout_img, engine="pydot"):
         """Plot using pydot, graphviz, or GML."""
         if engine == "pydot":
-            self._plt_pydot(fout_png)
+            self._plt_pydot(fout_img)
         elif engine == "pygraphviz":
             raise Exception("TO BE IMPLEMENTED SOON: ENGINE pygraphvis")
         else:
@@ -147,11 +148,12 @@ class GODagSmallPlot(object):
 
     # ----------------------------------------------------------------------------------
     # pydot
-    def _plt_pydot(self, fout_png):
+    def _plt_pydot(self, fout_img):
         """Plot using the pydot graphics engine."""
         dag = self._get_pydot_graph()
-        dag.write_png(fout_png)
-        self.log.write("  WROTE: {F}\n".format(F=fout_png))
+        img_fmt = os.path.splitext(fout_img)[1][1:]
+        dag.write(fout_img, format=img_fmt)
+        self.log.write("  WROTE: {F}\n".format(F=fout_img))
 
     def _get_pydot_graph(self):
         """Given a DAG, return a pydot digraph object."""
