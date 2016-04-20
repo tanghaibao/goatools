@@ -25,6 +25,7 @@ clean:
 	rm -f *.pyc
 	rm -f gene_association.*
 	rm -f *.png
+	rm -f tmp*
 
 clobber:
 	@make --no-print-directory clean
