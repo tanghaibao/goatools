@@ -13,9 +13,9 @@ Tools for Gene Ontology
     :target: https://crate.io/packages/goatools/
     :alt: Number of PyPI downloads
 
-.. image:: https://scrutinizer-ci.com/g/tanghaibao/goatools/badges/quality-score.png
-    :target: https://scrutinizer-ci.com/g/tanghaibao/goatools
-    :alt: Scrutinizer
+.. image:: https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat
+    :target: http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools
+    :alt: bioconda
 
 .. image:: https://travis-ci.org/tanghaibao/goatools.svg?branch=master
     :target: https://travis-ci.org/tanghaibao/goatools
@@ -102,6 +102,9 @@ Dependencies
 
        * `ImageMagick <http://www.imagemagick.org/>`_'s *display*
        * `Graphviz <http://www.graphviz.org/>`_
+
+- Alternatively, it is possible to install via bioconda. See details
+`here <http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools>`_.
 
 
 Cookbook
