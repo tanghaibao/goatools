@@ -173,8 +173,8 @@ See ``map_to_slim.py`` for usage. As arguments it takes the gene ontology files:
 * the GOslim file to be used (e.g. ``goslim_generic.obo`` or any other GOslim
   file)
 
-The script either maps one GO term to it's GOslim terms, or protein products
-with multiple associations to all it's GOslim terms.
+The script either maps one GO term to its GOslim terms, or protein products
+with multiple associations to all its GOslim terms.
 
 To determine the GOslim terms for a single GO term, you can use the following
 command::
@@ -189,7 +189,7 @@ Where the ``association`` file has the same format as used for
 ``find_enrichment.py``.
 
 The implemented algorithm is described in more detail at the go-perl
-documenation of `map2slim <http://search.cpan.org/~cmungall/go-perl/scripts/map2slim>`_.
+documentation of `map2slim <http://search.cpan.org/~cmungall/go-perl/scripts/map2slim>`_.
 
 
 Available significance tests
@@ -199,7 +199,7 @@ We have implemented several significance tests:
 * ``bonferroni``, bonferroni correction
 * ``sidak``, sidak correction
 * ``holm``, hold correction
-* ``fdr``, false discvery rate (fdr) implementation using resampling
+* ``fdr``, false discovery rate (fdr) implementation using resampling
 
 Additional methods are available if ``statsmodels`` is installed:
 
@@ -213,8 +213,9 @@ Additional methods are available if ``statsmodels`` is installed:
 * ``fdr_by``, fdr correction with Benjamini/Yekutieli (negative)
 * ``fdr_tsbh``, two stage fdr correction (non-negative)
 * ``fdr_tsbky``, two stage fdr correction (non-negative)
+* ``fdr_gbs``, fdr adaptive Gavrilov-Benjamini-Sarkar
 
-In total 14 tests are availble, which can be selected using option ``--method``.
+In total 15 tests are available, which can be selected using option ``--method``.
 Please note that the default FDR (``fdr``) uses a resampling strategy which may
 lead to slightly different q-values between runs.
 
