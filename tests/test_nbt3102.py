@@ -100,7 +100,8 @@ def test_example(log=sys.stdout):
                gos = NS2gos[NS]
                goid2goobj = {go:go2res[go].goterm for go in gos}
                # dpi: 150 for review, 1200 for publication
-               dpis = [150, 1200] if word == "RNA" else [150]
+               #dpis = [150, 1200] if word == "RNA" else [150]
+               dpis = [150]
                for dpi in dpis:
                    fmts = ['png', 'tif', 'eps'] if word == "RNA" else ['png']
                    for fmt in fmts:

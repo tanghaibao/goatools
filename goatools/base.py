@@ -3,9 +3,11 @@
 
 import bz2
 import gzip
+import wget
 import sys
 import urllib
 import os.path as op
+import os
 
 
 if sys.version_info[0] < 3:
@@ -104,3 +106,33 @@ def ungzipper(fh, blocksize=16384):
         data = uzip.decompress(fh.read(blocksize)).split("\n")
         # first line is prepended with saved chunk from end of last set.
         data[0] = save + data[0]
+
+
+def download_go_basic_obo(prt=sys.stdout):
+    """Download Ontologies, if necessary."""
+    # http://geneontology.org/ontology/go-basic.obo
+    obo = "go-basic.obo"
+    if not os.path.exists(obo):
+        wget.download("http://geneontology.org/ontology/{OBO}".format(OBO=obo))
+        prt.write("\n  DOWNLOADED: {FILE}\n".format(FILE=obo))
+    else:
+        prt.write("  EXISTS: {FILE}\n".format(FILE=obo))
+    return obo
+
+def download_ncbi_associations(prt=sys.stdout):
+    """Download associations from NCBI, if necessary"""
+    # ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz
+    gene2go = "gene2go"
+    gz = "{GENE2GO}.gz".format(GENE2GO=gene2go)
+    if not os.path.isfile(gene2go):
+        wget.download("ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{GZ}".format(GZ=gz))
+        with gzip.open(gz, 'rb') as zstrm:
+            with  open(gene2go, 'w') as ostrm:
+                ostrm.write(zstrm.read())
+        os.remove(gz)
+        prt.write("\n  DOWNLOADED: {FILE}\n".format(FILE=gene2go))
+    else:
+        prt.write("  EXISTS: {FILE}\n".format(FILE=gene2go))
+    return gene2go
+
+
