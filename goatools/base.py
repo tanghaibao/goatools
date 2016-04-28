@@ -110,7 +110,7 @@ def ungzipper(fh, blocksize=16384):
 
 def download_go_basic_obo(prt=sys.stdout):
     """Download Ontologies, if necessary."""
-    # http://geneontology.org/ontology/go-basic.obo
+    # Download: http://geneontology.org/ontology/go-basic.obo
     obo = "go-basic.obo"
     if not os.path.exists(obo):
         wget.download("http://geneontology.org/ontology/{OBO}".format(OBO=obo))
@@ -121,7 +121,7 @@ def download_go_basic_obo(prt=sys.stdout):
 
 def download_ncbi_associations(prt=sys.stdout):
     """Download associations from NCBI, if necessary"""
-    # ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz
+    # Download: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz
     gene2go = "gene2go"
     gz = "{GENE2GO}.gz".format(GENE2GO=gene2go)
     if not os.path.isfile(gene2go):
@@ -135,4 +135,4 @@ def download_ncbi_associations(prt=sys.stdout):
         prt.write("  EXISTS: {FILE}\n".format(FILE=gene2go))
     return gene2go
 
-
+# Copyright (C) 2016, B Pedersen, et al. All rights reserved."
