@@ -10,7 +10,7 @@ __copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
 
 def test_unknown_gos():
     """Ensure that a study with only unknown GO Terms will run gracefully."""
-    os.system("python {SCR} --alpha=0.05 {STUDY} {POP} {ASSN} --fdr --obo={OBO}".format(
+    os.system("python {SCR} --alpha=0.05 {STUDY} {POP} {ASSN} --obo={OBO}".format(
         SCR="../scripts/find_enrichment.py",
         OBO="../go-basic.obo",
         STUDY="data/study_unknown",
