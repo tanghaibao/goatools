@@ -126,13 +126,20 @@ def download_ncbi_associations(prt=sys.stdout):
     gz = "{GENE2GO}.gz".format(GENE2GO=gene2go)
     if not os.path.isfile(gene2go):
         wget.download("ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{GZ}".format(GZ=gz))
-        with gzip.open(gz, 'rb') as zstrm:
-            with  open(gene2go, 'w') as ostrm:
-                ostrm.write(zstrm.read())
-        os.remove(gz)
+        assert gunzip(gz) == gene2go
         prt.write("\n  DOWNLOADED: {FILE}\n".format(FILE=gene2go))
     else:
         prt.write("  EXISTS: {FILE}\n".format(FILE=gene2go))
     return gene2go
 
-# Copyright (C) 2016, B Pedersen, et al. All rights reserved."
+def gunzip(gz, file_gunzip=None):
+    """Unzip .gz file. Return filename of unzipped file."""
+    if file_gunzip is None:
+        file_gunzip = os.path.splitext(gz)[0]
+    with gzip.open(gz, 'rb') as zstrm:
+        with  open(file_gunzip, 'w') as ostrm:
+            ostrm.write(zstrm.read())
+    os.remove(gz)
+    return file_gunzip
+
+# Copyright (C) 2013-2016, B Pedersen, et al. All rights reserved."
