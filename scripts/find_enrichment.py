@@ -121,9 +121,9 @@ if __name__ == "__main__":
         if 0.7 < overlap < 0.95:
             sys.stderr.write("\nWARNING: only {} fraction of genes/proteins in study are found in "
                              "the population  background.\n\n".format(overlap))
-        #if overlap <= 0.7:
-        #    exit("\nERROR: only {} of genes/proteins in the study are found in the "
-        #         "background population. Please check.\n".format(overlap))
+        if overlap <= 0.7:
+            exit("\nERROR: only {} of genes/proteins in the study are found in the "
+                 "background population. Please check.\n".format(overlap))
 
     assoc = read_associations(assoc_fn)
 
