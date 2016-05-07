@@ -6,7 +6,7 @@
 Welcome to GOATOOLS's documentation
 ====================================
 
-Contents:
+Coming Soon...
 
 .. toctree::
    :maxdepth: 2
@@ -16,14 +16,12 @@ Contents:
 Installing GOATOOLs
 -------------------
 
+Coming Soon...
+
 GOATOOLS QuickStart
 -------------------
 
-.. automodule:: obo_parser
-
-.. autoclass:: OBOReader
-    :members:
-
+Coming Soon...
 
 
 Indices and tables
