@@ -28,7 +28,7 @@ clean:
 	rm -f cell_cycle_*.log cell_cycle_*.txt
 	rm -f *.pyc
 	rm -f gene_association.*
-	rm -f *.png
+	rm -f *.png *.eps *.tif
 	rm -f tmp*
 
 clobber:
