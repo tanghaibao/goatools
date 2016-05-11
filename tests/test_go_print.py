@@ -3,10 +3,12 @@
 
 import sys
 import goatools
+from goatools.base import download_go_basic_obo
 
 def test_go_print(prt=sys.stdout):
     """Test that all GO Terms can be printed, even if level/depth are not assigned."""
-    reader = goatools.obo_parser.OBOReader('go-basic.obo')
+    obo_file = download_go_basic_obo(prt)
+    reader = goatools.obo_parser.OBOReader(obo_file)
     prt.write("\n{OBJ}\n\n".format(OBJ=reader))
     go_terms = list(reader)
     prt.write("First GO Record: {REC}\n".format(REC=go_terms[0]))
