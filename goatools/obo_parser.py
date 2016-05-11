@@ -254,8 +254,9 @@ class GOTerm:
 
     def __str__(self):
         obsolete = "obsolete" if self.is_obsolete else ""
-        return "%s\tlevel-%02d\tdepth-%02d\t%s [%s] %s" % (self.id, self.level, self.depth,
-                                               self.name, self.namespace, obsolete)
+        return "{GO}\tlevel-{L:>02}\tdepth-{D:>02}\t{NAME} [{NS}] {OLD}".format(
+            GO=self.id, L=self.level, D=self.depth,
+            NAME=self.name, NS=self.namespace, OLD=obsolete)
 
     def __repr__(self):
         """Print GO id and all attributes in GOTerm class."""
