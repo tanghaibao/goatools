@@ -1,6 +1,7 @@
 PYTHON := python
 
 run_goea:
+	$(PYTHON) test_pvalcalc.py
 	$(PYTHON) test_go_print.py
 	$(PYTHON) test_dnlds.py
 	$(PYTHON) test_goea_local.py

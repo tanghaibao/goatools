@@ -51,6 +51,9 @@ gh-pages:
 goea: $(GO_OBO_FILE)
 	python scripts/find_enrichment.py --pval=0.05 --indent $(GOEA_FILES)
 
+goea_scipy_pval: $(GO_OBO_FILE)
+	python scripts/find_enrichment.py --pval=0.05 --indent $(GOEA_FILES) --pvalcalc fisher_scipy_stats
+
 goea_basic: $(GO_OBO_FILE)
 	python scripts/find_enrichment.py $(GOEA_FILES)
 

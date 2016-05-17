@@ -26,6 +26,7 @@ from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.obo_parser import GODag
 from goatools.associations import read_associations
 from goatools.multiple_testing import Methods
+from goatools.pvalcalc import FisherFactory
 
 
 def read_geneset(study_fn, pop_fn, compare=False):
@@ -96,6 +97,8 @@ if __name__ == "__main__":
                  help="Write enrichment results into xlsx or tsv file")
     p.add_argument('--method', default="bonferroni,sidak,holm", type=str,
                  help=Methods().getmsg_valid_methods())
+    p.add_argument('--pvalcalc', default="fisher", type=str,
+                 help=str(FisherFactory()))
 
     if len(sys.argv) == 1:
         sys.exit(not p.print_help())
@@ -134,6 +137,7 @@ if __name__ == "__main__":
     g = GOEnrichmentStudy(pop, assoc, obo_dag,
                           propagate_counts=propagate_counts,
                           alpha=args.alpha,
+                          pvalcalc=args.pvalcalc,
                           methods=methods)
     results = g.run_study(study)
     if args.outfile is None:

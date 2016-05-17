@@ -244,11 +244,12 @@ def mcorrection_factory(pvals, alpha, method):
 def calc_qval(study_n, pop_n,
               pop, assoc, term_pop, obo_dag, T=500):
     """Generate p-value distribution for FDR based on resampling."""
-    import fisher
+    from goatools.pvalcalc import FisherFactory
     from goatools.ratio import count_terms
     print(("Generate p-value distribution for FDR "
            "based on resampling (this might take a while)"), file=sys.stderr)
     distribution = []
+    calc_pvalue = FisherFactory().pval_obj.calc_pvalue
     for i in range(T):
         new_study = random.sample(pop, study_n)
         new_term_study = count_terms(new_study, assoc, obo_dag)
@@ -256,12 +257,12 @@ def calc_qval(study_n, pop_n,
         smallest_p = 1
         for term, study_count in list(new_term_study.items()):
             pop_count = term_pop[term]
-            p = fisher.pvalue_population(study_count,
-                                         study_n,
-                                         pop_count,
-                                         pop_n)
-            if p.two_tail < smallest_p:
-                smallest_p = p.two_tail
+            p_uncorrected = calc_pvalue(study_count,
+                                        study_n,
+                                        pop_count,
+                                        pop_n)
+            if p_uncorrected < smallest_p:
+                smallest_p = p_uncorrected
 
         distribution.append(smallest_p)
         if i % 10 == 0:

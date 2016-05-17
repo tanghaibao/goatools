@@ -17,12 +17,11 @@ __author__ = "various"
 import sys
 import collections as cx
 
-import fisher
-
 from .multiple_testing import Methods, Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
 from .ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
 from goatools.godag_plot import GODagSmallPlot
+from goatools.pvalcalc import FisherFactory
 
 
 class GOEnrichmentRecord(object):
@@ -202,6 +201,7 @@ class GOEnrichmentStudy(object):
         self.obo_dag = obo_dag
         self.alpha = alpha
         self.methods = Methods(methods)
+        self.pval_obj = FisherFactory(**kws).pval_obj
 
         if propagate_counts:
             print >> sys.stderr, "Propagating term counts to parents .."
@@ -242,11 +242,12 @@ class GOEnrichmentStudy(object):
 
     def _get_pval_uncorr(self, study, log=sys.stdout):
         """Calculate the uncorrected pvalues for study items."""
-        log.write("Calculating uncorrected p-values using Fisher's exact test\n")
+        log.write("Calculating uncorrected p-values using {PVALFNC}\n".format(PVALFNC=self.pval_obj.name))
         results = []
         go2studyitems = get_terms("study", study, self.assoc, self.obo_dag, log)
         pop_n, study_n = self.pop_n, len(study)
         allterms = set(go2studyitems.keys() + self.go2popitems.keys())
+        calc_pvalue = self.pval_obj.calc_pvalue
 
         for term in allterms:
             study_items = go2studyitems.get(term, set())
@@ -254,15 +255,9 @@ class GOEnrichmentStudy(object):
             pop_items = self.go2popitems.get(term, set())
             pop_count = len(pop_items)
 
-            # k, n = study_true, study_tot,
-            # K, N = population_true, population_tot
-            # def pvalue_population(int k, int n, int K, int N): ...
-            p = fisher.pvalue_population(study_count, study_n, pop_count, pop_n) #DVK
-            p_uncorrected = p.two_tail
-
             one_record = GOEnrichmentRecord(
                 GO=term,
-                p_uncorrected=p_uncorrected,
+                p_uncorrected=calc_pvalue(study_count, study_n, pop_count, pop_n),
                 study_items=study_items,
                 pop_items=pop_items,
                 ratio_in_study=(study_count, study_n),
