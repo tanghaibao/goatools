@@ -83,10 +83,18 @@ class FisherFactory(object):
     def _init_pval_obj(self):
         """Returns a Fisher object based on user-input."""
         if self.pval_fnc_name in self.options.keys():
-            return self.options[self.pval_fnc_name](self.log)
+            try:
+                fisher_obj = self.options[self.pval_fnc_name](self.log);
+            except ImportError:
+                print("fisher module not installed.  Falling back on scipy.stats.fisher_exact")
+                fisher_obj = self.options['fisher_scipy_stats'](self.log)
+
+            return fisher_obj
+
         raise Exception("PVALUE FUNCTION({FNC}) NOT FOUND".format(FNC=self.pval_fnc_name))
 
     def __str__(self):
         return " ".join(self.options.keys())
+
 
 # Copyright (C) 2016, DV Klopfenstein, H Tang et al., All rights reserved.
