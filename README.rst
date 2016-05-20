@@ -84,7 +84,7 @@ Dependencies
         easy_install fisher
 
   2.  `fisher <http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.stats.fisher_exact.html>`_ 
-      from `SciPy http://docs.scipy.org/doc/scipy/reference/>`_'s 
+      from `<SciPy http://docs.scipy.org/doc/scipy/reference/>`_'s 
       `stats <http://docs.scipy.org/doc/scipy/reference/stats.html>`_
       package.
 
@@ -206,9 +206,9 @@ Both fisher options from the fisher package and SciPy's stats package
 calculate the same pvalues, but provide the user an option in installing packages.
 
 * ``fisher``, `fisher <http://pypi.python.org/pypi/fisher/>`_ package's fisher.pvalue_population
-* ``fisher_scipy_stats``: `SciPy's http://docs.scipy.org/doc/scipy/reference>`_ 
-  `stats http://docs.scipy.org/doc/scipy/reference/stats.html>`_ package
-  `fisher_exact http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.stats.fisher_exact.html>`_
+* ``fisher_scipy_stats``: `SciPy's <http://docs.scipy.org/doc/scipy/reference>`_ 
+  `stats <http://docs.scipy.org/doc/scipy/reference/stats.html>`_ package
+  `fisher_exact <http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.stats.fisher_exact.html>`_
 
 Available multiple test corrections
 ::::::::::::::::::::::::::::
