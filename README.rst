@@ -84,7 +84,7 @@ Dependencies
         easy_install fisher
 
   2.  `fisher <http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.stats.fisher_exact.html>`_ 
-      from `<SciPy's http://docs.scipy.org/doc/scipy/reference/>`_
+      from `SciPy's <http://docs.scipy.org/doc/scipy/reference/>`_
       `stats <http://docs.scipy.org/doc/scipy/reference/stats.html>`_
       package.
 
