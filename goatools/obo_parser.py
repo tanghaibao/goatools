@@ -264,7 +264,7 @@ class GOTerm:
         for key, val in self.__dict__.items():
             if isinstance(val, int) or isinstance(val, str):
                 ret.append("{K}:{V}".format(K=key, V=val))
-            else:
+            elif val is not None:
                 ret.append("{K}: {V} items".format(K=key, V=len(val)))
                 if len(val) < 10:
                     if not isinstance(val, dict):
@@ -277,6 +277,8 @@ class GOTerm:
                                                NTERMS=len(terms)))
                             for t in terms:
                                 ret.append("    {TERM}".format(TERM=t))
+            else:
+                ret.append("{K}: None".format(K=key));
         return "\n  ".join(ret)
 
     def has_parent(self, term):
