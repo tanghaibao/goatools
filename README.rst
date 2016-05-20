@@ -76,10 +76,17 @@ terms (e.g. generic GOslim) ::
 
 Dependencies
 -------------
-- `fisher <http://pypi.python.org/pypi/fisher/>`_ (required) for calculating
-  Fisher's exact test::
+- To calculate the uncorrected p-values, there are currently two options:
 
-    easy_install fisher
+  1.  `fisher <http://pypi.python.org/pypi/fisher/>`_ for calculating
+      Fisher's exact test::
+    
+        easy_install fisher
+
+  2.  `fisher <http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.stats.fisher_exact.html>`_ 
+      from `SciPy http://docs.scipy.org/doc/scipy/reference/>`_'s 
+      `stats <http://docs.scipy.org/doc/scipy/reference/stats.html>`_
+      package.
 
 - `statsmodels` (optional) for access to a variety of statistical tests for GOEA::
 
@@ -192,7 +199,20 @@ The implemented algorithm is described in more detail at the go-perl
 documentation of `map2slim <http://search.cpan.org/~cmungall/go-perl/scripts/map2slim>`_.
 
 
-Available significance tests
+Available statistical tests for calculating uncorrected p-values
+::::::::::::::::::::::::::::
+There are currently two fisher tests available for calculating uncorrected p-values.
+Both fisher options from the fisher package and SciPy's stats package 
+calculate the same pvalues, but provide the user an option in installing packages.
+
+* ``fisher``, Use fisher.pvalue_population from the 
+  `fisher <http://pypi.python.org/pypi/fisher/>`_ package
+* ``fisher_scipy_stats``: Use 
+  `fisher_exact http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.stats.fisher_exact.html>`_
+  from `SciPy http://docs.scipy.org/doc/scipy/reference>`_'s 
+  `stats http://docs.scipy.org/doc/scipy/reference/stats.html>`_ package
+
+Available multiple test corrections
 ::::::::::::::::::::::::::::
 We have implemented several significance tests:
 
