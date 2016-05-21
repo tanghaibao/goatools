@@ -1,4 +1,4 @@
-"""Read a GO Association File (GAF) and store in Python object.
+"""Read a GO Association File (GAF) and store the data in a Python object.
 
     Annotations available from the Gene Ontology Consortium:
         http://geneontology.org/page/download-annotations
@@ -10,7 +10,7 @@
 import sys
 import re
 from collections import namedtuple
-from base import nopen
+from goatools.base import nopen
 
 __copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
@@ -37,15 +37,16 @@ class GafReader(object):
         'Assigned_By',    # 14 required 1              SGD
     ]
 
-    gafhdr2 = [ #                   Col Req?     Cardinality    Example
-        'Annotation_Extension', # 15 optional 0 or greater   part_of(CL:0000576)
-        'Gene_Product_Form_ID', # 16 optional 0 or 1         UniProtKB:P12345-2
+    #                            Col Required Cardinality  Example
+    gafhdr2 = [ #                --- -------- ------------ -------------------
+        'Annotation_Extension', # 15 optional 0 or greater part_of(CL:0000576)
+        'Gene_Product_Form_ID', # 16 optional 0 or 1       UniProtKB:P12345-2
     ]
 
     gaf_columns = {
         "2.1" : gafhdr + gafhdr2, # !gaf-version: 2.1
         "2.0" : gafhdr + gafhdr2, # !gaf-version: 2.0
-        "1.0" : gafhdr} # !gaf-version: 1.0
+        "1.0" : gafhdr}           # !gaf-version: 1.0
 
     # Expected numbers of columns for various versions
     gaf_numcol = {
@@ -93,7 +94,7 @@ class GafReader(object):
             taxons,       # 12 Taxon
             flds[12],     # 13 Date
             flds[13]]     # 14 Assigned_By
-        # Version 2.x had these additional fields not found in v1.0
+        # Version 2.x has these additional fields not found in v1.0
         if ver[0] == '2':
             gafvals += [
                 self._rd_fld_vals("Annotation_Extension", flds[15], is_set),
