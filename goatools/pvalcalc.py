@@ -25,9 +25,9 @@ class PvalCalcBase(object):
 class FisherClass(PvalCalcBase):
     """From the 'fisher' package, use function, pvalue_population."""
 
-    def __init__(self, log):
+    def __init__(self, name, log):
         import fisher
-        super(FisherClass, self).__init__('fisher', fisher.pvalue_population, log)
+        super(FisherClass, self).__init__(name, fisher.pvalue_population, log)
 
     def calc_pvalue(self, study_count, study_n, pop_count, pop_n):
         """Calculate uncorrected p-values."""
@@ -40,20 +40,21 @@ class FisherClass(PvalCalcBase):
 class FisherScipyStats(PvalCalcBase):
     """From the scipy stats package, use function, fisher_exact."""
 
-    def __init__(self, log):
+    def __init__(self, name, log):
         from scipy import stats
-        super(FisherScipyStats, self).__init__('fisher_scipy_stats', stats.fisher_exact, log)
+        super(FisherScipyStats, self).__init__(name, stats.fisher_exact, log)
 
     def calc_pvalue(self, study_count, study_n, pop_count, pop_n):
         """Calculate uncorrected p-values."""
         # http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.stats.fisher_exact.html
         #
-        #         Atlantic  Indian                             YES      NO
-        # whales     8        2    | 10 whales    study_genes   8 scnt  2    | 10 = study_n
-        # sharks     1        5    |  6 sharks    not s_genes   1       5    |  6
-        #         --------  ------                           --------  -----
-        #            9        7      16 = pop_n     pop_genes   9 pcnt  7      16 = pop_n
-        # We use this table to find the p-value:
+        #         Atlantic  Indian                              YES       NO
+        # whales     8        2    | 10 whales    study_genes    8 scnt   2    | 10 = study_n
+        # sharks     1        5    |  6 sharks    not s_genes    1        5    |  6
+        #         --------  ------                            --------   -----
+        #            9        7      16 = pop_n     pop_genes    9 pcnt   7      16 = pop_n
+        #
+        # We use the preceeding table to find the p-value for whales/sharks:
         #
         # >>> import scipy.stats as stats
         # >>> oddsratio, pvalue = stats.fisher_exact([[8, 2], [1, 5]])
@@ -84,7 +85,7 @@ class FisherFactory(object):
         """Returns a Fisher object based on user-input."""
         if self.pval_fnc_name in self.options.keys():
             try:
-                fisher_obj = self.options[self.pval_fnc_name](self.log);
+                fisher_obj = self.options[self.pval_fnc_name](self.pval_fnc_name, self.log)
             except ImportError:
                 print("fisher module not installed.  Falling back on scipy.stats.fisher_exact")
                 fisher_obj = self.options['fisher_scipy_stats'](self.log)
