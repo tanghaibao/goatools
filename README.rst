@@ -30,7 +30,8 @@ Tools for Gene Ontology
          Kenta Sato (`bicycle1885 <http://github.com/bicycle1885>`_),
          Chris Mungall (`cmungall <https://github.com/cmungall>`_),
          Greg Stupp (`stuppie <https://github.com/stuppie>`_),
-         DV Klopfenstein(`dvklopfenstein <https://github.com/dvklopfenstein>`_)
+         DV Klopfenstein(`dvklopfenstein <https://github.com/dvklopfenstein>`_),
+         David DeTomaso(`deto <https://github.com/deto>`_)
 :Email: tanghaibao@gmail.com
 :License: BSD
 
@@ -50,6 +51,9 @@ This package contains a Python library to
 - process the obo-formatted file from `Gene Ontology website <http://geneontology.org>`_.
   The data structure is a directed acyclic graph (DAG) that allows easy traversal
   from leaf to root.
+- Read GO Association files:    
+  - Read GAF (GO Association File) files.
+  - Read NCBI's gene2go GO association file.
 - map GO terms (or protein products with multiple associations to GO terms) to
   GOslim terms (analog to the map2slim.pl script supplied by geneontology.org)
 
