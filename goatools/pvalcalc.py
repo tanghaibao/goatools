@@ -88,7 +88,7 @@ class FisherFactory(object):
                 fisher_obj = self.options[self.pval_fnc_name](self.pval_fnc_name, self.log)
             except ImportError:
                 print("fisher module not installed.  Falling back on scipy.stats.fisher_exact")
-                fisher_obj = self.options['fisher_scipy_stats'](self.log)
+                fisher_obj = self.options['fisher_scipy_stats']('fisher_scipy_stats', self.log)
 
             return fisher_obj
 
