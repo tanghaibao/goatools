@@ -13,7 +13,6 @@ matrix:
         # Use generic language for osx
         - os: osx
           language: generic
-# Perform the manual steps on o
 
 # Setup anaconda
 before_install:
