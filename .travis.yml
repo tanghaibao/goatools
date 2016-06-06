@@ -1,7 +1,7 @@
 language: python
 env:
     global:
-        - OSX_PYTHON_VERSIONS=2.7 3.4 3.5
+        - OSX_PYTHON_VERSIONS='2.7 3.4 3.5'
 matrix:
     include:
         # Use the built in venv for linux builds
