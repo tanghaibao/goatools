@@ -246,7 +246,8 @@ class GOEnrichmentStudy(object):
         results = []
         go2studyitems = get_terms("study", study, self.assoc, self.obo_dag, log)
         pop_n, study_n = self.pop_n, len(study)
-        allterms = set(go2studyitems.keys() + self.go2popitems.keys())
+        allterms = set(go2studyitems.keys()).union(
+            set(self.go2popitems.keys()))
         calc_pvalue = self.pval_obj.calc_pvalue
 
         for term in allterms:
