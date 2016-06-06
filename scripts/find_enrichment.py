@@ -40,9 +40,9 @@ def read_geneset(study_fn, pop_fn, compare=False):
         pop |= study
         pop -= common
         study -= common
-        print("removed %d overlapping items" % (len(common), ), file=sys.stderr)
-        print("Set 1: {0}, Set 2: {1}".\
-            format(len(study), len(pop)), file=sys.stderr)
+        sys.stderr.write("removed %d overlapping items\n" % (len(common)))
+        sys.stderr.write("Set 1: {0}, Set 2: {1}\n".format(
+            len(study), len(pop)))
 
     return study, pop
 
@@ -112,7 +112,8 @@ if __name__ == "__main__":
 
     study_fn, pop_fn, assoc_fn = args.filenames
     study, pop = read_geneset(study_fn, pop_fn, compare=args.compare)
-    print("Study: {0} vs. Population {1}".format(len(study), len(pop)), file=sys.stderr)
+    sys.stderr.write("Study: {0} vs. Population {1}\n".format(
+        len(study), len(pop)))
 
     if not args.compare:  # sanity check
         if len(pop) < len(study):

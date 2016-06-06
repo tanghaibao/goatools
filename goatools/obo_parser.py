@@ -391,7 +391,7 @@ class GODag(dict):
 
     def load_obo_file(self, obo_file, optional_attrs):
 
-        print("load obo file %s" % obo_file, file=sys.stderr)
+        sys.stderr.write("load obo file %s\n" % obo_file)
         reader = OBOReader(obo_file, optional_attrs)
         for rec in reader:
             self[rec.id] = rec
@@ -406,7 +406,7 @@ class GODag(dict):
         self.optional_attrs = reader.optional_attrs
 
         self.populate_terms()
-        print(len(self), "nodes imported", file=sys.stderr)
+        sys.stderr.write("{} nodes imported\n".format(len(self)))
 
     def populate_terms(self):
 
@@ -484,14 +484,16 @@ class GODag(dict):
 
     def query_term(self, term, verbose=False):
         if term not in self:
-            print("Term %s not found!" % term, file=sys.stderr)
+            sys.sdterr.write("Term %s not found!\n" % term)
             return
 
         rec = self[term]
         if verbose:
             print(rec)
-            print("all parents:", rec.get_all_parents(), file=sys.stderr)
-            print("all children:", rec.get_all_children(), file=sys.stderr)
+            sys.stderr.write("all parents: {}\n".format(
+                repr(rec.get_all_parents())))
+            sys.stderr.write("all children: {}\n".format(
+                repr(rec.get_all_children())))
         return rec
 
     def paths_to_top(self, term):
@@ -513,7 +515,7 @@ class GODag(dict):
         """
         # error handling consistent with original authors
         if term not in self:
-            print("Term %s not found!" % term, file=sys.stderr)
+            sys.stderr.write("Term %s not found!\n" % term)
             return
 
         def _paths_to_top_recursive(rec):
@@ -639,10 +641,10 @@ class GODag(dict):
             del NG.graph['edge']
             gmlfile = pf + ".gml"
             nx.write_gml(NG, gmlfile)
-            print("GML graph written to {0}".format(gmlfile), file=sys.stderr)
+            sys.stderr.write("GML graph written to {0}\n".format(gmlfile))
 
-        print(("lineage info for terms %s written to %s" %
-                             ([rec.id for rec in recs], lineage_img)), file=sys.stderr)
+        sys.stderr.write(("lineage info for terms %s written to %s\n" %
+                          ([rec.id for rec in recs], lineage_img)))
 
         if engine == "pygraphviz":
             G.draw(lineage_img, prog="dot")
@@ -660,6 +662,6 @@ class GODag(dict):
                     bad_terms.add(term.strip())
             terms.update(parents)
         if bad_terms:
-            print("terms not found: %s" % (bad_terms,), file=sys.stderr)
+            sys.stderr.write("terms not found: %s\n" % (bad_terms,))
 
 # Copyright (C) 2010-2016, H Tang et al., All rights reserved.

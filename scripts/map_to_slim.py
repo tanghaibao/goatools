@@ -64,7 +64,7 @@ if __name__ == '__main__':
     # in case a single term is given as input:
     if opts.term:
         if opts.term not in go_dag:
-            print(("term %s not found!" % opts.term), file=sys.stderr)
+            sys.stderr.write(("term %s not found!\n" % opts.term))
             sys.exit(1)
         direct_anc, all_anc = mapslim(opts.term, go_dag, goslim_dag)
         # output either all or only direct slims, depending on user command

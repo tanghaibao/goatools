@@ -246,8 +246,8 @@ def calc_qval(study_n, pop_n,
     """Generate p-value distribution for FDR based on resampling."""
     from goatools.pvalcalc import FisherFactory
     from goatools.ratio import count_terms
-    print(("Generate p-value distribution for FDR "
-           "based on resampling (this might take a while)"), file=sys.stderr)
+    sys.stderr.write("Generate p-value distribution for FDR "
+                     "based on resampling (this might take a while)\n")
     distribution = []
     calc_pvalue = FisherFactory().pval_obj.calc_pvalue
     for i in range(T):
@@ -266,8 +266,8 @@ def calc_qval(study_n, pop_n,
 
         distribution.append(smallest_p)
         if i % 10 == 0:
-            print("Sample {0} / {1}: p-value {2}".\
-                        format(i, T, smallest_p), file=sys.stderr)
+            sys.stderr.write("Sample {0} / {1}: "
+                             "p-value {2}".format(i, T, smallest_p))
     return distribution
 
 
