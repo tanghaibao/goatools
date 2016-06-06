@@ -11,7 +11,7 @@ matrix:
           python: 3.4
         - os: linux
           python: 3.5
-        # Use generic language for osx
+        # Use generic language for osx and install python by hand
         - os: osx
           language: generic
 
@@ -32,7 +32,7 @@ before_install:
 # Install packages
 install:
   # scipy and pandas are required by the package 'statsmodels'
-  - for VERSION in $PYTHON_VERSIONS ; conda create --name $VERSION --yes python=VERSION --file requirements.txt ; source activate $VERSION ; python setup.py install; fi
+  - for VERSION in $PYTHON_VERSIONS ; conda create --name $VERSION --yes python=$VERSION --file requirements.txt ; source activate $VERSION ; python setup.py install; fi
 
 # command to run tests
 script:
