@@ -24,7 +24,7 @@ class OBOReader(object):
 
         >>> reader = OBOReader()
         >>> for rec in reader:
-                print rec
+                print(rec)
     """
 
     def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
