@@ -4,10 +4,6 @@
 from setuptools import setup
 from glob import glob
 
-import goatools
-
-version = goatools.__version__
-
 
 classifiers = [
     'Development Status :: 4 - Beta',
@@ -24,7 +20,7 @@ requirements = ['wget'] + [x.strip() for x in
 exec(open("goatools/version.py").read())
 setup(
     name="goatools",
-    version=version,
+    version=__version__,
     author='Haibao Tang',
     author_email='tanghaibao@gmail.com',
     packages=['goatools'],
