@@ -1,21 +1,30 @@
 language: python
-python:
-- '2.7'
-- '3.4'
-- '3.5'
-os:
-  - linux
-  - osx
+env:
+  - OSX_PYTHON_VERSIONS=2.7 3.4 3.5
+matrix:
+    include:
+        # Use the built in venv for linux builds
+        - os: linux
+          sudo: required
+          python:
+            - '2.7'
+            - '3.4'
+            - '3.5'
+        # Use generic language for osx
+        - os: osx
+          language: generic
+# Perform the manual steps on o
 
 # Setup anaconda
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then curl http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -o miniconda.sh ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -o miniconda.sh ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then PYTHON_VERSIONS=$TRAVIS_PYTHON_VERSION ; curl http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -o miniconda.sh ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PYTHON_VERSIONS=$OSX_PYTHON_VERSIONS; curl https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -o miniconda.sh ; fi
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
+
 
   # Useful for debugging any issues with conda
   - conda info -a
@@ -23,12 +32,11 @@ before_install:
 # Install packages
 install:
   # scipy and pandas are required by the package 'statsmodels'
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION --file requirements.txt
-  - python setup.py install
+  - for VERSION in $PYTHON_VERSIONS ; conda create --name $VERSION --yes python=VERSION --file requirements.txt ; source activate $VERSION ; python setup.py install; fi
 
 # command to run tests
 script:
-  - make test
+  - for VERSION in $PYTHON_VERSIONS ; source activate $VERSION ; make test; fi
 
 sudo: true
 
