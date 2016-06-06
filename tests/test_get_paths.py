@@ -1,4 +1,4 @@
-    import sys
+import sys
 import os
 from goatools.obo_parser import GODag
 
