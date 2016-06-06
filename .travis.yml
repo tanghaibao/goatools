@@ -1,21 +1,16 @@
 language: python
-env:
-  - OSX_PYTHON_VERSIONS=2.7 3.4 3.5
 matrix:
     include:
         # Use the built in venv for linux builds
         - os: linux
-          sudo: required
-          python:
-            - '2.7'
-            - '3.4'
-            - '3.5'
+          python: 2.7 3.4 3.5
         # Use generic language for osx
         - os: osx
           language: generic
 
 # Setup anaconda
 before_install:
+  - export OSX_PYTHON_VERSIONS=2.7 3.4 3.5
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then PYTHON_VERSIONS=$TRAVIS_PYTHON_VERSION ; curl http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -o miniconda.sh ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PYTHON_VERSIONS=$OSX_PYTHON_VERSIONS; curl https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -o miniconda.sh ; fi
   - bash miniconda.sh -b -p $HOME/miniconda
@@ -37,5 +32,5 @@ install:
 script:
   - for VERSION in $PYTHON_VERSIONS ; source activate $VERSION ; make test; fi
 
-sudo: true
+sudo: false
 
