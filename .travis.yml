@@ -36,7 +36,7 @@ install:
 
 # command to run tests
 script:
-  - for VERSION in $PYTHON_VERSIONS ; source activate $VERSION ; make test; fi
+  - for VERSION in $PYTHON_VERSIONS ; do source activate $VERSION ; make test; done
 
 sudo: false
 
