@@ -4,6 +4,11 @@
 from setuptools import setup
 from glob import glob
 
+import goatools
+
+version = goatools.__version__
+
+
 classifiers = [
     'Development Status :: 4 - Beta',
     'Intended Audience :: Science/Research',
@@ -13,10 +18,13 @@ classifiers = [
     'Topic :: Scientific/Engineering :: Bio-Informatics',
     ]
 
+requirements = ['wget'] + [x.strip() for x in
+                           open('requirements.txt').readlines()]
+
 exec(open("goatools/version.py").read())
 setup(
     name="goatools",
-    version=__version__,
+    version=version,
     author='Haibao Tang',
     author_email='tanghaibao@gmail.com',
     packages=['goatools'],
@@ -26,5 +34,5 @@ setup(
     url='http://github.com/tanghaibao/goatools',
     description="Python scripts to find enrichment of GO terms",
     long_description=open("README.rst").read(),
-    install_requires=['wget', 'xlsxwriter', 'statsmodels']
+    install_requires=requirements
     )

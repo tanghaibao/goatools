@@ -1,0 +1,7 @@
+pandas
+numpy
+scipy
+nose
+pywget
+xlsxwriter
+statsmodels
