@@ -53,7 +53,7 @@ def test_example(log=sys.stdout):
     taxid = 10090 # Mouse study
     # Load ontologies, associations, and population ids
     geneids_pop = GeneID2nt_mus.keys()
-    geneids_study = get_geneid2symbol("nbt.3102-S4_GeneIDs.xlsx", log)
+    geneids_study = get_geneid2symbol("nbt.3102-S4_GeneIDs.xlsx")
     goeaobj = get_goeaobj("fdr_bh", geneids_pop, taxid)
     # Run GOEA on study
     #keep_if = lambda nt: getattr(nt, "p_fdr_bh" ) < 0.05 # keep if results are significant
@@ -216,7 +216,7 @@ def get_goeaobj(method, geneids_pop, taxid):
         methods = [method])
     return goeaobj
 
-def get_geneid2symbol(fin_xlsx, log):
+def get_geneid2symbol(fin_xlsx):
     """Read xlsx file return dictionary with Entrez GeneID keys to Symbol data."""
     gene2symbol = {}
     data_dir = os.path.dirname(os.path.abspath(__file__)) + "/data/nbt_3102"
