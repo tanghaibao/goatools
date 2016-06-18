@@ -31,7 +31,8 @@ Tools for Gene Ontology
          Chris Mungall (`cmungall <https://github.com/cmungall>`_),
          Greg Stupp (`stuppie <https://github.com/stuppie>`_),
          DV Klopfenstein (`dvklopfenstein <https://github.com/dvklopfenstein>`_),
-         David DeTomaso (`deto <https://github.com/deto>`_)
+         David DeTomaso (`deto <https://github.com/deto>`_),
+         Olga Botvinnik (`olgabot <https://github.com/olgabot>`_)
 :Email: tanghaibao@gmail.com
 :License: BSD
 
