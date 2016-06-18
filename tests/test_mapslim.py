@@ -56,17 +56,17 @@ if __name__ == '__main__':
     tests_succeed = True
 
     for go_term, (exp_direct, exp_all) in expected_results.items():
-        print(("Testing for term '" + go_term + "' ..."), end=' ', file=sys.stderr)
+        sys.stderr.write("Testing for term '{}' ...\n".format(go_term))
         direct_anc, all_anc = mapslim(go_term, go_dag, goslim_dag)
         if direct_anc != exp_direct or all_anc != exp_all:
             tests_succeed = False
-            print(("failed."), file=sys.stderr)
+            sys.stderr.write("failed.\n")
         else:
-            print(("success!"), file=sys.stderr)
+            sys.stderr.write("success!\n")
 
     if tests_succeed:
         print("All test passed successfully!")
         sys.exit(0)
     else:
-        print(("[ERROR] At least one test failed."), file=sys.stderr)
+        sys.stderr.write("[ERROR] At least one test failed.\n")
         sys.exit(1)

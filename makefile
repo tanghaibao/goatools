@@ -120,3 +120,6 @@ clean_docgen:
 clobber:
 	@make --no-print-directory clean
 	rm -f $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
+
+test:
+	nosetests tests/test_goea_statsmodels.py tests/test_get_paths.py

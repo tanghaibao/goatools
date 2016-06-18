@@ -1,0 +1,6 @@
+pandas
+numpy
+scipy
+nose
+xlsxwriter
+statsmodels
