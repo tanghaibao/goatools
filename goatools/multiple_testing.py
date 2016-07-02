@@ -267,7 +267,7 @@ def calc_qval(study_n, pop_n,
         distribution.append(smallest_p)
         if i % 10 == 0:
             sys.stderr.write("Sample {0} / {1}: "
-                             "p-value {2}".format(i, T, smallest_p))
+                             "p-value {2}\n".format(i, T, smallest_p))
     return distribution
 
 
