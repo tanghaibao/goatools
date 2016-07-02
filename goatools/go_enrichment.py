@@ -240,6 +240,11 @@ class GOEnrichmentStudy(object):
 
         return results # list of GOEnrichmentRecord objects
 
+    def get_goea_nts(self, study, **kws):
+        """Run GOEA on study ids. Return results as a list of namedtuples."""
+        goea_results = self.run_study(study, **kws)
+        return get_nts(goea_results)
+
     def _get_pval_uncorr(self, study, log=sys.stdout):
         """Calculate the uncorrected pvalues for study items."""
         log.write("Calculating uncorrected p-values using {PVALFNC}\n".format(PVALFNC=self.pval_obj.name))
@@ -334,14 +339,14 @@ class GOEnrichmentStudy(object):
             prtfmt = "{GO} {NS} {p_uncorrected:5.2e} {study_count:>5} {name}\n"
         prtfmt = self.adjust_prtfmt(prtfmt)
         prt_flds = RPT.get_fmtflds(prtfmt)
-        data_nts = self.get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
+        data_nts = get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
         RPT.prt_txt(prt, data_nts, prtfmt, prt_flds, **kws)
         return data_nts
 
     def wr_xlsx(self, fout_xlsx, goea_results, **kws):
         """Write a xlsx file."""
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(goea_results)
-        xlsx_data = self.get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
+        xlsx_data = get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
         if 'fld2col_widths' not in kws:
             kws['fld2col_widths'] = {f:self.default_fld2col_widths.get(f, 8) for f in prt_flds}
         RPT.wr_xlsx(fout_xlsx, xlsx_data, **kws)
@@ -349,13 +354,13 @@ class GOEnrichmentStudy(object):
     def wr_tsv(self, fout_tsv, goea_results, **kws):
         """Write tab-separated table data to file"""
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(goea_results)
-        tsv_data = self.get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
-        RPT.wr_tsv(fout_tsv, tsv_data, prt_flds, **kws)
+        tsv_data = get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
+        RPT.wr_tsv(fout_tsv, tsv_data, **kws)
 
     def prt_tsv(self, prt, goea_results, **kws):
         """Write tab-separated table data"""
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(goea_results)
-        tsv_data = self.get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
+        tsv_data = get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
         RPT.prt_tsv(prt, tsv_data, prt_flds, **kws)
 
     def adjust_prtfmt(self, prtfmt):
@@ -367,7 +372,7 @@ class GOEnrichmentStudy(object):
     def get_NS2nts(self, results, fldnames=None, **kws):
        """Get namedtuples of GOEA results, split into BP, MF, CC."""
        NS2nts = cx.defaultdict(list)
-       nts = self.get_nts(results, fldnames, **kws)
+       nts = get_nts(results, fldnames, **kws)
        for nt in nts:
            NS2nts[nt.NS].append(nt)
        return NS2nts
@@ -378,28 +383,6 @@ class GOEnrichmentStudy(object):
         for rec in results:
             study_items |= rec.study_items
         return study_items
-
-    def get_nts(self, results, fldnames=None, **kws):
-        """Get namedtuples containing user-specified (or default) data from GOEA results.
-
-            Reformats data from GOEnrichmentRecord objects into lists of
-            namedtuples so the generic table writers may be used.
-        """
-        data_nts = [] # A list of namedtuples containing GOEA results
-        if not results:
-            return data_nts
-        keep_if = None if 'keep_if' not in kws else kws['keep_if']
-        rpt_fmt = False if 'rpt_fmt' not in kws else kws['rpt_fmt']
-        if fldnames is None:
-            fldnames = results[0].get_prtflds_all()
-        NtGoeaResults = cx.namedtuple("NtGoeaResults", " ".join(fldnames))
-        # Loop through GOEA results stored in a GOEnrichmentRecord object
-        for goerec in results:
-            vals = goerec.get_field_values(fldnames, rpt_fmt)
-            nt = NtGoeaResults._make(vals)
-            if keep_if is None or keep_if(nt):
-                data_nts.append(nt)
-        return data_nts
 
     @staticmethod
     def get_prtflds_default(results):
@@ -435,5 +418,27 @@ class GOEnrichmentStudy(object):
 
             if rec.is_ratio_different:
                 print(rec.__str__(indent=indent))
+
+def get_nts(goea_results, fldnames=None, **kws):
+    """Get namedtuples containing user-specified (or default) data from GOEA results.
+
+        Reformats data from GOEnrichmentRecord objects into lists of
+        namedtuples so the generic table writers may be used.
+    """
+    data_nts = [] # A list of namedtuples containing GOEA results
+    if not goea_results:
+        return data_nts
+    keep_if = None if 'keep_if' not in kws else kws['keep_if']
+    rpt_fmt = False if 'rpt_fmt' not in kws else kws['rpt_fmt']
+    if fldnames is None:
+        fldnames = goea_results[0].get_prtflds_all()
+    NtGoeaResults = cx.namedtuple("NtGoeaResults", " ".join(fldnames))
+    # Loop through GOEA results stored in a GOEnrichmentRecord object
+    for goerec in goea_results:
+        vals = goerec.get_field_values(fldnames, rpt_fmt)
+        nt = NtGoeaResults._make(vals)
+        if keep_if is None or keep_if(nt):
+            data_nts.append(nt)
+    return data_nts
 
 # Copyright (C) 2010-2016, H Tang et al., All rights reserved.
