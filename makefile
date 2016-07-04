@@ -94,6 +94,7 @@ $(GOSLIM_OBO_FILE):
 clean:
 	rm -f goea*.xlsx goea.tsv GO_lineage.png
 	cd tests; make --no-print-directory clean
+	cd goatools; rm -f *.pyc
 
 # Removes local files in master branch generated using Sphinx
 clean_docgen:
