@@ -387,26 +387,28 @@ class TypeDef(object):
 class GODag(dict):
 
     def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
-        self.load_obo_file(obo_file, optional_attrs)
+        self.version = self.load_obo_file(obo_file, optional_attrs)
 
     def load_obo_file(self, obo_file, optional_attrs):
 
-        sys.stderr.write("load obo file %s\n" % obo_file)
+        sys.stdout.write("load obo file %s\n" % obo_file)
         reader = OBOReader(obo_file, optional_attrs)
         for rec in reader:
             self[rec.id] = rec
             for alt in rec.alt_ids:
                 self[alt] = rec
 
-        print("{OBO}: format-version({FMT}) data-version({REL})".format(
-            OBO=obo_file, FMT=reader.format_version, REL=reader.data_version))
+        num_items = len(self)
+        version = "{OBO}: format-version({FMT}) data-version({REL}) {N:,} GO Terms".format(
+            OBO=obo_file, FMT=reader.format_version, REL=reader.data_version, N=num_items)
 
         # Save the typedefs and parsed optional_attrs
         self.typedefs = reader.typedefs
         self.optional_attrs = reader.optional_attrs
 
         self.populate_terms()
-        sys.stderr.write("{} nodes imported\n".format(len(self)))
+        sys.stdout.write("{VER}\n".format(VER=version))
+        return version
 
     def populate_terms(self):
 
