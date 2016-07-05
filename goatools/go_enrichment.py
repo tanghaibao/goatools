@@ -16,6 +16,7 @@ __author__ = "various"
 
 import sys
 import collections as cx
+import datetime
 
 from .multiple_testing import Methods, Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
 from .ratio import get_terms, count_terms, is_ratio_different
@@ -34,23 +35,23 @@ class GOEnrichmentRecord(object):
 
     # Fields seen in every enrichment result
     _fldsdefprt = [
-        "GO", 
-        "NS", 
-        "enrichment", 
-        "name", 
-        "ratio_in_study", 
-        "ratio_in_pop", 
-        "p_uncorrected", 
+        "GO",
+        "NS",
+        "enrichment",
+        "name",
+        "ratio_in_study",
+        "ratio_in_pop",
+        "p_uncorrected",
         "depth",
         "study_count"]
     _fldsdeffmt = ["%2s"] + ["%s"] * 3 + ["%d/%d"] * 2 + ["%.3g"] + ["%d"] * 2
 
     _flds = set(_fldsdefprt).intersection(
-            set(['study_items', 'study_count', 'study_n', 'pop_items', 'pop_count', 'pop_n']))
+                set(['study_items', 'study_count', 'study_n', 'pop_items', 'pop_count', 'pop_n']))
 
     def __init__(self, **kwargs):
         # Methods seen in current enrichment result
-        self._methods = [] 
+        self._methods = []
         for k, v in kwargs.items():
             setattr(self, k, v)
             if k == 'ratio_in_study':
@@ -121,8 +122,8 @@ class GOEnrichmentRecord(object):
     def get_prtflds_all(self):
         """Get all possible fields used when creating a namedtuple."""
         flds = set.union(
-            set(self.get_prtflds_default()), 
-            set(vars(self).keys()), 
+            set(self.get_prtflds_default()),
+            set(vars(self).keys()),
             set(vars(self.goterm).keys()))
         flds = flds.difference(set(['_parents', '_methods']))
         return flds
@@ -210,12 +211,14 @@ class GOEnrichmentStudy(object):
 
     def run_study(self, study, **kws):
         """Run Gene Ontology Enrichment Study (GOEA) on study ids."""
+        # Key-word arguments:
+        methods = Methods(kws['methods']) if 'methods' in kws else self.methods
+        alpha = kws['alpha'] if 'alpha' in kws else self.alpha
+        log = kws['log'] if 'log' in kws else self.log
         # Calculate uncorrected pvalues
         results = self._get_pval_uncorr(study)
 
         # Do multipletest corrections on uncorrected pvalues and update results
-        methods = Methods(kws['methods']) if 'methods' in kws else self.methods
-        alpha = kws['alpha'] if 'alpha' in kws else self.alpha
         self._run_multitest_corr(results, methods, alpha, study)
 
         for rec in results:
@@ -223,20 +226,17 @@ class GOEnrichmentStudy(object):
             rec.set_goterm(self.obo_dag)
 
         # 'keep_if' can be used to keep only significant GO terms. Example:
-        # >>> keep_if = lambda nt: nt.p_fdr_bh < 0.05 # if results are significant
-        # >>> goea_results = goeaobj.run_study(geneids_study, keep_if=keep_if)
+        #     >>> keep_if = lambda nt: nt.p_fdr_bh < 0.05 # if results are significant
+        #     >>> goea_results = goeaobj.run_study(geneids_study, keep_if=keep_if)
         if 'keep_if' in kws:
             keep_if = kws['keep_if']
             results = [r for r in results if keep_if(r)]
 
-        # Default sort order: 1st sort by BP, MF, CC. 2nd sort by pval
+        # Default sort order: First, sort by BP, MF, CC. Second, sort by pval
         results.sort(key=lambda r: [r.NS, r.p_uncorrected])
 
-        if self.log is not None:
-            study_items = self.get_study_items(results)
-            msg = "{M:,} GO terms are associated with {N:,} of {NT:,} study items in a population of {P:,}\n"
-            self.log.write(msg.format(
-                N=len(study_items), NT=len(study), M=len(results), P=len(self.pop)))
+        if log is not None:
+            log.write("  {MSG}\n".format(MSG="\n  ".join(self.get_results_msg(results))))
 
         return results # list of GOEnrichmentRecord objects
 
@@ -244,6 +244,19 @@ class GOEnrichmentStudy(object):
         """Run GOEA on study ids. Return results as a list of namedtuples."""
         goea_results = self.run_study(study, **kws)
         return get_nts(goea_results)
+
+    def get_results_msg(self, results):
+        """Return summary for GOEA results."""
+        # To convert msg list to string: "\n".join(msg)
+        msg = []
+        if results:
+            stu_items, num_gos_stu = self.get_item_cnt(results, "study_items")
+            pop_items, num_gos_pop = self.get_item_cnt(results, "pop_items")
+            msg.append("{M:,} GO terms are associated with {N:,} of {NT:,} study items".format(
+                N=len(stu_items), NT=results[0].study_n, M=num_gos_stu))
+            msg.append("{M:,} GO terms are associated with {N:,} of {NT:,} population items".format(
+                N=len(pop_items), NT=self.pop_n, M=num_gos_pop))
+        return msg
 
     def _get_pval_uncorr(self, study, log=sys.stdout):
         """Calculate the uncorrected pvalues for study items."""
@@ -377,12 +390,18 @@ class GOEnrichmentStudy(object):
            NS2nts[nt.NS].append(nt)
        return NS2nts
 
-    def get_study_items(self, results):
-        """Get all study items (e.g., geneids)."""
-        study_items = set()
+    def get_item_cnt(self, results, attrname="study_items"):
+        """Get all study or population items (e.g., geneids)."""
+        items = set()
+        go_cnt = 0
         for rec in results:
-            study_items |= rec.study_items
-        return study_items
+            if hasattr(rec, attrname):
+                items_cur = getattr(rec, attrname)
+                # Only count GO term if there are items in the set.
+                if len(items_cur) != 0:
+                    items |= items_cur
+                    go_cnt += 1
+        return items, go_cnt
 
     @staticmethod
     def get_prtflds_default(results):
@@ -398,10 +417,9 @@ class GOEnrichmentStudy(object):
     @staticmethod
     def print_summary(results, min_ratio=None, indent=False, pval=0.05):
         from .version import __version__ as version
-        from datetime import date
 
         # Header contains provenance and parameters
-        print("# Generated by GOATOOLS v{0} ({1})".format(version, date.today()))
+        print("# Generated by GOATOOLS v{0} ({1})".format(version, datetime.date.today()))
         print("# min_ratio={0} pval={1}".format(min_ratio, pval))
 
         # field names for output
@@ -419,6 +437,42 @@ class GOEnrichmentStudy(object):
             if rec.is_ratio_different:
                 print(rec.__str__(indent=indent))
 
+    def wr_py_goea_results(self, fout_py, goea_results, **kws):
+        """Save GOEA results into Python package containing list of namedtuples."""
+        var_name = "goea_results" if "var_name" not in kws else kws["var_name"]
+        docstring = None if "docstring" not in kws else kws["docstring"]
+        if goea_results:
+            nts = goea_results
+            # If list has GOEnrichmentRecords or verbose namedtuples, exclude some fields.
+            if hasattr(goea_results[0], "_fldsdefprt") or hasattr(goea_results[0], 'goterm'):
+                # Exclude some attributes from the namedtuple when saving results
+                # to a Python file because the information is redundant or verbose.
+                excl = ['goterm', 'parents', 'children', 'id',
+                        'ratio_in_study', 'ratio_in_pop']
+                nts = get_nts(goea_results, not_fldnames=excl)
+            assert hasattr(nts[0], '_fields')
+            with open(fout_py, 'w') as prt:
+                if docstring is not None:
+                    prt.write('"""{DOCSTRING}"""\n\n'.format(DOCSTRING=docstring))
+                prt.write("# Created: {DATE}\n".format(DATE=str(datetime.date.today())))
+                prt.write("# {OBO_VER}\n\n".format(OBO_VER=self.obo_dag.version))
+                prt.write("import collections as cx\n\n")
+                prt.write('NtGoeaResults = cx.namedtuple("NtGoeaResults", "{FLDS}")\n\n'.format(
+                    FLDS=" ".join(nts[0]._fields)))
+                prt.write("# {N:,} items\n".format(N=len(nts)))
+                prt.write("{VARNAME} = [\n".format(VARNAME=var_name))
+                for ntup in nts:
+                    prt.write("    {NT},\n".format(NT=ntup))
+                prt.write("]\n")
+                sys.stdout.write("  WROTE: {PY}\n".format(PY=fout_py))
+
+def get_study_items(goea_results):
+    """Get all study items (e.g., geneids)."""
+    study_items = set()
+    for rec in goea_results:
+        study_items |= rec.study_items
+    return study_items
+
 def get_nts(goea_results, fldnames=None, **kws):
     """Get namedtuples containing user-specified (or default) data from GOEA results.
 
@@ -430,15 +484,33 @@ def get_nts(goea_results, fldnames=None, **kws):
         return data_nts
     keep_if = None if 'keep_if' not in kws else kws['keep_if']
     rpt_fmt = False if 'rpt_fmt' not in kws else kws['rpt_fmt']
+    not_fldnames = None if 'not_fldnames' not in kws else kws['not_fldnames']
     if fldnames is None:
-        fldnames = goea_results[0].get_prtflds_all()
-    NtGoeaResults = cx.namedtuple("NtGoeaResults", " ".join(fldnames))
+        fldnames = get_fieldnames(goea_results[0])
+    # Explicitly exclude specific fields from named tuple
+    if not_fldnames is not None:
+        fldnames = [f for f in fldnames if f not in not_fldnames]
+    nttyp = cx.namedtuple("NtGoeaResults", " ".join(fldnames))
     # Loop through GOEA results stored in a GOEnrichmentRecord object
     for goerec in goea_results:
-        vals = goerec.get_field_values(fldnames, rpt_fmt)
-        nt = NtGoeaResults._make(vals)
-        if keep_if is None or keep_if(nt):
-            data_nts.append(nt)
+        vals = get_field_values(goerec, fldnames, rpt_fmt)
+        ntobj = nttyp._make(vals)
+        if keep_if is None or keep_if(ntobj):
+            data_nts.append(ntobj)
     return data_nts
+
+def get_field_values(item, fldnames, rpt_fmt=None):
+    """Return fieldnames and values of either a namedtuple or GOEnrichmentRecord."""
+    if hasattr(item, "_fldsdefprt"): # Is a GOEnrichmentRecord
+        return item.get_field_values(fldnames, rpt_fmt)
+    if hasattr(item, "_fields"): # Is a namedtuple
+        return [getattr(item, f) for f in fldnames]
+
+def get_fieldnames(item):
+    """Return fieldnames of either a namedtuple or GOEnrichmentRecord."""
+    if hasattr(item, "_fldsdefprt"): # Is a GOEnrichmentRecord
+        return item.get_prtflds_all()
+    if hasattr(item, "_fields"): # Is a namedtuple
+        return item._fields
 
 # Copyright (C) 2010-2016, H Tang et al., All rights reserved.
