@@ -3,11 +3,10 @@
 __copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
-import sys 
+import sys
 import os
 import collections as cx
 from collections import OrderedDict
-from goatools.wr_tbl import get_fmtflds
 from goatools.godag_obosm import OboToGoDagSmall
 
 def plot_gos(fout_png, goids, obo_dag, *args, **kws):
@@ -33,8 +32,8 @@ def plot_results(fout_png, goea_results, *args, **kws):
         ns2goea_results = cx.defaultdict(list)
         for rec in goea_results:
             ns2goea_results[rec.NS].append(rec)
-        for ns, ns_res in ns2goea_results.items():
-            png = fout_png.format(NS=ns)
+        for ns_name, ns_res in ns2goea_results.items():
+            png = fout_png.format(NS=ns_name)
             plt_goea_results(png, ns_res, *args, **kws)
 
 def plt_goea_results(fout_png, goea_results, *args, **kws):
@@ -45,6 +44,7 @@ def plt_goea_results(fout_png, goea_results, *args, **kws):
     godagplot.plt(fout_png, engine)
 
 class GODagPltVars(object):
+    """Holds plotting paramters."""
 
     # http://www.graphviz.org/doc/info/colors.html
     rel2col = {
@@ -61,10 +61,10 @@ class GODagPltVars(object):
     alpha2col = OrderedDict([
         # GOEA GO terms that are significant
         (0.005, 'mistyrose'),
-        (0.01,  'moccasin'),
-        (0.05,  'lemonchiffon1'),
+        (0.010, 'moccasin'),
+        (0.050, 'lemonchiffon1'),
         # GOEA GO terms that are not significant
-        (1.00,  'grey95'),
+        (1.000, 'grey95'),
     ])
 
     key2col = {
@@ -75,7 +75,7 @@ class GODagPltVars(object):
     fmthdr = "{GO} L{level:>02} D{depth:>02}"
     fmtres = "{study_count} genes"
     # study items per line on GO Terms:
-    items_p_line = 5 
+    items_p_line = 5
 
 
 class GODagSmallPlot(object):
@@ -108,7 +108,9 @@ class GODagSmallPlot(object):
             return self.study_items
         return None
 
-    def _init_go2res(self, **kws):
+    @staticmethod
+    def _init_go2res(**kws):
+        """Initialize GOEA results."""
         if 'goea_results' in kws:
             return {res.GO:res for res in kws['goea_results']}
 
@@ -133,7 +135,7 @@ class GODagSmallPlot(object):
         # 3. Level-01 GO color
         color = self.pltvars.key2col['level_01']
         for goid, goobj in self.godag.go2obj.items():
-            if goobj.level == 1: 
+            if goobj.level == 1:
                 if goid not in goid2color:
                     goid2color[goid] = color
         return goid2color
@@ -161,7 +163,7 @@ class GODagSmallPlot(object):
         rel = "is_a"
         pydot = self._get_pydot()
         # Initialize empty dag
-        dag = pydot.Dot(label=self.title, graph_type='digraph', dpi="{}".format(self.dpi)) # Directed Graph
+        dag = pydot.Dot(label=self.title, graph_type='digraph', dpi="{}".format(self.dpi))
         # Initialize nodes
         go2node = self._get_go2pydotnode()
         # Add nodes to graph
@@ -170,24 +172,25 @@ class GODagSmallPlot(object):
         # Add edges to graph
         rel2col = self.pltvars.rel2col
         for src, tgt in self.godag.get_edges():
-            dag.add_edge(pydot.Edge(go2node[tgt], go2node[src],
-                shape = "normal",
-                color = rel2col[rel],
-                dir = "back")) # invert arrow direction for obo dag convention
+            dag.add_edge(pydot.Edge(
+                go2node[tgt], go2node[src],
+                shape="normal",
+                color=rel2col[rel],
+                dir="back")) # invert arrow direction for obo dag convention
         return dag
 
     def _get_go2pydotnode(self):
-        """Create pydot Nodes.""" 
+        """Create pydot Nodes."""
         go2node = {}
         for goid, goobj in self.godag.go2obj.items():
             txt = self._get_node_text(goid, goobj)
             fillcolor = self.goid2color.get(goid, "white")
             node = self.pydot.Node(
                 txt,
-                shape = "box",
-                style = "rounded, filled",
-                fillcolor = fillcolor,
-                color = "mediumseagreen")
+                shape="box",
+                style="rounded, filled",
+                fillcolor=fillcolor,
+                color="mediumseagreen")
             go2node[goid] = node
         return go2node
 
@@ -205,9 +208,9 @@ class GODagSmallPlot(object):
         txt = []
         # Header line: "GO:0036464 L04 D06"
         txt.append(self.pltvars.fmthdr.format(
-            GO = goobj.id.replace("GO:", "GO"),
-            level = goobj.level,
-            depth = goobj.depth))
+            GO=goobj.id.replace("GO:", "GO"),
+            level=goobj.level,
+            depth=goobj.depth))
         # GO name line: "cytoplamic ribonucleoprotein"
         name = goobj.name.replace(",", "\n")
         txt.append(name)
@@ -227,7 +230,7 @@ class GODagSmallPlot(object):
                     return self._get_item_str(res)
                 else:
                     return self.pltvars.fmtres.format(
-                        study_count = res.study_count)
+                        study_count=res.study_count)
 
     def _get_item_str(self, res):
         """Return genes in any of these formats:
