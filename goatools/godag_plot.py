@@ -84,6 +84,7 @@ class GODagSmallPlot(object):
     def __init__(self, godagsmall, *args, **kws):
         self.args = args
         self.log = kws['log'] if 'log' in kws else sys.stdout
+        self.title = kws['title'] if 'title' in kws else None
         self.go2res = self._init_go2res(**kws)
         self.id2symbol = kws['id2symbol'] if 'id2symbol' in kws else {}
         self.study_items = kws['study_items'] if 'study_items' in kws else None
@@ -160,7 +161,7 @@ class GODagSmallPlot(object):
         rel = "is_a"
         pydot = self._get_pydot()
         # Initialize empty dag
-        dag = pydot.Dot(graph_type='digraph', dpi="{}".format(self.dpi)) # Directed Graph
+        dag = pydot.Dot(label=self.title, graph_type='digraph', dpi="{}".format(self.dpi)) # Directed Graph
         # Initialize nodes
         go2node = self._get_go2pydotnode()
         # Add nodes to graph
