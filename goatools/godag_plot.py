@@ -156,7 +156,7 @@ class GODagSmallPlot(object):
         dag = self._get_pydot_graph()
         img_fmt = os.path.splitext(fout_img)[1][1:]
         dag.write(fout_img, format=img_fmt)
-        self.log.write("  {GO_USR:>3} src {GO_ALL:>3} all  WROTE: {F}\n".format(
+        self.log.write("  {GO_USR:>3} usr {GO_ALL:>3} GOs  WROTE: {F}\n".format(
             F=fout_img,
             GO_USR=len(self.godag.go_sources),
             GO_ALL=len(self.godag.go2obj)))
