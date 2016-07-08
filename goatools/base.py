@@ -112,7 +112,7 @@ def download_go_basic_obo(prt=sys.stdout):
     """Download Ontologies, if necessary."""
     # Download: http://geneontology.org/ontology/go-basic.obo
     obo = "go-basic.obo"
-    if not os.path.exists(obo):
+    if not os.path.isfile(obo):
         wget.download("http://geneontology.org/ontology/{OBO}".format(OBO=obo))
         prt.write("\n  DOWNLOADED: {FILE}\n".format(FILE=obo))
     else:
