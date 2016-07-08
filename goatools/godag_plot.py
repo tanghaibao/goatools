@@ -156,7 +156,10 @@ class GODagSmallPlot(object):
         dag = self._get_pydot_graph()
         img_fmt = os.path.splitext(fout_img)[1][1:]
         dag.write(fout_img, format=img_fmt)
-        self.log.write("  WROTE: {F}\n".format(F=fout_img))
+        self.log.write("  {GO_USR:>3} src {GO_ALL:>3} all  WROTE: {F}\n".format(
+            F=fout_img,
+            GO_USR=len(self.godag.go_sources),
+            GO_ALL=len(self.godag.go2obj)))
 
     def _get_pydot_graph(self):
         """Given a DAG, return a pydot digraph object."""
