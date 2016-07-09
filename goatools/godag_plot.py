@@ -138,11 +138,12 @@ class GODagSmallPlot(object):
             alpha2col = self.pltvars.alpha2col
             pval_name = self.pval_name
             for goid, res in self.go2res.items():
-                pval = getattr(res, pval_name)
-                for alpha, color in alpha2col.items():
-                    if pval <= alpha and res.study_count != 0:
-                        if goid not in goid2color:
-                            goid2color[goid] = color
+                pval = getattr(res, pval_name, None)
+                if pval is not None:
+                    for alpha, color in alpha2col.items():
+                        if pval <= alpha and res.study_count != 0:
+                            if goid not in goid2color:
+                                goid2color[goid] = color
         # 2. GO source color
         color = self.pltvars.key2col['go_sources']
         for goid in self.godag.go_sources:
