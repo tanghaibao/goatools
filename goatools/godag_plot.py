@@ -85,7 +85,11 @@ class GODagSmallPlot(object):
         self.args = args
         self.log = kws['log'] if 'log' in kws else sys.stdout
         self.title = kws['title'] if 'title' in kws else None
+        # GOATOOLs results as objects
         self.go2res = self._init_go2res(**kws)
+        # GOATOOLs results as a list of namedtuples
+        self.pval_name = self._init_pval_name(**kws)
+        # Gene Symbol names
         self.id2symbol = kws['id2symbol'] if 'id2symbol' in kws else {}
         self.study_items = kws['study_items'] if 'study_items' in kws else None
         self.study_items_max = self._init_study_items_max()
@@ -113,18 +117,30 @@ class GODagSmallPlot(object):
         """Initialize GOEA results."""
         if 'goea_results' in kws:
             return {res.GO:res for res in kws['goea_results']}
+        if 'go2nt' in kws:
+            return kws['go2nt']
+
+    @staticmethod
+    def _init_pval_name(**kws):
+        """Initialize pvalue attribute name."""
+        if 'pval_name' in kws:
+            return kws['pval_name']
+        if 'goea_results' in kws:
+            goea = kws['goea_results']
+            if goea:
+                return "p_{M}".format(M=goea[0]._methods[0].fieldname)
 
     def _init_goid2color(self):
         """Set colors of GO terms."""
         goid2color = {}
         # 1. colors based on p-value override colors based on source GO
-        alpha2col = self.pltvars.alpha2col
         if self.go2res is not None:
-            for res in self.go2res.values():
-                pval = res.get_pvalue()
+            alpha2col = self.pltvars.alpha2col
+            pval_name = self.pval_name
+            for goid, res in self.go2res.items():
+                pval = getattr(res, pval_name)
                 for alpha, color in alpha2col.items():
                     if pval <= alpha and res.study_count != 0:
-                        goid = getattr(res, 'GO')
                         if goid not in goid2color:
                             goid2color[goid] = color
         # 2. GO source color
@@ -244,12 +260,14 @@ class GODagSmallPlot(object):
         N = self.pltvars.items_p_line
         prt_items = sorted([self.__get_genestr(itemid) for itemid in res.study_items])
         prt_multiline = [prt_items[i:i+N] for i in range(0, len(prt_items), N)]
+        num_items = len(prt_items)
         if self.study_items_max is None:
-            return "\n".join([", ".join(str(e) for e in sublist) for sublist in prt_multiline])
+            genestr = "\n".join([", ".join(str(e) for e in sublist) for sublist in prt_multiline])
+            return "{N}) {GENES}".format(N=num_items, GENES=genestr)
         else:
-            num_items = len(prt_items)
             if num_items <= self.study_items_max:
-                return "\n".join([", ".join(str(e) for e in sublist) for sublist in prt_multiline])
+                genestr = "\n".join([", ".join(str(e) for e in sublist) for sublist in prt_multiline])
+                return genestr
             else:
                 short_list = prt_items[:self.study_items_max]
                 short_mult = [short_list[i:i+N] for i in range(0, len(short_list), N)]

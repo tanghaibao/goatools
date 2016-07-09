@@ -36,7 +36,7 @@ from collections import Counter, defaultdict, OrderedDict
 
 from goatools.test_data.genes_NCBI_10090_ProteinCoding import GeneID2nt as GeneID2nt_mus
 from goatools.obo_parser import GODag
-from goatools.go_enrichment import GOEnrichmentStudy
+from goatools.go_enrichment import GOEnrichmentStudy, get_study_items
 from goatools.associations import get_assoc_ncbi_taxids
 from goatools.godag_plot import plot_gos, plot_results, plot_goid2goobj
 
@@ -60,7 +60,7 @@ def test_example(log=sys.stdout):
     goea_results_all = goeaobj.run_study(geneids_study)
     goea_results_sig = [r for r in goea_results_all if r.p_fdr_bh < 0.05]
     compare_results(goea_results_all)
-    geneids = goeaobj.get_study_items(goea_results_sig)
+    geneids = get_study_items(goea_results_sig)
     # Print GOEA results to files
     goeaobj.wr_xlsx("nbt3102.xlsx", goea_results_sig)
     goeaobj.wr_txt("nbt3102_sig.txt", goea_results_sig)
