@@ -1,6 +1,6 @@
 """Given GO ids and an obo, creates a small sub-graph DAG.
 
-   Sub-graphs can be useful if we want to create shortcut paths and eliminate nodes.
+   Sub-graphs can be used to create shortcut paths and eliminate nodes.
 """
 
 from collections import defaultdict
@@ -43,7 +43,7 @@ class OboToGoDagSmall(object):
             self.godag.go2obj = {rec.GO:rec.goterm for rec in goea_results}
 
     def _init(self):
-        """Given GO ids and full obodag, create mini GO dag."""
+        """Given GO ids and GOTerm objects, create mini GO dag."""
         for goid in self.godag.go_sources:
             goobj = self.godag.go2obj[goid]
             self.godag.go2obj[goid] = goobj

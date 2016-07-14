@@ -108,28 +108,30 @@ def ungzipper(fh, blocksize=16384):
         data[0] = save + data[0]
 
 
-def download_go_basic_obo(prt=sys.stdout):
+def download_go_basic_obo(obo="go-basic.obo", prt=sys.stdout):
     """Download Ontologies, if necessary."""
     # Download: http://geneontology.org/ontology/go-basic.obo
-    obo = "go-basic.obo"
     if not os.path.isfile(obo):
         wget.download("http://geneontology.org/ontology/{OBO}".format(OBO=obo))
-        prt.write("\n  DOWNLOADED: {FILE}\n".format(FILE=obo))
+        if prt is not None:
+            prt.write("\n  DOWNLOADED: {FILE}\n".format(FILE=obo))
     else:
-        prt.write("  EXISTS: {FILE}\n".format(FILE=obo))
+        if prt is not None:
+            prt.write("  EXISTS: {FILE}\n".format(FILE=obo))
     return obo
 
-def download_ncbi_associations(prt=sys.stdout):
+def download_ncbi_associations(gene2go="gene2go", prt=sys.stdout):
     """Download associations from NCBI, if necessary"""
     # Download: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz
-    gene2go = "gene2go"
     gz = "{GENE2GO}.gz".format(GENE2GO=gene2go)
     if not os.path.isfile(gene2go):
         wget.download("ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{GZ}".format(GZ=gz))
         assert gunzip(gz) == gene2go
-        prt.write("\n  DOWNLOADED: {FILE}\n".format(FILE=gene2go))
+        if prt is not None:
+            prt.write("\n  DOWNLOADED: {FILE}\n".format(FILE=gene2go))
     else:
-        prt.write("  EXISTS: {FILE}\n".format(FILE=gene2go))
+        if prt is not None:
+            prt.write("  EXISTS: {FILE}\n".format(FILE=gene2go))
     return gene2go
 
 def gunzip(gz, file_gunzip=None):

@@ -25,6 +25,7 @@ __author__ = "DV Klopfenstein"
 import re
 import sys
 
+
 def prt_txt(prt, data_nts, prtfmt, nt_fields=None, **kws):
     """Print list of namedtuples into a table using prtfmt."""
     # optional keyword args: prt_if sort_by
@@ -41,6 +42,9 @@ def prt_txt(prt, data_nts, prtfmt, nt_fields=None, **kws):
     else:
         sys.stdout.write("      0 items. NOT WRITING w/format_string({F})\n".format(F=prtfmt))
 
+def prt_nts(data_nts, prtfmt, prt=sys.stdout, nt_fields=None, **kws):
+    """Print list of namedtuples into a table using prtfmt."""
+    prt_txt(prt, data_nts, prtfmt, nt_fields, **kws)
 
 def wr_xlsx(fout_xlsx, xlsx_data, **kws):
     """Write a spreadsheet into a xlsx file."""

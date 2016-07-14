@@ -39,7 +39,7 @@ def _chk_pvals(fisher2pvals, prt):
 def _get_pvals(pvalfnc_names, prt=sys.stdout):
     fisher2pvals = {}
     taxid = 10090 # Mouse study
-    obo_dag = GODag(download_go_basic_obo(prt))
+    obo_dag = GODag(download_go_basic_obo(prt=prt))
     geneids_pop = GeneID2nt_mus.keys()
     assoc_geneid2gos = get_assoc_ncbi_taxids([taxid])
     geneids_study = _get_geneid2symbol("nbt.3102-S4_GeneIDs.xlsx", prt)
