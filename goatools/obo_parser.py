@@ -399,9 +399,12 @@ class GODag(dict):
                 self[alt] = rec
 
         num_items = len(self)
+        data_version = reader.data_version
+        if data_version is not None:
+            data_version = data_version.replace("releases/", "")
         version = "{OBO}: fmt({FMT}) rel({REL}) {N:,} GO Terms".format(
             OBO=obo_file, FMT=reader.format_version, 
-            REL=reader.data_version.replace("releases/", ""), N=num_items)
+            REL=data_version, N=num_items)
 
         # Save the typedefs and parsed optional_attrs
         self.typedefs = reader.typedefs
