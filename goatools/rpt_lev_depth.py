@@ -46,6 +46,16 @@ class RptLevDepth(object):
         self.obo = obodag
         self.log = log
 
+    def wr_xlsx(self, fout_xlsx):
+        """Write counts of GO terms at all levels and depths."""
+        from goatools.wr_tbl import wr_xlsx
+        kws = {
+            'title' : "GO Counts in {VER}".format(VER=self.obo.version),
+            'hdrs' :["Dep/Lev",
+                     "BP Depth", "MF Depth", "CC Depth",
+                     "BP Level", "MF Level", "CC Level"]}
+        wr_xlsx(fout_xlsx, self.get_data(), **kws)
+
     def write_summary_cnts_all(self):
         """Write summary of level and depth counts for all active GO Terms."""
         cnts = self.get_cnts_levels_depths_recs(set(self.obo.values()))
@@ -64,7 +74,6 @@ class RptLevDepth(object):
 
     def _write_summary_cnts(self, cnts):
         """Write summary of level and depth counts for active GO Terms."""
-        # Added by DV Klopfenstein
         # Count level(shortest path to root) and depth(longest path to root)
         # values for all unique GO Terms.
         max_val = max(max(dep for dep in cnts['depth']),
@@ -86,5 +95,19 @@ class RptLevDepth(object):
                 cnts['level'][rec.level][rec.namespace] += 1
                 cnts['depth'][rec.depth][rec.namespace] += 1
         return cnts
+
+    def get_data(self):
+        """Collect counts of GO terms at all levels and depths."""
+        # Count level(shortest path to root) and depth(longest path to root)
+        # values for all unique GO Terms.
+        data = []
+        ntobj = cx.namedtuple("NtGoCnt", "Depth_Level BP_D MF_D CC_D BP_L MF_L CC_L")
+        cnts = self.get_cnts_levels_depths_recs(set(self.obo.values()))
+        max_val = max(max(dep for dep in cnts['depth']), max(lev for lev in cnts['level']))
+        nss = ['biological_process', 'molecular_function', 'cellular_component']
+        for i in range(max_val+1):
+            vals = [i] + [cnts[desc][i][ns] for desc in cnts for ns in nss]
+            data.append(ntobj._make(vals))
+        return data
 
 # Copyright (C) 2015-2016, DV Klopfenstein, H Tang, All rights reserved."
