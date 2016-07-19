@@ -158,7 +158,8 @@ def prt_tsv(prt, data_nts, **kws):
 def zip_nt_lists(lists, flds=None):
     """Return a new list of namedtuples by zipping "lists" of namedtuples or objects."""
     data = []
-    assert len(set([len(lst) for lst in lists])) == 1, "ALL LISTS MUST BE THE SAME LENGTH"
+    lens = [len(lst) for lst in lists]
+    assert len(set(lens)) == 1, "LIST LENGTHS MUST BE EQUAL: {Ls}".format(Ls=" ".join(str(l) for l in lens))
     ntobj = None
     hdrs = None
     for lst0_lstn in zip(*lists):
