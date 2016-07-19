@@ -56,8 +56,8 @@ def _wr_3fmt_goeaobj(goea_results, goeaobj, wr_params, log):
 
 def _wr_3fmt_wrtbl(goea_results, wr_params, log):
     """Using functions in the wr_tbl pkg, demonstrate printing a subset of namedtuple fields."""
-    from goatools.go_enrichment import get_nts
-    goea_nts = get_nts(goea_results)
+    from goatools.go_enrichment import get_goea_nts_all
+    goea_nts = get_goea_nts_all(goea_results)
     # List of all fields, printable or not, in namedtuple (nt):
     log.write("\nnamedtuple FIELDS: {F}\n".format(F=" ".join(goea_nts[0]._fields)))
     # Print to Excel Spreadsheet

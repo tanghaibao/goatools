@@ -24,7 +24,7 @@ __author__ = "DV Klopfenstein"
 
 import re
 import sys
-
+import collections as cx
 
 def prt_txt(prt, data_nts, prtfmt, nt_fields=None, **kws):
     """Print list of namedtuples into a table using prtfmt."""
@@ -154,6 +154,28 @@ def prt_tsv(prt, data_nts, **kws):
             prt.write("{}\n".format(sep.join(str(d) for d in row_vals)))
             items += 1
     return items
+
+def zip_nt_lists(lists, fieldnames=None):
+    """Return a new list of namedtuples by zipping "lists" of namedtuples or objects."""
+    data = []
+    assert len(set([len(lst) for lst in lists])) == 1, "ALL LISTS MUST BE THE SAME LENGTH"
+    ntobj = None
+    hdrs = None
+    for lst in zip(*lists):
+        if ntobj is not None:
+            data.append(ntobj._make(flatten1level(lst, lambda nt: list(nt))))
+        else:
+            hdrs = flatten1level(lst, lambda nt: getattr(nt, "_fields"))
+            ntobj = cx.namedtuple("Nt", " ".join(hdrs))
+    return data
+
+def flatten1level(lst, ntfnc):
+    """Take a list of lists, return a single list w/elems handled by user's function."""
+    hdrs = []
+    for ntitem in lst:
+        hdrs.extend(ntfnc(ntitem))
+    return hdrs
+
 
 def _fmt_fields(fld_vals, fld2fmt):
     """Optional user-formatting of specific fields, eg, pval: '{:8.2e}'."""

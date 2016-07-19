@@ -1,6 +1,7 @@
 PYTHON := python
 
 run_goea:
+	$(PYTHON) test_zip_nt_lists.py
 	$(PYTHON) test_wr_tbl_subset.py
 	$(PYTHON) test_pvalcalc.py
 	$(PYTHON) test_go_print.py

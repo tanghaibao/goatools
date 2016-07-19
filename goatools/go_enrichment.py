@@ -243,7 +243,7 @@ class GOEnrichmentStudy(object):
     def get_goea_nts(self, study, **kws):
         """Run GOEA on study ids. Return results as a list of namedtuples."""
         goea_results = self.run_study(study, **kws)
-        return get_nts(goea_results)
+        return get_goea_nts_all(goea_results)
 
     def get_results_msg(self, results):
         """Return summary for GOEA results."""
@@ -352,14 +352,14 @@ class GOEnrichmentStudy(object):
             prtfmt = "{GO} {NS} {p_uncorrected:5.2e} {study_count:>5} {name}\n"
         prtfmt = self.adjust_prtfmt(prtfmt)
         prt_flds = RPT.get_fmtflds(prtfmt)
-        data_nts = get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
+        data_nts = get_goea_nts_all(goea_results, prt_flds, rpt_fmt=True, **kws)
         RPT.prt_txt(prt, data_nts, prtfmt, prt_flds, **kws)
         return data_nts
 
     def wr_xlsx(self, fout_xlsx, goea_results, **kws):
         """Write a xlsx file."""
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(goea_results)
-        xlsx_data = get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
+        xlsx_data = get_goea_nts_all(goea_results, prt_flds, rpt_fmt=True, **kws)
         if 'fld2col_widths' not in kws:
             kws['fld2col_widths'] = {f:self.default_fld2col_widths.get(f, 8) for f in prt_flds}
         RPT.wr_xlsx(fout_xlsx, xlsx_data, **kws)
@@ -367,13 +367,13 @@ class GOEnrichmentStudy(object):
     def wr_tsv(self, fout_tsv, goea_results, **kws):
         """Write tab-separated table data to file"""
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(goea_results)
-        tsv_data = get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
+        tsv_data = get_goea_nts_all(goea_results, prt_flds, rpt_fmt=True, **kws)
         RPT.wr_tsv(fout_tsv, tsv_data, **kws)
 
     def prt_tsv(self, prt, goea_results, **kws):
         """Write tab-separated table data"""
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(goea_results)
-        tsv_data = get_nts(goea_results, prt_flds, rpt_fmt=True, **kws)
+        tsv_data = get_goea_nts_all(goea_results, prt_flds, rpt_fmt=True, **kws)
         RPT.prt_tsv(prt, tsv_data, prt_flds, **kws)
 
     def adjust_prtfmt(self, prtfmt):
@@ -385,7 +385,7 @@ class GOEnrichmentStudy(object):
     def get_NS2nts(self, results, fldnames=None, **kws):
        """Get namedtuples of GOEA results, split into BP, MF, CC."""
        NS2nts = cx.defaultdict(list)
-       nts = get_nts(results, fldnames, **kws)
+       nts = get_goea_nts_all(results, fldnames, **kws)
        for nt in nts:
            NS2nts[nt.NS].append(nt)
        return NS2nts
@@ -447,9 +447,7 @@ class GOEnrichmentStudy(object):
             if hasattr(goea_results[0], "_fldsdefprt") or hasattr(goea_results[0], 'goterm'):
                 # Exclude some attributes from the namedtuple when saving results
                 # to a Python file because the information is redundant or verbose.
-                excl = ['goterm', 'parents', 'children', 'id',
-                        'ratio_in_study', 'ratio_in_pop']
-                nts = get_nts(goea_results, not_fldnames=excl)
+                nts = get_goea_nts(goea_results)
             assert hasattr(nts[0], '_fields')
             with open(fout_py, 'w') as prt:
                 if docstring is not None:
@@ -473,7 +471,13 @@ def get_study_items(goea_results):
         study_items |= rec.study_items
     return study_items
 
-def get_nts(goea_results, fldnames=None, **kws):
+def get_goea_nts(goea_results, fldnames=None, **kws):
+    """Return list of namedtuples removing fields which are redundant or verbose."""
+    if 'not_fldnames' not in kws:
+        kws['not_fldnames'] = ['goterm', 'parents', 'children', 'id', 'ratio_in_study', 'ratio_in_pop']
+    return get_goea_nts_all(goea_results, fldnames, **kws)
+
+def get_goea_nts_all(goea_results, fldnames=None, **kws):
     """Get namedtuples containing user-specified (or default) data from GOEA results.
 
         Reformats data from GOEnrichmentRecord objects into lists of
