@@ -163,15 +163,14 @@ def zip_nt_lists(lists, flds=None):
     ntobj = None
     hdrs = None
     for lst0_lstn in zip(*lists):
-        if ntobj is not None:
-            if flds is None:
-                data.append(ntobj._make(_flatten1level(lst0_lstn, lambda nt: list(nt))))
-            else:
-                data.append(ntobj._make(_flatten1level_subset(lst0_lstn, flds)))
-        else:
+        if ntobj is None:
             fnc = lambda nt: getattr(nt, "_fields")
             hdrs = _flatten1level(lst0_lstn, fnc) if flds is None else flds
             ntobj = cx.namedtuple("Nt", " ".join(hdrs))
+        if flds is None:
+            data.append(ntobj._make(_flatten1level(lst0_lstn, lambda nt: list(nt))))
+        else:
+            data.append(ntobj._make(_flatten1level_subset(lst0_lstn, flds)))
     return data
 
 def _flatten1level(lst0_lstn, ntfnc):
