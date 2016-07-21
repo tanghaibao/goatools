@@ -26,10 +26,12 @@ import re
 import sys
 import collections as cx
 
-def prt_txt(prt, data_nts, prtfmt, nt_fields=None, **kws):
+def prt_txt(prt, data_nts, prtfmt=None, nt_fields=None, **kws):
     """Print list of namedtuples into a table using prtfmt."""
     # optional keyword args: prt_if sort_by
     if data_nts:
+        if prtfmt is None:
+            prtfmt = mk_fmtfld(data_nts[0])
         # if nt_fields arg is None, use fields from prtfmt string.
         if nt_fields is not None:
             _chk_flds_fmt(nt_fields, prtfmt)
@@ -39,10 +41,11 @@ def prt_txt(prt, data_nts, prtfmt, nt_fields=None, **kws):
         for data_nt in data_nts:
             if prt_if is None or prt_if(data_nt):
                 prt.write(prtfmt.format(**data_nt._asdict()))
+        print "FFFFFFF", prtfmt
     else:
         sys.stdout.write("      0 items. NOT WRITING w/format_string({F})\n".format(F=prtfmt))
 
-def prt_nts(data_nts, prtfmt, prt=sys.stdout, nt_fields=None, **kws):
+def prt_nts(data_nts, prtfmt=None, prt=sys.stdout, nt_fields=None, **kws):
     """Print list of namedtuples into a table using prtfmt."""
     prt_txt(prt, data_nts, prtfmt, nt_fields, **kws)
 
@@ -235,5 +238,24 @@ def _prt_txt_hdr(prt, prtfmt):
     hdrfmt = re.sub(r':(\d+)\.\S+}', r':\1}', prtfmt)
     hdrfmt = re.sub(r':(0+)(\d+)}', r':\2}', hdrfmt)
     prt.write("#{}".format(hdrfmt.format(**tblhdrs)))
+
+def mk_fmtfld(nt_item):
+    """Given a namedtuple, return a format_field string."""
+    fldstrs = []
+    # Default formats based on fieldname
+    fld2fmt = {
+        'hdrgo' : lambda f: "{{{FLD}:1,}}".format(FLD=f),
+        'dcnt' : lambda f: "{{{FLD}:6,}}".format(FLD=f),
+        'level' : lambda f: "L{{{FLD}:02,}}".format(FLD=f),
+        'depth' : lambda f: "D{{{FLD}:02,}}".format(FLD=f),
+    }
+    for fld in nt_item._fields:
+        if fld in fld2fmt:
+            val = fld2fmt[fld](fld)
+        else:
+            val = "{{{FLD}}}".format(FLD=fld)
+        fldstrs.append(val)
+    fldstrs.append("\n")
+    return " ".join(fldstrs)
 
 # Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved.
