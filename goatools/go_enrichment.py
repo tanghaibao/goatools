@@ -63,10 +63,14 @@ class GOEnrichmentRecord(object):
         self._init_enrichment()
         self.goterm = None  # the reference to the GOTerm
 
+    def get_method_name(self):
+        """Return name of first method in the _methods list."""
+        return self._methods[0].fieldname
+
     def get_pvalue(self):
         """Returns pval for 1st method, if it exists. Else returns uncorrected pval."""
         if self._methods:
-            return getattr(self, "p_{m}".format(m=self._methods[0].fieldname))
+            return getattr(self, "p_{m}".format(m=self.get_method_name()))
         return getattr(self, "p_uncorrected")
 
     def set_corrected_pval(self, nt_method, pvalue):
