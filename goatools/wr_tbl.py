@@ -12,6 +12,8 @@
                default: The fields in the data's namedtuple is used as the column headers.
            'sep': Separator used when printing the tab-separated table format.
                default: sep = '\t'
+           'prt_flds' : Used to print a subset of the fields in the namedtuple or
+               to control the order of the print fields
            'fld2col_widths: A dictionary of column widths used when writing xlsx files.
            'fld2fmt': Used in tsv files and xlsx files for formatting specific fields
            'print_names': Used when the user wants to print a subset of the nt fields.
@@ -59,7 +61,7 @@ def wr_xlsx(fout_xlsx, xlsx_data, **kws):
         # Cell formatting
         fmt_hdr = workbook.add_format({'top':1, 'bottom':1, 'left':0, 'right':0, 'bold':True})
         fmt_txt = workbook.add_format({'border':0})
-        flds_all = xlsx_data[0]._fields
+        flds_all = kws['prt_flds'] if 'prt_flds' in kws else xlsx_data[0]._fields
         if 'fld2col_widths' in kws:
             _set_xlsx_colwidths(worksheet, kws['fld2col_widths'], flds_all)
         row_idx = 0
@@ -106,7 +108,7 @@ def _wrxlsxdata(xlsx_data, row_idx, worksheet, fmt_txt, **kws):
         if prt_if is None or prt_if(data_nt):
             # Print an xlsx row by printing each column in order.
             for col_idx, fld in enumerate(prt_flds):
-                val = getattr(data_nt, fld)
+                val = getattr(data_nt, fld, "")
                 # Optional user-formatting of specific fields, eg, pval: "{:8.2e}"
                 if fld2fmt is not None and fld in fld2fmt:
                     val = fld2fmt[fld].format(val)
