@@ -43,7 +43,6 @@ def prt_txt(prt, data_nts, prtfmt=None, nt_fields=None, **kws):
         for data_nt in data_nts:
             if prt_if is None or prt_if(data_nt):
                 prt.write(prtfmt.format(**data_nt._asdict()))
-        print "FFFFFFF", prtfmt
     else:
         sys.stdout.write("      0 items. NOT WRITING w/format_string({F})\n".format(F=prtfmt))
 
