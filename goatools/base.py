@@ -144,11 +144,4 @@ def gunzip(gz, file_gunzip=None):
     os.remove(gz)
     return file_gunzip
 
-def get_godag(fin_obo="go-basic.obo", prt=sys.stdout):
-    """Return GODag object. Initialize, if necessary."""
-    from goatools.obo_parser import GODag
-    download_go_basic_obo(fin_obo, prt)
-    return GODag(fin_obo)
-
-
 # Copyright (C) 2013-2016, B Pedersen, et al. All rights reserved."
