@@ -159,46 +159,6 @@ def prt_tsv(prt, data_nts, **kws):
             items += 1
     return items
 
-def zip_nt_lists(lists, flds=None):
-    """Return a new list of namedtuples by zipping "lists" of namedtuples or objects."""
-    data = []
-    lens = [len(lst) for lst in lists]
-    assert len(set(lens)) == 1, "LIST LENGTHS MUST BE EQUAL: {Ls}".format(Ls=" ".join(str(l) for l in lens))
-    ntobj = None
-    hdrs = None
-    for lst0_lstn in zip(*lists):
-        if ntobj is None:
-            fnc = lambda nt: getattr(nt, "_fields")
-            hdrs = _flatten1level(lst0_lstn, fnc) if flds is None else flds
-            ntobj = cx.namedtuple("Nt", " ".join(hdrs))
-        if flds is None:
-            data.append(ntobj._make(_flatten1level(lst0_lstn, lambda nt: list(nt))))
-        else:
-            data.append(ntobj._make(_flatten1level_subset(lst0_lstn, flds)))
-    return data
-
-def _flatten1level(lst0_lstn, ntfnc):
-    """Take a list of lists, return a single list w/elems handled by user's function."""
-    hdrs = []
-    for ntitem in lst0_lstn:
-        hdrs.extend(ntfnc(ntitem))
-    return hdrs
-
-def _flatten1level_subset(lst0_lstn, flds):
-    """Take a list of lists, return a single list w/elems handled by user's function."""
-    data = []
-    for ntitem in lst0_lstn:
-        flds_seen = {}
-        for fld in flds:
-            if hasattr(ntitem, fld):
-                val = getattr(ntitem, fld)
-                if fld not in flds_seen:
-                    data.append(val)
-                    flds_seen[fld] = val
-                else:
-                    assert flds_seen[fld] == val
-    return data
-
 def _fmt_fields(fld_vals, fld2fmt):
     """Optional user-formatting of specific fields, eg, pval: '{:8.2e}'."""
     vals = []

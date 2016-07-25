@@ -1,7 +1,7 @@
 PYTHON := python
 
 run_goea:
-	$(PYTHON) test_zip_nt_lists.py
+	$(PYTHON) test_combine_nt_lists.py
 	$(PYTHON) test_wr_tbl_subset.py
 	$(PYTHON) test_pvalcalc.py
 	$(PYTHON) test_go_print.py
@@ -34,6 +34,7 @@ clean:
 	rm -f gene_association.*
 	rm -f *.png *.eps *.tif
 	rm -f tmp*
+	rm -f *.tsv
 
 clobber:
 	@make --no-print-directory clean
