@@ -1,5 +1,8 @@
 """Utilities for combining namedtuples."""
 
+__copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved."
+__author__ = "DV Klopfenstein"
+
 import collections as cx
 
 # -- combine_id2nts ------------------------------------------------------------------
@@ -45,3 +48,5 @@ def _combine_nt_vals(lst0_lstn, flds, dflt_null):
         if fld_seen is False:
             vals.append(dflt_null) # Default val if GO id or nt val is not present
     return vals
+
+# Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved.
