@@ -5,10 +5,10 @@ __author__ = "DV Klopfenstein"
 
 import collections as cx
 
-# -- combine_id2nts ------------------------------------------------------------------
-def combine_id2nts(ids, id2nts, flds, dflt_null=""):
+def get_dict_w_id2nts(ids, id2nts, flds, dflt_null=""):
     """Return a new dict of namedtuples by combining "dicts" of namedtuples or objects."""
-    combined_nt_go2nt = []
+    assert len(ids) == len(set(ids)), "NOT ALL IDs ARE UNIQUE: {IDs}".format(IDs=ids)
+    usr_id_nt = []
     # 1. Instantiate namedtuple object
     ntobj = cx.namedtuple("Nt", " ".join(flds))
     # 2. Fill dict with namedtuple objects for desired ids
@@ -16,10 +16,22 @@ def combine_id2nts(ids, id2nts, flds, dflt_null=""):
         # 2a. Combine various namedtuples into a single namedtuple
         nts = [id2nt.get(item_id) for id2nt in id2nts]
         vals = _combine_nt_vals(nts, flds, dflt_null)
-        combined_nt_go2nt.append(ntobj._make(vals))
-    return combined_nt_go2nt
+        usr_id_nt.append((item_id, ntobj._make(vals)))
+    return cx.OrderedDict(usr_id_nt)
 
-# -- combine_nt_lists ----------------------------------------------------------------
+def get_list_w_id2nts(ids, id2nts, flds, dflt_null=""):
+    """Return a new list of namedtuples by combining "dicts" of namedtuples or objects."""
+    combined_nt_list = []
+    # 1. Instantiate namedtuple object
+    ntobj = cx.namedtuple("Nt", " ".join(flds))
+    # 2. Fill dict with namedtuple objects for desired ids
+    for item_id in ids:
+        # 2a. Combine various namedtuples into a single namedtuple
+        nts = [id2nt.get(item_id) for id2nt in id2nts]
+        vals = _combine_nt_vals(nts, flds, dflt_null)
+        combined_nt_list.append(ntobj._make(vals))
+    return combined_nt_list
+
 def combine_nt_lists(lists, flds, dflt_null=""):
     """Return a new list of namedtuples by zipping "lists" of namedtuples or objects."""
     combined_nt_list = []
@@ -35,6 +47,7 @@ def combine_nt_lists(lists, flds, dflt_null=""):
         combined_nt_list.append(ntobj._make(_combine_nt_vals(lst0_lstn, flds, dflt_null)))
     return combined_nt_list
 
+# -- Internal methods ----------------------------------------------------------------
 def _combine_nt_vals(lst0_lstn, flds, dflt_null):
     """Given a list of lists of nts, return a single namedtuple."""
     vals = []
