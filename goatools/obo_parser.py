@@ -39,9 +39,10 @@ class OBOReader(object):
             self.obo_file = obo_file
             # GOTerm attributes that are necessary for any operations:
         else:
-            raise Exception("download obo file first\n "
+            raise Exception("COULD NOT READ({OBO})\n"
+                            "download obo file first\n "
                             "[http://geneontology.org/ontology/"
-                            "go-basic.obo]")
+                            "go-basic.obo]".format(OBO=obo_file))
 
     def __iter__(self):
         """Return one GO Term record at a time from an obo file."""
