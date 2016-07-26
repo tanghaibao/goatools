@@ -4,7 +4,7 @@ import os
 import collections as cx
 from goatools.nt_utils import combine_nt_lists
 from goatools.obo_parser import GODag
-from goatools.go_enrichment import GOEnrichmentStudy, get_goea_nts
+from goatools.go_enrichment import GOEnrichmentStudy, get_goea_nts_prt
 from goatools.associations import read_associations
 
 def test_combine_nt_lists():
@@ -12,7 +12,7 @@ def test_combine_nt_lists():
     ntobj = cx.namedtuple("Nt", "idx")
     goea_results = get_goea_results()
     # Zip a list of namedtuples and another list of namedtuples
-    goea_nts = get_goea_nts(goea_results)
+    goea_nts = get_goea_nts_prt(goea_results)
     lst2_nts = [ntobj._make([i]) for i in range(len(goea_nts))]
     # Combine lists into a single list whose elements are a namedtuple
     flds = lst2_nts[0]._fields + goea_nts[0]._fields

@@ -146,11 +146,14 @@ class GOEnrichmentRecord(object):
            else:
                # 2. Check the GO object for the field
                val = getattr(self.goterm, fld, None)
+               if rpt_fmt:
+                   val = self._get_rpt_fmt(fld, val)
                if val is not None:
                    row.append(val)
                else:
                    # 3. Field not found, raise Exception
                    chk = self._err_fld(fld, fldnames, row) 
+           assert not isinstance(val, list)
        return row
 
     @staticmethod
@@ -158,8 +161,8 @@ class GOEnrichmentRecord(object):
         """Return values in a format amenable to printing in a table."""
         if fld.startswith("ratio_"):
             return "{N}/{TOT}".format(N=val[0], TOT=val[1])
-        elif fld == 'study_items':
-            return ", ".join(val)
+        elif fld in set(['study_items', 'pop_items', 'alt_ids']):
+            return ", ".join([str(v) for v in sorted(val)])
         return val
 
     def _err_fld(self, fld, fldnames, row):
@@ -244,7 +247,7 @@ class GOEnrichmentStudy(object):
 
         return results # list of GOEnrichmentRecord objects
 
-    def get_goea_nts(self, study, **kws):
+    def run_study_nts(self, study, **kws):
         """Run GOEA on study ids. Return results as a list of namedtuples."""
         goea_results = self.run_study(study, **kws)
         return get_goea_nts_all(goea_results)
@@ -356,14 +359,14 @@ class GOEnrichmentStudy(object):
             prtfmt = "{GO} {NS} {p_uncorrected:5.2e} {study_count:>5} {name}\n"
         prtfmt = self.adjust_prtfmt(prtfmt)
         prt_flds = RPT.get_fmtflds(prtfmt)
-        data_nts = get_goea_nts_all(goea_results, prt_flds, rpt_fmt=True, **kws)
+        data_nts = get_goea_nts_prt(goea_results, prt_flds, **kws)
         RPT.prt_txt(prt, data_nts, prtfmt, prt_flds, **kws)
         return data_nts
 
     def wr_xlsx(self, fout_xlsx, goea_results, **kws):
         """Write a xlsx file."""
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(goea_results)
-        xlsx_data = get_goea_nts_all(goea_results, prt_flds, rpt_fmt=True, **kws)
+        xlsx_data = get_goea_nts_prt(goea_results, prt_flds, **kws)
         if 'fld2col_widths' not in kws:
             kws['fld2col_widths'] = {f:self.default_fld2col_widths.get(f, 8) for f in prt_flds}
         RPT.wr_xlsx(fout_xlsx, xlsx_data, **kws)
@@ -371,13 +374,13 @@ class GOEnrichmentStudy(object):
     def wr_tsv(self, fout_tsv, goea_results, **kws):
         """Write tab-separated table data to file"""
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(goea_results)
-        tsv_data = get_goea_nts_all(goea_results, prt_flds, rpt_fmt=True, **kws)
+        tsv_data = get_goea_nts_prt(goea_results, prt_flds, **kws)
         RPT.wr_tsv(fout_tsv, tsv_data, **kws)
 
     def prt_tsv(self, prt, goea_results, **kws):
         """Write tab-separated table data"""
         prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(goea_results)
-        tsv_data = get_goea_nts_all(goea_results, prt_flds, rpt_fmt=True, **kws)
+        tsv_data = get_goea_nts_prt(goea_results, prt_flds, **kws)
         RPT.prt_tsv(prt, tsv_data, prt_flds, **kws)
 
     def adjust_prtfmt(self, prtfmt):
@@ -475,10 +478,13 @@ def get_study_items(goea_results):
         study_items |= rec.study_items
     return study_items
 
-def get_goea_nts(goea_results, fldnames=None, **kws):
+def get_goea_nts_prt(goea_results, fldnames=None, **usr_kws):
     """Return list of namedtuples removing fields which are redundant or verbose."""
+    kws = usr_kws.copy()
     if 'not_fldnames' not in kws:
         kws['not_fldnames'] = ['goterm', 'parents', 'children', 'id', 'ratio_in_study', 'ratio_in_pop']
+    if 'rpt_fmt' not in kws:
+        kws['rpt_fmt'] = True
     return get_goea_nts_all(goea_results, fldnames, **kws)
 
 def get_goea_nts_all(goea_results, fldnames=None, **kws):
