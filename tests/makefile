@@ -1,6 +1,8 @@
 PYTHON := python
 
 run_goea:
+	$(PYTHON) test_wr_py_goea_results.py
+	$(PYTHON) test_altid_godag.py
 	$(PYTHON) test_combine_nt_lists.py
 	$(PYTHON) test_wr_tbl_subset.py
 	$(PYTHON) test_pvalcalc.py

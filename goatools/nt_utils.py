@@ -47,6 +47,31 @@ def combine_nt_lists(lists, flds, dflt_null=""):
         combined_nt_list.append(ntobj._make(_combine_nt_vals(lst0_lstn, flds, dflt_null)))
     return combined_nt_list
 
+def wr_py_nts(fout_py, nts, docstring=None, varname="nts"):
+    """Save namedtuples into a Python module."""
+    import sys
+    import datetime
+    if nts:
+        with open(fout_py, 'w') as prt:
+            first_nt = nts[0]
+            nt_name = type(first_nt).__name__
+            if docstring is not None:
+                prt.write('"""{DOCSTRING}"""\n\n'.format(DOCSTRING=docstring))
+            prt.write("# Created: {DATE}\n".format(DATE=str(datetime.date.today())))
+            prt.write("import collections as cx\n\n")
+            prt.write("nt_fields = [\n")
+            for fld in first_nt._fields:
+                prt.write('    "{F}",\n'.format(F=fld))
+            prt.write("]\n\n")
+            prt.write('{NtName} = cx.namedtuple("{NtName}", " ".join(nt_fields))\n\n'.format(
+                NtName=nt_name))
+            prt.write("# {N:,} items\n".format(N=len(nts)))
+            prt.write("{VARNAME} = [\n".format(VARNAME=varname))
+            for ntup in nts:
+                prt.write("    {NT},\n".format(NT=ntup))
+            prt.write("]\n")
+            sys.stdout.write("  WROTE: {PY}\n".format(PY=fout_py))
+
 # -- Internal methods ----------------------------------------------------------------
 def _combine_nt_vals(lst0_lstn, flds, dflt_null):
     """Given a list of lists of nts, return a single namedtuple."""

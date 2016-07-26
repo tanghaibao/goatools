@@ -96,6 +96,7 @@ clean:
 	cd tests; make --no-print-directory clean
 	cd goatools; rm -f *.pyc
 	rm -f *.xlsx *.tsv *.log
+	rm -f nbt3102_*
 
 # Removes local files in master branch generated using Sphinx
 clean_docgen:

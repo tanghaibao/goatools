@@ -21,7 +21,6 @@ import datetime
 from .multiple_testing import Methods, Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
 from .ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
-from goatools.godag_plot import GODagSmallPlot
 from goatools.pvalcalc import FisherFactory
 
 
@@ -179,7 +178,7 @@ class GOEnrichmentRecord(object):
               mrk = "ERROR -->" if fld in bad_flds else ""
               msg.append("  {M:>9} {I:>2}) {F}".format(M=mrk, I=idx, F=fld))
         raise Exception("\n".join(msg))
-  
+
 
 class GOEnrichmentStudy(object):
     """Runs Fisher's exact test, as well as multiple corrections
@@ -290,9 +289,9 @@ class GOEnrichmentStudy(object):
                 ratio_in_pop=(pop_count, pop_n))
 
             results.append(one_record)
-          
+
         return results
-        
+
     def _run_multitest_corr(self, results, usr_methods, alpha, study):
         """Do multiple-test corrections on uncorrected pvalues."""
         assert 0 < alpha < 1, "Test-wise alpha must fall between (0, 1)"
@@ -333,7 +332,7 @@ class GOEnrichmentStudy(object):
                                            self.pop, self.assoc,
                                            term_pop, self.obo_dag)
             corrected_pvals = FDR(p_val_distribution,
-                      ntmt.results, ntmt.alpha).corrected_pvals
+                                  ntmt.results, ntmt.alpha).corrected_pvals
 
         self._update_pvalcorr(ntmt, corrected_pvals)
 
@@ -390,12 +389,12 @@ class GOEnrichmentStudy(object):
         return prtfmt
 
     def get_NS2nts(self, results, fldnames=None, **kws):
-       """Get namedtuples of GOEA results, split into BP, MF, CC."""
-       NS2nts = cx.defaultdict(list)
-       nts = get_goea_nts_all(results, fldnames, **kws)
-       for nt in nts:
-           NS2nts[nt.NS].append(nt)
-       return NS2nts
+        """Get namedtuples of GOEA results, split into BP, MF, CC."""
+        NS2nts = cx.defaultdict(list)
+        nts = get_goea_nts_all(results, fldnames, **kws)
+        for nt in nts:
+            NS2nts[nt.NS].append(nt)
+        return NS2nts
 
     def get_item_cnt(self, results, attrname="study_items"):
         """Get all study or population items (e.g., geneids)."""
@@ -447,29 +446,18 @@ class GOEnrichmentStudy(object):
     def wr_py_goea_results(self, fout_py, goea_results, **kws):
         """Save GOEA results into Python package containing list of namedtuples."""
         var_name = "goea_results" if "var_name" not in kws else kws["var_name"]
-        docstring = None if "docstring" not in kws else kws["docstring"]
+        docstring = "" if "docstring" not in kws else kws["docstring"]
         if goea_results:
-            nts = goea_results
+            from goatools.nt_utils import wr_py_nts
+            nts_goea = goea_results
             # If list has GOEnrichmentRecords or verbose namedtuples, exclude some fields.
             if hasattr(goea_results[0], "_fldsdefprt") or hasattr(goea_results[0], 'goterm'):
                 # Exclude some attributes from the namedtuple when saving results
                 # to a Python file because the information is redundant or verbose.
-                nts = get_goea_nts(goea_results)
-            assert hasattr(nts[0], '_fields')
-            with open(fout_py, 'w') as prt:
-                if docstring is not None:
-                    prt.write('"""{DOCSTRING}"""\n\n'.format(DOCSTRING=docstring))
-                prt.write("# Created: {DATE}\n".format(DATE=str(datetime.date.today())))
-                prt.write("# {OBO_VER}\n\n".format(OBO_VER=self.obo_dag.version))
-                prt.write("import collections as cx\n\n")
-                prt.write('NtGoeaResults = cx.namedtuple("NtGoeaResults", "{FLDS}")\n\n'.format(
-                    FLDS=" ".join(nts[0]._fields)))
-                prt.write("# {N:,} items\n".format(N=len(nts)))
-                prt.write("{VARNAME} = [\n".format(VARNAME=var_name))
-                for ntup in nts:
-                    prt.write("    {NT},\n".format(NT=ntup))
-                prt.write("]\n")
-                sys.stdout.write("  WROTE: {PY}\n".format(PY=fout_py))
+                nts_goea = get_goea_nts_prt(goea_results)
+            docstring = "\n".join([docstring, "# {OBO_VER}\n\n".format(OBO_VER=self.obo_dag.version)])
+            assert hasattr(nts_goea[0], '_fields')
+            wr_py_nts(fout_py, nts_goea, docstring, var_name)
 
 def get_study_items(goea_results):
     """Get all study items (e.g., geneids)."""

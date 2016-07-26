@@ -2,9 +2,8 @@
 
 import sys
 
-from goatools.test_data.genes_NCBI_10090_ProteinCoding import GeneID2nt as GeneID2nt_mus
-from test_nbt3102 import get_geneid2symbol, get_goeaobj
 from goatools.wr_tbl import get_fmtflds, wr_xlsx, wr_tsv
+from goatools.test_data.nature3102_goea import get_goea_results
 import filecmp
 
 
@@ -12,13 +11,9 @@ def test_wr_methods(log=sys.stdout):
     """Demonstrate printing a subset of all available fields using two methods."""
     # 1. Gene Ontology Enrichment Analysis
     #    1a. Initialize: Load ontologies, associations, and population gene IDs
-    taxid = 10090 # Mouse study
-    geneids_pop = GeneID2nt_mus.keys() # Mouse protein-coding genes
-    goeaobj = get_goeaobj("fdr_bh", geneids_pop, taxid)
-    #    1b. Run GOEA
-    geneids_study = get_geneid2symbol("nbt.3102-S4_GeneIDs.xlsx")
-    keep_if = lambda nt: getattr(nt, "p_fdr_bh") < 0.05 # keep if results are significant
-    goea_results = goeaobj.run_study(geneids_study, keep_if=keep_if)
+    nature_data = get_goea_results()
+    goeaobj = nature_data['goeaobj']
+    goea_results = nature_data['goea_results']
     # 2. Write results
     #    Write parameters:
     #    The format_string names below are the same names as in the namedtuple field_names.
