@@ -131,7 +131,7 @@ def wr_xlsx(fout_xlsx, xlsx_data, **kws):
             xlsxobj.set_xlsx_colwidths(worksheet, kws['fld2col_widths'], flds_all)
         row_idx = 0
         # Print header
-        hdrs = _get_hdrs(flds_all, **kws)
+        hdrs = [h for h in _get_hdrs(flds_all, **kws) if h != "format_txt"]
         if 'title' in kws:
             worksheet.merge_range(row_idx, 0, row_idx, len(hdrs)-1, kws['title'], xlsxobj.fmt_hdr)
             row_idx += 1
