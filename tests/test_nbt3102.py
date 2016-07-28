@@ -35,6 +35,7 @@ import wget
 from collections import Counter, defaultdict, OrderedDict
 
 from goatools.test_data.genes_NCBI_10090_ProteinCoding import GeneID2nt as GeneID2nt_mus
+from goatools.test_data.nature3102_goea import get_geneid2symbol, get_goeaobj
 from goatools.obo_parser import GODag
 from goatools.go_enrichment import GOEnrichmentStudy, get_study_items
 from goatools.associations import get_assoc_ncbi_taxids
@@ -198,36 +199,6 @@ def test_example(log=sys.stdout):
     genes_cell_cycle_sig = genes_cell_cycle.intersection(geneids)
     CC.prt_genes("nbt3102_cell_cycle.txt", genes_cell_cycle_sig, taxid, log=None)
 
-
-
-def get_goeaobj(method, geneids_pop, taxid):
-    """Load: ontologies, associations, and population geneids."""
-    fin_obo = "go-basic.obo"
-    if not os.path.isfile(fin_obo):
-        wget.download("http://geneontology.org/ontology/go-basic.obo") 
-    obo_dag = GODag(fin_obo)
-    assoc_geneid2gos = get_assoc_ncbi_taxids([taxid])
-    goeaobj = GOEnrichmentStudy(
-        geneids_pop,
-        assoc_geneid2gos,
-        obo_dag,
-        propagate_counts = False,
-        alpha = 0.05,
-        methods = [method])
-    return goeaobj
-
-def get_geneid2symbol(fin_xlsx):
-    """Read xlsx file return dictionary with Entrez GeneID keys to Symbol data."""
-    gene2symbol = {}
-    data_dir = os.path.dirname(os.path.abspath(__file__)) + "/data/nbt_3102"
-    tbl_genes = "{DIR}/{FIN}".format(DIR=data_dir, FIN=fin_xlsx)
-    book = xlrd.open_workbook(tbl_genes)
-    pg = book.sheet_by_index(0)
-    for r in range(pg.nrows):
-        symbol, geneid, pval = [pg.cell_value(r, c) for c in range(pg.ncols)]
-        if geneid:
-            gene2symbol[int(geneid)] = symbol
-    return gene2symbol
 
 def compare_results(goea_results_sig):
     """Compare GOATOOLS to results from Nature paper."""
