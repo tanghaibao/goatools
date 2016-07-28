@@ -72,19 +72,36 @@ def wr_py_nts(fout_py, nts, docstring=None, varname="nts"):
             prt.write("]\n")
             sys.stdout.write("  WROTE: {PY}\n".format(PY=fout_py))
 
+def get_unique_fields(fld_lists):
+    """Get unique namedtuple fields, despite potential duplicates in lists of fields."""
+    flds = []
+    fld_set = set([f for flst in fld_lists for f in flst])
+    fld_seen = set()
+    # Add unique fields to list of fields in order that they appear
+    for fld_list in fld_lists:
+        for fld in fld_list:
+            # Add fields if the field has not yet been seen
+            if fld not in fld_seen:
+                flds.append(fld)
+                fld_seen.add(fld)
+    assert len(flds) == len(fld_set)
+    return flds
+
 # -- Internal methods ----------------------------------------------------------------
 def _combine_nt_vals(lst0_lstn, flds, dflt_null):
     """Given a list of lists of nts, return a single namedtuple."""
     vals = []
     for fld in flds:
         fld_seen = False
+        # Set field value using the **first** value seen in list of nt lists(lst0_lstn)
         for nt_curr in lst0_lstn:
             if hasattr(nt_curr, fld):
                 vals.append(getattr(nt_curr, fld))
                 fld_seen = True
                 break
+        # Set default value if GO ID or nt value is not present
         if fld_seen is False:
-            vals.append(dflt_null) # Default val if GO id or nt val is not present
+            vals.append(dflt_null)
     return vals
 
 # Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved.

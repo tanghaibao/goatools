@@ -1,6 +1,7 @@
 PYTHON := python
 
 run_goea:
+	$(PYTHON) test_get_unique_fields.py
 	$(PYTHON) test_wr_py_goea_results.py
 	$(PYTHON) test_altid_godag.py
 	$(PYTHON) test_combine_nt_lists.py
@@ -37,6 +38,7 @@ clean:
 	rm -f *.png *.eps *.tif
 	rm -f tmp*
 	rm -f *.tsv
+	rm -f nbt3102_goea.py nbt3102_goea_alt.py
 
 clobber:
 	@make --no-print-directory clean
