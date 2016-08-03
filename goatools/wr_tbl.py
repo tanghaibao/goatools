@@ -59,10 +59,12 @@ class WrXlsxParams(object):
         # single-line, weight=3, bg_color=light grey
         {'top':0, 'bottom':0, 'left':0, 'right':0, 'bold':True, 'bg_color':'#eeeded'},
         # double-line, weight=3
-        {'top':0, 'bottom':6, 'left':0, 'right':0, 'bold':True, 'bg_color':'#c7c7c7'}]
+        {'top':0, 'bottom':0, 'left':0, 'right':0, 'bold':True, 'bg_color':'#c7c7c7'}]
 
     def __init__(self, nt_flds, **kws):
-        self.fld2fmt = None if 'fld2fmt' not in kws else kws['fld2fmt']
+        self.title = kws['title'] if 'title' in kws else None
+        self.fld2fmt = kws['fld2fmt'] if 'fld2fmt' in kws else None
+        self.fld2col_widths = kws['fld2col_widths'] if 'fld2col_widths' in kws else None
         # User may specify to skip rows based on values in row
         self.prt_if = kws['prt_if'] if 'prt_if' in kws else None
         # Initialize sort_by
@@ -72,6 +74,7 @@ class WrXlsxParams(object):
         self.b_format_txt = None
         self.prt_flds = None
         self._init_prt_flds(kws['prt_flds'] if 'prt_flds' in kws else nt_flds)
+        self.hdrs = self._init_hdrs(**kws)
         # Save user-provided cell format, if provided. If not, use default.
         self.fmt_txt_arg = [
             kws['format_txt0'] if 'format_txt0' in kws else self.dflt_fmt_txt[0],
@@ -87,6 +90,12 @@ class WrXlsxParams(object):
         # Initialize data members
         self.b_format_txt = b_format_txt
         self.prt_flds = prt_flds
+
+    def _init_hdrs(self, **kws):
+        """Initialize column headers."""
+        hdrs = _get_hdrs(self.prt_flds, **kws)
+        # Values in a "format_txt" "column" are used for formatting, not printing
+        return [h for h in hdrs if h != "format_txt"]
 
 class WrXlsx(object):
     """Class to store/manage Excel spreadsheet parameters."""
@@ -105,20 +114,21 @@ class WrXlsx(object):
             self.workbook.add_format(self.vars.fmt_txt_arg[1]),
             self.workbook.add_format(self.vars.fmt_txt_arg[2])]
 
-    def wr_title_hdrs(self, worksheet, **kws):
-        """Open xlsx file. Write title (optional) and headers."""
-        # kws: title hdrs prt_flds fld2col_widths
-        flds_all = self.vars.prt_flds
-        if 'fld2col_widths' in kws:
-            self.set_xlsx_colwidths(worksheet, kws['fld2col_widths'], flds_all)
-        row_idx = 0
-        # Print header
-        hdrs = [h for h in _get_hdrs(flds_all, **kws) if h != "format_txt"]
-        if 'title' in kws and kws['title'] is not None:
-            worksheet.merge_range(row_idx, 0, row_idx, len(hdrs)-1, kws['title'], self.fmt_hdr)
-            row_idx += 1
-        # Print header
-        for col_idx, hdr in enumerate(hdrs):
+    def wr_title(self, worksheet, row_idx=0):
+        """Write title (optional)."""
+        if self.vars.title is not None:
+            return self.wr_row_mergeall(worksheet, self.vars.title, self.fmt_hdr, row_idx)
+        return row_idx
+
+    def wr_row_mergeall(self, worksheet, txtstr, fmt, row_idx):
+        """Merge all columns and place text string in widened cell."""
+        hdridxval = len(self.vars.hdrs) - 1
+        worksheet.merge_range(row_idx, 0, row_idx, hdridxval, txtstr, fmt)
+        return row_idx + 1
+
+    def wr_hdrs(self, worksheet, row_idx):
+        """Print row of column headers"""
+        for col_idx, hdr in enumerate(self.vars.hdrs):
             worksheet.write(row_idx, col_idx, hdr, self.fmt_hdr)
         row_idx += 1
         return row_idx
@@ -136,7 +146,7 @@ class WrXlsx(object):
         if self.vars.sort_by is not None:
             xlsx_data = sorted(xlsx_data, key=self.vars.sort_by)
         for data_nt in xlsx_data:
-            fmt_txt = self.get_fmt_txt(0 if not b_format_txt else getattr(data_nt, "format_txt"))
+            fmt_txt = self._get_fmt_txt(0 if not b_format_txt else getattr(data_nt, "format_txt"))
             if prt_if is None or prt_if(data_nt):
                 # Print an xlsx row by printing each column in order.
                 for col_idx, fld in enumerate(prt_flds):
@@ -151,12 +161,19 @@ class WrXlsx(object):
 
     def add_worksheet(self):
         """Add a worksheet to the workbook."""
-        return self.workbook.add_worksheet()
+        worksheet = self.workbook.add_worksheet()
+        if self.vars.fld2col_widths is not None:
+            self.set_xlsx_colwidths(worksheet, self.vars.fld2col_widths, self.vars.prt_flds)
+        return worksheet
 
-    def get_fmt_txt(self, idx):
+    def _get_fmt_txt(self, idx):
         """Return format for text cell."""
         assert idx < 3
         return self.fmt_txt[idx]
+
+    def get_fmt_section(self):
+        """Grey if printing header GOs and plain if not printing header GOs."""
+        return self.fmt_txt[2] if self.vars.b_format_txt else self.fmt_txt[0]
 
     @staticmethod
     def set_xlsx_colwidths(worksheet, fld2col_widths, fldnames):
@@ -174,11 +191,15 @@ def wr_xlsx_sections(fout_xlsx, xlsx_data, **kws):
         # Open xlsx file and write title (optional) and headers.
         xlsxobj = WrXlsx(fout_xlsx, xlsx_data[0][1][0]._fields, **kws)
         worksheet = xlsxobj.add_worksheet()
-        row_idx = xlsxobj.wr_title_hdrs(worksheet, **kws)
+        row_idx = xlsxobj.wr_title(worksheet)
+        #row_idx = xlsxobj.wr_hdrs(worksheet, row_idx)
         row_idx_data0 = row_idx
         # Write data
-        for section_name, data_nts in xlsx_data:
-            print "{N:>2} {NAME}".format(N=len(data_nts), NAME=section_name)
+        for section_text, data_nts in xlsx_data:
+            fmt = xlsxobj.fmt_txt[2]
+            row_idx = xlsxobj.wr_row_mergeall(worksheet, section_text, fmt, row_idx)
+            row_idx = xlsxobj.wr_hdrs(worksheet, row_idx)
+            row_idx = xlsxobj.wr_data(data_nts, row_idx, worksheet)
         # Close xlsx file
         xlsxobj.workbook.close()
         sys.stdout.write("  {N:>5} {ITEMS} WROTE: {FOUT}\n".format(
@@ -196,7 +217,8 @@ def wr_xlsx(fout_xlsx, xlsx_data, **kws):
         xlsxobj = WrXlsx(fout_xlsx, xlsx_data[0]._fields, **kws)
         worksheet = xlsxobj.add_worksheet()
         # Write title (optional) and headers.
-        row_idx = xlsxobj.wr_title_hdrs(worksheet, **kws)
+        row_idx = xlsxobj.wr_title(worksheet)
+        row_idx = xlsxobj.wr_hdrs(worksheet, row_idx)
         row_idx_data0 = row_idx
         # Write data
         row_idx = xlsxobj.wr_data(xlsx_data, row_idx, worksheet)
@@ -207,6 +229,7 @@ def wr_xlsx(fout_xlsx, xlsx_data, **kws):
     else:
         sys.stdout.write("      0 {ITEMS}. NOT WRITING {FOUT}\n".format(
             ITEMS=items_str, FOUT=fout_xlsx))
+
 
 def _get_hdrs(flds_all, **kws):
     """Return headers, given user-specified key-word args."""
