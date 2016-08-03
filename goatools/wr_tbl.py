@@ -80,6 +80,50 @@ class WrXlsx(object):
         self.fmt_hdr = self.workbook.add_format(self.dflt_fmt_hdr)
         self.fmt_txt = self._init_fmt_txt(**kws)
 
+    def wr_title_hdrs(self, worksheet, **kws):
+        """Open xlsx file. Write title (optional) and headers."""
+        # kws: title hdrs prt_flds fld2col_widths
+        flds_all = self.prt_flds
+        if 'fld2col_widths' in kws:
+            self.set_xlsx_colwidths(worksheet, kws['fld2col_widths'], flds_all)
+        row_idx = 0
+        # Print header
+        hdrs = [h for h in _get_hdrs(flds_all, **kws) if h != "format_txt"]
+        if 'title' in kws and kws['title'] is not None:
+            worksheet.merge_range(row_idx, 0, row_idx, len(hdrs)-1, kws['title'], self.fmt_hdr)
+            row_idx += 1
+        # Print header
+        for col_idx, hdr in enumerate(hdrs):
+            worksheet.write(row_idx, col_idx, hdr, self.fmt_hdr)
+        row_idx += 1
+        return row_idx
+
+    def wr_data(self, xlsx_data, row_idx, worksheet):
+        """Write data into xlsx worksheet."""
+        fld2fmt = self.fld2fmt
+        # User may specify to skip rows based on values in row
+        prt_if = self.prt_if
+        # User may specify a subset of columns to print or
+        # a column ordering different from the _fields seen in the namedtuple
+        prt_flds = self.prt_flds
+        # User may specify a sort function or send the data list in already sorted
+        b_format_txt = self.b_format_txt
+        if self.sort_by is not None:
+            xlsx_data = sorted(xlsx_data, key=self.sort_by)
+        for data_nt in xlsx_data:
+            fmt_txt = self.get_fmt_txt(0 if not b_format_txt else getattr(data_nt, "format_txt"))
+            if prt_if is None or prt_if(data_nt):
+                # Print an xlsx row by printing each column in order.
+                for col_idx, fld in enumerate(prt_flds):
+                    # If field "format_txt" is present, use value for formatting, but don't print.
+                    val = getattr(data_nt, fld, "")
+                    # Optional user-formatting of specific fields, eg, pval: "{:8.2e}"
+                    if fld2fmt is not None and fld in fld2fmt:
+                        val = fld2fmt[fld].format(val)
+                    worksheet.write(row_idx, col_idx, val, fmt_txt)
+                row_idx += 1
+        return row_idx
+
     def _init_prt_flds(self, xlsx_data, **kws):
         """Initialize prt_flds."""
         # Get user-defined fields or all namedtuple fields
@@ -120,32 +164,36 @@ class WrXlsx(object):
             if col_width is not None:
                 worksheet.set_column(col_idx, col_idx, col_width)
 
+def wr_xlsx_sections(fout_xlsx, xlsx_data, **kws):
+    """Write xlsx file containing section names followed by lines of namedtuple data."""
+    items_str = "items" if "items" not in kws else kws["items"]
+    if xlsx_data:
+        for section_name, data_nts in xlsx_data:
+            print "{N:>2} {NAME}".format(N=len(data_nts), NAME=section_name)
+    else:
+        sys.stdout.write("      0 {ITEMS}. NOT WRITING {FOUT}\n".format(
+            ITEMS=items_str, FOUT=fout_xlsx))
+
 def wr_xlsx(fout_xlsx, xlsx_data, **kws):
     """Write a spreadsheet into a xlsx file."""
     # optional keyword args: fld2col_widths hdrs prt_if sort_by fld2fmt prt_flds
+    items_str = "items" if "items" not in kws else kws["items"]
     if xlsx_data:
+        # Open xlsx file
         xlsxobj = WrXlsx(fout_xlsx, xlsx_data, **kws)
         worksheet = xlsxobj.add_worksheet()
-        flds_all = xlsxobj.prt_flds
-        if 'fld2col_widths' in kws:
-            xlsxobj.set_xlsx_colwidths(worksheet, kws['fld2col_widths'], flds_all)
-        row_idx = 0
-        # Print header
-        hdrs = [h for h in _get_hdrs(flds_all, **kws) if h != "format_txt"]
-        if 'title' in kws:
-            worksheet.merge_range(row_idx, 0, row_idx, len(hdrs)-1, kws['title'], xlsxobj.fmt_hdr)
-            row_idx += 1
-        # Print header
-        for col_idx, hdr in enumerate(hdrs):
-            worksheet.write(row_idx, col_idx, hdr, xlsxobj.fmt_hdr)
-        row_idx += 1
-        row_idx_d0 = row_idx
+        # Write title (optional) and headers.
+        row_idx = xlsxobj.wr_title_hdrs(worksheet, **kws)
+        row_idx_data0 = row_idx
         # Print data
-        row_idx = _wrxlsxdata(xlsx_data, row_idx, worksheet, xlsxobj)
+        row_idx = xlsxobj.wr_data(xlsx_data, row_idx, worksheet)
+        # Close xlsx file
         xlsxobj.workbook.close()
-        sys.stdout.write("  {:>5} items WROTE: {}\n".format(row_idx-row_idx_d0, fout_xlsx))
+        sys.stdout.write("  {N:>5} {ITEMS} WROTE: {FOUT}\n".format(
+            N=row_idx-row_idx_data0, ITEMS=items_str, FOUT=fout_xlsx))
     else:
-        sys.stdout.write("      0 items. NOT WRITING {}\n".format(fout_xlsx))
+        sys.stdout.write("      0 {ITEMS}. NOT WRITING {FOUT}\n".format(
+            ITEMS=items_str, FOUT=fout_xlsx))
 
 def _get_hdrs(flds_all, **kws):
     """Return headers, given user-specified key-word args."""
@@ -158,42 +206,20 @@ def _get_hdrs(flds_all, **kws):
     # All fields in the namedtuple will be in the headers
     return flds_all
 
-def _wrxlsxdata(xlsx_data, row_idx, worksheet, xlsxobj):
-    """Write data into xlsx worksheet."""
-    fld2fmt = xlsxobj.fld2fmt
-    # User may specify to skip rows based on values in row
-    prt_if = xlsxobj.prt_if
-    # User may specify a subset of columns to print or
-    # a column ordering different from the _fields seen in the namedtuple
-    prt_flds = xlsxobj.prt_flds
-    # User may specify a sort function or send the data list in already sorted
-    b_format_txt = xlsxobj.b_format_txt
-    if xlsxobj.sort_by is not None:
-        xlsx_data = sorted(xlsx_data, key=xlsxobj.sort_by)
-    for data_nt in xlsx_data:
-        fmt_txt = xlsxobj.get_fmt_txt(0 if not b_format_txt else getattr(data_nt, "format_txt"))
-        if prt_if is None or prt_if(data_nt):
-            # Print an xlsx row by printing each column in order.
-            for col_idx, fld in enumerate(prt_flds):
-                # If field "format_txt" is present, use value for formatting, but don't print.
-                val = getattr(data_nt, fld, "")
-                # Optional user-formatting of specific fields, eg, pval: "{:8.2e}"
-                if fld2fmt is not None and fld in fld2fmt:
-                    val = fld2fmt[fld].format(val)
-                worksheet.write(row_idx, col_idx, val, fmt_txt)
-            row_idx += 1
-    return row_idx
 
 def wr_tsv(fout_tsv, tsv_data, **kws):
     """Write a file of tab-separated table data"""
+    items_str = "items" if "items" not in kws else kws["items"]
     if tsv_data:
         ifstrm = sys.stdout if fout_tsv is None else open(fout_tsv, 'w')
-        items = prt_tsv(ifstrm, tsv_data, **kws)
+        num_items = prt_tsv(ifstrm, tsv_data, **kws)
         if fout_tsv is not None:
-            sys.stdout.write("  {:>5} items WROTE: {}\n".format(items, fout_tsv))
+            sys.stdout.write("  {N:>5} {ITEMS} WROTE: {FOUT}\n".format(
+                N=num_items, ITEMS=items_str, FOUT=fout_tsv))
             ifstrm.close()
     else:
-        sys.stdout.write("      0 items. NOT WRITING {}\n".format(fout_tsv))
+        sys.stdout.write("      0 {ITEMS}. NOT WRITING {FOUT}\n".format(
+            ITEMS=items_str, FOUT=fout_tsv))
 
 def prt_tsv(prt, data_nts, **kws):
     """Print tab-separated table data"""
