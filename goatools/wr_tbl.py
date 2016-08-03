@@ -50,10 +50,9 @@ def prt_nts(data_nts, prtfmt=None, prt=sys.stdout, nt_fields=None, **kws):
     prt_txt(prt, data_nts, prtfmt, nt_fields, **kws)
 
 
-class WrXlsx(object):
-    """Class to store/manage Excel spreadsheet parameters."""
+class WrXlsxParams(object):
+    """Class containing user-specified or default parameters."""
 
-    dflt_fmt_hdr = {'top':1, 'bottom':1, 'left':0, 'right':0, 'bold':True}
     dflt_fmt_txt = [
         # Colors from "Grey Grey Color Palette" http://www.color-hex.com/color-palette/20477
         {'border':0},
@@ -62,28 +61,54 @@ class WrXlsx(object):
         # double-line, weight=3
         {'top':0, 'bottom':6, 'left':0, 'right':0, 'bold':True, 'bg_color':'#c7c7c7'}]
 
-    def __init__(self, fout_xlsx, xlsx_data, **kws):
-        # KEYWORDS FOR WRITING DATA:
+    def __init__(self, nt_flds, **kws):
         self.fld2fmt = None if 'fld2fmt' not in kws else kws['fld2fmt']
         # User may specify to skip rows based on values in row
         self.prt_if = kws['prt_if'] if 'prt_if' in kws else None
+        # Initialize sort_by
+        self.sort_by = kws['sort_by'] if 'sort_by' in kws else None
         # User may specify a subset of columns to print or
         # a column ordering different from the _fields seen in the namedtuple
         self.b_format_txt = None
         self.prt_flds = None
-        self._init_prt_flds(xlsx_data, **kws) # Init: b_format_txt, prtflds
-        # Initialize sort_by
-        self.sort_by = kws['sort_by'] if 'sort_by' in kws else None
+        self._init_prt_flds(kws['prt_flds'] if 'prt_flds' in kws else nt_flds)
+        # Save user-provided cell format, if provided. If not, use default.
+        self.fmt_txt_arg = [
+            kws['format_txt0'] if 'format_txt0' in kws else self.dflt_fmt_txt[0],
+            kws['format_txt1'] if 'format_txt1' in kws else self.dflt_fmt_txt[1],
+            kws['format_txt2'] if 'format_txt2' in kws else self.dflt_fmt_txt[2]]
+
+    def _init_prt_flds(self, prt_flds):
+        """Initialize prt_flds."""
+        b_format_txt = 'format_txt' in prt_flds
+        # "format_txt" is used to set row colors, but values are not printed in columns.
+        if b_format_txt:
+            prt_flds = [f for f in prt_flds if f != "format_txt"]
+        # Initialize data members
+        self.b_format_txt = b_format_txt
+        self.prt_flds = prt_flds
+
+class WrXlsx(object):
+    """Class to store/manage Excel spreadsheet parameters."""
+
+    dflt_fmt_hdr = {'top':1, 'bottom':1, 'left':0, 'right':0, 'bold':True}
+
+    def __init__(self, fout_xlsx, nt_flds, **kws):
+        # KEYWORDS FOR WRITING DATA:
+        self.vars = WrXlsxParams(nt_flds, **kws)
         # Workbook
         from xlsxwriter import Workbook
         self.workbook = Workbook(fout_xlsx)
         self.fmt_hdr = self.workbook.add_format(self.dflt_fmt_hdr)
-        self.fmt_txt = self._init_fmt_txt(**kws)
+        self.fmt_txt = [
+            self.workbook.add_format(self.vars.fmt_txt_arg[0]),
+            self.workbook.add_format(self.vars.fmt_txt_arg[1]),
+            self.workbook.add_format(self.vars.fmt_txt_arg[2])]
 
     def wr_title_hdrs(self, worksheet, **kws):
         """Open xlsx file. Write title (optional) and headers."""
         # kws: title hdrs prt_flds fld2col_widths
-        flds_all = self.prt_flds
+        flds_all = self.vars.prt_flds
         if 'fld2col_widths' in kws:
             self.set_xlsx_colwidths(worksheet, kws['fld2col_widths'], flds_all)
         row_idx = 0
@@ -100,16 +125,16 @@ class WrXlsx(object):
 
     def wr_data(self, xlsx_data, row_idx, worksheet):
         """Write data into xlsx worksheet."""
-        fld2fmt = self.fld2fmt
+        fld2fmt = self.vars.fld2fmt
         # User may specify to skip rows based on values in row
-        prt_if = self.prt_if
+        prt_if = self.vars.prt_if
         # User may specify a subset of columns to print or
         # a column ordering different from the _fields seen in the namedtuple
-        prt_flds = self.prt_flds
+        prt_flds = self.vars.prt_flds
         # User may specify a sort function or send the data list in already sorted
-        b_format_txt = self.b_format_txt
-        if self.sort_by is not None:
-            xlsx_data = sorted(xlsx_data, key=self.sort_by)
+        b_format_txt = self.vars.b_format_txt
+        if self.vars.sort_by is not None:
+            xlsx_data = sorted(xlsx_data, key=self.vars.sort_by)
         for data_nt in xlsx_data:
             fmt_txt = self.get_fmt_txt(0 if not b_format_txt else getattr(data_nt, "format_txt"))
             if prt_if is None or prt_if(data_nt):
@@ -124,18 +149,6 @@ class WrXlsx(object):
                 row_idx += 1
         return row_idx
 
-    def _init_prt_flds(self, xlsx_data, **kws):
-        """Initialize prt_flds."""
-        # Get user-defined fields or all namedtuple fields
-        prt_flds = kws['prt_flds'] if 'prt_flds' in kws else xlsx_data[0]._fields
-        b_format_txt = 'format_txt' in prt_flds
-        # "format_txt" is used to set row colors, but values are not printed in columns.
-        if b_format_txt:
-            prt_flds = [f for f in prt_flds if f != "format_txt"]
-        # Initialize data members
-        self.b_format_txt = b_format_txt
-        self.prt_flds = prt_flds
-
     def add_worksheet(self):
         """Add a worksheet to the workbook."""
         return self.workbook.add_worksheet()
@@ -144,17 +157,6 @@ class WrXlsx(object):
         """Return format for text cell."""
         assert idx < 3
         return self.fmt_txt[idx]
-
-    def _init_fmt_txt(self, **kws):
-        """Save user-provided cell format, if provided. If not, use default."""
-        fmt_vals = [
-            kws['format_txt0'] if 'format_txt0' in kws else self.dflt_fmt_txt[0],
-            kws['format_txt1'] if 'format_txt1' in kws else self.dflt_fmt_txt[1],
-            kws['format_txt2'] if 'format_txt2' in kws else self.dflt_fmt_txt[2]]
-        return [
-            self.workbook.add_format(fmt_vals[0]),
-            self.workbook.add_format(fmt_vals[1]),
-            self.workbook.add_format(fmt_vals[2])]
 
     @staticmethod
     def set_xlsx_colwidths(worksheet, fld2col_widths, fldnames):
@@ -165,11 +167,22 @@ class WrXlsx(object):
                 worksheet.set_column(col_idx, col_idx, col_width)
 
 def wr_xlsx_sections(fout_xlsx, xlsx_data, **kws):
-    """Write xlsx file containing section names followed by lines of namedtuple data."""
+    """Write xlsx file containing section names followed by lines of namedtuple data.
+    """
     items_str = "items" if "items" not in kws else kws["items"]
     if xlsx_data:
+        # Open xlsx file and write title (optional) and headers.
+        xlsxobj = WrXlsx(fout_xlsx, xlsx_data[0][1][0]._fields, **kws)
+        worksheet = xlsxobj.add_worksheet()
+        row_idx = xlsxobj.wr_title_hdrs(worksheet, **kws)
+        row_idx_data0 = row_idx
+        # Write data
         for section_name, data_nts in xlsx_data:
             print "{N:>2} {NAME}".format(N=len(data_nts), NAME=section_name)
+        # Close xlsx file
+        xlsxobj.workbook.close()
+        sys.stdout.write("  {N:>5} {ITEMS} WROTE: {FOUT}\n".format(
+            N=row_idx-row_idx_data0, ITEMS=items_str, FOUT=fout_xlsx))
     else:
         sys.stdout.write("      0 {ITEMS}. NOT WRITING {FOUT}\n".format(
             ITEMS=items_str, FOUT=fout_xlsx))
@@ -180,12 +193,12 @@ def wr_xlsx(fout_xlsx, xlsx_data, **kws):
     items_str = "items" if "items" not in kws else kws["items"]
     if xlsx_data:
         # Open xlsx file
-        xlsxobj = WrXlsx(fout_xlsx, xlsx_data, **kws)
+        xlsxobj = WrXlsx(fout_xlsx, xlsx_data[0]._fields, **kws)
         worksheet = xlsxobj.add_worksheet()
         # Write title (optional) and headers.
         row_idx = xlsxobj.wr_title_hdrs(worksheet, **kws)
         row_idx_data0 = row_idx
-        # Print data
+        # Write data
         row_idx = xlsxobj.wr_data(xlsx_data, row_idx, worksheet)
         # Close xlsx file
         xlsxobj.workbook.close()
