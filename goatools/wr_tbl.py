@@ -55,11 +55,11 @@ class WrXlsxParams(object):
 
     dflt_fmt_txt = [
         # Colors from "Grey Grey Color Palette" http://www.color-hex.com/color-palette/20477
+        # http://www.color-hex.com/color/808080
+        # http://www.color-hex.com/color/d3d3d3
         {'border':0},
-        # single-line, weight=3, bg_color=light grey
         {'top':0, 'bottom':0, 'left':0, 'right':0, 'bold':True, 'bg_color':'#eeeded'},
-        # double-line, weight=3
-        {'top':0, 'bottom':0, 'left':0, 'right':0, 'bold':True, 'bg_color':'#c7c7c7'}]
+        {'top':0, 'bottom':0, 'left':0, 'right':0, 'bold':True, 'bg_color':'#d3d3d3'}]
 
     def __init__(self, nt_flds, **kws):
         self.title = kws['title'] if 'title' in kws else None
@@ -109,10 +109,10 @@ class WrXlsx(object):
         from xlsxwriter import Workbook
         self.workbook = Workbook(fout_xlsx)
         self.fmt_hdr = self.workbook.add_format(self.dflt_fmt_hdr)
-        self.fmt_txt = [
-            self.workbook.add_format(self.vars.fmt_txt_arg[0]),
-            self.workbook.add_format(self.vars.fmt_txt_arg[1]),
-            self.workbook.add_format(self.vars.fmt_txt_arg[2])]
+        self.fmt_txt = {
+            'plain': self.workbook.add_format(self.vars.fmt_txt_arg[0]),
+            'very light grey' : self.workbook.add_format(self.vars.fmt_txt_arg[1]),
+            'light grey' :self.workbook.add_format(self.vars.fmt_txt_arg[2])}
 
     def wr_title(self, worksheet, row_idx=0):
         """Write title (optional)."""
@@ -141,12 +141,11 @@ class WrXlsx(object):
         # User may specify a subset of columns to print or
         # a column ordering different from the _fields seen in the namedtuple
         prt_flds = self.vars.prt_flds
-        # User may specify a sort function or send the data list in already sorted
-        b_format_txt = self.vars.b_format_txt
         if self.vars.sort_by is not None:
             xlsx_data = sorted(xlsx_data, key=self.vars.sort_by)
         for data_nt in xlsx_data:
-            fmt_txt = self._get_fmt_txt(0 if not b_format_txt else getattr(data_nt, "format_txt"))
+            #fmt_txt = self._get_fmt_txt(0 if not b_format_txt else getattr(data_nt, "format_txt"))
+            fmt_txt = self._get_fmt_txt(data_nt)
             if prt_if is None or prt_if(data_nt):
                 # Print an xlsx row by printing each column in order.
                 for col_idx, fld in enumerate(prt_flds):
@@ -166,14 +165,25 @@ class WrXlsx(object):
             self.set_xlsx_colwidths(worksheet, self.vars.fld2col_widths, self.vars.prt_flds)
         return worksheet
 
-    def _get_fmt_txt(self, idx):
+    def _get_fmt_txt(self, data_nt=None):
         """Return format for text cell."""
-        assert idx < 3
-        return self.fmt_txt[idx]
+        if data_nt is None or not self.vars.b_format_txt:
+            return self.fmt_txt.get('plain')
+        format_txt_val = getattr(data_nt, "format_txt")
+        if format_txt_val == 1:
+            return self.fmt_txt.get("very light grey")
+        if format_txt_val == 2:
+            return self.fmt_txt.get("light grey")
+        fmt = self.fmt_txt.get(format_txt_val)
+        if fmt is not None:
+            return fmt
+        return self.fmt_txt.get('plain')
 
     def get_fmt_section(self):
         """Grey if printing header GOs and plain if not printing header GOs."""
-        return self.fmt_txt[2] if self.vars.b_format_txt else self.fmt_txt[0]
+        if self.vars.b_format_txt:
+            return self.fmt_txt.get("light grey")
+        return self.fmt_txt.get("plain")
 
     @staticmethod
     def set_xlsx_colwidths(worksheet, fld2col_widths, fldnames):
@@ -196,7 +206,7 @@ def wr_xlsx_sections(fout_xlsx, xlsx_data, **kws):
         row_idx_data0 = row_idx
         # Write data
         for section_text, data_nts in xlsx_data:
-            fmt = xlsxobj.fmt_txt[2]
+            fmt = xlsxobj.get_fmt_section()
             row_idx = xlsxobj.wr_row_mergeall(worksheet, section_text, fmt, row_idx)
             row_idx = xlsxobj.wr_hdrs(worksheet, row_idx)
             row_idx = xlsxobj.wr_data(data_nts, row_idx, worksheet)
