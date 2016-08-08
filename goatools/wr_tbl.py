@@ -1,6 +1,7 @@
 """Contains generic table-writing functions. Data is expected to be a list of namedtuples.
 
        kwargs (kws):
+           'title': First row will contain user-provided title string
            'prt_if': Only print a line if user-specfied test returns True.
                prt_if is a lambda function with the data item's namedtuple as input.
                Example: prt_if = lambda nt: nt.p_uncorrected < 0.05
@@ -16,9 +17,6 @@
                to control the order of the print fields
            'fld2col_widths: A dictionary of column widths used when writing xlsx files.
            'fld2fmt': Used in tsv files and xlsx files for formatting specific fields
-           'print_names': Used when the user wants to print a subset of the nt fields.
-               This may occur if a field is to be used in either sort_by or prt_if,
-               but not to be printed.
 """
 
 __copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang, All rights reserved."
@@ -59,7 +57,8 @@ class WrXlsxParams(object):
         # http://www.color-hex.com/color/d3d3d3
         {'border':0},
         {'top':0, 'bottom':0, 'left':0, 'right':0, 'bold':True, 'bg_color':'#eeeded'},
-        {'top':0, 'bottom':0, 'left':0, 'right':0, 'bold':True, 'bg_color':'#d3d3d3'}]
+        {'top':0, 'bottom':0, 'left':0, 'right':0, 'bold':True, 'bg_color':'#d3d3d3'},
+        {'border':1, 'bold':True}]
 
     def __init__(self, nt_flds, **kws):
         self.title = kws['title'] if 'title' in kws else None
@@ -79,7 +78,8 @@ class WrXlsxParams(object):
         self.fmt_txt_arg = [
             kws['format_txt0'] if 'format_txt0' in kws else self.dflt_fmt_txt[0],
             kws['format_txt1'] if 'format_txt1' in kws else self.dflt_fmt_txt[1],
-            kws['format_txt2'] if 'format_txt2' in kws else self.dflt_fmt_txt[2]]
+            kws['format_txt2'] if 'format_txt2' in kws else self.dflt_fmt_txt[2],
+            kws['format_txt3'] if 'format_txt3' in kws else self.dflt_fmt_txt[3]]
 
     def _init_prt_flds(self, prt_flds):
         """Initialize prt_flds."""
@@ -100,7 +100,7 @@ class WrXlsxParams(object):
 class WrXlsx(object):
     """Class to store/manage Excel spreadsheet parameters."""
 
-    dflt_fmt_hdr = {'top':1, 'bottom':1, 'left':0, 'right':0, 'bold':True}
+    dflt_fmt_hdr = {'top':0, 'bottom':0, 'left':0, 'right':0, 'bold':True}
 
     def __init__(self, fout_xlsx, nt_flds, **kws):
         # KEYWORDS FOR WRITING DATA:
@@ -111,6 +111,7 @@ class WrXlsx(object):
         self.fmt_hdr = self.workbook.add_format(self.dflt_fmt_hdr)
         self.fmt_txt = {
             'plain': self.workbook.add_format(self.vars.fmt_txt_arg[0]),
+            'plain bold': self.workbook.add_format(self.vars.fmt_txt_arg[3]),
             'very light grey' : self.workbook.add_format(self.vars.fmt_txt_arg[1]),
             'light grey' :self.workbook.add_format(self.vars.fmt_txt_arg[2])}
 
@@ -183,7 +184,7 @@ class WrXlsx(object):
         """Grey if printing header GOs and plain if not printing header GOs."""
         if self.vars.b_format_txt:
             return self.fmt_txt.get("light grey")
-        return self.fmt_txt.get("plain")
+        return self.fmt_txt.get("plain bold")
 
     @staticmethod
     def set_xlsx_colwidths(worksheet, fld2col_widths, fldnames):
@@ -197,18 +198,21 @@ def wr_xlsx_sections(fout_xlsx, xlsx_data, **kws):
     """Write xlsx file containing section names followed by lines of namedtuple data.
     """
     items_str = "items" if "items" not in kws else kws["items"]
+    prt_hdr_min = 10
     if xlsx_data:
         # Open xlsx file and write title (optional) and headers.
         xlsxobj = WrXlsx(fout_xlsx, xlsx_data[0][1][0]._fields, **kws)
         worksheet = xlsxobj.add_worksheet()
         row_idx = xlsxobj.wr_title(worksheet)
-        #row_idx = xlsxobj.wr_hdrs(worksheet, row_idx)
         row_idx_data0 = row_idx
+        hdrs_wrote = False
         # Write data
         for section_text, data_nts in xlsx_data:
             fmt = xlsxobj.get_fmt_section()
             row_idx = xlsxobj.wr_row_mergeall(worksheet, section_text, fmt, row_idx)
-            row_idx = xlsxobj.wr_hdrs(worksheet, row_idx)
+            if hdrs_wrote is False or len(data_nts) > prt_hdr_min:
+                row_idx = xlsxobj.wr_hdrs(worksheet, row_idx)
+                hdrs_wrote = True
             row_idx = xlsxobj.wr_data(data_nts, row_idx, worksheet)
         # Close xlsx file
         xlsxobj.workbook.close()
