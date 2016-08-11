@@ -30,8 +30,8 @@ class OBOReader(object):
     def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
         """Read obo file. Load dictionary."""
         self._init_optional_attrs(optional_attrs)
-        self.format_version = None
-        self.data_version = None
+        self.format_version = None # e.g., "1.2" of "format-version:" line
+        self.data_version = None # e.g., "releases/2016-07-07" from "data-version:" line
         self.typedefs = {}
 
         # True if obo file exists or if a link to an obo file exists.
