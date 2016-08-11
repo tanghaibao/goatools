@@ -60,8 +60,6 @@ class RptLevDepth(object):
         """Write counts of GO terms at all levels and depths."""
         from goatools.wr_tbl import prt_txt
         data = self.get_data()
-        print self.obo.format_version
-        print self.obo.data_version
         title = "GO Counts in {VER}".format(VER=self.obo.version)
         with open(fout_txt, 'w') as prt:
             prtfmt = "{Depth_Level:>7} " \
