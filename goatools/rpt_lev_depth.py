@@ -56,6 +56,25 @@ class RptLevDepth(object):
                      "BP Level", "MF Level", "CC Level"]}
         wr_xlsx(fout_xlsx, self.get_data(), **kws)
 
+    def wr_txt(self, fout_txt):
+        """Write counts of GO terms at all levels and depths."""
+        from goatools.wr_tbl import prt_txt
+        data = self.get_data()
+        print self.obo.format_version
+        print self.obo.data_version
+        title = "GO Counts in {VER}".format(VER=self.obo.version)
+        with open(fout_txt, 'w') as prt:
+            prtfmt = "{Depth_Level:>7} " \
+                     "{BP_D:6,} {MF_D:6,} {CC_D:>6,} " \
+                     "{BP_L:>6,} {MF_L:>6,} {CC_L:>6,}\n"
+            prt.write("{TITLE}\n\n".format(TITLE=title))
+            prt.write("         |<---- Depth ---->|  |<---- Level ---->|\n")
+            prt.write("Dep/Lev     BP     MF     CC     BP     MF     CC\n")
+            prt.write("-------  -----  -----  -----  -----  -----  -----\n")
+            prt_txt(prt, data, prtfmt=prtfmt, title=title)
+            sys.stdout.write("  {N:>5,} items WROTE: {TXT}\n".format(
+                N=len(data), TXT=fout_txt))
+
     def write_summary_cnts_all(self):
         """Write summary of level and depth counts for all active GO Terms."""
         cnts = self.get_cnts_levels_depths_recs(set(self.obo.values()))
