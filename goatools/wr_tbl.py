@@ -78,6 +78,10 @@ def wr_xlsx_sections(fout_xlsx, xlsx_data, **kws):
     prt_hdr_min = 10
     num_items = 0
     if xlsx_data:
+        # Basic data checks
+        assert len(xlsx_data[0]) == 2, "wr_xlsx_sections EXPECTED: [(section, nts), ..."
+        assert xlsx_data[0][1], \
+            "wr_xlsx_sections EXPECTED SECTION({S}) LIST TO HAVE DATA".format(S=xlsx_data[0][0])
         # Open xlsx file and write title (optional) and headers.
         xlsxobj = WrXlsx(fout_xlsx, xlsx_data[0][1][0]._fields, **kws)
         worksheet = xlsxobj.add_worksheet()
