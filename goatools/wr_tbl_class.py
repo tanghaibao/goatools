@@ -105,7 +105,8 @@ class WrXlsx(object):
                     # If field "format_txt" is present, use value for formatting, but don't print.
                     val = getattr(data_nt, fld, "")
                     # Optional user-formatting of specific fields, eg, pval: "{:8.2e}"
-                    if fld2fmt is not None and fld in fld2fmt:
+                    # If field value is empty (""), don't use fld2fmt
+                    if fld2fmt is not None and fld in fld2fmt and val != "":
                         val = fld2fmt[fld].format(val)
                     worksheet.write(row_idx, col_idx, val, fmt_txt)
                 row_idx += 1
