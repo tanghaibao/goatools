@@ -48,21 +48,21 @@ def prt_nts(data_nts, prtfmt=None, prt=sys.stdout, nt_fields=None, **kws):
     """Print list of namedtuples into a table using prtfmt."""
     prt_txt(prt, data_nts, prtfmt, nt_fields, **kws)
 
-def wr_xlsx(fout_xlsx, xlsx_data, **kws):
+def wr_xlsx(fout_xlsx, data_xlsx, **kws):
     """Write a spreadsheet into a xlsx file."""
     from goatools.wr_tbl_class import WrXlsx
     # optional keyword args: fld2col_widths hdrs prt_if sort_by fld2fmt prt_flds
     items_str = "items" if "items" not in kws else kws["items"]
-    if xlsx_data:
+    if data_xlsx:
         # Open xlsx file
-        xlsxobj = WrXlsx(fout_xlsx, xlsx_data[0]._fields, **kws)
+        xlsxobj = WrXlsx(fout_xlsx, data_xlsx[0]._fields, **kws)
         worksheet = xlsxobj.add_worksheet()
         # Write title (optional) and headers.
         row_idx = xlsxobj.wr_title(worksheet)
         row_idx = xlsxobj.wr_hdrs(worksheet, row_idx)
         row_idx_data0 = row_idx
         # Write data
-        row_idx = xlsxobj.wr_data(xlsx_data, row_idx, worksheet)
+        row_idx = xlsxobj.wr_data(data_xlsx, row_idx, worksheet)
         # Close xlsx file
         xlsxobj.workbook.close()
         sys.stdout.write("  {N:>5} {ITEMS} WROTE: {FOUT}\n".format(
