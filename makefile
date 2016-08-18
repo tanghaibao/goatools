@@ -19,16 +19,23 @@ GO = GO:0008135
 # User your browser to view the temporary local html files located at:
 #   <LOCAL_GIT_ROOT>/sphinx/_build/html/index.html
 #
-# Html files generated using "mkdocs" should not be committed or pushed.
-# Use the "gh-pages" make target to generate html docs which will be saved in the "goatools" "GitHub Pages".
+# Html files generated using "mkdocs_practice" should not be committed or pushed.
+# Use the "mkdocs_live" or "gh-pages" make target to generate html docs
+# which will be saved in the "goatools" "GitHub Pages".
 # "GitHub Pages" are public webpages hosted and published through the goatools repository.
 .PHONY: mkdocs rmdocs gh-pages
-mkdocs:
+mkdocs_practice:
 	make -C sphinx/ apidoc html
 
 # REMOVE THE TEMPORARY LOCAL WORKING COPY of Sphinx docs after a session of developing documentation.
-rmdocs:
+rmdocs_practice:
 	make clean_docgen
+
+
+# Update Live on-line GOATOOLS Documentation
+mkdocs_live:
+	make gh-pages
+
 
 # GENERATE SPHINX HTML DOCS DISPLAYED ON-LINE.
 #
@@ -42,7 +49,19 @@ rmdocs:
 #   4. Commits and pushes html docs from "gh-pages" branch.
 #   5. Switches back to the master branch
 gh-pages:
-	@echo "TBD: GOATOOLS GitHub Pages coming Soon"
+	git checkout gh-pages
+	git rm -rf .
+	git clean -dxf
+	git checkout HEAD .nojekyll
+	git checkout master sphinx goatools scripts
+	make -C sphinx/ apidoc html
+	mv -fv sphinx/_build/html/* .
+	mv -fv _apidoc/* .
+	rm -rf sphinx/ goatools/
+	git add -A
+	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`"
+	git push
+	git checkout master
 
 
 # -------------------------------------------------------------------------------
