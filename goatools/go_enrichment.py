@@ -152,7 +152,10 @@ class GOEnrichmentRecord(object):
                else:
                    # 3. Field not found, raise Exception
                    chk = self._err_fld(fld, fldnames, row) 
-           assert not isinstance(val, list)
+           if rpt_fmt:
+               assert not isinstance(val, list), \
+                  "UNEXPECTED LIST: FIELD({F}) VALUE({V})".format(
+                       P=rpt_fmt, F=fld, V=val)
        return row
 
     @staticmethod
@@ -457,6 +460,7 @@ class GOEnrichmentStudy(object):
                 nts_goea = get_goea_nts_prt(goea_results)
             docstring = "\n".join([docstring, "# {OBO_VER}\n\n".format(OBO_VER=self.obo_dag.version)])
             assert hasattr(nts_goea[0], '_fields')
+            nts_goea = sorted(nts_goea, key=lambda nt: getattr(nt, 'p_uncorrected'))
             wr_py_nts(fout_py, nts_goea, docstring, var_name)
 
 def get_study_items(goea_results):
