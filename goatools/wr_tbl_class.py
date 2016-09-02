@@ -96,21 +96,34 @@ class WrXlsx(object):
         prt_flds = self.vars.prt_flds
         if self.vars.sort_by is not None:
             xlsx_data = sorted(xlsx_data, key=self.vars.sort_by)
-        for data_nt in xlsx_data:
-            #fmt_txt = self._get_fmt_txt(0 if not b_format_txt else getattr(data_nt, "format_txt"))
-            fmt_txt = self._get_fmt_txt(data_nt)
-            if prt_if is None or prt_if(data_nt):
-                # Print an xlsx row by printing each column in order.
-                for col_idx, fld in enumerate(prt_flds):
-                    # If field "format_txt" is present, use value for formatting, but don't print.
-                    val = getattr(data_nt, fld, "")
-                    # Optional user-formatting of specific fields, eg, pval: "{:8.2e}"
-                    # If field value is empty (""), don't use fld2fmt
-                    if fld2fmt is not None and fld in fld2fmt and val != "" and val != "*":
-                        val = fld2fmt[fld].format(val)
-                    worksheet.write(row_idx, col_idx, val, fmt_txt)
+        try:
+            for data_nt in xlsx_data:
+                fmt_txt = self._get_fmt_txt(data_nt)
+                if prt_if is None or prt_if(data_nt):
+                    # Print an xlsx row by printing each column in order.
+                    for col_idx, fld in enumerate(prt_flds):
+                        # If fld "format_txt" present, use value for formatting, but don't print.
+                        val = getattr(data_nt, fld, "")
+                        # Optional user-formatting of specific fields, eg, pval: "{:8.2e}"
+                        # If field value is empty (""), don't use fld2fmt
+                        if fld2fmt is not None and fld in fld2fmt and val != "" and val != "*":
+                            val = fld2fmt[fld].format(val)
+                        try:
+                            worksheet.write(row_idx, col_idx, val, fmt_txt)
+                        except:
+                            raise RuntimeError(self._get_fatal_rcv(row_idx, col_idx, val))
                 row_idx += 1
+        except RuntimeError as inst:
+            import sys
+            sys.stdout.write("\n  **FATAL in wr_data: {MSG}\n\n".format(MSG=str(inst)))
         return row_idx
+
+    @staticmethod
+    def _get_fatal_rcv(row, col, val):
+        """Return an informative message with details of xlsx write attempt."""
+        import traceback
+        traceback.print_exc()
+        return "ROW({R}) COL({C}) VAL({V})".format(R=row, C=col, V=val)
 
     def add_worksheet(self):
         """Add a worksheet to the workbook."""
