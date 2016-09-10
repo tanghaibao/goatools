@@ -102,28 +102,31 @@ class WrXlsx(object):
                 if prt_if is None or prt_if(data_nt):
                     # Print an xlsx row by printing each column in order.
                     for col_idx, fld in enumerate(prt_flds):
-                        # If fld "format_txt" present, use value for formatting, but don't print.
-                        val = getattr(data_nt, fld, "")
-                        # Optional user-formatting of specific fields, eg, pval: "{:8.2e}"
-                        # If field value is empty (""), don't use fld2fmt
-                        if fld2fmt is not None and fld in fld2fmt and val != "" and val != "*":
-                            val = fld2fmt[fld].format(val)
                         try:
+                            # If fld "format_txt" present, use value for formatting, but don't print.
+                            val = getattr(data_nt, fld, "")
+                            # Optional user-formatting of specific fields, eg, pval: "{:8.2e}"
+                            # If field value is empty (""), don't use fld2fmt
+                            if fld2fmt is not None and fld in fld2fmt and val != "" and val != "*":
+                                val = fld2fmt[fld].format(val)
                             worksheet.write(row_idx, col_idx, val, fmt_txt)
                         except:
-                            raise RuntimeError(self._get_fatal_rcv(row_idx, col_idx, val))
+                            raise RuntimeError(self._get_fatal_rcv(row_idx, col_idx, fld, val))
                 row_idx += 1
         except RuntimeError as inst:
             import sys
+            import traceback
+            traceback.print_exc()
             sys.stdout.write("\n  **FATAL in wr_data: {MSG}\n\n".format(MSG=str(inst)))
+            sys.exit()
         return row_idx
 
     @staticmethod
-    def _get_fatal_rcv(row, col, val):
+    def _get_fatal_rcv(row, col, fld, val):
         """Return an informative message with details of xlsx write attempt."""
         import traceback
         traceback.print_exc()
-        return "ROW({R}) COL({C}) VAL({V})".format(R=row, C=col, V=val)
+        return "ROW({R}) COL({C}) FIELD({F}) VAL({V})".format(R=row, C=col, F=fld, V=val)
 
     def add_worksheet(self):
         """Add a worksheet to the workbook."""
