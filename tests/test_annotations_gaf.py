@@ -12,6 +12,7 @@ import wget
 import gzip
 from collections import defaultdict
 from goatools.associations import read_gaf
+from goatools.base import dnld_gafs
 
 def test_gaf_read(log=sys.stdout):
     """Return GO associations from a GAF file. Download if necessary."""
@@ -34,27 +35,6 @@ def test_gaf_read(log=sys.stdout):
         # Basic check to ensure gene2go was downloaded and data was returned.
         assert num_gene2gos > 11000
         assert num_go2genes > 6000
-
-def dnld_gafs(species):
-    """Download GAF file if necessary."""
-    # Example GAF files:
-    #   http://geneontology.org/gene-associations/gene_association.goa_human.gz
-    #   http://geneontology.org/gene-associations/gene_association.mgi.gz
-    #   http://geneontology.org/gene-associations/gene_association.fb.gz
-    fin_gafs = []
-    for species_txt in species: # e.g., goa_human mgi fb
-        gaf_ftp = "http://geneontology.org/gene-associations/gene_association.{S}".format(
-            S=species_txt)
-        gaf_local = "gene_association.{SPECIES}".format(SPECIES=species_txt)
-        if not os.path.isfile(gaf_local):
-            wget.download("{GAF}.gz".format(GAF=gaf_ftp))
-            gaf_gz = "{GAF_LOCAL}.gz".format(GAF_LOCAL=gaf_local)
-            with gzip.open(gaf_gz, 'rb') as zstrm:
-                with  open(gaf_local, 'w') as ostrm:
-                    ostrm.write(zstrm.read())
-            os.remove(gaf_gz)
-        fin_gafs.append(gaf_local)
-    return fin_gafs
 
 if __name__ == '__main__':
     test_gaf_read()

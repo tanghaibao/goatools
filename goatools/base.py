@@ -152,5 +152,29 @@ def get_godag(fin_obo="go-basic.obo", prt=sys.stdout):
     download_go_basic_obo(fin_obo, prt)
     return GODag(fin_obo)
 
+def dnld_gaf(species_txt):
+    """Download GAF file if necessary."""
+    return dnld_gafs([species_txt])[0]
+
+def dnld_gafs(species_list):
+    """Download GAF files if necessary."""
+    # Example GAF files:
+    #   http://geneontology.org/gene-associations/gene_association.goa_human.gz
+    #   http://geneontology.org/gene-associations/gene_association.mgi.gz
+    #   http://geneontology.org/gene-associations/gene_association.fb.gz
+    fin_gafs = []
+    for species_txt in species_list: # e.g., goa_human mgi fb
+        gaf_ftp = "http://geneontology.org/gene-associations/gene_association.{S}".format(
+            S=species_txt)
+        gaf_local = "gene_association.{SPECIES}".format(SPECIES=species_txt)
+        if not os.path.isfile(gaf_local):
+            wget.download("{GAF}.gz".format(GAF=gaf_ftp))
+            gaf_gz = "{GAF_LOCAL}.gz".format(GAF_LOCAL=gaf_local)
+            with gzip.open(gaf_gz, 'rb') as zstrm:
+                with  open(gaf_local, 'w') as ostrm:
+                    ostrm.write(zstrm.read())
+            os.remove(gaf_gz)
+        fin_gafs.append(gaf_local)
+    return fin_gafs
 
 # Copyright (C) 2013-2016, B Pedersen, et al. All rights reserved."
