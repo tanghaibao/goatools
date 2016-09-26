@@ -141,7 +141,7 @@ def gunzip(gz, file_gunzip=None):
     if file_gunzip is None:
         file_gunzip = os.path.splitext(gz)[0]
     with gzip.open(gz, 'rb') as zstrm:
-        with  open(file_gunzip, 'w') as ostrm:
+        with  open(file_gunzip, 'wb') as ostrm:
             ostrm.write(zstrm.read())
     os.remove(gz)
     return file_gunzip
