@@ -82,11 +82,11 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     id2gos = defaultdict(set)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
     # e.g., taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set))
-    taxid2asscs = kws['taxid2asscs'] if 'taxid2asscs' in kws else None
-    evs = kws['evidence_set'] if 'evidence_set' in kws else None
+    taxid2asscs = kws.get('taxid2asscs', None)
+    evs = kws.get('evidence_set', None)
     # By default, return id2gos. User can cause go2geneids to be returned by:
     #   >>> read_ncbi_gene2go(..., go2geneids=True
-    b_geneid2gos = not kws['go2geneids'] if 'go2geneids' in kws else True
+    b_geneid2gos = not kws.get('go2geneids', True)
     if taxids is None: # Default taxid is Human
         taxids = [9606]
     with open(fin_gene2go) as ifstrm:
@@ -120,13 +120,13 @@ def read_gaf(fin_gaf, **kws):
     # Simple associations
     id2gos = defaultdict(set)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
-    taxid2asscs = kws['taxid2asscs'] if 'taxid2asscs' in kws else None
+    taxid2asscs = kws.get('taxid2asscs', None)
     gafnts = GafReader(fin_gaf).associations
     # Optionaly specify a subset of GOs based on their evidence.
-    evs = kws['evidence_set'] if 'evidence_set' in kws else None
+    evs = kws.get('evidence_set', None)
     # By default, return id2gos. User can cause go2geneids to be returned by:
     #   >>> read_ncbi_gene2go(..., go2geneids=True
-    b_geneid2gos = not kws['go2geneids'] if 'go2geneids' in kws else True
+    b_geneid2gos = not kws.get('go2geneids', True)
     for ntgaf in gafnts:
         evidence_code = ntgaf.Evidence_Code
         if 'NOT' not in ntgaf.Qualifier and evidence_code != 'ND':
