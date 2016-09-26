@@ -13,25 +13,25 @@ class WrXlsxParams(object):
         {'border':1, 'bold':True}]
 
     def __init__(self, nt_flds, **kws):
-        self.title = kws['title'] if 'title' in kws else None
-        self.fld2fmt = kws['fld2fmt'] if 'fld2fmt' in kws else None
-        self.fld2col_widths = kws['fld2col_widths'] if 'fld2col_widths' in kws else None
+        self.title = kws.get('title', None)
+        self.fld2fmt = kws.get('fld2fmt', None)
+        self.fld2col_widths = kws.get('fld2col_widths', None)
         # User may specify to skip rows based on values in row
-        self.prt_if = kws['prt_if'] if 'prt_if' in kws else None
+        self.prt_if = kws.get('prt_if', None)
         # Initialize sort_by
-        self.sort_by = kws['sort_by'] if 'sort_by' in kws else None
+        self.sort_by = kws.get('sort_by', None)
         # User may specify a subset of columns to print or
         # a column ordering different from the _fields seen in the namedtuple
         self.b_format_txt = None
         self.prt_flds = None
-        self._init_prt_flds(kws['prt_flds'] if 'prt_flds' in kws else nt_flds)
+        self._init_prt_flds(kws.get('prt_flds', nt_flds))
         self.hdrs = self._init_hdrs(**kws)
         # Save user-provided cell format, if provided. If not, use default.
         self.fmt_txt_arg = [
-            kws['format_txt0'] if 'format_txt0' in kws else self.dflt_fmt_txt[0],
-            kws['format_txt1'] if 'format_txt1' in kws else self.dflt_fmt_txt[1],
-            kws['format_txt2'] if 'format_txt2' in kws else self.dflt_fmt_txt[2],
-            kws['format_txt3'] if 'format_txt3' in kws else self.dflt_fmt_txt[3]]
+            kws.get('format_txt0', self.dflt_fmt_txt[0]),
+            kws.get('format_txt1', self.dflt_fmt_txt[1]),
+            kws.get('format_txt2', self.dflt_fmt_txt[2]),
+            kws.get('format_txt3', self.dflt_fmt_txt[3])]
 
     def _init_prt_flds(self, prt_flds):
         """Initialize prt_flds."""
