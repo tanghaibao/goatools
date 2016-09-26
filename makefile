@@ -143,8 +143,9 @@ clobber:
 	@make --no-print-directory clean
 	rm -f $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
 
-# TO DO: Add these to NOSETEST after edits:
+# TBD: Add these to NOSETEST after edits:
 #    tests/test_altid_godag.py \
+#    tests/test_annotations_gaf.py \
 #    tests/test_dnlds.py \
 #    tests/test_genes_cell_cycle.py \
 #    tests/test_go_print.py \
@@ -161,7 +162,6 @@ clobber:
 #    tests/test_write_summary_cnts.py
 
 NOSETESTS := \
-    tests/test_annotations_gaf.py \
     tests/test_combine_nt_lists.py \
     tests/test_get_paths.py \
     tests/test_get_unique_fields.py \
