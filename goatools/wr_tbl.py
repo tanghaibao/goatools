@@ -130,7 +130,7 @@ def prt_tsv(prt, data_nts, **kws):
     prt_if = kws['prt_if'] if 'prt_if' in kws else None
     prt_flds = kws['prt_flds'] if 'prt_flds' in kws else data_nts[0]._fields
     # Write header
-    prt.write("{}\n".format(sep.join(hdrs)))
+    prt.write("# {}\n".format(sep.join(hdrs)))
     # Write data
     items = 0
     for nt_data_row in data_nts:
