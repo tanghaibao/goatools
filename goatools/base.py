@@ -171,7 +171,7 @@ def dnld_gafs(species_list):
             wget.download("{GAF}.gz".format(GAF=gaf_ftp))
             gaf_gz = "{GAF_LOCAL}.gz".format(GAF_LOCAL=gaf_local)
             with gzip.open(gaf_gz, 'rb') as zstrm:
-                with  open(gaf_local, 'w') as ostrm:
+                with  open(gaf_local, 'wb') as ostrm:
                     ostrm.write(zstrm.read())
             os.remove(gaf_gz)
         fin_gafs.append(gaf_local)
