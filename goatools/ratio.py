@@ -22,6 +22,9 @@ def get_terms(desc, geneset, assoc, obo_dag, log):
     """Get the terms in the study group
     """
     term2itemids = defaultdict(set)
+    if str(next(assoc.iterkeys()))[:3] == "GO:":
+        raise Exception("ASSOCIATIONS EXPECTED TO BE gene2go, NOT go2gene: {EX}".format(
+            EX=assoc.items()[:2]))
     genes = [g for g in geneset if g in assoc]
     for gene in genes:
         for x in assoc[gene]:
