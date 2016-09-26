@@ -21,10 +21,8 @@ def count_terms(geneset, assoc, obo_dag):
 def get_terms(desc, geneset, assoc, obo_dag, log):
     """Get the terms in the study group
     """
+    _chk_gene2go(assoc)
     term2itemids = defaultdict(set)
-    if str(next(assoc.iterkeys()))[:3] == "GO:":
-        raise Exception("ASSOCIATIONS EXPECTED TO BE gene2go, NOT go2gene: {EX}".format(
-            EX=assoc.items()[:2]))
     genes = [g for g in geneset if g in assoc]
     for gene in genes:
         for x in assoc[gene]:
@@ -46,5 +44,13 @@ def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
     if s > p:
         return s / p > min_ratio
     return p / s > min_ratio
+
+def _chk_gene2go(assoc):
+    """Check that associations is gene2go, not go2gene."""
+    for key, val in assoc.items():
+        if isinstance(key, str) and key[:3] == "GO:":
+            raise Exception("ASSOCIATIONS EXPECTED TO BE gene2go, NOT go2gene: {EX}".format(
+                EX=assoc.items()[:2]))
+        return
 
 # Copyright (C) 2010-2016, H Tang et al., All rights reserved.
