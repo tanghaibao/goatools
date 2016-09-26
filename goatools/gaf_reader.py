@@ -9,7 +9,7 @@
 
 import sys
 import re
-from collections import namedtuple
+import collections as cx
 from goatools.base import nopen
 
 __copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved."
@@ -61,6 +61,21 @@ class GafReader(object):
         self.filename = filename
         self.log = log
         self.associations = self.read_gaf(filename) if filename is not None else []
+
+    def prt_summary_anno2ev(self, prt=sys.stdout):
+        """Print annotation/evidence code summary."""
+        from goatools.evidence_codes import EvidenceCodes
+        ctr = cx.Counter()
+        for ntgaf in self.associations:
+            evidence_code = ntgaf.Evidence_Code
+            if 'NOT' not in ntgaf.Qualifier:
+                ctr[evidence_code] += 1
+            elif 'NOT' in ntgaf.Qualifier:
+                ctr["NOT {EV}".format(EV=ntgaf.Evidence_Code)] += 1
+            else:
+                raise Exception("UNEXPECTED INFO") 
+        evobj = EvidenceCodes()
+        evobj.prt_ev_cnts(ctr, prt)
 
     def _get_ntgaf(self, ntgafobj, flds, ver):
         """Convert fields from string to preferred format for GAF ver 2.1 and 2.0."""
@@ -131,7 +146,7 @@ class GafReader(object):
                 ga_lst.append(ntgaf)
             elif ntgafobj is None and line.startswith('!gaf-version:'):
                 ver = line[13:].strip()
-                ntgafobj = namedtuple("ntgafobj", " ".join(self.gaf_columns[ver]))
+                ntgafobj = cx.namedtuple("ntgafobj", " ".join(self.gaf_columns[ver]))
                 exp_numcol = self.gaf_numcol[ver]
         self.log.write("  READ {N:,} items: {FIN}\n".format(N=len(ga_lst), FIN=fin_gaf))
         return ga_lst
