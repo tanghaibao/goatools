@@ -86,7 +86,7 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     evs = kws.get('evidence_set', None)
     # By default, return id2gos. User can cause go2geneids to be returned by:
     #   >>> read_ncbi_gene2go(..., go2geneids=True
-    b_geneid2gos = not kws.get('go2geneids', True)
+    b_geneid2gos = not kws.get('go2geneids', False)
     if taxids is None: # Default taxid is Human
         taxids = [9606]
     with open(fin_gene2go) as ifstrm:
