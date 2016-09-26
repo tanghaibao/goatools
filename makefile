@@ -143,5 +143,31 @@ clobber:
 	@make --no-print-directory clean
 	rm -f $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
 
+# TO DO: Add these to NOSETEST after edits:
+#    tests/test_altid_godag.py \
+#    tests/test_dnlds.py \
+#    tests/test_genes_cell_cycle.py \
+#    tests/test_go_print.py \
+#    tests/test_goea_errors.py \
+#    tests/test_goea_local.py \
+#    tests/test_goea_rpt_bonferroni.py \
+#    tests/test_nbt3102.py \
+#    tests/test_ncbi_entrez_annotations.py \
+#    tests/test_optional_fields.py \
+#    tests/test_write_hier.py \
+#    tests/test_pvalcalc.py \
+#    tests/test_wr_py_goea_results.py \
+#    tests/test_wr_tbl_subset.py \
+#    tests/test_write_summary_cnts.py
+
+NOSETESTS := \
+    tests/test_annotations_gaf.py \
+    tests/test_combine_nt_lists.py \
+    tests/test_get_paths.py \
+    tests/test_get_unique_fields.py \
+    tests/test_go_draw.py \
+    tests/test_goea_statsmodels.py \
+    tests/test_mapslim.py
+
 test:
-	nosetests tests/test_goea_statsmodels.py tests/test_get_paths.py
+	nosetests tests/test_goea_statsmodels.py $(NOSETESTS)

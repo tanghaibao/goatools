@@ -25,7 +25,7 @@ def test_goea_fdr_dflt(log=sys.stdout):
     goeaobj.print_summary(goea_results)
 
 def test_goea_local(log=sys.stdout):
-    """Test GOEA with local multipletest correction methods."""
+    """Test GOEA with local multipletest correction methods for local."""
     goeaobj = get_goeaobj()
     study_ids = [line.rstrip() for line in open("../data/study")]
     prt_if = lambda nt: nt.p_uncorrected < 0.00005
@@ -64,7 +64,7 @@ def get_goeaobj(methods=None):
     return goeaobj
 
 def run_all():
-    """Run all tests."""
+    """Run all local multiple tests."""
     test_unknown_gos()
     test_goea_fdr_dflt()
     test_goea_local()

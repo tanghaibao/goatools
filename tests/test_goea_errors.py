@@ -40,7 +40,7 @@ def run_method_bad_run():
 
 
 def test_all(log=sys.stdout):
-    """Run all tests."""
+    """Run all error tests."""
     tests = [
         (run_method_bad_ini, "INVALID METHOD(not_fdr)"),
         (run_method_bad_run, "INVALID METHOD(invalid_method)"),

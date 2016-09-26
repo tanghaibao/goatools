@@ -19,7 +19,7 @@ def test_cell_cycle(taxid=9606, log=sys.stdout):
     prt_genes(fout, geneids, taxid, log)
 
 def get_genes_cell_cycle(taxid=9606, log=sys.stdout):
-    """Test GOEA with local multipletest correction methods."""
+    """Test GOEA with local multipletest correction methods for cell cycle."""
     # Download ontologies and annotations, if necessary
     fin_go_obo = "go-basic.obo"
     if not os.path.exists(fin_go_obo):

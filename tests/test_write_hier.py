@@ -10,7 +10,7 @@ from goatools.obo_parser import GODag
 # Sub-routines to tests
 #################################################################
 def test_write_hier_all(dag, out):
-    """Prints the entire mini GO hierarchy, with counts of children."""
+    """test_write_hier.py: Prints the entire mini GO hierarchy, with counts of children."""
     out.write('\nTEST ALL: Print all hierarchies:\n')
     dag.write_hier("GO:0000001", out, num_child=True)
 

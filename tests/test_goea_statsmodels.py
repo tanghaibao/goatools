@@ -12,7 +12,7 @@ __copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
 
 
 def test_goea_statsmodels(log=sys.stdout):
-    """Test GOEA with local multipletest correction methods."""
+    """Test GOEA with local multipletest correction methods for statsmodels."""
     goeaobj = get_goeaobj()
     study_ids = [line.rstrip() for line in open(ROOT + "small_study")]
     prt_if = lambda nt: nt.p_uncorrected < 0.0005
