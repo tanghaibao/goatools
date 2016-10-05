@@ -281,11 +281,11 @@ Items that we know we need include:
   We are using Sphinx and Python docstrings to create documentation.    
 
   For documentation practice, use make targets:    
-    % make mkdocs_practice    
-    % make rmdocs_practice    
+      % make mkdocs_practice    
+      % make rmdocs_practice    
 
   Once you are happy with the documentation do:    
-    % make gh-pages    
+      % make gh-pages    
 
 
 Reference
