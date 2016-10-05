@@ -271,6 +271,23 @@ Determine the semantic similarities between GO terms
 https://github.com/tanghaibao/goatools/blob/master/notebooks/semantic_similarity.ipynb
 
 
+Want to Help?
+-------------
+Items that we know we need include:
+* Edit tests in [makefile](makefile) under **TBD** such they run using **nosetests**
+* Help setting up [documentation](http://goatools.readthedocs.io/en/latest/)    
+  We are using Sphinx and Python docstrings to create documentation.    
+  For documentation practice, use make targets:    
+```
+    % make mkdocs_practice
+    % make rmdocs_practice
+```
+  Once you are happy with the documentation do:
+```
+    % make gh-pages
+```
+
+
 Reference
 ---------
 Haibao Tang et al. (2015). GOATOOLS: Tools for Gene Ontology. Zenodo.
