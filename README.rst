@@ -274,18 +274,15 @@ https://github.com/tanghaibao/goatools/blob/master/notebooks/semantic_similarity
 Want to Help?
 -------------
 Items that we know we need include:
-* Edit tests in [makefile](makefile) under **TBD** such they run using **nosetests**
+
+* Edit tests in makefile under **TBD** such they run using **nosetests**    
 * Help setting up [documentation](http://goatools.readthedocs.io/en/latest/)    
   We are using Sphinx and Python docstrings to create documentation.    
   For documentation practice, use make targets:    
-```
-    % make mkdocs_practice
-    % make rmdocs_practice
-```
-  Once you are happy with the documentation do:
-```
-    % make gh-pages
-```
+    % make mkdocs_practice    
+    % make rmdocs_practice    
+  Once you are happy with the documentation do:    
+    % make gh-pages    
 
 
 Reference
