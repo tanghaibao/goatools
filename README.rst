@@ -282,6 +282,8 @@ Items that we know we need include:
 
   For documentation practice, use make targets:    
       % make mkdocs_practice    
+
+  To remove practice documentation:
       % make rmdocs_practice    
 
   Once you are happy with the documentation do:    
