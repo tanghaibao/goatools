@@ -275,7 +275,7 @@ Want to Help?
 -------------
 Items that we know we need include:
 
-* Edit tests in the **makefile** under the comment, **TBD**, such they run using **nosetests**    
+* Edit tests in the **makefile** under the comment, **# TBD**, such they run using **nosetests**    
 * Help setting up documentation, http://goatools.readthedocs.io/en/latest/    
 
   We are using Sphinx and Python docstrings to create documentation.    
