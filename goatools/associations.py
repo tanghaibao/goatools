@@ -126,7 +126,7 @@ def read_gaf(fin_gaf, **kws):
     evs = kws.get('evidence_set', None)
     # By default, return id2gos. User can cause go2geneids to be returned by:
     #   >>> read_ncbi_gene2go(..., go2geneids=True
-    b_geneid2gos = not kws.get('go2geneids', True)
+    b_geneid2gos = not kws.get('go2geneids', False)
     for ntgaf in gafnts:
         evidence_code = ntgaf.Evidence_Code
         if 'NOT' not in ntgaf.Qualifier and evidence_code != 'ND':
