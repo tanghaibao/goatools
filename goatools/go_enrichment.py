@@ -18,8 +18,8 @@ import sys
 import collections as cx
 import datetime
 
-from .multiple_testing import Methods, Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
-from .ratio import get_terms, count_terms, is_ratio_different
+from goatools.multiple_testing import Methods, Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
+from goatools.ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
 from goatools.pvalcalc import FisherFactory
 
@@ -226,6 +226,8 @@ class GOEnrichmentStudy(object):
         log = kws['log'] if 'log' in kws else self.log
         # Calculate uncorrected pvalues
         results = self._get_pval_uncorr(study)
+        if not results:
+            return []
 
         # Do multipletest corrections on uncorrected pvalues and update results
         self._run_multitest_corr(results, methods, alpha, study)
