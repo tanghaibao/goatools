@@ -47,6 +47,8 @@ def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
 
 def _chk_gene2go(assoc):
     """Check that associations is gene2go, not go2gene."""
+    if not assoc:
+        raise RuntimeError("NO ITEMS FOUND IN ASSOCIATIONS")
     for key, val in assoc.items():
         if isinstance(key, str) and key[:3] == "GO:":
             raise Exception("ASSOCIATIONS EXPECTED TO BE gene2go, NOT go2gene: {EX}".format(
