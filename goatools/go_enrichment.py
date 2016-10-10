@@ -450,8 +450,9 @@ class GOEnrichmentStudy(object):
 
     def wr_py_goea_results(self, fout_py, goea_results, **kws):
         """Save GOEA results into Python package containing list of namedtuples."""
-        var_name = "goea_results" if "var_name" not in kws else kws["var_name"]
-        docstring = "" if "docstring" not in kws else kws["docstring"]
+        var_name = kws.get("var_name", "goea_results")
+        docstring = kws.get("docstring", "")
+        sortby = kws.get("sortby", None)
         if goea_results:
             from goatools.nt_utils import wr_py_nts
             nts_goea = goea_results
@@ -462,7 +463,9 @@ class GOEnrichmentStudy(object):
                 nts_goea = get_goea_nts_prt(goea_results)
             docstring = "\n".join([docstring, "# {OBO_VER}\n\n".format(OBO_VER=self.obo_dag.version)])
             assert hasattr(nts_goea[0], '_fields')
-            nts_goea = sorted(nts_goea, key=lambda nt: getattr(nt, 'p_uncorrected'))
+            if sortby is None:
+                sortby = lambda nt: getattr(nt, 'p_uncorrected')
+            nts_goea = sorted(nts_goea, key=sortby)
             wr_py_nts(fout_py, nts_goea, docstring, var_name)
 
 def get_study_items(goea_results):
