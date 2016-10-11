@@ -1,4 +1,4 @@
-"""GOATOOLS GOEA on Gjoneska data using go-basic.obo: fmt(1.2) rel(2016-10-08) 47,446 GO Terms"""
+"""GOATOOLS GOEA on 2015 Gjoneska data using go-basic.obo: fmt(1.2) rel(2016-10-08) 47,446 GO Terms"""
 
 # Created: 2016-10-11
 import collections as cx
