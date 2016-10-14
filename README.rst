@@ -52,8 +52,8 @@ This package contains a Python library to
 - process the obo-formatted file from `Gene Ontology website <http://geneontology.org>`_.
   The data structure is a directed acyclic graph (DAG) that allows easy traversal
   from leaf to root.
-- Read [GO Association files](http://geneontology.org/page/go-annotation-file-formats):    
-  - Read GAF ([Gene Association File](http://geneontology.org/page/go-annotation-file-gaf-format-21)) files.
+- Read `GO Association files <http://geneontology.org/page/go-annotation-file-formats>`_:    
+  - Read GAF (`Gene Association File <http://geneontology.org/page/go-annotation-file-gaf-format-21>`_) files.
   - Read NCBI's gene2go GO association file.
 - map GO terms (or protein products with multiple associations to GO terms) to
   GOslim terms (analog to the map2slim.pl script supplied by geneontology.org)
