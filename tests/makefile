@@ -17,6 +17,7 @@ run_goea:
 	$(PYTHON) test_write_summary_cnts.py
 	$(PYTHON) tests_methodsobj.py
 	$(PYTHON) test_nbt3102.py
+	$(PYTHON) test_ids_to_go.py
 
 run_goea_scripts:
 	cd ..; make goea_all
