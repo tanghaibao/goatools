@@ -3,7 +3,12 @@
 gene2go
 gene2go.gz
 *.pyc
+*.egg-info/
 
 # Sphinx working directories
 _static
 _templates
+
+
+# PyCharm
+.idea
