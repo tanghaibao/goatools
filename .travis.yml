@@ -17,7 +17,7 @@ matrix:
 
 # Setup anaconda
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then PYTHON_VERSIONS=$TRAVIS_PYTHON_VERSION ; curl http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -o miniconda.sh ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then PYTHON_VERSIONS=$TRAVIS_PYTHON_VERSION ; curl https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -o miniconda.sh ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PYTHON_VERSIONS=$OSX_PYTHON_VERSIONS; curl https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -o miniconda.sh ; fi
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
