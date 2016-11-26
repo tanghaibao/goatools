@@ -522,15 +522,13 @@ def get_goea_nts_all(goea_results, fldnames=None, **kws):
     # Ia. Explicitly exclude specific fields from named tuple
     if not_fldnames is not None:
         fldnames = [f for f in fldnames if f not in not_fldnames]
-    ntflds = [elem for elem in fldnames]
-    if indent:
-        ntflds = ['indent'] + ntflds
-    nttyp = cx.namedtuple("NtGoeaResults", " ".join(ntflds))
+    nttyp = cx.namedtuple("NtGoeaResults", " ".join(fldnames))
+    goid_idx = fldnames.index("GO") if 'GO' in fldnames else None
     # II. Loop through GOEA results stored in a GOEnrichmentRecord object
     for goerec in goea_results:
         vals = get_field_values(goerec, fldnames, rpt_fmt)
         if indent:
-            vals = [goerec.get_indent_dots()] + vals
+            vals[goid_idx] = "".join([goerec.get_indent_dots(), vals[goid_idx]])
         ntobj = nttyp._make(vals)
         if keep_if is None or keep_if(ntobj):
             data_nts.append(ntobj)
