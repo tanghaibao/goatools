@@ -112,7 +112,7 @@ class WrXlsx(object):
                             worksheet.write(row_idx, col_idx, val, fmt_txt)
                         except:
                             raise RuntimeError(self._get_fatal_rcv(row_idx, col_idx, fld, val))
-                row_idx += 1
+                    row_idx += 1
         except RuntimeError as inst:
             import sys
             import traceback
