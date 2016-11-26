@@ -92,11 +92,13 @@ class GOEnrichmentRecord(object):
                 field_formatter[i] = "%s"
 
         # print dots to show the level of the term
-        dots = ""
-        if self.goterm is not None and indent:
-            dots = "." * self.goterm.level
+        dots = self.get_indent_dots() if indent else ""
         prtdata = "\t".join(a % b for (a, b) in zip(field_formatter, field_data))
         return "".join([dots, prtdata])
+
+    def get_indent_dots(self):
+        """Get a string of dots ("....") representing the level of the GO term."""
+        return "." * self.goterm.level if self.goterm is not None else ""
 
     def _chk_fields(self, field_data, field_formatter):
         """Check that expected fields are present."""
@@ -385,6 +387,7 @@ class GOEnrichmentStudy(object):
 
     def wr_xlsx(self, fout_xlsx, goea_results, **kws):
         """Write a xlsx file."""
+        # kws: prt_if indent
         prt_flds = kws.get('prt_flds', self.get_prtflds_default(goea_results))
         xlsx_data = get_goea_nts_prt(goea_results, prt_flds, **kws)
         if 'fld2col_widths' not in kws:
@@ -511,16 +514,23 @@ def get_goea_nts_all(goea_results, fldnames=None, **kws):
         return data_nts
     keep_if = kws.get('keep_if', None)
     rpt_fmt = kws.get('rpt_fmt', False)
+    indent = kws.get('indent', False)
+    # I. FIELD (column) NAMES
     not_fldnames = kws.get('not_fldnames', None)
     if fldnames is None:
         fldnames = get_fieldnames(goea_results[0])
-    # Explicitly exclude specific fields from named tuple
+    # Ia. Explicitly exclude specific fields from named tuple
     if not_fldnames is not None:
         fldnames = [f for f in fldnames if f not in not_fldnames]
-    nttyp = cx.namedtuple("NtGoeaResults", " ".join(fldnames))
-    # Loop through GOEA results stored in a GOEnrichmentRecord object
+    ntflds = [elem for elem in fldnames]
+    if indent:
+        ntflds = ['indent'] + ntflds
+    nttyp = cx.namedtuple("NtGoeaResults", " ".join(ntflds))
+    # II. Loop through GOEA results stored in a GOEnrichmentRecord object
     for goerec in goea_results:
         vals = get_field_values(goerec, fldnames, rpt_fmt)
+        if indent:
+            vals = [goerec.get_indent_dots()] + vals
         ntobj = nttyp._make(vals)
         if keep_if is None or keep_if(ntobj):
             data_nts.append(ntobj)
