@@ -42,7 +42,8 @@ class GOEnrichmentRecord(object):
         "ratio_in_pop",
         "p_uncorrected",
         "depth",
-        "study_count"]
+        "study_count",
+				"study_items"]
     _fldsdeffmt = ["%2s"] + ["%s"] * 3 + ["%d/%d"] * 2 + ["%.3g"] + ["%d"] * 2
 
     _flds = set(_fldsdefprt).intersection(
@@ -120,7 +121,9 @@ class GOEnrichmentRecord(object):
     # Methods for getting flat namedtuple values from GOEnrichmentRecord object
     def get_prtflds_default(self):
         """Get default fields."""
-        return self._fldsdefprt + ["p_{M}".format(M=m.fieldname) for m in self._methods]
+        return self._fldsdefprt[:-1] + \
+               ["p_{M}".format(M=m.fieldname) for m in self._methods] + \
+               [self._fldsdefprt[-1]]
 
     def get_prtflds_all(self):
         """Get all possible fields used when creating a namedtuple."""
@@ -151,7 +154,7 @@ class GOEnrichmentRecord(object):
                    row.append(val)
                else:
                    # 3. Field not found, raise Exception
-                   chk = self._err_fld(fld, fldnames, row) 
+                   chk = self._err_fld(fld, fldnames, row)
            if rpt_fmt:
                assert not isinstance(val, list), \
                   "UNEXPECTED LIST: FIELD({F}) VALUE({V})".format(
@@ -195,6 +198,7 @@ class GOEnrichmentStudy(object):
         'name'      : 60,
         'ratio_in_study':  8,
         'ratio_in_pop'  : 12,
+        'study_items'   : 15,
     }
 
     def __init__(self, pop, assoc, obo_dag, propagate_counts=True,
@@ -331,7 +335,7 @@ class GOEnrichmentStudy(object):
             # get the empirical p-value distributions for FDR
             term_pop = getattr(self, 'term_pop', None)
             if term_pop is None:
-                term_pop = count_terms(self.pop, self.assoc, self.obo_dag) 
+                term_pop = count_terms(self.pop, self.assoc, self.obo_dag)
             p_val_distribution = calc_qval(len(ntmt.study),
                                            self.pop_n,
                                            self.pop, self.assoc,
@@ -369,7 +373,7 @@ class GOEnrichmentStudy(object):
 
     def wr_xlsx(self, fout_xlsx, goea_results, **kws):
         """Write a xlsx file."""
-        prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(goea_results)
+        prt_flds = kws.get('prt_flds', self.get_prtflds_default(goea_results))
         xlsx_data = get_goea_nts_prt(goea_results, prt_flds, **kws)
         if 'fld2col_widths' not in kws:
             kws['fld2col_widths'] = {f:self.default_fld2col_widths.get(f, 8) for f in prt_flds}
@@ -377,13 +381,13 @@ class GOEnrichmentStudy(object):
 
     def wr_tsv(self, fout_tsv, goea_results, **kws):
         """Write tab-separated table data to file"""
-        prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(goea_results)
+        prt_flds = kws.get('prt_flds', self.get_prtflds_default(goea_results))
         tsv_data = get_goea_nts_prt(goea_results, prt_flds, **kws)
         RPT.wr_tsv(fout_tsv, tsv_data, **kws)
 
     def prt_tsv(self, prt, goea_results, **kws):
         """Write tab-separated table data"""
-        prt_flds = kws['prt_flds'] if 'prt_flds' in kws else self.get_prtflds_default(goea_results)
+        prt_flds = kws.get('prt_flds', self.get_prtflds_default(goea_results))
         tsv_data = get_goea_nts_prt(goea_results, prt_flds, **kws)
         RPT.prt_tsv(prt, tsv_data, prt_flds, **kws)
 
@@ -479,7 +483,7 @@ def get_goea_nts_prt(goea_results, fldnames=None, **usr_kws):
     """Return list of namedtuples removing fields which are redundant or verbose."""
     kws = usr_kws.copy()
     if 'not_fldnames' not in kws:
-        kws['not_fldnames'] = ['goterm', 'parents', 'children', 'id', 'ratio_in_study', 'ratio_in_pop']
+        kws['not_fldnames'] = ['goterm', 'parents', 'children', 'id']
     if 'rpt_fmt' not in kws:
         kws['rpt_fmt'] = True
     return get_goea_nts_all(goea_results, fldnames, **kws)
@@ -493,9 +497,9 @@ def get_goea_nts_all(goea_results, fldnames=None, **kws):
     data_nts = [] # A list of namedtuples containing GOEA results
     if not goea_results:
         return data_nts
-    keep_if = None if 'keep_if' not in kws else kws['keep_if']
-    rpt_fmt = False if 'rpt_fmt' not in kws else kws['rpt_fmt']
-    not_fldnames = None if 'not_fldnames' not in kws else kws['not_fldnames']
+    keep_if = kws.get('keep_if', None)
+    rpt_fmt = kws.get('rpt_fmt', False)
+    not_fldnames = kws.get('not_fldnames', None)
     if fldnames is None:
         fldnames = get_fieldnames(goea_results[0])
     # Explicitly exclude specific fields from named tuple
