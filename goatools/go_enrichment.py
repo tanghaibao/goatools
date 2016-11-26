@@ -44,7 +44,7 @@ class GOEnrichmentRecord(object):
         "depth",
         "study_count",
 				"study_items"]
-    _fldsdeffmt = ["%2s"] + ["%s"] * 3 + ["%d/%d"] * 2 + ["%.3g"] + ["%d"] * 2
+    _fldsdeffmt = ["%s"]*3 + ["%-30s"] + ["%d/%d"] * 2 + ["%.3g"] + ["%d"] * 2 + ["%15s"]
 
     _flds = set(_fldsdefprt).intersection(
                 set(['study_items', 'study_count', 'study_n', 'pop_items', 'pop_count', 'pop_n']))
@@ -80,10 +80,11 @@ class GOEnrichmentRecord(object):
         setattr(self, fieldname, pvalue)
 
     def __str__(self, indent=False):
-        field_data = [getattr(self, f, "n.a.") for f in self._fldsdefprt] + \
-                     [getattr(self, "p_{}".format(m.fieldname)) for m in self._methods]
-        field_formatter = self._fldsdeffmt + ["%.3g"]*len(self._methods)
-        assert len(field_data) == len(field_formatter)
+        field_data = [getattr(self, f, "n.a.") for f in self._fldsdefprt[:-1]] + \
+                     [getattr(self, "p_{}".format(m.fieldname)) for m in self._methods] + \
+                     [", ".join(sorted(getattr(self, self._fldsdefprt[-1], set())))]
+        field_formatter = self._fldsdeffmt[:-1] + ["%.3g"]*len(self._methods) + [self._fldsdeffmt[-1]]
+        self._chk_fields(field_data, field_formatter)
 
         # default formatting only works for non-"n.a" data
         for i, f in enumerate(field_data):
@@ -94,9 +95,20 @@ class GOEnrichmentRecord(object):
         dots = ""
         if self.goterm is not None and indent:
             dots = "." * self.goterm.level
-
         prtdata = "\t".join(a % b for (a, b) in zip(field_formatter, field_data))
         return "".join([dots, prtdata])
+
+    def _chk_fields(self, field_data, field_formatter):
+        """Check that expected fields are present."""
+        if len(field_data) == len(field_formatter):
+            return
+        len_dat = len(field_data)
+        len_fmt = len(field_formatter)
+        msg = [
+            "FIELD DATA({d}) != FORMATTER({f})".format(d=len_dat, f=len_fmt),
+            "DAT({N}): {D}".format(N=len_dat, D=field_data),
+            "FMT({N}): {F}".format(N=len_fmt, F=field_formatter)]
+        raise Exception("\n".join(msg))
 
     def __repr__(self):
         return "GOEnrichmentRecord({GO})".format(GO=self.GO)
