@@ -1,5 +1,5 @@
-Tools for Gene Ontology
-=======================
+# Tools for Gene Ontology
+
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.31628.svg)](http://dx.doi.org/10.5281/zenodo.31628)
 [![Latest PyPI version](https://img.shields.io/pypi/v/goatools.svg)](https://pypi.python.org/pypi/goatools)
 [![Number of PyPI downloads](https://img.shields.io/pypi/dm/goatools.svg)](https://pypi.python.org/pypi/goatools)
@@ -9,6 +9,7 @@ Tools for Gene Ontology
 |||
 |---|---|
 | Author | Haibao Tang ([tanghaibao](http://github.com/tanghaibao)) |
+|| DV Klopfenstein ([dvklopfenstein](https://github.com/dvklopfenstein)) |
 || Brent Pedersen ([brentp](http://github.com/brentp)) |
 || Fidel Ramirez ([fidelram](https://github.com/fidelram)) |
 || Aurelien Naldi ([aurelien-naldi](http://github.com/aurelien-naldi)) |
@@ -17,113 +18,108 @@ Tools for Gene Ontology
 || Kenta Sato ([bicycle1885](http://github.com/bicycle1885)) |
 || Chris Mungall ([cmungall](https://github.com/cmungall)) |
 || Greg Stupp ([stuppie](https://github.com/stuppie)) |
-|| DV Klopfenstein ([dvklopfenstein](https://github.com/dvklopfenstein)) |
 || David DeTomaso ([deto](https://github.com/deto)) |
 || Olga Botvinnik ([olgabot](https://github.com/olgabot)) |
 | Email | <tanghaibao@gmail.com> |
 | License | BSD |
 
+## Description
 
-Description
------------
 This package contains a Python library to
 
--   Process over- and under-representation of certain GO terms, based on
-    Fisher's exact test. With numerous multiple correction routines
-    including locally implemented routines for Bonferroni, Sidak, Holm,
-    and false discovery rate. Also included are multiple test
-    corrections from
-    [statsmodels](http://www.statsmodels.org/stable/index.html): FDR
-    Benjamini/Hochberg, FDR Benjamini/Yekutieli, Holm-Sidak,
-    Simes-Hochberg, Hommel, FDR 2-stage Benjamini-Hochberg, FDR 2-stage
-    Benjamini-Krieger-Yekutieli, FDR adaptive Gavrilov-Benjamini-Sarkar,
-    Bonferroni, Sidak, and Holm.
+- Process over- and under-representation of certain GO terms, based on
+  Fisher's exact test. With numerous multiple correction routines
+  including locally implemented routines for Bonferroni, Sidak, Holm,
+  and false discovery rate. Also included are multiple test
+  corrections from
+  [statsmodels](http://www.statsmodels.org/stable/index.html): FDR
+  Benjamini/Hochberg, FDR Benjamini/Yekutieli, Holm-Sidak,
+  Simes-Hochberg, Hommel, FDR 2-stage Benjamini-Hochberg, FDR 2-stage
+  Benjamini-Krieger-Yekutieli, FDR adaptive Gavrilov-Benjamini-Sarkar,
+  Bonferroni, Sidak, and Holm.
 
--   Process the obo-formatted file from [Gene Ontology
-    website](http://geneontology.org). The data structure is a directed
-    acyclic graph (DAG) that allows easy traversal from leaf to root.
+- Process the obo-formatted file from [Gene Ontology
+  website](http://geneontology.org). The data structure is a directed
+  acyclic graph (DAG) that allows easy traversal from leaf to root.
 
--   Read [GO Association
-    files](http://geneontology.org/page/go-annotation-file-formats):
-    - Read GAF ([Gene Association
-        File](http://geneontology.org/page/go-annotation-file-gaf-format-21)) files.
-    - Read NCBI's gene2go GO association file.
+- Read [GO Association
+  files](http://geneontology.org/page/go-annotation-file-formats):
+  - Read GAF ([Gene Association
+      File](http://geneontology.org/page/go-annotation-file-gaf-format-21)) files.
+  - Read NCBI's gene2go GO association file.
 
--   Map GO terms (or protein products with multiple associations to
-    GO terms) to GOslim terms (analog to the map2slim.pl script supplied
-    by geneontology.org)
+- Map GO terms (or protein products with multiple associations to
+  GO terms) to GOslim terms (analog to the map2slim.pl script supplied
+  by geneontology.org)
 
+## Installation
 
-Installation
-------------
-
-Make sure your Python version &gt;= 2.7, install the latest stable
+Make sure your Python version >= 2.7, install the latest stable
 version via PyPI:
-```
+
+```bash
 easy_install goatools
 ```
 
 To install the development version:
-```
+
+```bash
 pip install git+git://github.com/tanghaibao/goatools.git
 ```
 
 `.obo` file for the most current
 [GO](http://geneontology.org/page/download-ontology):
-```
+
+```bash
 wget http://geneontology.org/ontology/go-basic.obo
 ```
 
 `.obo` file for the most current [GO
 Slim](http://geneontology.org/page/go-slim-and-subset-guide) terms (e.g.
 generic GOslim) :
-```
+
+```bash
 wget http://www.geneontology.org/ontology/subsets/goslim_generic.obo
 ```
 
+## Dependencies
 
-Dependencies
-------------
--   To calculate the uncorrected p-values, there are currently two
-    options:
-    1.  [fisher](http://pypi.python.org/pypi/fisher/) for calculating
-        Fisher's exact test:
-        ```
-        easy_install fisher
-        ```
-    2.  [fisher](http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.stats.fisher_exact.html)
-        from [SciPy's](http://docs.scipy.org/doc/scipy/reference/)
-        [stats](http://docs.scipy.org/doc/scipy/reference/stats.html) package.
+- Simplest is to install via bioconda. See details
+   [here](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools).
 
--   statsmodels (optional) for access to a variety of statistical tests
-    for GOEA:
+- To calculate the uncorrected p-values, there are currently twooptions:
+  - [fisher](http://pypi.python.org/pypi/fisher/) for calculating Fisher's exact test:
+
+  ```bash
+  easy_install fisher
+  ```
+
+  - [fisher](http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.statfisher_exact.html)
+    from [SciPy's](http://docs.scipy.org/doc/scipy/reference/)
+    [stats](http://docs.scipy.org/doc/scipy/reference/stats.html) package
+
+  - `statsmodels` (optional) for access to a variety of statistical tests for GOEA:
+
+   ```bash
+   easy_install statsmodels
+   ```
+
+- To plot the ontology lineage, install one of these two options:
+  - Graphviz
+    - [Graphviz](http://www.graphviz.org/), for graph visualization.
+    - [pygraphviz](http://networkx.lanl.gov/pygraphviz/), Python binding for communicating with Graphviz:
+
+    ```bash
+    easy_install pygraphviz
     ```
-    easy_install statsmodels
-    ```
 
--   To plot the ontology lineage, install one of these two options:
-    1.  Graphviz
-        -   [Graphviz](http://www.graphviz.org/), for
-            graph visualization.
-        -   [pygraphviz](http://networkx.lanl.gov/pygraphviz/), Python
-            binding for communicating with Graphviz:
-            ```
-            easy_install pygraphviz
-            ```
-    2.  [pydot](https://code.google.com/p/pydot/), a Python interface to
-        Graphviz's Dot language.
-        -   [pyparsing](http://pyparsing.wikispaces.com/) is a
-            prerequisite for pydot
-        -   Images can be viewed using either:
-            -   [ImageMagick](http://www.imagemagick.org/)'s *display*
-            -   [Graphviz](http://www.graphviz.org/)
+  - [pydot](https://code.google.com/p/pydot/), a Python interface to Graphviz's Dot language.
+    - [pyparsing](http://pyparsing.wikispaces.com/) is a prerequisite for `pydot`
+    - Images can be viewed using either:
+      - [ImageMagick](http://www.imagemagick.org/)'s *display*
+      - [Graphviz](http://www.graphviz.org/)
 
-- Alternatively, it is possible to install via bioconda. See details
-[here](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools).
-
-
-Cookbook
---------
+## Cookbook
 
 `run.sh` contains example cases, which calls the utility scripts in the
 `scripts` folder.
@@ -133,13 +129,14 @@ Cookbook
 See `find_enrichment.py` for usage. It takes as arguments files
 containing:
 
--   gene names in a study
--   gene names in population (or other study if `--compare` is specified)
--   an association file that maps a gene name to a GO category.
+- gene names in a study
+- gene names in population (or other study if `--compare` is specified)
+- an association file that maps a gene name to a GO category.
 
 Please look at `tests/data/` folder to see examples on how to make these
 files. when ready, the command looks like:
-```
+
+```bash
 python scripts/find_enrichment.py --pval=0.05 --indent data/study \
                                   data/population data/association
 ```
@@ -162,7 +159,8 @@ the output that are not present in their `association` file. Use
 
 See `plot_go_term.py` for usage. `plot_go_term.py` can plot the lineage
 of a certain GO term, by:
-```
+
+```bash
 python scripts/plot_go_term.py --term=GO:0008135
 ```
 
@@ -177,7 +175,8 @@ following image is produced by importing the GML file into Cytoscape
 using yFile orthogonal layout and solid VizMapping. Note that the [GML
 reader plugin](https://code.google.com/p/graphmlreader/) may need to be
 downloaded and installed in the `plugins` folder of Cytoscape:
-```
+
+```bash
 python scripts/plot_go_term.py --term=GO:0008135 --gml
 ```
 
@@ -188,22 +187,23 @@ python scripts/plot_go_term.py --term=GO:0008135 --gml
 See `map_to_slim.py` for usage. As arguments it takes the gene ontology
 files:
 
--   the current gene ontology file `go-basic.obo`
--   the GOslim file to be used (e.g. `goslim_generic.obo` or any other
-    GOslim file)
+- the current gene ontology file `go-basic.obo`
+- the GOslim file to be used (e.g. `goslim_generic.obo` or any other GOslim file)
 
 The script either maps one GO term to its GOslim terms, or protein
 products with multiple associations to all its GOslim terms.
 
 To determine the GOslim terms for a single GO term, you can use the
 following command:
-```
+
+```bash
 python scripts/map_to_slim.py --term=GO:0008135 go-basic.obo goslim_generic.obo
 ```
 
 To determine the GOslim terms for protein products with multiple
 associations:
-```
+
+```bash
 python scripts/map_to_slim.py --association_file=data/association go-basic.obo goslim_generic.obo
 ```
 
@@ -214,102 +214,102 @@ The implemented algorithm is described in more detail at the go-perl
 documentation of
 [map2slim](http://search.cpan.org/~cmungall/go-perl/scripts/map2slim).
 
+## Technical notes
 
-Technical notes
----------------
-### Available statistical tests for calculating uncorrected p-values 
-There are currently two fisher tests
-available for calculating uncorrected p-values. Both fisher options from
-the fisher package and SciPy's stats package calculate the same pvalues,
-but provide the user an option in installing packages.
+### Available statistical tests for calculating uncorrected p-values
 
--   `fisher`, [fisher](http://pypi.python.org/pypi/fisher/) package's
-    fisher.pvalue\_population
--   `fisher_scipy_stats`:
-    [SciPy's](http://docs.scipy.org/doc/scipy/reference)
-    [stats](http://docs.scipy.org/doc/scipy/reference/stats.html)
-    package's
-    [fisher\_exact](http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.stats.fisher_exact.html)
+There are currently two fisher tests available for calculating uncorrected
+p-values. Both fisher options from the fisher package and SciPy's stats package
+calculate the same pvalues, but provide the user an option in installing
+packages.
 
-### Available multiple test corrections 
+- `fisher`, [fisher](http://pypi.python.org/pypi/fisher/) package's `fisher.pvalue_population`
+- `fisher_scipy_stats`:[SciPy](http://docs.scipy.org/doc/scipy/reference)
+   [stats](http://docs.scipy.org/doc/scipy/reference/stats.html) package
+  [fisher_exact](http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.statfisher_exact.html)
+
+### Available multiple test corrections
+
 We have implemented several significance tests:
 
--   `bonferroni`, bonferroni correction
--   `sidak`, sidak correction
--   `holm`, hold correction
--   `fdr`, false discovery rate (fdr) implementation using resampling
+- `bonferroni`, bonferroni correction
+- `sidak`, sidak correction
+- `holm`, hold correction
+- `fdr`, false discovery rate (fdr) implementation using resampling
 
 Additional methods are available if `statsmodels` is installed:
 
--   `sm_bonferroni`, bonferroni one-step correction
--   `sm_sidak`, sidak one-step correction
--   `sm_holm-sidak`, holm-sidak step-down method using Sidak adjustments
--   `sm_holm`, holm step-down method using Bonferroni adjustments
--   `simes-hochberg`, simes-hochberg step-up method (independent)
--   `hommel`, hommel closed method based on Simes tests (non-negative)
--   `fdr_bh`, fdr correction with Benjamini/Hochberg (non-negative)
--   `fdr_by`, fdr correction with Benjamini/Yekutieli (negative)
--   `fdr_tsbh`, two stage fdr correction (non-negative)
--   `fdr_tsbky`, two stage fdr correction (non-negative)
--   `fdr_gbs`, fdr adaptive Gavrilov-Benjamini-Sarkar
+- `sm_bonferroni`, bonferroni one-step correction
+- `sm_sidak`, sidak one-step correction
+- `sm_holm-sidak`, holm-sidak step-down method using Sidak adjustments
+- `sm_holm`, holm step-down method using Bonferroni adjustments
+- `simes-hochberg`, simes-hochberg step-up method (independent)
+- `hommel`, hommel closed method based on Simes tests (non-negative)
+- `fdr_bh`, fdr correction with Benjamini/Hochberg (non-negative)
+- `fdr_by`, fdr correction with Benjamini/Yekutieli (negative)
+- `fdr_tsbh`, two stage fdr correction (non-negative)
+- `fdr_tsbky`, two stage fdr correction (non-negative)
+- `fdr_gbs`, fdr adaptive Gavrilov-Benjamini-Sarkar
 
 In total 15 tests are available, which can be selected using option
 `--method`. Please note that the default FDR (`fdr`) uses a resampling
 strategy which may lead to slightly different q-values between runs.
 
+## iPython Notebooks
 
-iPython Notebooks
------------------
 ### Run a Gene Ontology Enrichment Analysis (GOEA)
+
 <https://github.com/tanghaibao/goatools/blob/master/notebooks/goea_nbt3102.ipynb>
 
 ### Show many study genes are associated with RNA, translation, mitochondria, and ribosomal
+
 <https://github.com/tanghaibao/goatools/blob/master/notebooks/goea_nbt3102_group_results.ipynb>
 
 ### Report level and depth counts of a set of GO terms
+
 <https://github.com/tanghaibao/goatools/blob/master/notebooks/report_depth_level.ipynb>
 
 ### Find all human protein-coding genes associated with cell cycle
+
 <https://github.com/tanghaibao/goatools/blob/master/notebooks/cell_cycle.ipynb>
 
 ### Calculate annotation coverage of GO terms on various species
+
 <https://github.com/tanghaibao/goatools/blob/master/notebooks/annotation_coverage.ipynb>
 
 ### Determine the semantic similarities between GO terms
+
 <https://github.com/tanghaibao/goatools/blob/master/notebooks/semantic_similarity.ipynb>
 
-
-Want to Help?
--------------
+## Want to Help
 
 If you add new code, please be sure to also add python tests which
 verify your code.
 
 Items that we know we need include:
 
--   Add code coverage runs
--   Edit tests in the **makefile** under the comment, **\# TBD**, such
-    they run using **nosetests**
--   Help setting up documentation,
-    <http://goatools.readthedocs.io/en/latest/>
+- Add code coverage runs
+- Edit tests in the `makefile` under the comment, `# TBD`, suchthey run using `nosetests`
+- Help setting up [documentation](http://goatools.readthedocs.io/en/latest/). We
+  are using ßSphinx and Python docstrings to create documentationFor
+  documentation practice, use make targets:
 
-    We are using Sphinx and Python docstrings to create documentation.
+  ```bash
+  make mkdocs_practice
+  ```
+  To remove practice documentation:
 
-    For documentation practice, use make targets:
-    ```
-    make mkdocs_practice
-    ```
-    To remove practice documentation:
-    ```
-    make rmdocs_practice
-    ```
-    Once you are happy with the documentation do:
-    ```
-    make gh-pages
-    ```
+  ```bash
+  make rmdocs_practice
+  ```
 
+  Once you are happy with the documentation do:
 
-Reference
----------
+  ```bash
+  make gh-pages
+  ```
+
+## Reference
+
 Haibao Tang et al. (2015). GOATOOLS: Tools for Gene Ontology. Zenodo.
 [10.5281/zenodo.31628](http://dx.doi.org/10.5281/zenodo.31628).
