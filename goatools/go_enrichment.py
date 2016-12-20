@@ -43,11 +43,11 @@ class GOEnrichmentRecord(object):
         "p_uncorrected",
         "depth",
         "study_count",
-				"study_items"]
+        "study_items"]
     _fldsdeffmt = ["%s"]*3 + ["%-30s"] + ["%d/%d"] * 2 + ["%.3g"] + ["%d"] * 2 + ["%15s"]
 
     _flds = set(_fldsdefprt).intersection(
-                set(['study_items', 'study_count', 'study_n', 'pop_items', 'pop_count', 'pop_n']))
+        set(['study_items', 'study_count', 'study_n', 'pop_items', 'pop_count', 'pop_n']))
 
     def __init__(self, **kwargs):
         # Methods seen in current enrichment result
@@ -83,7 +83,8 @@ class GOEnrichmentRecord(object):
         field_data = [getattr(self, f, "n.a.") for f in self._fldsdefprt[:-1]] + \
                      [getattr(self, "p_{}".format(m.fieldname)) for m in self._methods] + \
                      [", ".join(sorted(getattr(self, self._fldsdefprt[-1], set())))]
-        field_formatter = self._fldsdeffmt[:-1] + ["%.3g"]*len(self._methods) + [self._fldsdeffmt[-1]]
+        fldsdeffmt = self._fldsdeffmt
+        field_formatter = fldsdeffmt[:-1] + ["%.3g"]*len(self._methods) + [fldsdeffmt[-1]]
         self._chk_fields(field_data, field_formatter)
 
         # default formatting only works for non-"n.a" data
@@ -100,7 +101,8 @@ class GOEnrichmentRecord(object):
         """Get a string of dots ("....") representing the level of the GO term."""
         return "." * self.goterm.level if self.goterm is not None else ""
 
-    def _chk_fields(self, field_data, field_formatter):
+    @staticmethod
+    def _chk_fields(field_data, field_formatter):
         """Check that expected fields are present."""
         if len(field_data) == len(field_formatter):
             return
@@ -115,8 +117,9 @@ class GOEnrichmentRecord(object):
     def __repr__(self):
         return "GOEnrichmentRecord({GO})".format(GO=self.GO)
 
-    def set_goterm(self, go):
-        self.goterm = go.get(self.GO, None)
+    def set_goterm(self, goid):
+        """Set goterm and copy GOTerm's name and namespace."""
+        self.goterm = goid.get(self.GO, None)
         present = self.goterm is not None
         self.name = self.goterm.name if present else "n.a."
         self.NS = self.namespace2NS[self.goterm.namespace] if present else "XX"
@@ -140,40 +143,54 @@ class GOEnrichmentRecord(object):
                [self._fldsdefprt[-1]]
 
     def get_prtflds_all(self):
-        """Get all possible fields used when creating a namedtuple."""
-        flds = set.union(
-            set(self.get_prtflds_default()),
-            set(vars(self).keys()),
-            set(vars(self.goterm).keys()))
-        flds = flds.difference(set(['_parents', '_methods']))
+        """When converting to a namedtuple, get all possible fields in their original order."""
+        flds = []
+        dont_add = set(['_parents', '_methods'])
+        # Fields: GO NS enrichment name ratio_in_study ratio_in_pop p_uncorrected
+        #         depth study_count p_sm_bonferroni p_fdr_bh study_items
+        self._flds_append(flds, self.get_prtflds_default(), dont_add)
+        # Fields: GO NS goterm
+        #         ratio_in_pop pop_n pop_count pop_items name
+        #         ratio_in_study study_n study_count study_items
+        #         _methods enrichment p_uncorrected p_sm_bonferroni p_fdr_bh
+        self._flds_append(flds, vars(self).keys(), dont_add)
+        # Fields: name level is_obsolete namespace id depth parents children _parents alt_ids
+        self._flds_append(flds, vars(self.goterm).keys(), dont_add)
         return flds
 
+    @staticmethod
+    def _flds_append(flds, addthese, dont_add):
+        """Retain order of fields as we add them once to the list."""
+        for fld in addthese:
+            if fld not in flds and fld not in dont_add:
+                flds.append(fld)
+
     def get_field_values(self, fldnames, rpt_fmt=True):
-       """Get flat namedtuple fields for one GOEnrichmentRecord."""
-       row = []
-       # Loop through each user field desired
-       for fld in fldnames:
-           # 1. Check the GOEnrichmentRecord's attributes
-           val = getattr(self, fld, None)
-           if val is not None:
-               if rpt_fmt:
-                   val = self._get_rpt_fmt(fld, val)
-               row.append(val)
-           else:
-               # 2. Check the GO object for the field
-               val = getattr(self.goterm, fld, None)
-               if rpt_fmt:
-                   val = self._get_rpt_fmt(fld, val)
-               if val is not None:
-                   row.append(val)
-               else:
-                   # 3. Field not found, raise Exception
-                   chk = self._err_fld(fld, fldnames, row)
-           if rpt_fmt:
-               assert not isinstance(val, list), \
-                  "UNEXPECTED LIST: FIELD({F}) VALUE({V})".format(
+        """Get flat namedtuple fields for one GOEnrichmentRecord."""
+        row = []
+        # Loop through each user field desired
+        for fld in fldnames:
+            # 1. Check the GOEnrichmentRecord's attributes
+            val = getattr(self, fld, None)
+            if val is not None:
+                if rpt_fmt:
+                    val = self._get_rpt_fmt(fld, val)
+                row.append(val)
+            else:
+                # 2. Check the GO object for the field
+                val = getattr(self.goterm, fld, None)
+                if rpt_fmt:
+                    val = self._get_rpt_fmt(fld, val)
+                if val is not None:
+                    row.append(val)
+                else:
+                    # 3. Field not found, raise Exception
+                    self._err_fld(fld, fldnames, row)
+            if rpt_fmt:
+                assert not isinstance(val, list), \
+                   "UNEXPECTED LIST: FIELD({F}) VALUE({V})".format(
                        P=rpt_fmt, F=fld, V=val)
-       return row
+        return row
 
     @staticmethod
     def _get_rpt_fmt(fld, val):
@@ -184,7 +201,7 @@ class GOEnrichmentRecord(object):
             return ", ".join([str(v) for v in sorted(val)])
         return val
 
-    def _err_fld(self, fld, fldnames, row):
+    def _err_fld(self, fld, fldnames):
         """Unrecognized field. Print detailed Failure message."""
         msg = ['ERROR. UNRECOGNIZED FIELD({F})'.format(F=fld)]
         actual_flds = set(self.get_prtflds_default() + self.goterm.__dict__.keys())
@@ -192,11 +209,12 @@ class GOEnrichmentRecord(object):
         if bad_flds:
             msg.append("\nGOEA RESULT FIELDS: {}".format(" ".join(self._fldsdefprt)))
             msg.append("GO FIELDS: {}".format(" ".join(self.goterm.__dict__.keys())))
-            msg.append("\nFATAL: {N} UNEXPECTED FIELDS({F})\n".format(N=len(bad_flds), F=" ".join(bad_flds)))
+            msg.append("\nFATAL: {N} UNEXPECTED FIELDS({F})\n".format(
+                N=len(bad_flds), F=" ".join(bad_flds)))
             msg.append("  {N} User-provided fields:".format(N=len(fldnames)))
             for idx, fld in enumerate(fldnames, 1):
-              mrk = "ERROR -->" if fld in bad_flds else ""
-              msg.append("  {M:>9} {I:>2}) {F}".format(M=mrk, I=idx, F=fld))
+                mrk = "ERROR -->" if fld in bad_flds else ""
+                msg.append("  {M:>9} {I:>2}) {F}".format(M=mrk, I=idx, F=fld))
         raise Exception("\n".join(msg))
 
 
@@ -215,10 +233,7 @@ class GOEnrichmentStudy(object):
         'study_items'   : 15,
     }
 
-    def __init__(self, pop, assoc, obo_dag, propagate_counts=True,
-                 alpha=.05,
-                 methods=["bonferroni", "sidak", "holm"],
-                 **kws):
+    def __init__(self, pop, assoc, obo_dag, propagate_counts=True, alpha=.05, methods=None, **kws):
         self.log = kws['log'] if 'log' in kws else sys.stdout
         self._run_multitest = {
             'local':lambda iargs: self._run_multitest_local(iargs),
@@ -228,6 +243,8 @@ class GOEnrichmentStudy(object):
         self.assoc = assoc
         self.obo_dag = obo_dag
         self.alpha = alpha
+        if methods is None:
+            methods = ["bonferroni", "sidak", "holm"]
         self.methods = Methods(methods)
         self.pval_obj = FisherFactory(**kws).pval_obj
 
@@ -282,14 +299,14 @@ class GOEnrichmentStudy(object):
             stu_items, num_gos_stu = self.get_item_cnt(results, "study_items")
             pop_items, num_gos_pop = self.get_item_cnt(results, "pop_items")
             msg.append("{M:,} GO terms are associated with {N:,} of {NT:,} study items".format(
-                N=len(stu_items), NT=results[0].study_n, M=num_gos_stu))
+                N=len(stu_items), NT=results[0].study_count, M=num_gos_stu))
             msg.append("{M:,} GO terms are associated with {N:,} of {NT:,} population items".format(
                 N=len(pop_items), NT=self.pop_n, M=num_gos_pop))
         return msg
 
     def _get_pval_uncorr(self, study, log=sys.stdout):
         """Calculate the uncorrected pvalues for study items."""
-        log.write("Calculating uncorrected p-values using {PVALFNC}\n".format(PVALFNC=self.pval_obj.name))
+        log.write("Calculating uncorrected p-values using {PFNC}\n".format(PFNC=self.pval_obj.name))
         results = []
         go2studyitems = get_terms("study", study, self.assoc, self.obo_dag, log)
         pop_n, study_n = self.pop_n, len(study)
@@ -331,8 +348,8 @@ class GOEnrichmentStudy(object):
         """Use multitest mthods that have been implemented in statsmodels."""
         # Only load statsmodels if it is used
         multipletests = self.methods.get_statsmodels_multipletests()
-        method = ntmt.nt_method.method
-        reject_lst, pvals_corrected, alphacSidak, alphacBonf = multipletests(ntmt.pvals, ntmt.alpha, method)
+        results = multipletests(ntmt.pvals, ntmt.alpha, ntmt.nt_method.method)
+        reject_lst, pvals_corrected, alphacSidak, alphacBonf = results
         self._update_pvalcorr(ntmt, pvals_corrected)
 
     def _run_multitest_local(self, ntmt):
@@ -406,13 +423,15 @@ class GOEnrichmentStudy(object):
         tsv_data = get_goea_nts_prt(goea_results, prt_flds, **kws)
         RPT.prt_tsv(prt, tsv_data, prt_flds, **kws)
 
-    def adjust_prtfmt(self, prtfmt):
+    @staticmethod
+    def adjust_prtfmt(prtfmt):
         """Adjust format_strings for legal values."""
         prtfmt = prtfmt.replace("{p_holm-sidak", "{p_holm_sidak")
         prtfmt = prtfmt.replace("{p_simes-hochberg", "{p_simes_hochberg")
         return prtfmt
 
-    def get_NS2nts(self, results, fldnames=None, **kws):
+    @staticmethod
+    def get_NS2nts(results, fldnames=None, **kws):
         """Get namedtuples of GOEA results, split into BP, MF, CC."""
         NS2nts = cx.defaultdict(list)
         nts = get_goea_nts_all(results, fldnames, **kws)
@@ -420,7 +439,8 @@ class GOEnrichmentStudy(object):
             NS2nts[nt.NS].append(nt)
         return NS2nts
 
-    def get_item_cnt(self, results, attrname="study_items"):
+    @staticmethod
+    def get_item_cnt(results, attrname="study_items"):
         """Get all study or population items (e.g., geneids)."""
         items = set()
         go_cnt = 0
@@ -441,7 +461,7 @@ class GOEnrichmentStudy(object):
            or they can use the default fields.
         """
         if results:
-          return results[0].get_prtflds_default()
+            return results[0].get_prtflds_default()
         return []
 
     @staticmethod
