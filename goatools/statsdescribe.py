@@ -11,6 +11,9 @@ import scipy.stats as stats
 class StatsDescribe(object):
     """Describe summary statistics for a list of numbers."""
 
+    fmt = "{name:10} | {qty:13} | {range:20} | {25th percentile:>15} | " \
+          "{median:>8} | {75th percentile:>15} | {mean:>8} | {stddev:>}\n"
+
     def __init__(self, desc, fmtstr="{:>8.2e}"):
         self.desc = desc
         self.fmtstr = fmtstr
@@ -28,14 +31,17 @@ class StatsDescribe(object):
     def prt_data(self, name, vals, prt=sys.stdout):
         """Print stats data in markdown style."""
         fld2val = self._init_fld2val(name, vals)
-        fmt = "{name:10} | {qty:13} | {range:20} | {25th percentile:>15} | " \
-              "{median:>8} | {75th percentile:>15} | {mean:>8} | {stddev:>}\n"
-        prt.write(fmt.format(**fld2val))
+        prt.write(self.fmt.format(**fld2val))
         return fld2val
 
     def _init_fld2val(self, name, vals):
         """Describe summary statistics for a list of numbers."""
-        #pylint: disable=no-member
+        if vals:
+            return self._init_fld2val_stats(name, vals)
+        return self._init_fld2val_null(name)
+
+    def _init_fld2val_stats(self, name, vals):
+        """Return statistics on values."""
         vals_stats = stats.describe(vals)
         stddev = math.sqrt(vals_stats[3]) # stats variance
         p25 = np.percentile(vals, 25)
@@ -56,9 +62,20 @@ class StatsDescribe(object):
             if key in fmtflds:
                 if mkint:
                     val = int(round(val))
-                val = self.fmtstr.format(val)
-                fld2val[key] = val
+                fld2val[key] = self.fmtstr.format(val)
         return fld2val
+
+    def _init_fld2val_null(self, name):
+        """Return empty fields if there are no values."""
+        return {
+            'name':name,
+            'qty'.format(ITEMS=self.desc):0,
+            'range':"",
+            '25th percentile':"",
+            'median':"",
+            '75th percentile':"",
+            'mean':"",
+            'stddev':""}
 
     def _get_str_range(self, vals_stats):
         """Return a string containing the range of values."""
