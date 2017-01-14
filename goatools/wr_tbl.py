@@ -37,7 +37,7 @@ def prt_txt(prt, data_nts, prtfmt=None, nt_fields=None, **kws):
             _chk_flds_fmt(nt_fields, prtfmt)
         if 'sort_by' in kws:
             data_nts = sorted(data_nts, key=kws['sort_by'])
-        prt_if = kws['prt_if'] if 'prt_if' in kws else None
+        prt_if = kws.get('prt_if', None)
         for data_nt in data_nts:
             if prt_if is None or prt_if(data_nt):
                 prt.write(prtfmt.format(**data_nt._asdict()))
@@ -52,7 +52,7 @@ def wr_xlsx(fout_xlsx, data_xlsx, **kws):
     """Write a spreadsheet into a xlsx file."""
     from goatools.wr_tbl_class import WrXlsx
     # optional keyword args: fld2col_widths hdrs prt_if sort_by fld2fmt prt_flds
-    items_str = "items" if "items" not in kws else kws["items"]
+    items_str = kws.get("items", "items") if "items" not in kws else kws["items"]
     if data_xlsx:
         # Open xlsx file
         xlsxobj = WrXlsx(fout_xlsx, data_xlsx[0]._fields, **kws)
