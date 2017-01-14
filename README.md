@@ -281,7 +281,7 @@ strategy which may lead to slightly different q-values between runs.
 
 <https://github.com/tanghaibao/goatools/blob/master/notebooks/semantic_similarity.ipynb>
 
-## Want to Help
+## Want to Help?
 
 If you add new code, please be sure to also add python tests which
 verify your code.
@@ -291,8 +291,8 @@ Items that we know we need include:
 - Add code coverage runs
 - Edit tests in the `makefile` under the comment, `# TBD`, suchthey run using `nosetests`
 - Help setting up [documentation](http://goatools.readthedocs.io/en/latest/). We
-  are using ßSphinx and Python docstrings to create documentationFor
-  documentation practice, use make targets:
+  are using ßSphinx and Python docstrings to create documentation.     
+  For documentation practice, use make targets:
 
   ```bash
   make mkdocs_practice
