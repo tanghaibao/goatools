@@ -17,9 +17,9 @@ class StatsDescribe(object):
 
     def prt_hdr(self, prt=sys.stdout):
         """Print stats header in markdown style."""
-        hdr = "name     | # {items:11} | range of {items:11} | 25th percentile | " \
+        hdr = "name       | # {items:11} | range of {items:11} | 25th percentile | " \
               "  median | 75th percentile |     mean | stddev\n".format(items=self.desc)
-        div = "---------|---------------|----------------------|" \
+        div = "-----------|---------------|----------------------|" \
               "-----------------|----------|-----------------|----------|-------\n"
         prt.write("\n{DESC}\n".format(DESC=self.desc))
         prt.write(hdr)
@@ -28,7 +28,7 @@ class StatsDescribe(object):
     def prt_data(self, name, vals, prt=sys.stdout):
         """Print stats data in markdown style."""
         fld2val = self._init_fld2val(name, vals)
-        fmt = "{name:8} | {qty:13} | {range:20} | {25th percentile:>15} | " \
+        fmt = "{name:10} | {qty:13} | {range:20} | {25th percentile:>15} | " \
               "{median:>8} | {75th percentile:>15} | {mean:>8} | {stddev:>}\n"
         prt.write(fmt.format(**fld2val))
         return fld2val
