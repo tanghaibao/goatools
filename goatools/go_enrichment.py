@@ -282,7 +282,7 @@ class GOEnrichmentStudy(object):
         results.sort(key=lambda r: [r.NS, r.p_uncorrected])
 
         if log is not None:
-            log.write("  {MSG}\n".format(MSG="\n  ".join(self.get_results_msg(results))))
+            log.write("  {MSG}\n".format(MSG="\n  ".join(self.get_results_msg(results, study))))
 
         return results # list of GOEnrichmentRecord objects
 
@@ -291,7 +291,7 @@ class GOEnrichmentStudy(object):
         goea_results = self.run_study(study, **kws)
         return get_goea_nts_all(goea_results)
 
-    def get_results_msg(self, results):
+    def get_results_msg(self, results, study):
         """Return summary for GOEA results."""
         # To convert msg list to string: "\n".join(msg)
         msg = []
@@ -299,7 +299,7 @@ class GOEnrichmentStudy(object):
             stu_items, num_gos_stu = self.get_item_cnt(results, "study_items")
             pop_items, num_gos_pop = self.get_item_cnt(results, "pop_items")
             msg.append("{M:,} GO terms are associated with {N:,} of {NT:,} study items".format(
-                N=len(stu_items), NT=results[0].study_count, M=num_gos_stu))
+                N=len(stu_items), NT=len(set(study)), M=num_gos_stu))
             msg.append("{M:,} GO terms are associated with {N:,} of {NT:,} population items".format(
                 N=len(pop_items), NT=self.pop_n, M=num_gos_pop))
         return msg
