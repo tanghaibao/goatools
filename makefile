@@ -144,7 +144,6 @@ clobber:
 	rm -f $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
 
 # TBD: Add these to NOSETEST after edits:
-#    tests/test_goea_local.py \
 #    tests/test_annotations_gaf.py \
 #    tests/test_altid_godag.py \
 #    tests/test_dnlds.py \
@@ -167,6 +166,7 @@ NOSETESTS := \
     tests/test_get_unique_fields.py \
     tests/test_go_draw.py \
     tests/test_goea_statsmodels.py \
+    tests/test_goea_local.py \
     tests/test_mapslim.py
 
 test:

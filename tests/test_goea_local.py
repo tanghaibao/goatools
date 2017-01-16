@@ -5,6 +5,7 @@ import os
 from goatools.obo_parser import GODag
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.associations import read_associations
+from goatools.base import get_godag
 
 __copyright__ = "Copyright (C) 2010-2017, H Tang et al., All rights reserved."
 
@@ -75,7 +76,10 @@ def test_goea_bonferroni():
 
 def get_goeaobj(methods=None):
     """Test GOEA with method, fdr."""
-    obo_dag = GODag("{REPO}/go-basic.obo".format(REPO=REPO))
+    obo_fin = "{REPO}/go-basic.obo".format(REPO=REPO)
+    if not os.path.isfile(obo_fin):
+        get_godag("go-basic.obo")
+    obo_dag = GODag(obo_fin)
     assoc = read_associations("{REPO}/tests/data/small_association".format(REPO=REPO), no_top=True)
     popul_fin = "{REPO}/tests/data/small_population".format(REPO=REPO)
     popul_ids = [line.rstrip() for line in open(popul_fin)]
@@ -84,9 +88,9 @@ def get_goeaobj(methods=None):
 
 def run_all():
     """Run all local multiple tests."""
-    #test_unknown_gos()
-    #test_goea_fdr_dflt()
-    #test_goea_local()
+    test_unknown_gos()
+    test_goea_fdr_dflt()
+    test_goea_local()
     test_goea_bonferroni()
 
 if __name__ == '__main__':
