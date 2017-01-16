@@ -150,7 +150,6 @@ clobber:
 #    tests/test_genes_cell_cycle.py \
 #    tests/test_go_print.py \
 #    tests/test_goea_errors.py \
-#    tests/test_goea_local.py \
 #    tests/test_goea_rpt_bonferroni.py \
 #    tests/test_nbt3102.py \
 #    tests/test_ncbi_entrez_annotations.py \
@@ -167,6 +166,7 @@ NOSETESTS := \
     tests/test_get_unique_fields.py \
     tests/test_go_draw.py \
     tests/test_goea_statsmodels.py \
+    tests/test_goea_local.py \
     tests/test_mapslim.py
 
 test:
