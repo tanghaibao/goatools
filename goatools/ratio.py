@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-__copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
+__copyright__ = "Copyright (C) 2010-2017, H Tang et al., All rights reserved."
 __author__ = "various"
 
 from collections import defaultdict, Counter
@@ -55,4 +55,4 @@ def _chk_gene2go(assoc):
                 EX=assoc.items()[:2]))
         return
 
-# Copyright (C) 2010-2016, H Tang et al., All rights reserved.
+# Copyright (C) 2010-2017, H Tang et al., All rights reserved.

@@ -11,7 +11,7 @@ import random
 import numpy as np
 import collections as cx
 
-__copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
+__copyright__ = "Copyright (C) 2010-2017, H Tang et al., All rights reserved."
 __author__ = "various"
 
 class Methods(object):
@@ -275,4 +275,4 @@ if __name__ == '__main__':
     import doctest
     doctest.testmod()
 
-# Copyright (C) 2010-2016, H Tang et al., All rights reserved.
+# Copyright (C) 2010-2017, H Tang et al., All rights reserved.

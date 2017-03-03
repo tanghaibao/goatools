@@ -11,7 +11,7 @@ study genes using Fisher's exact test, and corrected for multiple testing
 
 from __future__ import absolute_import
 
-__copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
+__copyright__ = "Copyright (C) 2010-2017, H Tang et al., All rights reserved."
 __author__ = "various"
 
 import sys
@@ -568,4 +568,4 @@ def get_fieldnames(item):
     if hasattr(item, "_fields"): # Is a namedtuple
         return item._fields
 
-# Copyright (C) 2010-2016, H Tang et al., All rights reserved.
+# Copyright (C) 2010-2017, H Tang et al., All rights reserved.

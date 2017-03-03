@@ -127,7 +127,7 @@ def download_ncbi_associations(gene2go="gene2go", prt=sys.stdout):
     # Download: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz
     gz = "{GENE2GO}.gz".format(GENE2GO=gene2go)
     if not os.path.isfile(gene2go):
-        wget.download("ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{GZ}".format(GZ=gz))
+        wget.download("https://ftp.ncbi.nlm.nih.gov/gene/DATA/{GZ}".format(GZ=gz))
         assert gunzip(gz) == gene2go
         if prt is not None:
             prt.write("\n  DOWNLOADED: {FILE}\n".format(FILE=gene2go))
@@ -177,4 +177,4 @@ def dnld_gafs(species_list):
         fin_gafs.append(gaf_local)
     return fin_gafs
 
-# Copyright (C) 2013-2016, B Pedersen, et al. All rights reserved."
+# Copyright (C) 2013-2017, B Pedersen, et al. All rights reserved."

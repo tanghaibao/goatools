@@ -1,6 +1,6 @@
 """Plot a GODagSmall."""
 
-__copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -285,4 +285,4 @@ class GODagSmallPlot(object):
             return str(itemid)
         return itemid
 
-# Copyright (C) 2016, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved.

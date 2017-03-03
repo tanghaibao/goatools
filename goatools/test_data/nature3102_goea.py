@@ -1,6 +1,6 @@
 """Run GOATOOLS Gene Ontology Analysis on Nature 3102 data. Return results."""
 
-__copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import os
@@ -56,4 +56,4 @@ def get_goeaobj(method, geneids_pop, taxid):
     return goeaobj
 
 
-# Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved.
+# Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved.

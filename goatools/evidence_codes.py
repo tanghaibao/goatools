@@ -1,6 +1,6 @@
 """Manage evidence codes as reported by the Gene Ontology Consortium."""
 
-__copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -69,4 +69,4 @@ class EvidenceCodes(object):
         """Return evidence codes in order shown in cod2name."""
         return sorted(codes, key=lambda e: [self.ev2idx.get(e)])
 
-# Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved."

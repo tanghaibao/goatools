@@ -13,7 +13,7 @@ import collections as cx
 from goatools.base import nopen
 from goatools.evidence_codes import EvidenceCodes
 
-__copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 class GafReader(object):
@@ -181,4 +181,4 @@ class GafReader(object):
         assert num_taxons == 1 or num_taxons == 2
         return taxons
 
-# Copyright (C) 2016, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved."

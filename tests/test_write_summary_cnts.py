@@ -1,6 +1,6 @@
 """Tests GO depth and level hierarchy reporting."""
 
-__copyright__ = "Copyright (C) 2015-2016, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2015-2017, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import os
@@ -44,4 +44,4 @@ def _get_obodag():
 if __name__ == '__main__':
     test_write_summary_cnts()
 
-# Copyright (C) 2015-2016, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2015-2017, DV Klopfenstein, H Tang, All rights reserved.

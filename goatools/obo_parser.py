@@ -14,7 +14,7 @@ import re
 
 GraphEngines = ("pygraphviz", "pydot")
 
-__copyright__ = "Copyright (C) 2010-2016, H Tang et al., All rights reserved."
+__copyright__ = "Copyright (C) 2010-2017, H Tang et al., All rights reserved."
 __author__ = "various"
 
 class OBOReader(object):
@@ -671,4 +671,4 @@ class GODag(dict):
         if bad_terms:
             sys.stderr.write("terms not found: %s\n" % (bad_terms,))
 
-# Copyright (C) 2010-2016, H Tang et al., All rights reserved.
+# Copyright (C) 2010-2017, H Tang et al., All rights reserved.

@@ -41,7 +41,7 @@ from goatools.go_enrichment import GOEnrichmentStudy, get_study_items
 from goatools.associations import get_assoc_ncbi_taxids
 from goatools.godag_plot import plot_gos, plot_results, plot_goid2goobj
 
-__copyright__ = "Copyright (C) 2016, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 def test_example(log=sys.stdout):
@@ -362,4 +362,4 @@ def paper_top20():
 if __name__ == '__main__':
     test_example()
 
-# Copyright (C) 2016, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved.

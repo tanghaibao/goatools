@@ -2,7 +2,7 @@
 Routines to read in association file between genes and GO terms.
 """
 
-__copyright__ = "Copyright (C) 2010-2016, H Tang et al. All rights reserved."
+__copyright__ = "Copyright (C) 2010-2017, H Tang et al. All rights reserved."
 __author__ = "various"
 
 from collections import defaultdict
@@ -66,7 +66,7 @@ def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout):
         fin_gz = os.path.join(fin_dir, fin_gz)
         if os.path.exists(fin_gz):
             os.remove(fin_gz)
-        fin_ftp = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{F}.gz".format(F=fin_base)
+        fin_ftp = "https://ftp.ncbi.nlm.nih.gov/gene/DATA/{F}.gz".format(F=fin_base)
         wget.download(fin_ftp)
         with gzip.open(fin_gz, 'rb') as zstrm:
             log.write("\n  READ:  {F}\n".format(F=fin_gz))
@@ -143,4 +143,4 @@ def read_gaf(fin_gaf, **kws):
                     taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
     return id2gos # return simple associations
 
-# Copyright (C) 2010-2016, H Tang et al. All rights reserved."
+# Copyright (C) 2010-2017, H Tang et al. All rights reserved."

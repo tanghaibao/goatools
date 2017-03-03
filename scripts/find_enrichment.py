@@ -16,7 +16,7 @@ About significance cutoff:
         level to apply after Bonferroni correction
 """.format(__file__)
 
-__copyright__ = "Copyright (C) 2010-2016, H Tang et al. All rights reserved."
+__copyright__ = "Copyright (C) 2010-2017, H Tang et al. All rights reserved."
 __author__ = "various"
 
 import sys
@@ -156,4 +156,4 @@ if __name__ == "__main__":
             else:
                 g.wr_tsv(outfile, results, prt_if=prt_if, indent=args.indent)
 
-# Copyright (C) 2010-2016, H Tang et al. All rights reserved.
+# Copyright (C) 2010-2017, H Tang et al. All rights reserved.
