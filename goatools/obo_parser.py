@@ -404,7 +404,7 @@ class GODag(dict):
         if data_version is not None:
             data_version = data_version.replace("releases/", "")
         version = "{OBO}: fmt({FMT}) rel({REL}) {N:,} GO Terms".format(
-            OBO=obo_file, FMT=reader.format_version, 
+            OBO=obo_file, FMT=reader.format_version,
             REL=data_version, N=num_items)
 
         # Save the typedefs and parsed optional_attrs
@@ -491,7 +491,7 @@ class GODag(dict):
 
     def query_term(self, term, verbose=False):
         if term not in self:
-            sys.sdterr.write("Term %s not found!\n" % term)
+            sys.stderr.write("Term %s not found!\n" % term)
             return
 
         rec = self[term]
