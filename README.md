@@ -6,20 +6,20 @@
 [![bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools)
 [![Travis-CI](https://travis-ci.org/tanghaibao/goatools.svg?branch=master)](https://travis-ci.org/tanghaibao/goatools)
 
-|||
+| | |
 |---|---|
 | Author | Haibao Tang ([tanghaibao](http://github.com/tanghaibao)) |
-|| DV Klopfenstein ([dvklopfenstein](https://github.com/dvklopfenstein)) |
-|| Brent Pedersen ([brentp](http://github.com/brentp)) |
-|| Fidel Ramirez ([fidelram](https://github.com/fidelram)) |
-|| Aurelien Naldi ([aurelien-naldi](http://github.com/aurelien-naldi)) |
-|| Patrick Flick ([patflick](http://github.com/patflick)) |
-|| Jeff Yunes ([yunesj](http://github.com/yunesj)) |
-|| Kenta Sato ([bicycle1885](http://github.com/bicycle1885)) |
-|| Chris Mungall ([cmungall](https://github.com/cmungall)) |
-|| Greg Stupp ([stuppie](https://github.com/stuppie)) |
-|| David DeTomaso ([deto](https://github.com/deto)) |
-|| Olga Botvinnik ([olgabot](https://github.com/olgabot)) |
+| | DV Klopfenstein ([dvklopfenstein](https://github.com/dvklopfenstein)) |
+| | Brent Pedersen ([brentp](http://github.com/brentp)) |
+| | Fidel Ramirez ([fidelram](https://github.com/fidelram)) |
+| | Aurelien Naldi ([aurelien-naldi](http://github.com/aurelien-naldi)) |
+| | Patrick Flick ([patflick](http://github.com/patflick)) |
+| | Jeff Yunes ([yunesj](http://github.com/yunesj)) |
+| | Kenta Sato ([bicycle1885](http://github.com/bicycle1885)) |
+| | Chris Mungall ([cmungall](https://github.com/cmungall)) |
+| | Greg Stupp ([stuppie](https://github.com/stuppie)) |
+| | David DeTomaso ([deto](https://github.com/deto)) |
+| | Olga Botvinnik ([olgabot](https://github.com/olgabot)) |
 | Email | <tanghaibao@gmail.com> |
 | License | BSD |
 
@@ -291,7 +291,7 @@ Items that we know we need include:
 - Add code coverage runs
 - Edit tests in the `makefile` under the comment, `# TBD`, suchthey run using `nosetests`
 - Help setting up [documentation](http://goatools.readthedocs.io/en/latest/). We
-  are using ßSphinx and Python docstrings to create documentation.     
+  are using Sphinx and Python docstrings to create documentation.
   For documentation practice, use make targets:
 
   ```bash
