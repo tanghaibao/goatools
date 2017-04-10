@@ -147,14 +147,12 @@ def read_gaf(fin_gaf, **kws):
 def get_nd(keep_nd):
     """Allow GAF values always or never."""
     if keep_nd:
-        print "ND True"
         return lambda nt: True
     return lambda nt: nt.Evidence_Code != 'ND'
 
 def get_not(keep_not):
     """Allow GAF values always or never."""
     if keep_not:
-        print "NOT True"
         return lambda nt: True
     return lambda nt: 'NOT' not in nt.Qualifier
 
