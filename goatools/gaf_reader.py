@@ -124,7 +124,7 @@ class GafReader(object):
         vals = val.split('|') # Use a pipe to separate entries
         num_vals = len(vals)
         assert num_vals >= qty_min, \
-            "FLD({F}): MIN QUANTITY({Q}) NOT MET: {V}".format(
+            "FLD({F}): MIN QUANTITY({Q}) WASN'T MET: {V}".format(
                 F=name, Q=qty_min, V=vals)
         if qty_max is not None:
             assert num_vals <= qty_max, \

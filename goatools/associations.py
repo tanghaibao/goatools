@@ -116,22 +116,21 @@ def read_gaf(fin_gaf, **kws):
     """Read Gene Association File (GAF). Return data."""
     # keyword arguments: taxid2asscs evidence_set go2geneids
     taxid2asscs = kws.get('taxid2asscs', None)
-    evs = kws.get('evidence_set', None)
     b_geneid2gos = not kws.get('go2geneids', False)
-    keepif = kws.get('keepif', None)
-    if keepif is None:
-        keepif = lambda nt: 'NOT' not in nt.Qualifier and nt.Evidence_Code != 'ND'
-    # read GAF file
+    evs = kws.get('evidence_set', None)
+    eval_nd = get_nd(kws.get('keep_ND', False))
+    eval_not = get_not(kws.get('keep_NOT', False))
+    # Read GAF file
     from goatools.gaf_reader import GafReader
     # Simple associations
     id2gos = defaultdict(set)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
     gafobj = GafReader(fin_gaf)
-    # Optionaly specify a subset of GOs based on their evidence.
+    # Optionally specify a subset of GOs based on their evidence.
     # By default, return id2gos. User can cause go2geneids to be returned by:
     #   >>> read_ncbi_gene2go(..., go2geneids=True
     for ntgaf in gafobj.associations:
-        if keepif(ntgaf):
+        if eval_nd(ntgaf) and eval_not(ntgaf):
             if evs is None or ntgaf.Evidence_Code in evs:
                 taxid = ntgaf.Taxon[0]
                 geneid = ntgaf.DB_ID
@@ -144,5 +143,19 @@ def read_gaf(fin_gaf, **kws):
                     taxid2asscs[taxid]['ID2GOs'][geneid].add(go_id)
                     taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
     return id2gos # return simple associations
+
+def get_nd(keep_nd):
+    """Allow GAF values always or never."""
+    if keep_nd:
+        print "ND True"
+        return lambda nt: True
+    return lambda nt: nt.Evidence_Code != 'ND'
+
+def get_not(keep_not):
+    """Allow GAF values always or never."""
+    if keep_not:
+        print "NOT True"
+        return lambda nt: True
+    return lambda nt: 'NOT' not in nt.Qualifier
 
 # Copyright (C) 2010-2017, H Tang et al. All rights reserved."
