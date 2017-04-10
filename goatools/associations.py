@@ -114,23 +114,25 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
 
 def read_gaf(fin_gaf, **kws):
     """Read Gene Association File (GAF). Return data."""
-    # Written by DV Klopfenstein
-    # kws: taxid2asscs evidence_set
+    # keyword arguments: taxid2asscs evidence_set go2geneids
+    taxid2asscs = kws.get('taxid2asscs', None)
+    evs = kws.get('evidence_set', None)
+    b_geneid2gos = not kws.get('go2geneids', False)
+    keepif = kws.get('keepif', None)
+    if keepif is None:
+        keepif = lambda nt: 'NOT' not in nt.Qualifier and nt.Evidence_Code != 'ND'
+    # read GAF file
     from goatools.gaf_reader import GafReader
     # Simple associations
     id2gos = defaultdict(set)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
-    taxid2asscs = kws.get('taxid2asscs', None)
-    gafnts = GafReader(fin_gaf).associations
+    gafobj = GafReader(fin_gaf)
     # Optionaly specify a subset of GOs based on their evidence.
-    evs = kws.get('evidence_set', None)
     # By default, return id2gos. User can cause go2geneids to be returned by:
     #   >>> read_ncbi_gene2go(..., go2geneids=True
-    b_geneid2gos = not kws.get('go2geneids', False)
-    for ntgaf in gafnts:
-        evidence_code = ntgaf.Evidence_Code
-        if 'NOT' not in ntgaf.Qualifier and evidence_code != 'ND':
-            if evs is None or evidence_code in evs:
+    for ntgaf in gafobj.associations:
+        if keepif(ntgaf):
+            if evs is None or ntgaf.Evidence_Code in evs:
                 taxid = ntgaf.Taxon[0]
                 geneid = ntgaf.DB_ID
                 go_id = ntgaf.GO_ID

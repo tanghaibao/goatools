@@ -15,27 +15,44 @@ from goatools.base import dnld_gafs
 def test_gaf_read(log=sys.stdout):
     """Return GO associations from a GAF file. Download if necessary."""
     # Get associations for human(9606), mouse(10090), and fly(7227)
+    # Read GAF associations
+    msg = "Read GAF associations; keepif == None (default behavior)"
     species_ids = ['goa_human', 'mgi', 'fb']
+    _test_gaf_read(msg, species_ids, None, log)
+    # Read GAF associations
+    msg = "Read GAF associations; keepif is default in goatools.associations.read_gaf"
+    keepif = lambda nt: 'NOT' not in nt.Qualifier and nt.Evidence_Code != 'ND'
+    _test_gaf_read(msg, species_ids, keepif, log)
+    # Read GAF associations, allowing ND Evidence codes
+    msg = "Read GAF associations; Allow ND Evidence codes"
+    keepif = lambda nt: 'NOT' not in nt.Qualifier
+    _test_gaf_read(msg, species_ids, keepif, log)
+    # Read GAF associations, allowing ND entries and NOT Qualifiers
+    msg = "Read GAF associations; Allow ND Evidence codes and NOT Qualifiers"
+    keepif = lambda nt: True
+    _test_gaf_read(msg, species_ids, keepif, log)
+
+def _test_gaf_read(msg, species_ids, keepif, log=sys.stdout):
     # (optional) multi-level dictionary separate associations by taxid
     taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
     local_dir = os.path.dirname(os.path.abspath(__file__))
     for fin_gaf in dnld_gafs(species_ids):
         fin_gaf = os.path.join(local_dir, fin_gaf)
         log.write("\n")
-        id2gos = read_gaf(fin_gaf, taxid2asscs=taxid2asscs)
+        id2gos = read_gaf(fin_gaf, taxid2asscs=taxid2asscs, keepif=keepif)
         if "gene_association.mgi" in fin_gaf:
             _chk_key(id2gos, "MGI:")
         log.write("  {N:>6,} IDs found in {F}\n".format(N=len(id2gos), F=fin_gaf))
-        go2ids = read_gaf(fin_gaf, go2geneids=True)
+        go2ids = read_gaf(fin_gaf, go2geneids=True, keepif=keepif)
         _chk_key(go2ids, "GO:")
         log.write("  {N:>6,} GOs found in {F}\n".format(N=len(go2ids), F=fin_gaf))
     # Report findings stored in optional taxid dictionary
-    log.write("\n")
+    log.write("\n{MSG}\n".format(MSG=msg))
+    txtpat = "  {N:>6,} GOs and {M:>6,} annotated gene ids for tax_id: {TAXID:>6}\n"
     for taxid, asscs in taxid2asscs.items():
         num_gene2gos = len(asscs.get('ID2GOs'))
         num_go2genes = len(asscs.get('GO2IDs'))
-        log.write("{N:>6,} GOs and {M:>6,} annotated gene ids for tax_id: {TAXID:>6}\n".format(
-            TAXID=taxid, N=num_go2genes, M=num_gene2gos))
+        log.write(txtpat.format(TAXID=taxid, N=num_go2genes, M=num_gene2gos))
         # Basic check to ensure gene2go was downloaded and data was returned.
         assert num_gene2gos > 11000
         assert num_go2genes > 6000
