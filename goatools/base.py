@@ -1,13 +1,13 @@
 # Stolen from brentp:
 # <https://github.com/brentp/toolshed/blob/master/toolshed/files.py>
 
+import os
+import os.path as op
+import sys
 import bz2
 import gzip
-import wget
-import sys
 import urllib
-import os.path as op
-import os
+import wget
 
 
 if sys.version_info[0] < 3:
@@ -125,10 +125,10 @@ def download_go_basic_obo(obo="go-basic.obo", prt=sys.stdout):
 def download_ncbi_associations(gene2go="gene2go", prt=sys.stdout):
     """Download associations from NCBI, if necessary"""
     # Download: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz
-    gz = "{GENE2GO}.gz".format(GENE2GO=gene2go)
+    gzip_file = "{GENE2GO}.gz".format(GENE2GO=gene2go)
     if not os.path.isfile(gene2go):
-        wget.download("https://ftp.ncbi.nlm.nih.gov/gene/DATA/{GZ}".format(GZ=gz))
-        assert gunzip(gz) == gene2go
+        wget.download("https://ftp.ncbi.nlm.nih.gov/gene/DATA/{GZ}".format(GZ=gzip_file))
+        assert gunzip(gzip_file) == gene2go
         if prt is not None:
             prt.write("\n  DOWNLOADED: {FILE}\n".format(FILE=gene2go))
     else:
@@ -136,14 +136,14 @@ def download_ncbi_associations(gene2go="gene2go", prt=sys.stdout):
             prt.write("  EXISTS: {FILE}\n".format(FILE=gene2go))
     return gene2go
 
-def gunzip(gz, file_gunzip=None):
+def gunzip(gzip_file, file_gunzip=None):
     """Unzip .gz file. Return filename of unzipped file."""
     if file_gunzip is None:
-        file_gunzip = os.path.splitext(gz)[0]
-    with gzip.open(gz, 'rb') as zstrm:
+        file_gunzip = os.path.splitext(gzip_file)[0]
+    with gzip.open(gzip_file, 'rb') as zstrm:
         with  open(file_gunzip, 'wb') as ostrm:
             ostrm.write(zstrm.read())
-    os.remove(gz)
+    os.remove(gzip_file)
     return file_gunzip
 
 def get_godag(fin_obo="go-basic.obo", prt=sys.stdout):
@@ -156,25 +156,37 @@ def dnld_gaf(species_txt):
     """Download GAF file if necessary."""
     return dnld_gafs([species_txt])[0]
 
-def dnld_gafs(species_list):
+def dnld_gafs(species_list, prt=sys.stdout):
     """Download GAF files if necessary."""
     # Example GAF files:
-    #   http://geneontology.org/gene-associations/gene_association.goa_human.gz
     #   http://geneontology.org/gene-associations/gene_association.mgi.gz
     #   http://geneontology.org/gene-associations/gene_association.fb.gz
+    #   http://geneontology.org/gene-associations/goa_human.gaf.gz
+    #   NA: http://geneontology.org/gene-associations/gene_association.goa_human.gz
+    http = "http://geneontology.org/gene-associations"
+    # There are two filename patterns for gene associations on geneontology.org
+    gaf_pats = {
+        'gas':"gene_association.{S}",
+        'goa':"{S}.gaf"}
     fin_gafs = []
+    cwd = os.getcwd()
     for species_txt in species_list: # e.g., goa_human mgi fb
-        gaf_ftp = "http://geneontology.org/gene-associations/gene_association.{S}".format(
-            S=species_txt)
-        gaf_local = "gene_association.{SPECIES}".format(SPECIES=species_txt)
-        if not os.path.isfile(gaf_local):
-            wget.download("{GAF}.gz".format(GAF=gaf_ftp))
-            gaf_gz = "{GAF_LOCAL}.gz".format(GAF_LOCAL=gaf_local)
+        gaf_key = 'goa' if species_txt[:4] == "goa_" else 'gas'
+        gaf_base = gaf_pats[gaf_key].format(S=species_txt)
+        gaf_cwd = os.path.join(cwd, gaf_base)
+        if not os.path.isfile(gaf_cwd):
+            wget_cmd = "{HTTP}/{GAF}.gz".format(HTTP=http, GAF=gaf_base)
+            if prt is not None:
+                prt.write("  wget {FILE}\n".format(FILE=wget_cmd))
+            wget.download(wget_cmd)
+            gaf_gz = "{GAF_LOCAL}.gz".format(GAF_LOCAL=gaf_cwd)
+            if prt is not None:
+                prt.write("\n  gunzip {FILE}\n".format(FILE=gaf_cwd))
             with gzip.open(gaf_gz, 'rb') as zstrm:
-                with  open(gaf_local, 'wb') as ostrm:
+                with  open(gaf_cwd, 'wb') as ostrm:
                     ostrm.write(zstrm.read())
             os.remove(gaf_gz)
-        fin_gafs.append(gaf_local)
+        fin_gafs.append(gaf_cwd)
     return fin_gafs
 
 # Copyright (C) 2013-2017, B Pedersen, et al. All rights reserved."
