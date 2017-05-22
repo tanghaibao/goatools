@@ -130,6 +130,7 @@ class GOEnrichmentRecord(object):
                                   (1.0 * self.pop_count / self.pop_n)) else 'p'
 
     def update_remaining_fldsdefprt(self, min_ratio=None):
+        """Finish updating self (GOEnrichmentRecord) field, is_ratio_different."""
         self.is_ratio_different = is_ratio_different(min_ratio, self.study_count,
                                                      self.study_n, self.pop_count, self.pop_n)
 
@@ -188,7 +189,7 @@ class GOEnrichmentRecord(object):
                     self._err_fld(fld, fldnames, row)
             if rpt_fmt:
                 assert not isinstance(val, list), \
-                   "UNEXPECTED LIST: FIELD({F}) VALUE({V})".format(
+                   "UNEXPECTED LIST: FIELD({F}) VALUE({V}) FMT({P})".format(
                        P=rpt_fmt, F=fld, V=val)
         return row
 
@@ -349,7 +350,7 @@ class GOEnrichmentStudy(object):
         # Only load statsmodels if it is used
         multipletests = self.methods.get_statsmodels_multipletests()
         results = multipletests(ntmt.pvals, ntmt.alpha, ntmt.nt_method.method)
-        reject_lst, pvals_corrected, alphacSidak, alphacBonf = results
+        pvals_corrected = results[1] # reject_lst, pvals_corrected, alphacSidak, alphacBonf
         self._update_pvalcorr(ntmt, pvals_corrected)
 
     def _run_multitest_local(self, ntmt):
@@ -387,9 +388,12 @@ class GOEnrichmentStudy(object):
     # Methods for writing results into tables: text, tab-separated, Excel spreadsheets
     def wr_txt(self, fout_txt, goea_results, prtfmt=None, **kws):
         """Print GOEA results to text file."""
+        if not goea_results:
+            sys.stdout.write("      0 GOEA results. NOT WRITING {FOUT}\n".format(FOUT=fout_txt))
+            return
         with open(fout_txt, 'w') as prt:
             data_nts = self.prt_txt(prt, goea_results, prtfmt, **kws)
-            self.log.write("  {N:>5} items WROTE: {F}\n".format(
+            self.log.write("  {N:>5} GOEA results. WROTE: {F}\n".format(
                 N=len(data_nts), F=fout_txt))
 
     def prt_txt(self, prt, goea_results, prtfmt=None, **kws):
@@ -466,6 +470,7 @@ class GOEnrichmentStudy(object):
 
     @staticmethod
     def print_summary(results, min_ratio=None, indent=False, pval=0.05):
+        """Print summary."""
         from .version import __version__ as version
 
         # Header contains provenance and parameters
@@ -500,7 +505,7 @@ class GOEnrichmentStudy(object):
                 # Exclude some attributes from the namedtuple when saving results
                 # to a Python file because the information is redundant or verbose.
                 nts_goea = get_goea_nts_prt(goea_results)
-            docstring = "\n".join([docstring, "# {OBO_VER}\n\n".format(OBO_VER=self.obo_dag.version)])
+            docstring = "\n".join([docstring, "# {VER}\n\n".format(VER=self.obo_dag.version)])
             assert hasattr(nts_goea[0], '_fields')
             if sortby is None:
                 sortby = lambda nt: getattr(nt, 'p_uncorrected')
