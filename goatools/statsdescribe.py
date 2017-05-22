@@ -18,23 +18,28 @@ class StatsDescribe(object):
         self.desc = desc
         self.fmtstr = fmtstr
 
-    def prt_hdr(self, prt=sys.stdout):
+    def prt_hdr(self, prt=sys.stdout, name="name       "):
         """Print stats header in markdown style."""
-        hdr = "name       | # {items:11} | range of {items:11} | 25th percentile | " \
-              "  median | 75th percentile |     mean | stddev\n".format(items=self.desc)
-        div = "-----------|---------------|----------------------|" \
-              "-----------------|----------|-----------------|----------|-------\n"
-        prt.write("\n{DESC}\n".format(DESC=self.desc))
+        hdr = "{NAME} | # {ITEMS:11} | range                | 25th percentile | " \
+              "  median | 75th percentile |     mean | stddev\n".format(NAME=name, ITEMS=self.desc)
+        div = "{DASHES}|---------------|----------------------|" \
+              "-----------------|----------|-----------------|----------|-------\n".format(
+              DASHES='-'*(len(name)+1))
         prt.write(hdr)
         prt.write(div)
 
     def prt_data(self, name, vals, prt=sys.stdout):
         """Print stats data in markdown style."""
-        fld2val = self._init_fld2val(name, vals)
+        fld2val = self.get_fld2val(name, vals)
         prt.write(self.fmt.format(**fld2val))
         return fld2val
 
-    def _init_fld2val(self, name, vals):
+    def getstr_data(self, name, vals, prt=sys.stdout):
+        """Return stats data string in markdown style."""
+        fld2val = self.get_fld2val(name, vals)
+        return self.fmt.format(**fld2val)
+
+    def get_fld2val(self, name, vals):
         """Describe summary statistics for a list of numbers."""
         if vals:
             return self._init_fld2val_stats(name, vals)
