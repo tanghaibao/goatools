@@ -152,6 +152,16 @@ def get_godag(fin_obo="go-basic.obo", prt=sys.stdout):
     download_go_basic_obo(fin_obo, prt)
     return GODag(fin_obo)
 
+def get_gaf_name(species):
+    """Given a species (eg goa_human, mgi, fb), return filename of GAF file."""
+    gaf_pats = {
+        'gas':"gene_association.{S}",
+        'goa':"{S}.gaf"}
+    # Example species text: goa_human mgi fb
+    gaf_key = 'goa' if species[:4] == "goa_" else 'gas'
+    # Return Examples: goa_human.gaf gene_association.mgi gene_association.fb
+    return gaf_pats[gaf_key].format(S=species)
+
 def dnld_gaf(species_txt):
     """Download GAF file if necessary."""
     return dnld_gafs([species_txt])[0]
@@ -165,14 +175,10 @@ def dnld_gafs(species_list, prt=sys.stdout):
     #   NA: http://geneontology.org/gene-associations/gene_association.goa_human.gz
     http = "http://geneontology.org/gene-associations"
     # There are two filename patterns for gene associations on geneontology.org
-    gaf_pats = {
-        'gas':"gene_association.{S}",
-        'goa':"{S}.gaf"}
     fin_gafs = []
     cwd = os.getcwd()
     for species_txt in species_list: # e.g., goa_human mgi fb
-        gaf_key = 'goa' if species_txt[:4] == "goa_" else 'gas'
-        gaf_base = gaf_pats[gaf_key].format(S=species_txt)
+        gaf_base = get_gaf_name(species_txt)
         gaf_cwd = os.path.join(cwd, gaf_base)
         if not os.path.isfile(gaf_cwd):
             wget_cmd = "{HTTP}/{GAF}.gz".format(HTTP=http, GAF=gaf_base)
