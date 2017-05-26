@@ -95,12 +95,12 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
                 line = line.rstrip() # chomp
                 flds = line.split('\t')
                 if len(flds) >= 5:
-                    taxid_curr, geneid, go_id, evidence, qualifier = line.split('\t')[:5]
+                    taxid_curr, geneid, go_id, evidence, qualifier = flds('\t')[:5]
                     taxid_curr = int(taxid_curr)
                     # NOT: Used when gene is expected to have function F, but does NOT.
                     # ND : GO function not seen after exhaustive annotation attempts to the gene.
                     if taxid_curr in taxids and qualifier != 'NOT' and evidence != 'ND':
-                        # Optionaly specify a subset of GOs based on their evidence.
+                        # Optionally specify a subset of GOs based on their evidence.
                         if evs is None or evidence in evs:
                             geneid = int(geneid)
                             if b_geneid2gos:
@@ -112,20 +112,27 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
                                 taxid2asscs[taxid_curr]['GO2GeneIDs'][go_id].add(geneid)
     return id2gos # return simple associations
 
+def get_gaf_hdr(fin_gaf, hdr_only=True):
+    """Read Gene Association File (GAF). Return GAF version and data info."""
+    from goatools.gaf_reader import GafReader
+    return GafReader(fin_gaf, hdr_only).hdr
+
 def read_gaf(fin_gaf, **kws):
     """Read Gene Association File (GAF). Return data."""
-    # keyword arguments: taxid2asscs evidence_set go2geneids
+    # keyword arguments for choosing which GO IDs to keep
     taxid2asscs = kws.get('taxid2asscs', None)
     b_geneid2gos = not kws.get('go2geneids', False)
     evs = kws.get('evidence_set', None)
     eval_nd = get_nd(kws.get('keep_ND', False))
     eval_not = get_not(kws.get('keep_NOT', False))
+    # keyword arguments what is read from GAF.
+    hdr_only = kws.get('hdr_only', None) # Read all data from GAF by default
     # Read GAF file
     from goatools.gaf_reader import GafReader
     # Simple associations
     id2gos = defaultdict(set)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
-    gafobj = GafReader(fin_gaf)
+    gafobj = GafReader(fin_gaf, hdr_only)
     # Optionally specify a subset of GOs based on their evidence.
     # By default, return id2gos. User can cause go2geneids to be returned by:
     #   >>> read_ncbi_gene2go(..., go2geneids=True

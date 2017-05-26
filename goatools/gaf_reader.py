@@ -58,11 +58,12 @@ class GafReader(object):
     # Expected values for a Qualifier
     exp_qualifiers = set(['NOT', 'contributes_to', 'colocalizes_with'])
 
-    def __init__(self, filename=None, log=sys.stdout):
+    def __init__(self, filename=None, hdr_only=False):
         self.filename = filename
-        self.log = log
         self.evobj = EvidenceCodes()
-        self.associations = self.read_gaf(filename) if filename is not None else []
+        # Initialize associations and header information
+        self.hdr = None
+        self.associations = self.read_gaf(filename, hdr_only) if filename is not None else []
 
     def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print annotation/evidence code summary."""
@@ -74,7 +75,7 @@ class GafReader(object):
             elif 'NOT' in ntgaf.Qualifier:
                 ctr["NOT {EV}".format(EV=ntgaf.Evidence_Code)] += 1
             else:
-                raise Exception("UNEXPECTED INFO") 
+                raise Exception("UNEXPECTED INFO")
         self.evobj.prt_ev_cnts(ctr, prt)
 
     def _get_ntgaf(self, ntgafobj, flds, ver):
@@ -132,25 +133,36 @@ class GafReader(object):
                     F=name, Q=qty_max, V=vals)
         return vals if set_list_ft else set(vals)
 
-    def read_gaf(self, fin_gaf):
+    def read_gaf(self, fin_gaf, hdr_only=False):
         """Read GAF file. HTTP address okay. GZIPPED/BZIPPED file okay."""
         ga_lst = []
-        ifstrm = nopen(fin_gaf)
         ver = None
         ntgafobj = None
         exp_numcol = None
+        hdrobj = GafHdr()
+        ifstrm = nopen(fin_gaf)
         for line in ifstrm:
-            if ntgafobj is not None and not line.startswith('!'):
+            # Read header
+            if ntgafobj is None:
+                if line[0] == '!':
+                    if line[1:13] == 'gaf-version:':
+                        ver = line[13:].strip()
+                    hdrobj.chkaddhdr(line)
+                else:
+                    self.hdr = hdrobj.get_hdr()
+                    if hdr_only:
+                        return ga_lst
+                    ntgafobj = cx.namedtuple("ntgafobj", " ".join(self.gaf_columns[ver]))
+                    exp_numcol = self.gaf_numcol[ver]
+            # Read data
+            if ntgafobj is not None:
                 flds = self._split_line(line, exp_numcol)
                 ntgaf = self._get_ntgaf(ntgafobj, flds, ver)
                 ga_lst.append(ntgaf)
-            elif ntgafobj is None and line.startswith('!gaf-version:'):
-                ver = line[13:].strip()
-                ntgafobj = cx.namedtuple("ntgafobj", " ".join(self.gaf_columns[ver]))
-                exp_numcol = self.gaf_numcol[ver]
-        self.log.write("  READ {N:,} associations: {FIN}\n".format(N=len(ga_lst), FIN=fin_gaf))
-        ga_lst = self.evobj.sort_nts(ga_lst, 'Evidence_Code')
-        return ga_lst
+        # GAF file has been read
+        readmsg = "  READ {N:,} associations: {FIN}\n"
+        sys.stdout.write(readmsg.format(N=len(ga_lst), FIN=fin_gaf))
+        return self.evobj.sort_nts(ga_lst, 'Evidence_Code')
 
     @staticmethod
     def _split_line(line, exp_numcol):
@@ -180,5 +192,24 @@ class GafReader(object):
         num_taxons = len(taxons)
         assert num_taxons == 1 or num_taxons == 2
         return taxons
+
+
+class GafHdr(object):
+    """Used to build a GAF header."""
+
+    cmpline = re.compile(r'^!(\w[\w\s-]+:.*)$')
+
+    def __init__(self):
+        self.gafhdr = []
+
+    def get_hdr(self):
+        """Return GAF header data as a string paragragh."""
+        return "\n".join(self.gafhdr)
+
+    def chkaddhdr(self, line):
+        """If this line contains desired header info, save it."""
+        mtch = self.cmpline.search(line)
+        if mtch:
+            self.gafhdr.append(mtch.group(1))
 
 # Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved."
