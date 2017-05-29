@@ -112,10 +112,10 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
                                 taxid2asscs[taxid_curr]['GO2GeneIDs'][go_id].add(geneid)
     return id2gos # return simple associations
 
-def get_gaf_hdr(fin_gaf, hdr_only=True):
+def get_gaf_hdr(fin_gaf):
     """Read Gene Association File (GAF). Return GAF version and data info."""
     from goatools.gaf_reader import GafReader
-    return GafReader(fin_gaf, hdr_only).hdr
+    return GafReader(fin_gaf, hdr_only=True).hdr
 
 def read_gaf(fin_gaf, **kws):
     """Read Gene Association File (GAF). Return data."""

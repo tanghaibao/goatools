@@ -94,9 +94,9 @@ wget http://www.geneontology.org/ontology/subsets/goslim_generic.obo
   easy_install fisher
   ```
 
-  - [fisher](http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.statfisher_exact.html)
-    from [SciPy's](http://docs.scipy.org/doc/scipy/reference/)
-    [stats](http://docs.scipy.org/doc/scipy/reference/stats.html) package
+  - [fisher](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html)
+    from [SciPy's](https://docs.scipy.org/doc/scipy/reference/)
+    [stats](https://docs.scipy.org/doc/scipy/reference/tutorial/stats.html) package
 
   - `statsmodels` (optional) for access to a variety of statistical tests for GOEA:
 
@@ -224,9 +224,9 @@ calculate the same pvalues, but provide the user an option in installing
 packages.
 
 - `fisher`, [fisher](http://pypi.python.org/pypi/fisher/) package's `fisher.pvalue_population`
-- `fisher_scipy_stats`:[SciPy](http://docs.scipy.org/doc/scipy/reference)
-   [stats](http://docs.scipy.org/doc/scipy/reference/stats.html) package
-  [fisher_exact](http://docs.scipy.org/doc/scipy-0.17.0/reference/generated/scipy.statfisher_exact.html)
+- `fisher_scipy_stats`:[SciPy](https://docs.scipy.org/doc/scipy/reference/)
+   [stats](https://docs.scipy.org/doc/scipy/reference/tutorial/stats.html) package
+  [fisher_exact](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html)
 
 ### Available multiple test corrections
 
