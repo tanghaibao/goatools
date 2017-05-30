@@ -255,7 +255,7 @@ class GOTerm:
 
     def __str__(self):
         obsolete = "obsolete" if self.is_obsolete else ""
-        return "{GO}\tlevel-{L:>02}\tdepth-{D:>02}\t{NAME} [{NS}] {OLD}".format(
+        return r'{GO}\tlevel-{L:>02}\tdepth-{D:>02}\t{NAME} [{NS}] {OLD}'.format(
             GO=self.id, L=self.level, D=self.depth,
             NAME=self.name, NS=self.namespace, OLD=obsolete)
 
