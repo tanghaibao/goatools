@@ -254,10 +254,15 @@ class GOTerm:
         self.alt_ids = []           # alternative identifiers
 
     def __str__(self):
-        obsolete = "obsolete" if self.is_obsolete else ""
-        return r'{GO}\tlevel-{L:>02}\tdepth-{D:>02}\t{NAME} [{NS}] {OLD}'.format(
-            GO=self.id, L=self.level, D=self.depth,
-            NAME=self.name, NS=self.namespace, OLD=obsolete)
+        ret = ['{GO}\t'.format(GO=self.id)]
+        if self.level is not None:
+            ret.append('level-{L:>02}\t'.format(L=self.level))
+        if self.depth is not None:
+            ret.append('depth-{D:>02}\t'.format(D=self.depth))
+        ret.append('{NAME} [{NS}]'.format(NAME=self.name, NS=self.namespace))
+        if self.is_obsolete:
+            ret.append('obsolete')
+        return ''.join(ret)
 
     def __repr__(self):
         """Print GO id and all attributes in GOTerm class."""
