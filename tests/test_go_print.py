@@ -10,6 +10,7 @@ def test_go_print(prt=sys.stdout):
     obo_file = download_go_basic_obo(prt=prt)
     reader = goatools.obo_parser.OBOReader(obo_file)
     go_terms = list(reader)
+    prt.write("Python Version: {VER}\n\n".format(VER=sys.version))
     prt.write("\nOBOReader: {OBJ}\n\n".format(OBJ=reader))
     prt.write("format-version: {VER}\n".format(VER=reader.format_version))
     prt.write("data-version: {VER}\n\n".format(VER=reader.data_version))
