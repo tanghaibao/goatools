@@ -261,12 +261,12 @@ class GOEnrichmentStudy(object):
         alpha = kws['alpha'] if 'alpha' in kws else self.alpha
         log = kws['log'] if 'log' in kws else self.log
         # Calculate uncorrected pvalues
-        results = self._get_pval_uncorr(study)
+        results = self._get_pval_uncorr(study, log)
         if not results:
             return []
 
         # Do multipletest corrections on uncorrected pvalues and update results
-        self._run_multitest_corr(results, methods, alpha, study)
+        self._run_multitest_corr(results, methods, alpha, study, log)
 
         for rec in results:
             # get go term for name and level
@@ -307,7 +307,8 @@ class GOEnrichmentStudy(object):
 
     def _get_pval_uncorr(self, study, log=sys.stdout):
         """Calculate the uncorrected pvalues for study items."""
-        log.write("Calculating uncorrected p-values using {PFNC}\n".format(PFNC=self.pval_obj.name))
+        if log is not None:
+            log.write("Calculating uncorrected p-values using {PFNC}\n".format(PFNC=self.pval_obj.name))
         results = []
         go2studyitems = get_terms("study", study, self.assoc, self.obo_dag, log)
         pop_n, study_n = self.pop_n, len(study)
@@ -333,7 +334,7 @@ class GOEnrichmentStudy(object):
 
         return results
 
-    def _run_multitest_corr(self, results, usr_methods, alpha, study):
+    def _run_multitest_corr(self, results, usr_methods, alpha, study, log):
         """Do multiple-test corrections on uncorrected pvalues."""
         assert 0 < alpha < 1, "Test-wise alpha must fall between (0, 1)"
         pvals = [r.p_uncorrected for r in results]
@@ -341,8 +342,9 @@ class GOEnrichmentStudy(object):
 
         for nt_method in usr_methods:
             ntmt = NtMt(results, pvals, alpha, nt_method, study)
-            sys.stdout.write("Running multitest correction: {MSRC} {METHOD}\n".format(
-                MSRC=ntmt.nt_method.source, METHOD=ntmt.nt_method.method))
+            if log is not None:
+                log.write("Running multitest correction: {MSRC} {METHOD}\n".format(
+                    MSRC=ntmt.nt_method.source, METHOD=ntmt.nt_method.method))
             self._run_multitest[nt_method.source](ntmt)
 
     def _run_multitest_statsmodels(self, ntmt):

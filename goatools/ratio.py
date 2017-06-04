@@ -28,8 +28,9 @@ def get_terms(desc, geneset, assoc, obo_dag, log):
         for x in assoc[gene]:
             if x in obo_dag:
                 term2itemids[obo_dag[x].id].add(gene)
-    log.write("{N:>6,} out of {M:>6,} {DESC} items found in association\n".format(
-        DESC=desc, N=len(genes), M=len(geneset)))
+    if log is not None:
+        log.write("{N:>6,} out of {M:>6,} {DESC} items found in association\n".format(
+            DESC=desc, N=len(genes), M=len(geneset)))
     return term2itemids
 
 def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
