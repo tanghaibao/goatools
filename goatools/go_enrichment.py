@@ -395,8 +395,8 @@ class GOEnrichmentStudy(object):
             return
         with open(fout_txt, 'w') as prt:
             data_nts = self.prt_txt(prt, goea_results, prtfmt, **kws)
-            self.log.write("  {N:>5} GOEA results. WROTE: {F}\n".format(
-                N=len(data_nts), F=fout_txt))
+            log = self.log if self.log is not None else sys.stdout
+            log.write("  {N:>5} GOEA results. WROTE: {F}\n".format(N=len(data_nts), F=fout_txt))
 
     def prt_txt(self, prt, goea_results, prtfmt=None, **kws):
         """Print GOEA results in text format."""
