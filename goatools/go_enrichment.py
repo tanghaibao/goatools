@@ -17,11 +17,35 @@ __author__ = "various"
 import sys
 import collections as cx
 import datetime
+from functools import partial
+import multiprocessing
+
 
 from goatools.multiple_testing import Methods, Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
 from goatools.ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
 from goatools.pvalcalc import FisherFactory
+
+
+
+
+def compute_pvals(allterms, calc_pvalue, go2studyitems, go2popitems,
+                  study_n, pop_n):
+
+    import os
+    print("Pid=", os.getpid())
+
+    results = {}
+    for term in allterms:
+
+        study_items = go2studyitems.get(term, set())
+        study_count = len(study_items)
+        pop_items = go2popitems.get(term, set())
+        pop_count = len(pop_items)
+
+        results[term] = calc_pvalue(study_count, study_n, pop_count, pop_n)
+
+    return results
 
 
 class GOEnrichmentRecord(object):
@@ -309,28 +333,55 @@ class GOEnrichmentStudy(object):
         """Calculate the uncorrected pvalues for study items."""
         if log is not None:
             log.write("Calculating uncorrected p-values using {PFNC}\n".format(PFNC=self.pval_obj.name))
-        results = []
         go2studyitems = get_terms("study", study, self.assoc, self.obo_dag, log)
         pop_n, study_n = self.pop_n, len(study)
         allterms = set(go2studyitems.keys()).union(
             set(self.go2popitems.keys()))
+
+        # if self.pval_obj.log is a file handle, which we can not serialize, so we could
+        # not transfer self.pval_obj.calc_pvalue to another python process with multiprocessing.
+        # there fore we "path" the object which will later be restored again.
+        old = self.pval_obj.log
+        self.pval_obj.log = None
         calc_pvalue = self.pval_obj.calc_pvalue
 
-        for term in allterms:
-            study_items = go2studyitems.get(term, set())
-            study_count = len(study_items)
-            pop_items = self.go2popitems.get(term, set())
-            pop_count = len(pop_items)
+        # -1 avoids freezing of the machine:
+        n_procs = multiprocessing.cpu_count() - 1
 
-            one_record = GOEnrichmentRecord(
-                GO=term,
-                p_uncorrected=calc_pvalue(study_count, study_n, pop_count, pop_n),
-                study_items=study_items,
-                pop_items=pop_items,
-                ratio_in_study=(study_count, study_n),
-                ratio_in_pop=(pop_count, pop_n))
+        p = multiprocessing.Pool(n_procs)
+        n = len(allterms)
 
-            results.append(one_record)
+        allterms = list(allterms)
+        fragments = [allterms[i::n_procs] for i in range(n_procs)]
+
+        remote_func = partial(compute_pvals, calc_pvalue=calc_pvalue, go2studyitems=go2studyitems,
+                              go2popitems=self.go2popitems, study_n=study_n, pop_n=pop_n)
+
+        all_p_values = p.map(remote_func, fragments)
+
+        # restore patched file handle
+        self.pval_obj.log = old
+
+        results = []
+
+        for p_values in all_p_values:
+
+            for term, p_value in p_values.items():
+
+                study_items = go2studyitems.get(term, set())
+                study_count = len(study_items)
+                pop_items = self.go2popitems.get(term, set())
+                pop_count = len(pop_items)
+
+                one_record = GOEnrichmentRecord(
+                    GO=term,
+                    p_uncorrected=p_value,
+                    study_items=study_items,
+                    pop_items=pop_items,
+                    ratio_in_study=(study_count, study_n),
+                    ratio_in_pop=(pop_count, pop_n))
+
+                results.append(one_record)
 
         return results
 
