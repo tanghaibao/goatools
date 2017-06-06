@@ -27,13 +27,8 @@ import goatools.wr_tbl as RPT
 from goatools.pvalcalc import FisherFactory
 
 
-
-
 def compute_pvals(allterms, calc_pvalue, go2studyitems, go2popitems,
                   study_n, pop_n):
-
-    import os
-    print("Pid=", os.getpid())
 
     results = {}
     for term in allterms:
