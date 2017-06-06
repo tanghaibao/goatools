@@ -95,7 +95,7 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
                 line = line.rstrip() # chomp
                 flds = line.split('\t')
                 if len(flds) >= 5:
-                    taxid_curr, geneid, go_id, evidence, qualifier = flds('\t')[:5]
+                    taxid_curr, geneid, go_id, evidence, qualifier = flds[:5]
                     taxid_curr = int(taxid_curr)
                     # NOT: Used when gene is expected to have function F, but does NOT.
                     # ND : GO function not seen after exhaustive annotation attempts to the gene.

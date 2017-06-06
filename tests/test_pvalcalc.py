@@ -33,8 +33,9 @@ def _chk_pvals(fisher2pvals, prt):
                 if abs(pval1 - pval2) > 0.00001: 
                     prt.write("{GO} {N1}({P1:4.2f}) {N2}({P2:4.2f}) {N1}({p1}) {N2}({p2})\n".format(
                         GO=go_id, N1=f1, N2=f2, P1=pval1, P2=pval2, p1=pval1, p2=pval2))
-        for val, cnt in ctr.most_common():
-            prt.write("{N:>5,} {RES:5}: {N1} == {N2}\n".format(N=cnt, RES=val, N1=f1, N2=f2))
+        if prt is not None:
+            for val, cnt in ctr.most_common():
+                prt.write("{N:>5,} {RES:5}: {N1} == {N2}\n".format(N=cnt, RES=val, N1=f1, N2=f2))
 
 def _get_pvals(pvalfnc_names, prt=sys.stdout):
     fisher2pvals = {}
