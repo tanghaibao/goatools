@@ -25,6 +25,7 @@ from goatools.multiple_testing import Methods, Bonferroni, Sidak, HolmBonferroni
 from goatools.ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
 from goatools.pvalcalc import FisherFactory
+from .multiprocessing_tools import p_map
 
 
 
@@ -335,38 +336,36 @@ class GOEnrichmentStudy(object):
             log.write("Calculating uncorrected p-values using {PFNC}\n".format(PFNC=self.pval_obj.name))
         go2studyitems = get_terms("study", study, self.assoc, self.obo_dag, log)
         pop_n, study_n = self.pop_n, len(study)
-        allterms = set(go2studyitems.keys()).union(
-            set(self.go2popitems.keys()))
-
-        # if self.pval_obj.log is a file handle, which we can not serialize, so we could
-        # not transfer self.pval_obj.calc_pvalue to another python process with multiprocessing.
-        # there fore we "path" the object which will later be restored again.
-        old = self.pval_obj.log
-        self.pval_obj.log = None
-        calc_pvalue = self.pval_obj.calc_pvalue
+        allterms = set(go2studyitems.keys()).union(set(self.go2popitems.keys()))
 
         # -1 avoids freezing of the machine:
         n_procs = multiprocessing.cpu_count() - 1
 
-        p = multiprocessing.Pool(n_procs)
-        n = len(allterms)
-
         allterms = list(allterms)
         fragments = [allterms[i::n_procs] for i in range(n_procs)]
 
+        # bind arguments, so that remote_func only depends on fragment of terms to process:
+        calc_pvalue = self.pval_obj.calc_pvalue
         remote_func = partial(compute_pvals, calc_pvalue=calc_pvalue, go2studyitems=go2studyitems,
                               go2popitems=self.go2popitems, study_n=study_n, pop_n=pop_n)
 
-        all_p_values = p.map(remote_func, fragments)
-
-        # restore patched file handle
-        self.pval_obj.log = old
+        # if self.pval_obj.log is a file handle, which we can not serialize, we could not transfer
+        # self.pval_obj.calc_pvalue to another python process with multiprocessing.  therefore we
+        # "patch" the object which will later be restored again.
+        old = self.pval_obj.log
+        self.pval_obj.log = None
+        p = multiprocessing.Pool(n_procs)
+        try:
+            all_p_values = p_map(p, remote_func, fragments)
+        finally:
+            # restore patched file handle
+            self.pval_obj.log = old
 
         results = []
 
-        for p_values in all_p_values:
+        for p_values_map in all_p_values:
 
-            for term, p_value in p_values.items():
+            for term, p_value in p_values_map.items():
 
                 study_items = go2studyitems.get(term, set())
                 study_count = len(study_items)

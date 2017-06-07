@@ -7,3 +7,7 @@ gene2go.gz
 # Sphinx working directories
 _static
 _templates
+
+.cache
+venv*
+*.egg-info/
