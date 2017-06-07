@@ -340,6 +340,8 @@ class GOEnrichmentStudy(object):
         else:
             n_cores = self.n_cores
 
+        log.write("use {} cores for computing pvalues\n".format(n_cores))
+
         allterms = list(allterms)
         fragments = [allterms[i::n_cores] for i in range(n_cores)]
 
