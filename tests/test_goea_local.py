@@ -83,7 +83,7 @@ def get_goeaobj(methods=None):
     assoc = read_associations("{REPO}/tests/data/small_association".format(REPO=REPO), no_top=True)
     popul_fin = "{REPO}/tests/data/small_population".format(REPO=REPO)
     popul_ids = [line.rstrip() for line in open(popul_fin)]
-    goeaobj = GOEnrichmentStudy(popul_ids, assoc, obo_dag, methods=methods)
+    goeaobj = GOEnrichmentStudy(popul_ids, assoc, obo_dag, methods=methods, n_cores=2)
     return goeaobj
 
 def run_all():

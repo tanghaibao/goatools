@@ -22,7 +22,7 @@ def init_goea(**kws):
     popul_ids = [line.rstrip() for line in open(ROOT + "population")]
     methods = kws['methods'] if 'methods' in kws else ['not_bonferroni']
     study_ids = [line.rstrip() for line in open(ROOT + "study")]
-    return GOEnrichmentStudy(popul_ids, assoc, obo_dag, methods=methods), study_ids
+    return GOEnrichmentStudy(popul_ids, assoc, obo_dag, methods=methods, n_cores=2), study_ids
 
 
 def run_method_bad_ini():

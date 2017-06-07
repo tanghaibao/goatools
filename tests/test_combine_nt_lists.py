@@ -32,7 +32,7 @@ def get_goea_results(method="fdr_bh"):
     obo_dag = GODag(obo_fin)
     assoc = read_associations(os.path.join(root_dir, "slim_association"), no_top=True)
     popul_ids = [line.rstrip() for line in open(os.path.join(root_dir, "small_population"))]
-    goeaobj = GOEnrichmentStudy(popul_ids, assoc, obo_dag, methods=[method])
+    goeaobj = GOEnrichmentStudy(popul_ids, assoc, obo_dag, methods=[method], n_cores=2)
     study_ids = [line.rstrip() for line in open(os.path.join(root_dir, "small_study"))]
     goea_results = goeaobj.run_study(study_ids, methods=[method])
     return goea_results

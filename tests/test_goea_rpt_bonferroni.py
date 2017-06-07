@@ -74,7 +74,8 @@ def run_bonferroni(log):
     popul_ids = [line.rstrip() for line in open("../data/population")]
     study_ids = [line.rstrip() for line in open("../data/study")]
     # 2. Run enrichment analysis
-    goea = GOEnrichmentStudy(popul_ids, assoc, obo_dag, alpha=0.05, methods=['bonferroni'])
+    goea = GOEnrichmentStudy(popul_ids, assoc, obo_dag, alpha=0.05, methods=['bonferroni'],
+                             n_cores=2)
     results_nt = goea.run_study(study_ids)
     return results_nt, goea
 

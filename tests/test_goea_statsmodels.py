@@ -43,7 +43,7 @@ def get_goeaobj(methods=None):
     obo_dag = GODag(ROOT + "goslim_generic.obo")
     assoc = read_associations(ROOT + "slim_association", no_top=True)
     popul_ids = [line.rstrip() for line in open(ROOT + "small_population")]
-    goeaobj = GOEnrichmentStudy(popul_ids, assoc, obo_dag, methods=methods)
+    goeaobj = GOEnrichmentStudy(popul_ids, assoc, obo_dag, methods=methods, n_cores=2)
     return goeaobj
 
 
