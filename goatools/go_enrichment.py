@@ -28,13 +28,8 @@ from goatools.pvalcalc import FisherFactory
 from .multiprocessing_tools import p_map
 
 
-
-
 def compute_pvals(allterms, calc_pvalue, go2studyitems, go2popitems,
                   study_n, pop_n):
-
-    import os
-    print("Pid=", os.getpid())
 
     results = {}
     for term in allterms:
@@ -261,6 +256,7 @@ class GOEnrichmentStudy(object):
 
     def __init__(self, pop, assoc, obo_dag, propagate_counts=True, alpha=.05, methods=None, **kws):
         self.log = kws['log'] if 'log' in kws else sys.stdout
+        self.n_cores = kws['n_cores'] if 'n_cores' in kws else None
         self._run_multitest = {
             'local':lambda iargs: self._run_multitest_local(iargs),
             'statsmodels':lambda iargs: self._run_multitest_statsmodels(iargs)}
@@ -339,10 +335,13 @@ class GOEnrichmentStudy(object):
         allterms = set(go2studyitems.keys()).union(set(self.go2popitems.keys()))
 
         # -1 avoids freezing of the machine:
-        n_procs = multiprocessing.cpu_count() - 1
+        if self.n_cores is None:
+            n_cores = multiprocessing.cpu_count() - 1
+        else:
+            n_cores = self.n_cores
 
         allterms = list(allterms)
-        fragments = [allterms[i::n_procs] for i in range(n_procs)]
+        fragments = [allterms[i::n_cores] for i in range(n_cores)]
 
         # bind arguments, so that remote_func only depends on fragment of terms to process:
         calc_pvalue = self.pval_obj.calc_pvalue
@@ -354,7 +353,7 @@ class GOEnrichmentStudy(object):
         # "patch" the object which will later be restored again.
         old = self.pval_obj.log
         self.pval_obj.log = None
-        p = multiprocessing.Pool(n_procs)
+        p = multiprocessing.Pool(n_cores)
         try:
             all_p_values = p_map(p, remote_func, fragments)
         finally:
