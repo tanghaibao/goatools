@@ -18,12 +18,10 @@ run:
 	$(PYTHON) test_write_hier.py
 	$(PYTHON) test_annotations_gaf.py
 	$(PYTHON) tests_methodsobj.py
-	$(PYTHON) nbt3102_goea_alt.py
 	$(PYTHON) test_gaf_hdr.py
 	$(PYTHON) test_go_draw.py
 	$(PYTHON) test_read_gaf_allow_nd.py
 	$(PYTHON) test_statsdescribe.py
-	$(PYTHON) nbt3102_goea.py
 
 dnld_dbs: go-basic.obo gene2go
 
