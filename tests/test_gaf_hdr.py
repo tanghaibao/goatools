@@ -14,7 +14,7 @@ def main(prt=sys.stdout):
     """Test returning GO Association File (GAF) header version and date."""
     for species in ['goa_human', 'mgi', 'fb']:
         fin_assc = get_gaf_name(species) # goa_human.gaf gene_association.mgi ...
-        gafhdr = get_gaf_hdr(fin_assc, hdr_only=True)
+        gafhdr = get_gaf_hdr(fin_assc)
         prt.write("Header from {GAF}:\n{HDR}\n\n".format(GAF=fin_assc, HDR=gafhdr))
         assert "gaf-version" in gafhdr, \
             "UNEXPECTED HEADER FOUND IN {GAF}".format(GAF=fin_assc)
