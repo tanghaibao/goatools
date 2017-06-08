@@ -117,9 +117,9 @@ class GOEnrichmentRecord(object):
     def __repr__(self):
         return "GOEnrichmentRecord({GO})".format(GO=self.GO)
 
-    def set_goterm(self, goid):
+    def set_goterm(self, go2obj):
         """Set goterm and copy GOTerm's name and namespace."""
-        self.goterm = goid.get(self.GO, None)
+        self.goterm = go2obj.get(self.GO, None)
         present = self.goterm is not None
         self.name = self.goterm.name if present else "n.a."
         self.NS = self.namespace2NS[self.goterm.namespace] if present else "XX"
