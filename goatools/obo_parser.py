@@ -184,7 +184,8 @@ class OBOReader(object):
         else:
             self._die("UNEXPECTED FIELD CONTENT: {L}\n".format(L=line), lnum)
 
-    def _add_nested(self, rec, name, value):
+    @staticmethod
+    def _add_nested(rec, name, value):
         """Adds a term's nested attributes."""
         # Remove comments and split term into typedef / target term.
         (typedef, target_term) = value.split('!')[0].rstrip().split(' ')
@@ -236,7 +237,7 @@ class OBOReader(object):
 
 
 
-class GOTerm:
+class GOTerm(object):
     """
     GO term, actually contain a lot more properties than interfaced here
     """
@@ -281,89 +282,95 @@ class GOTerm:
                             ret.append("  {TYPEDEF}: {NTERMS} items"
                                        .format(TYPEDEF=typedef,
                                                NTERMS=len(terms)))
-                            for t in terms:
-                                ret.append("    {TERM}".format(TERM=t))
+                            for term in terms:
+                                ret.append("    {TERM}".format(TERM=term))
             else:
                 ret.append("{K}: None".format(K=key))
         return "\n  ".join(ret)
 
     def has_parent(self, term):
-        for p in self.parents:
-            if p.id == term or p.has_parent(term):
+        """Return True if this GO object has a parent GO ID."""
+        for praent in self.parents:
+            if praent.id == term or praent.has_parent(term):
                 return True
         return False
 
     def has_child(self, term):
-        for p in self.children:
-            if p.id == term or p.has_child(term):
+        """Return True if this GO object has a child GO ID."""
+        for parent in self.children:
+            if parent.id == term or parent.has_child(term):
                 return True
         return False
 
     def get_all_parents(self):
+        """Return all parent GO IDs."""
         all_parents = set()
-        for p in self.parents:
-            all_parents.add(p.id)
-            all_parents |= p.get_all_parents()
+        for parent in self.parents:
+            all_parents.add(parent.id)
+            all_parents |= parent.get_all_parents()
         return all_parents
 
     def get_all_children(self):
+        """Return all children GO IDs."""
         all_children = set()
-        for p in self.children:
-            all_children.add(p.id)
-            all_children |= p.get_all_children()
+        for parent in self.children:
+            all_children.add(parent.id)
+            all_children |= parent.get_all_children()
         return all_children
 
     def get_all_parent_edges(self):
+        """Return tuples for all parent GO IDs, containing current GO ID and parent GO ID."""
         all_parent_edges = set()
-        for p in self.parents:
-            all_parent_edges.add((self.id, p.id))
-            all_parent_edges |= p.get_all_parent_edges()
+        for parent in self.parents:
+            all_parent_edges.add((self.id, parent.id))
+            all_parent_edges |= parent.get_all_parent_edges()
         return all_parent_edges
 
     def get_all_child_edges(self):
+        """Return tuples for all child GO IDs, containing current GO ID and child GO ID."""
         all_child_edges = set()
-        for p in self.children:
-            all_child_edges.add((p.id, self.id))
-            all_child_edges |= p.get_all_child_edges()
+        for parent in self.children:
+            all_child_edges.add((parent.id, self.id))
+            all_child_edges |= parent.get_all_child_edges()
         return all_child_edges
 
     def write_hier_rec(self, gos_printed, out=sys.stdout,
                        len_dash=1, max_depth=None, num_child=None, short_prt=False,
                        include_only=None, go_marks=None,
-                       depth=1, dp="-"):
+                       depth=1, depth_dashes="-"):
         """Write hierarchy for a GO Term record."""
         # Added by DV Klopfenstein
-        GO_id = self.id
+        goid = self.id
         # Shortens hierarchy report by only printing the hierarchy
         # for the sub-set of user-specified GO terms which are connected.
-        if include_only is not None and GO_id not in include_only:
+        if include_only is not None and goid not in include_only:
             return
-        nrp = short_prt and GO_id in gos_printed
+        nrp = short_prt and goid in gos_printed
         if go_marks is not None:
-            out.write('{} '.format('>' if GO_id in go_marks else ' '))
+            out.write('{} '.format('>' if goid in go_marks else ' '))
         if len_dash is not None:
             # Default character indicating hierarchy level is '-'.
             # '=' is used to indicate a hierarchical path printed in detail previously.
             letter = '-' if not nrp or not self.children else '='
-            dp = ''.join([letter]*depth)
-            out.write('{DASHES:{N}} '.format(DASHES=dp, N=len_dash))
+            depth_dashes = ''.join([letter]*depth)
+            out.write('{DASHES:{N}} '.format(DASHES=depth_dashes, N=len_dash))
         if num_child is not None:
             out.write('{N:>5} '.format(N=len(self.get_all_children())))
         out.write('{GO}\tL-{L:>02}\tD-{D:>02}\t{desc}\n'.format(
             GO=self.id, L=self.level, D=self.depth, desc=self.name))
         # Track GOs previously printed only if needed
         if short_prt:
-            gos_printed.add(GO_id)
+            gos_printed.add(goid)
         # Do not print hierarchy below this turn if it has already been printed
         if nrp:
             return
         depth += 1
         if max_depth is not None and depth > max_depth:
             return
-        for p in self.children:
-            p.write_hier_rec(gos_printed, out, len_dash, max_depth, num_child, short_prt,
-                             include_only, go_marks,
-                             depth, dp)
+        for child in self.children:
+            child.write_hier_rec(gos_printed, out, len_dash, max_depth, num_child, short_prt,
+                                 include_only, go_marks,
+                                 depth, depth_dashes)
 
 
 class TypeDef(object):
@@ -385,19 +392,20 @@ class TypeDef(object):
                                              if self.inverse_of else "None"))
         if self.transitive_over:
             ret.append("  Transitive over:")
-            for t in self.transitive_over:
-                ret.append("    - {}".format(t))
+            for txo in self.transitive_over:
+                ret.append("    - {}".format(txo))
         return "\n".join(ret)
 
 
 class GODag(dict):
+    """Holds the GO DAG as a dict."""
 
     def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
         self.version = self.load_obo_file(obo_file, optional_attrs)
 
     def load_obo_file(self, obo_file, optional_attrs):
-
-        sys.stdout.write("load obo file %s\n" % obo_file)
+        """Read obo file. Store results."""
+        sys.stdout.write("load obo file {OBO}\n".format(OBO=obo_file))
         reader = OBOReader(obo_file, optional_attrs)
         for rec in reader:
             self[rec.id] = rec
@@ -421,6 +429,7 @@ class GODag(dict):
         return version
 
     def populate_terms(self):
+        """Add level and depth to GO objects."""
 
         def _init_level(rec):
             if rec.level is None:
@@ -450,9 +459,9 @@ class GODag(dict):
 
         # populate children, levels and add inverted relationships
         for rec in self.values():
-            for p in rec.parents:
-                if rec not in p.children:
-                    p.children.append(rec)
+            for parent in rec.parents:
+                if rec not in parent.children:
+                    parent.children.append(rec)
 
             # Add invert relationships
             if hasattr(rec, 'relationship'):
@@ -460,10 +469,10 @@ class GODag(dict):
                     invert_typedef = self.typedefs[typedef].inverse_of
                     if invert_typedef:
                         # Add inverted relationship
-                        for t in terms:
-                            if not hasattr(t, 'relationship'):
-                                t.relationship = defaultdict(set)
-                            t.relationship[invert_typedef].add(rec)
+                        for term in terms:
+                            if not hasattr(term, 'relationship'):
+                                term.relationship = defaultdict(set)
+                            term.relationship[invert_typedef].add(rec)
 
             if rec.level is None:
                 _init_level(rec)
@@ -473,7 +482,7 @@ class GODag(dict):
 
     def write_dag(self, out=sys.stdout):
         """Write info for all GO Terms in obo file, sorted numerically."""
-        for rec_id, rec in sorted(self.items()):
+        for rec in sorted(self.values()):
             print(rec, file=out)
 
     def write_hier_all(self, out=sys.stdout,
@@ -483,18 +492,21 @@ class GODag(dict):
         for go_id in ['GO:0008150', 'GO:0003674', 'GO:0005575']:
             self.write_hier(go_id, out, len_dash, max_depth, num_child, short_prt, None)
 
-    def write_hier(self, GO_id, out=sys.stdout,
-                       len_dash=1, max_depth=None, num_child=None, short_prt=False,
-                       include_only=None, go_marks=None):
+    def write_hier(self, go_id, out=sys.stdout,
+                   len_dash=1, max_depth=None, num_child=None, short_prt=False,
+                   include_only=None, go_marks=None):
         """Write hierarchy for a GO Term."""
         gos_printed = set()
-        self[GO_id].write_hier_rec(gos_printed, out, len_dash, max_depth, num_child,
-            short_prt, include_only, go_marks)
+        self[go_id].write_hier_rec(gos_printed, out, len_dash, max_depth, num_child,
+                                   short_prt, include_only, go_marks)
 
     @staticmethod
-    def id2int(GO_id): return int(GO_id.replace("GO:", "", 1))
+    def id2int(go_id):
+        """Given a GO ID, return the int value."""
+        return int(go_id.replace("GO:", "", 1))
 
     def query_term(self, term, verbose=False):
+        """Given a GO ID, return GO object."""
         if term not in self:
             sys.stderr.write("Term %s not found!\n" % term)
             return
@@ -550,11 +562,11 @@ class GODag(dict):
         return wrapped_label
 
     def make_graph_pydot(self, recs, nodecolor,
-                     edgecolor, dpi,
-                     draw_parents=True, draw_children=True):
+                         edgecolor, dpi,
+                         draw_parents=True, draw_children=True):
         """draw AMIGO style network, lineage containing one query record."""
         import pydot
-        G = pydot.Dot(graph_type='digraph', dpi="{}".format(dpi)) # Directed Graph
+        grph = pydot.Dot(graph_type='digraph', dpi="{}".format(dpi)) # Directed Graph
         edgeset = set()
         usr_ids = [rec.id for rec in recs]
         for rec in recs:
@@ -563,39 +575,39 @@ class GODag(dict):
             if draw_children:
                 edgeset.update(rec.get_all_child_edges())
 
-        lw = self._label_wrap
         rec_id_set = set([rec_id for endpts in edgeset for rec_id in endpts])
         nodes = {str(ID):pydot.Node(
-              lw(ID).replace("GO:",""),  # Node name
-              shape="box",
-              style="rounded, filled",
-              # Highlight query terms in plum:
-              fillcolor="beige" if ID not in usr_ids else "plum",
-              color=nodecolor)
-                for ID in rec_id_set}
+            self._label_wrap(ID).replace("GO:", ""),  # Node name
+            shape="box",
+            style="rounded, filled",
+            # Highlight query terms in plum:
+            fillcolor="beige" if ID not in usr_ids else "plum",
+            color=nodecolor)
+                 for ID in rec_id_set}
 
         # add nodes explicitly via add_node
         for rec_id, node in nodes.items():
-            G.add_node(node)
+            grph.add_node(node)
 
         for src, target in edgeset:
             # default layout in graphviz is top->bottom, so we invert
             # the direction and plot using dir="back"
-            G.add_edge(pydot.Edge(nodes[target], nodes[src],
-              shape="normal",
-              color=edgecolor,
-              label="is_a",
-              dir="back"))
+            grph.add_edge(pydot.Edge(nodes[target], nodes[src],
+                                     shape="normal",
+                                     color=edgecolor,
+                                     label="is_a",
+                                     dir="back"))
 
-        return G
+        return grph
 
     def make_graph_pygraphviz(self, recs, nodecolor,
-                     edgecolor, dpi,
-                     draw_parents=True, draw_children=True):
-        # draw AMIGO style network, lineage containing one query record
+                              edgecolor, dpi,
+                              draw_parents=True, draw_children=True):
+        """Draw AMIGO style network, lineage containing one query record."""
         import pygraphviz as pgv
 
-        G = pgv.AGraph(name="GO tree")
+        grph = pgv.AGraph(name="GO tree")
+
         edgeset = set()
         for rec in recs:
             if draw_parents:
@@ -610,70 +622,74 @@ class GODag(dict):
         # adding nodes implicitly via add_edge misses nodes
         # without at least one edge
         for rec in recs:
-            G.add_node(self._label_wrap(rec.id))
+            grph.add_node(self._label_wrap(rec.id))
 
         for src, target in edgeset:
             # default layout in graphviz is top->bottom, so we invert
             # the direction and plot using dir="back"
-            G.add_edge(target, src)
+            grph.add_edge(target, src)
 
-        G.graph_attr.update(dpi="%d" % dpi)
-        G.node_attr.update(shape="box", style="rounded,filled",
-                           fillcolor="beige", color=nodecolor)
-        G.edge_attr.update(shape="normal", color=edgecolor,
-                           dir="back", label="is_a")
+        grph.graph_attr.update(dpi="%d" % dpi)
+        grph.node_attr.update(shape="box", style="rounded,filled",
+                              fillcolor="beige", color=nodecolor)
+        grph.edge_attr.update(shape="normal", color=edgecolor,
+                              dir="back", label="is_a")
         # highlight the query terms
         for rec in recs:
             try:
-                q = G.get_node(self._label_wrap(rec.id))
-                q.attr.update(fillcolor="plum")
+                node = grph.get_node(self._label_wrap(rec.id))
+                node.attr.update(fillcolor="plum")
             except:
                 continue
 
-        return G
+        return grph
 
     def draw_lineage(self, recs, nodecolor="mediumseagreen",
                      edgecolor="lightslateblue", dpi=96,
                      lineage_img="GO_lineage.png", engine="pygraphviz",
                      gml=False, draw_parents=True, draw_children=True):
+        """Draw GO DAG subplot."""
         assert engine in GraphEngines
+        grph = None
         if engine == "pygraphviz":
-            G = self.make_graph_pygraphviz(recs, nodecolor, edgecolor, dpi,
-                              draw_parents=draw_parents, draw_children=draw_children)
+            grph = self.make_graph_pygraphviz(recs, nodecolor, edgecolor, dpi,
+                                              draw_parents=draw_parents,
+                                              draw_children=draw_children)
         else:
-            G = self.make_graph_pydot(recs, nodecolor, edgecolor, dpi,
-                              draw_parents=draw_parents, draw_children=draw_children)
+            grph = self.make_graph_pydot(recs, nodecolor, edgecolor, dpi,
+                                         draw_parents=draw_parents, draw_children=draw_children)
 
         if gml:
             import networkx as nx  # use networkx to do the conversion
-            pf = lineage_img.rsplit(".", 1)[0]
-            NG = nx.from_agraph(G) if engine == "pygraphviz" else nx.from_pydot(G)
+            gmlbase = lineage_img.rsplit(".", 1)[0]
+            NG = nx.from_agraph(grph) if engine == "pygraphviz" else nx.from_pydot(grph)
 
             del NG.graph['node']
             del NG.graph['edge']
-            gmlfile = pf + ".gml"
-            nx.write_gml(NG, gmlfile)
+            gmlfile = gmlbase + ".gml"
+            nx.write_gml(Nself._label_wrapG, gmlfile)
             sys.stderr.write("GML graph written to {0}\n".format(gmlfile))
 
         sys.stderr.write(("lineage info for terms %s written to %s\n" %
                           ([rec.id for rec in recs], lineage_img)))
 
         if engine == "pygraphviz":
-            G.draw(lineage_img, prog="dot")
+            grph.draw(lineage_img, prog="dot")
         else:
-            G.write_png(lineage_img)
+            grph.write_png(lineage_img)
 
     def update_association(self, association):
-        bad_terms = set()
-        for terms in association.values():
+        """Loop thru assc. GO IDs."""
+        bad_goids = set()
+        for goids in association.values():
             parents = set()
-            for term in terms:
+            for goid in goids:
                 try:
-                    parents.update(self[term].get_all_parents())
+                    parents.update(self[goid].get_all_parents())
                 except:
-                    bad_terms.add(term.strip())
-            terms.update(parents)
-        if bad_terms:
-            sys.stderr.write("terms not found: %s\n" % (bad_terms,))
+                    bad_goids.add(goid.strip())
+            goids.update(parents)
+        if bad_goids:
+            sys.stderr.write("goids not found: %s\n" % (bad_goids,))
 
 # Copyright (C) 2010-2017, H Tang et al., All rights reserved.
