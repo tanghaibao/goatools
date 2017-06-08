@@ -53,7 +53,7 @@ def _get_pvals(pvalfnc_names, prt=sys.stdout):
             alpha = 0.05,
             methods = None,
             pvalcalc = fisher,
-            n_cores = 2)
+            n_cores = 1)
         fisher2pvals[fisher] = goeaobj._get_pval_uncorr(geneids_study, prt)
     return fisher2pvals
 

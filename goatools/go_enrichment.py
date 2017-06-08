@@ -255,8 +255,9 @@ class GOEnrichmentStudy(object):
     }
 
     def __init__(self, pop, assoc, obo_dag, propagate_counts=True, alpha=.05, methods=None, **kws):
-        self.log = kws['log'] if 'log' in kws else sys.stdout
-        self.n_cores = kws['n_cores'] if 'n_cores' in kws else None
+        self.log = kws.get('log', sys.stdout)
+        # -1 avoids freezing of the machine:
+        self.n_cores = kws.get('n_cores', multiprocessing.cpu_count() - 1)
         self._run_multitest = {
             'local':lambda iargs: self._run_multitest_local(iargs),
             'statsmodels':lambda iargs: self._run_multitest_statsmodels(iargs)}
@@ -334,11 +335,12 @@ class GOEnrichmentStudy(object):
         pop_n, study_n = self.pop_n, len(study)
         allterms = set(go2studyitems.keys()).union(set(self.go2popitems.keys()))
 
-        # -1 avoids freezing of the machine:
-        if self.n_cores is None:
-            n_cores = multiprocessing.cpu_count() - 1
-        else:
-            n_cores = self.n_cores
+        n_cores = self.n_cores
+
+        # for smaller sizes starup/shutdown of a multiprocessing Pool is too expensive
+        # limit is based on some heursistincs on a recent Mac.
+        if len(allterms) < 100:
+            n_cores = 1
 
         log.write("use {} cores for computing pvalues\n".format(n_cores))
 
@@ -350,17 +352,23 @@ class GOEnrichmentStudy(object):
         remote_func = partial(compute_pvals, calc_pvalue=calc_pvalue, go2studyitems=go2studyitems,
                               go2popitems=self.go2popitems, study_n=study_n, pop_n=pop_n)
 
-        # if self.pval_obj.log is a file handle, which we can not serialize, we could not transfer
-        # self.pval_obj.calc_pvalue to another python process with multiprocessing.  therefore we
-        # "patch" the object which will later be restored again.
-        old = self.pval_obj.log
-        self.pval_obj.log = None
-        p = multiprocessing.Pool(n_cores)
-        try:
-            all_p_values = p_map(p, remote_func, fragments)
-        finally:
-            # restore patched file handle
-            self.pval_obj.log = old
+
+        if n_cores == 1:
+            all_p_values = [remote_func(fragments[0])]
+        else:
+            # if self.pval_obj.log is a file handle, which we can not serialize, we could not
+            # transfer self.pval_obj.calc_pvalue to another python process with multiprocessing.
+            # therefore we "patch" the object which will later be restored again.
+            old = self.pval_obj.log
+            self.pval_obj.log = None
+            p = multiprocessing.Pool(n_cores)
+            try:
+                all_p_values = p_map(p, remote_func, fragments)
+            finally:
+                # restore patched file handle
+                self.pval_obj.log = old
+                # release memory
+                p.terminate()
 
         results = []
 
