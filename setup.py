@@ -5,7 +5,7 @@ from setuptools import setup
 from glob import glob
 import os
 
-setup_dir = path.abspath(path.dirname(__file__))
+setup_dir = path.abspath(os.path.dirname(__file__))
 classifiers = [
     'Development Status :: 4 - Beta',
     'Intended Audience :: Science/Research',
