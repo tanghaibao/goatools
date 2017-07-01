@@ -1,8 +1,15 @@
-*.png
+# Ontologies and Annotations
 *.obo
+gene_association.*
+goa_human.gaf
 gene2go
 gene2go.gz
+
+# Temporary working files
+*.png
 *.pyc
+/*.xlsx
+/*.txt
 
 # Sphinx working directories
 _static

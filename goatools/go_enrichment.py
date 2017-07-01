@@ -166,7 +166,7 @@ class GOEnrichmentRecord(object):
             if fld not in flds and fld not in dont_add:
                 flds.append(fld)
 
-    def get_field_values(self, fldnames, rpt_fmt=True):
+    def get_field_values(self, fldnames, rpt_fmt=True, itemid2name=None):
         """Get flat namedtuple fields for one GOEnrichmentRecord."""
         row = []
         # Loop through each user field desired
@@ -175,13 +175,13 @@ class GOEnrichmentRecord(object):
             val = getattr(self, fld, None)
             if val is not None:
                 if rpt_fmt:
-                    val = self._get_rpt_fmt(fld, val)
+                    val = self._get_rpt_fmt(fld, val, itemid2name)
                 row.append(val)
             else:
                 # 2. Check the GO object for the field
                 val = getattr(self.goterm, fld, None)
                 if rpt_fmt:
-                    val = self._get_rpt_fmt(fld, val)
+                    val = self._get_rpt_fmt(fld, val, itemid2name)
                 if val is not None:
                     row.append(val)
                 else:
@@ -194,11 +194,13 @@ class GOEnrichmentRecord(object):
         return row
 
     @staticmethod
-    def _get_rpt_fmt(fld, val):
+    def _get_rpt_fmt(fld, val, itemid2name=None):
         """Return values in a format amenable to printing in a table."""
         if fld.startswith("ratio_"):
             return "{N}/{TOT}".format(N=val[0], TOT=val[1])
         elif fld in set(['study_items', 'pop_items', 'alt_ids']):
+            if itemid2name is not None:
+                val = [itemid2name.get(v, v) for v in val]
             return ", ".join([str(v) for v in sorted(val)])
         return val
 
@@ -413,7 +415,7 @@ class GOEnrichmentStudy(object):
 
     def wr_xlsx(self, fout_xlsx, goea_results, **kws):
         """Write a xlsx file."""
-        # kws: prt_if indent
+        # kws: prt_if indent itemid2name(study_items)
         prt_flds = kws.get('prt_flds', self.get_prtflds_default(goea_results))
         xlsx_data = get_goea_nts_prt(goea_results, prt_flds, **kws)
         if 'fld2col_widths' not in kws:
@@ -539,6 +541,7 @@ def get_goea_nts_all(goea_results, fldnames=None, **kws):
         Reformats data from GOEnrichmentRecord objects into lists of
         namedtuples so the generic table writers may be used.
     """
+    # kws: prt_if indent itemid2name(study_items)
     data_nts = [] # A list of namedtuples containing GOEA results
     if not goea_results:
         return data_nts
@@ -556,7 +559,7 @@ def get_goea_nts_all(goea_results, fldnames=None, **kws):
     goid_idx = fldnames.index("GO") if 'GO' in fldnames else None
     # II. Loop through GOEA results stored in a GOEnrichmentRecord object
     for goerec in goea_results:
-        vals = get_field_values(goerec, fldnames, rpt_fmt)
+        vals = get_field_values(goerec, fldnames, rpt_fmt, kws.get('itemid2name', None))
         if indent:
             vals[goid_idx] = "".join([goerec.get_indent_dots(), vals[goid_idx]])
         ntobj = nttyp._make(vals)
@@ -564,10 +567,10 @@ def get_goea_nts_all(goea_results, fldnames=None, **kws):
             data_nts.append(ntobj)
     return data_nts
 
-def get_field_values(item, fldnames, rpt_fmt=None):
+def get_field_values(item, fldnames, rpt_fmt=None, itemid2name=None):
     """Return fieldnames and values of either a namedtuple or GOEnrichmentRecord."""
     if hasattr(item, "_fldsdefprt"): # Is a GOEnrichmentRecord
-        return item.get_field_values(fldnames, rpt_fmt)
+        return item.get_field_values(fldnames, rpt_fmt, itemid2name)
     if hasattr(item, "_fields"): # Is a namedtuple
         return [getattr(item, f) for f in fldnames]
 
