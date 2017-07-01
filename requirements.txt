@@ -4,3 +4,4 @@ scipy
 nose
 xlsxwriter
 statsmodels
+xlrd

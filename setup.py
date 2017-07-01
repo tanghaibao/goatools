@@ -3,8 +3,9 @@
 
 from setuptools import setup
 from glob import glob
+import os
 
-
+setup_dir = os.path.abspath(os.path.dirname(__file__))
 classifiers = [
     'Development Status :: 4 - Beta',
     'Intended Audience :: Science/Research',
@@ -16,9 +17,9 @@ classifiers = [
     ]
 
 requirements = ['wget'] + [x.strip() for x in
-                           open('requirements.txt').readlines()]
+                           open(os.path.join(setup_dir, 'requirements.txt')).readlines()]
 
-exec(open("goatools/version.py").read())
+exec(open(os.path.join(setup_dir, "goatools", "version.py")).read())
 setup(
     name="goatools",
     version=__version__,
@@ -30,6 +31,6 @@ setup(
     classifiers=classifiers,
     url='http://github.com/tanghaibao/goatools',
     description="Python scripts to find enrichment of GO terms",
-    long_description=open("README.md").read(),
+    long_description=open(os.path.join(setup_dir, "README.md")).read(),
     install_requires=requirements
     )
