@@ -30,12 +30,10 @@ def test_example():
     # Run GOEA on study
     goea_results_all = goeaobj.run_study(geneids_study)
     goea_results_sig = [r for r in goea_results_all if r.p_fdr_bh < 0.05]
+    goea_results_sub = [r for r in goea_results_sig if r.study_count > r.study_n/10]
     # Print GOEA results to files: With study genes printed as geneids or symbols
-    # keep_if = lambda rec: rec.study_count > 5
-    keep_if = lambda rec: rec.study_count > rec.study_n/10
-    goeaobj.wr_xlsx("nbt3102_symbols.xlsx", goea_results_sig,
-                    itemid2name=geneids2symbol_study, keep_if=keep_if)
-    goeaobj.wr_xlsx("nbt3102_geneids.xlsx", goea_results_sig, keep_if=keep_if)
+    goeaobj.wr_xlsx("nbt3102_symbols.xlsx", goea_results_sub, itemid2name=geneids2symbol_study)
+    goeaobj.wr_xlsx("nbt3102_geneids.xlsx", goea_results_sub)
 
 if __name__ == '__main__':
     test_example()
