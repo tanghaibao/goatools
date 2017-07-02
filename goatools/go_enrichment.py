@@ -563,7 +563,7 @@ def get_goea_nts_all(goea_results, fldnames=None, **kws):
         if indent:
             vals[goid_idx] = "".join([goerec.get_indent_dots(), vals[goid_idx]])
         ntobj = nttyp._make(vals)
-        if keep_if is None or keep_if(ntobj):
+        if keep_if is None or keep_if(goerec):
             data_nts.append(ntobj)
     return data_nts
 
