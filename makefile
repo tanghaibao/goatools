@@ -102,6 +102,8 @@ goea_all: goea goea_basic goea_xlsx goea_xlsx_bonferroni goea_tsv goea_files
 
 
 # if the gene ontology files don't exist, download them
+dnld_obo: $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
+
 $(GO_OBO_FILE):
 	@echo "downloading GO file: $(GO_OBO_FILE)"
 	wget -O $(GO_OBO_FILE) $(GO_OBO_DOWNLOAD)
@@ -142,6 +144,8 @@ clean_docgen:
 clobber:
 	@make --no-print-directory clean
 	rm -f $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
+	rm -f goa_human.gaf gene_association.*
+	rm -f gene2go gene2go.gz
 
 # TBD: Add these to NOSETEST after edits:
 #    tests/test_goea_local.py \

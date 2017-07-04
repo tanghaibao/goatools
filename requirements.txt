@@ -5,3 +5,4 @@ nose
 xlsxwriter
 statsmodels
 dill
+xlrd
