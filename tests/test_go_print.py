@@ -22,7 +22,7 @@ def test_go_print(prt=sys.stdout):
 
 def prt_pypath(prt):
     """Print PYTHONPATH contents."""
-    pypathes = os.environ['PYTHONPATH']
+    pypathes = os.environ.get('PYTHONPATH', None)
     if pypathes:
         prt.write("\nPYTHONPATH:\n")
         for idx, pypath in enumerate(pypathes.split(os.pathsep)):
