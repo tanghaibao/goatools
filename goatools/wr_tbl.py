@@ -17,6 +17,9 @@
                to control the order of the print fields
            'fld2col_widths: A dictionary of column widths used when writing xlsx files.
            'fld2fmt': Used in tsv files and xlsx files for formatting specific fields
+
+           'fmtkey': namedtuple field which contains a value used as a key for a xlsx format
+           'val2fmt': namedtuple value and corresponding xlsx format dict. Examples:
 """
 
 __copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved."
