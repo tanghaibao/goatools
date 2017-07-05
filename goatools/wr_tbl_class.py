@@ -103,7 +103,7 @@ class WrXlsx(object):
                     # Print an xlsx row by printing each column in order.
                     for col_idx, fld in enumerate(prt_flds):
                         try:
-                            # If fld "format_txt" present, use value for formatting, but don't print.
+                            # If fld "format_txt" present, use val for formatting, but don't print.
                             val = getattr(data_nt, fld, "")
                             # Optional user-formatting of specific fields, eg, pval: "{:8.2e}"
                             # If field value is empty (""), don't use fld2fmt
@@ -166,11 +166,13 @@ class WrXlsx(object):
 def get_hdrs(flds_all, **kws):
     """Return headers, given user-specified key-word args."""
     # Return Headers if the user explicitly lists them.
-    if 'hdrs' in kws:
-        return kws['hdrs']
+    hdrs = kws.get('hdrs', None)
+    if hdrs is not None:
+        return hdrs
     # User may specify a subset of fields or a column order using prt_flds
     if 'prt_flds' in kws:
         return kws['prt_flds']
     # All fields in the namedtuple will be in the headers
     return flds_all
 
+#  Copyright (C) 2015-2017. All rights reserved.
