@@ -3,7 +3,7 @@
 class WrXlsxParams(object):
     """Class containing user-specified or default parameters."""
 
-    dflt_fmt_txt = [
+    dflt_wbfmtdict = [
         # Colors from "Grey Grey Color Palette" http://www.color-hex.com/color-palette/20477
         # http://www.color-hex.com/color/808080
         # http://www.color-hex.com/color/d3d3d3
@@ -27,11 +27,11 @@ class WrXlsxParams(object):
         self._init_prt_flds(kws.get('prt_flds', nt_flds))
         self.hdrs = self._init_hdrs(**kws)
         # Save user-provided cell format, if provided. If not, use default.
-        self.fmt_txt_arg = [
-            kws.get('format_txt0', self.dflt_fmt_txt[0]),
-            kws.get('format_txt1', self.dflt_fmt_txt[1]),
-            kws.get('format_txt2', self.dflt_fmt_txt[2]),
-            kws.get('format_txt3', self.dflt_fmt_txt[3])]
+        self.wbfmtdict = [
+            kws.get('format_txt0', self.dflt_wbfmtdict[0]),
+            kws.get('format_txt1', self.dflt_wbfmtdict[1]),
+            kws.get('format_txt2', self.dflt_wbfmtdict[2]),
+            kws.get('format_txt3', self.dflt_wbfmtdict[3])]
 
     def _init_prt_flds(self, prt_flds):
         """Initialize prt_flds."""
@@ -61,11 +61,11 @@ class WrXlsx(object):
         from xlsxwriter import Workbook
         self.workbook = Workbook(fout_xlsx)
         self.fmt_hdr = self.workbook.add_format(self.dflt_fmt_hdr)
-        self.fmt_txt = {
-            'plain': self.workbook.add_format(self.vars.fmt_txt_arg[0]),
-            'plain bold': self.workbook.add_format(self.vars.fmt_txt_arg[3]),
-            'very light grey' : self.workbook.add_format(self.vars.fmt_txt_arg[1]),
-            'light grey' :self.workbook.add_format(self.vars.fmt_txt_arg[2])}
+        self.fmtname2wbfmtobj = {
+            'plain': self.workbook.add_format(self.vars.wbfmtdict[0]),
+            'plain bold': self.workbook.add_format(self.vars.wbfmtdict[3]),
+            'very light grey' : self.workbook.add_format(self.vars.wbfmtdict[1]),
+            'light grey' :self.workbook.add_format(self.vars.wbfmtdict[2])}
 
     def wr_title(self, worksheet, row_idx=0):
         """Write title (optional)."""
@@ -98,8 +98,8 @@ class WrXlsx(object):
             xlsx_data = sorted(xlsx_data, key=self.vars.sort_by)
         try:
             for data_nt in xlsx_data:
-                fmt_txt = self._get_fmt_txt(data_nt)
                 if prt_if is None or prt_if(data_nt):
+                    wbfmt = self._get_wbfmt(data_nt)
                     # Print an xlsx row by printing each column in order.
                     for col_idx, fld in enumerate(prt_flds):
                         try:
@@ -109,7 +109,7 @@ class WrXlsx(object):
                             # If field value is empty (""), don't use fld2fmt
                             if fld2fmt is not None and fld in fld2fmt and val != "" and val != "*":
                                 val = fld2fmt[fld].format(val)
-                            worksheet.write(row_idx, col_idx, val, fmt_txt)
+                            worksheet.write(row_idx, col_idx, val, wbfmt)
                         except:
                             raise RuntimeError(self._get_fatal_rcv(row_idx, col_idx, fld, val))
                     row_idx += 1
@@ -135,25 +135,28 @@ class WrXlsx(object):
             self.set_xlsx_colwidths(worksheet, self.vars.fld2col_widths, self.vars.prt_flds)
         return worksheet
 
-    def _get_fmt_txt(self, data_nt=None):
+    def _get_wbfmt(self, data_nt=None):
         """Return format for text cell."""
         if data_nt is None or not self.vars.b_format_txt:
-            return self.fmt_txt.get('plain')
+            return self.fmtname2wbfmtobj.get('plain')
+        wbfmt = self._get_wbfmt_format_txt(data_nt)
+        if wbfmt is not None:
+            return wbfmt
+        return self.fmtname2wbfmtobj.get('plain')
+
+    def _get_wbfmt_format_txt(self, data_nt):
         format_txt_val = getattr(data_nt, "format_txt")
         if format_txt_val == 1:
-            return self.fmt_txt.get("very light grey")
+            return self.fmtname2wbfmtobj.get("very light grey")
         if format_txt_val == 2:
-            return self.fmt_txt.get("light grey")
-        fmt = self.fmt_txt.get(format_txt_val)
-        if fmt is not None:
-            return fmt
-        return self.fmt_txt.get('plain')
+            return self.fmtname2wbfmtobj.get("light grey")
+        return self.fmtname2wbfmtobj.get(format_txt_val)
 
     def get_fmt_section(self):
         """Grey if printing header GOs and plain if not printing header GOs."""
         if self.vars.b_format_txt:
-            return self.fmt_txt.get("light grey")
-        return self.fmt_txt.get("plain bold")
+            return self.fmtname2wbfmtobj.get("light grey")
+        return self.fmtname2wbfmtobj.get("plain bold")
 
     @staticmethod
     def set_xlsx_colwidths(worksheet, fld2col_widths, fldnames):
