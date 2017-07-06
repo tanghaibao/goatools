@@ -18,8 +18,9 @@
            'fld2col_widths: A dictionary of column widths used when writing xlsx files.
            'fld2fmt': Used in tsv files and xlsx files for formatting specific fields
 
-           'fmtkey': namedtuple field which contains a value used as a key for a xlsx format
-           'val2fmt': namedtuple value and corresponding xlsx format dict. Examples:
+           For adding color or other formatting to a row based on value in a row:
+               'ntfld_wbfmt': namedtuple field containing a value used as a key for a xlsx format
+               'ntval2wbfmtdict': namedtuple value and corresponding xlsx format dict. Examples:
 """
 
 __copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved."
@@ -93,7 +94,7 @@ def wr_xlsx_sections(fout_xlsx, xlsx_data, **kws):
         # Write data
         for section_text, data_nts in xlsx_data:
             num_items += len(data_nts)
-            fmt = xlsxobj.get_fmt_section()
+            fmt = xlsxobj.wbfmtobj.get_fmt_section()
             row_idx = xlsxobj.wr_row_mergeall(worksheet, section_text, fmt, row_idx)
             if hdrs_wrote is False or len(data_nts) > prt_hdr_min:
                 row_idx = xlsxobj.wr_hdrs(worksheet, row_idx)

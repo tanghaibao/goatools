@@ -1,18 +1,13 @@
 """Helper Class and functions for writing tables."""
 
+import sys
+
+
 class WrXlsxParams(object):
     """Class containing user-specified or default parameters."""
 
-    dflt_wbfmtdict = [
-        # Colors from "Grey Grey Color Palette" http://www.color-hex.com/color-palette/20477
-        # http://www.color-hex.com/color/808080
-        # http://www.color-hex.com/color/d3d3d3
-        {'border':0},
-        {'top':0, 'bottom':0, 'left':0, 'right':0, 'bold':True, 'bg_color':'#eeeded'},
-        {'top':0, 'bottom':0, 'left':0, 'right':0, 'bold':True, 'bg_color':'#d3d3d3'},
-        {'border':1, 'bold':True}]
-
-    def __init__(self, nt_flds, **kws):
+    def __init__(self, **kws):
+        self.kws = kws
         self.title = kws.get('title', None)
         self.fld2fmt = kws.get('fld2fmt', None)
         self.fld2col_widths = kws.get('fld2col_widths', None)
@@ -20,34 +15,7 @@ class WrXlsxParams(object):
         self.prt_if = kws.get('prt_if', None)
         # Initialize sort_by
         self.sort_by = kws.get('sort_by', None)
-        # User may specify a subset of columns to print or
-        # a column ordering different from the _fields seen in the namedtuple
-        self.b_format_txt = None
-        self.prt_flds = None
-        self._init_prt_flds(kws.get('prt_flds', nt_flds))
-        self.hdrs = self._init_hdrs(**kws)
-        # Save user-provided cell format, if provided. If not, use default.
-        self.wbfmtdict = [
-            kws.get('format_txt0', self.dflt_wbfmtdict[0]),
-            kws.get('format_txt1', self.dflt_wbfmtdict[1]),
-            kws.get('format_txt2', self.dflt_wbfmtdict[2]),
-            kws.get('format_txt3', self.dflt_wbfmtdict[3])]
 
-    def _init_prt_flds(self, prt_flds):
-        """Initialize prt_flds."""
-        b_format_txt = 'format_txt' in prt_flds
-        # "format_txt" is used to set row colors, but values are not printed in columns.
-        if b_format_txt:
-            prt_flds = [f for f in prt_flds if f != "format_txt"]
-        # Initialize data members
-        self.b_format_txt = b_format_txt
-        self.prt_flds = prt_flds
-
-    def _init_hdrs(self, **kws):
-        """Initialize column headers."""
-        hdrs = get_hdrs(self.prt_flds, **kws)
-        # Values in a "format_txt" "column" are used for formatting, not printing
-        return [h for h in hdrs if h != "format_txt"]
 
 class WrXlsx(object):
     """Class to store/manage Excel spreadsheet parameters."""
@@ -56,16 +24,13 @@ class WrXlsx(object):
 
     def __init__(self, fout_xlsx, nt_flds, **kws):
         # KEYWORDS FOR WRITING DATA:
-        self.vars = WrXlsxParams(nt_flds, **kws)
+        self.vars = WrXlsxParams(**kws)
         # Workbook
         from xlsxwriter import Workbook
         self.workbook = Workbook(fout_xlsx)
+        self.wbfmtobj = WbFmt(nt_flds, self.workbook, **kws)
+        self.hdrs = self.wbfmtobj.get_hdrs(**kws)
         self.fmt_hdr = self.workbook.add_format(self.dflt_fmt_hdr)
-        self.fmtname2wbfmtobj = {
-            'plain': self.workbook.add_format(self.vars.wbfmtdict[0]),
-            'plain bold': self.workbook.add_format(self.vars.wbfmtdict[3]),
-            'very light grey' : self.workbook.add_format(self.vars.wbfmtdict[1]),
-            'light grey' :self.workbook.add_format(self.vars.wbfmtdict[2])}
 
     def wr_title(self, worksheet, row_idx=0):
         """Write title (optional)."""
@@ -75,13 +40,13 @@ class WrXlsx(object):
 
     def wr_row_mergeall(self, worksheet, txtstr, fmt, row_idx):
         """Merge all columns and place text string in widened cell."""
-        hdridxval = len(self.vars.hdrs) - 1
+        hdridxval = len(self.hdrs) - 1
         worksheet.merge_range(row_idx, 0, row_idx, hdridxval, txtstr, fmt)
         return row_idx + 1
 
     def wr_hdrs(self, worksheet, row_idx):
         """Print row of column headers"""
-        for col_idx, hdr in enumerate(self.vars.hdrs):
+        for col_idx, hdr in enumerate(self.hdrs):
             worksheet.write(row_idx, col_idx, hdr, self.fmt_hdr)
         row_idx += 1
         return row_idx
@@ -93,13 +58,14 @@ class WrXlsx(object):
         prt_if = self.vars.prt_if
         # User may specify a subset of columns to print or
         # a column ordering different from the _fields seen in the namedtuple
-        prt_flds = self.vars.prt_flds
+        prt_flds = self.wbfmtobj.get_prt_flds()
+        get_wbfmt = self.wbfmtobj.get_wbfmt
         if self.vars.sort_by is not None:
             xlsx_data = sorted(xlsx_data, key=self.vars.sort_by)
         try:
             for data_nt in xlsx_data:
                 if prt_if is None or prt_if(data_nt):
-                    wbfmt = self._get_wbfmt(data_nt)
+                    wbfmt = get_wbfmt(data_nt)
                     # Print an xlsx row by printing each column in order.
                     for col_idx, fld in enumerate(prt_flds):
                         try:
@@ -114,7 +80,6 @@ class WrXlsx(object):
                             raise RuntimeError(self._get_fatal_rcv(row_idx, col_idx, fld, val))
                     row_idx += 1
         except RuntimeError as inst:
-            import sys
             import traceback
             traceback.print_exc()
             sys.stdout.write("\n  **FATAL in wr_data: {MSG}\n\n".format(MSG=str(inst)))
@@ -130,21 +95,96 @@ class WrXlsx(object):
 
     def add_worksheet(self):
         """Add a worksheet to the workbook."""
-        worksheet = self.workbook.add_worksheet()
+        wsh = self.workbook.add_worksheet()
         if self.vars.fld2col_widths is not None:
-            self.set_xlsx_colwidths(worksheet, self.vars.fld2col_widths, self.vars.prt_flds)
-        return worksheet
+            self.set_xlsx_colwidths(wsh, self.vars.fld2col_widths, self.wbfmtobj.get_prt_flds())
+        return wsh
 
-    def _get_wbfmt(self, data_nt=None):
+    @staticmethod
+    def set_xlsx_colwidths(worksheet, fld2col_widths, fldnames):
+        """Set xlsx column widths using fld2col_widths."""
+        for col_idx, fld in enumerate(fldnames):
+            col_width = fld2col_widths.get(fld, None)
+            if col_width is not None:
+                worksheet.set_column(col_idx, col_idx, col_width)
+
+
+class WbFmt(object):
+    """Manages Workbook format objects."""
+
+    dflt_wbfmtdict = [
+        # Colors from "Grey Grey Color Palette" http://www.color-hex.com/color-palette/20477
+        # http://www.color-hex.com/color/808080
+        # http://www.color-hex.com/color/d3d3d3
+        {'border':0},
+        {'top':0, 'bottom':0, 'left':0, 'right':0, 'bold':True, 'bg_color':'#eeeded'},
+        {'top':0, 'bottom':0, 'left':0, 'right':0, 'bold':True, 'bg_color':'#d3d3d3'},
+        {'border':1, 'bold':True}]
+
+        # Save user-provided cell format, if provided. If not, use default.
+    def __init__(self, nt_flds, workbook, **kws):
+        self.prt_flds = kws.get('prt_flds', nt_flds)
+        self.b_format_txt = 'format_txt' in self.prt_flds
+        self.ntfld_wbfmt = kws.get('ntfld_wbfmt', None)
+        self.fmtname2wbfmtobj = self._init_fmtname2wbfmtobj(workbook, **kws)
+        self.b_plain = not self.b_format_txt and self.ntfld_wbfmt is None
+
+    def get_prt_flds(self):
+        """Remove namedtuple fields used for formatting rows, but not printed."""
+        return [f for f in self.prt_flds if f != "format_txt"]
+
+    def get_hdrs(self, **kws):
+        """Initialize column headers."""
+        hdrs = get_hdrs(self.prt_flds, **kws)
+        # Values in a "format_txt" "column" are used for formatting, not printing
+        return [h for h in hdrs if h != "format_txt"]
+
+    def _init_fmtname2wbfmtobj(self, workbook, **kws):
+        """Initialize fmtname2wbfmtobj."""
+        wbfmtdict = [
+            kws.get('format_txt0', self.dflt_wbfmtdict[0]),
+            kws.get('format_txt1', self.dflt_wbfmtdict[1]),
+            kws.get('format_txt2', self.dflt_wbfmtdict[2]),
+            kws.get('format_txt3', self.dflt_wbfmtdict[3])]
+        fmtname2wbfmtobj = {
+            'plain': workbook.add_format(wbfmtdict[0]),
+            'plain bold': workbook.add_format(wbfmtdict[3]),
+            'very light grey' : workbook.add_format(wbfmtdict[1]),
+            'light grey' :workbook.add_format(wbfmtdict[2])}
+        # Use a xlsx namedtuple field value to set row color
+        ntval2wbfmtdict = kws.get('ntval2wbfmtdict', None)
+        if ntval2wbfmtdict is not None:
+            for ntval, wbfmtdict in ntval2wbfmtdict.items():
+                fmtname2wbfmtobj[ntval] = workbook.add_format(wbfmtdict)
+            if 'ntfld_wbfmt' not in kws:
+                sys.stdout.write("**WARNING: 'ntfld_wbfmt' NOT PRESENT\n")
+        return fmtname2wbfmtobj
+
+    def get_wbfmt(self, data_nt=None):
         """Return format for text cell."""
-        if data_nt is None or not self.vars.b_format_txt:
+        if data_nt is None or self.b_plain:
             return self.fmtname2wbfmtobj.get('plain')
-        wbfmt = self._get_wbfmt_format_txt(data_nt)
-        if wbfmt is not None:
-            return wbfmt
+        # User namedtuple field/value for color
+        if self.ntfld_wbfmt is not None:
+            return self.__get_wbfmt_usrfld(data_nt)
+        # namedtuple format_txt for color/bold/border
+ i       if self.b_format_txt:
+            wbfmt = self.__get_wbfmt_format_txt(data_nt)
+            if wbfmt is not None:
+                return wbfmt
+        # 'ntfld_wbfmt': namedtuple field which contains a value used as a key for a xlsx format
+        # 'ntval2wbfmtdict': namedtuple value and corresponding xlsx format dict. Examples:
         return self.fmtname2wbfmtobj.get('plain')
 
-    def _get_wbfmt_format_txt(self, data_nt):
+    def __get_wbfmt_usrfld(self, data_nt):
+        """Return format for text cell from namedtuple field specified by 'ntfld_wbfmt'"""
+        if self.ntfld_wbfmt is not None:
+            ntval = getattr(data_nt, self.ntfld_wbfmt, None) # Ex: 'section'
+            if ntval is not None:
+                return self.fmtname2wbfmtobj.get(ntval, None)
+
+    def __get_wbfmt_format_txt(self, data_nt):
+        """Return format for text cell from namedtuple field, 'format_txt'."""
         format_txt_val = getattr(data_nt, "format_txt")
         if format_txt_val == 1:
             return self.fmtname2wbfmtobj.get("very light grey")
@@ -154,17 +194,10 @@ class WrXlsx(object):
 
     def get_fmt_section(self):
         """Grey if printing header GOs and plain if not printing header GOs."""
-        if self.vars.b_format_txt:
+        if self.b_format_txt:
             return self.fmtname2wbfmtobj.get("light grey")
         return self.fmtname2wbfmtobj.get("plain bold")
 
-    @staticmethod
-    def set_xlsx_colwidths(worksheet, fld2col_widths, fldnames):
-        """Set xlsx column widths using fld2col_widths."""
-        for col_idx, fld in enumerate(fldnames):
-            col_width = fld2col_widths.get(fld, None)
-            if col_width is not None:
-                worksheet.set_column(col_idx, col_idx, col_width)
 
 def get_hdrs(flds_all, **kws):
     """Return headers, given user-specified key-word args."""
