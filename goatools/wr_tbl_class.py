@@ -168,7 +168,7 @@ class WbFmt(object):
         if self.ntfld_wbfmt is not None:
             return self.__get_wbfmt_usrfld(data_nt)
         # namedtuple format_txt for color/bold/border
- i       if self.b_format_txt:
+        if self.b_format_txt:
             wbfmt = self.__get_wbfmt_format_txt(data_nt)
             if wbfmt is not None:
                 return wbfmt
