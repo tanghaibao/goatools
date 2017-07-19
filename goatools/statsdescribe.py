@@ -9,7 +9,7 @@ import numpy as np
 import scipy.stats as stats
 
 class StatsDescribe(object):
-    """Describe summary statistics for a list of numbers."""
+    """Describe summary statistics for a list of numbers in a markdown table."""
 
     fmt = "{name:10} | {qty:13} | {range:20} | {25th percentile:>15} | " \
           "{median:>8} | {75th percentile:>15} | {mean:>8} | {stddev:>}\n"
@@ -24,7 +24,7 @@ class StatsDescribe(object):
               "  median | 75th percentile |     mean | stddev\n".format(NAME=name, ITEMS=self.desc)
         div = "{DASHES}|---------------|----------------------|" \
               "-----------------|----------|-----------------|----------|-------\n".format(
-              DASHES='-'*(len(name)+1))
+                  DASHES='-'*(len(name)))
         prt.write(hdr)
         prt.write(div)
 
@@ -34,7 +34,7 @@ class StatsDescribe(object):
         prt.write(self.fmt.format(**fld2val))
         return fld2val
 
-    def getstr_data(self, name, vals, prt=sys.stdout):
+    def getstr_data(self, name, vals):
         """Return stats data string in markdown style."""
         fld2val = self.get_fld2val(name, vals)
         return self.fmt.format(**fld2val)
