@@ -22,6 +22,7 @@ run:
 	$(PYTHON) test_go_draw.py
 	$(PYTHON) test_read_gaf_allow_nd.py
 	$(PYTHON) test_statsdescribe.py
+	$(PYTHON) semantic_similarity.py
 
 dnld_dbs: go-basic.obo gene2go
 
