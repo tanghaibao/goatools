@@ -1,0 +1,276 @@
+Contains 21 GO IDs. Created using 3 GO sources:
+    GO:0003676	level-03	depth-03	nucleic acid binding [molecular_function]
+    GO:0007516	level-04	depth-05	hemocyte development [biological_process]
+    GO:0036476	level-06	depth-06	neuron death in response to hydrogen peroxide [biological_process]
+
+format-version: 1.2
+data-version: releases/2017-06-06
+subsetdef: goantislim_grouping "Grouping classes that can be excluded"
+subsetdef: gocheck_do_not_annotate "Term not to be used for direct annotation"
+subsetdef: gocheck_do_not_manually_annotate "Term not to be used for direct manual annotation"
+subsetdef: goslim_agr "AGR slim"
+subsetdef: goslim_aspergillus "Aspergillus GO slim"
+subsetdef: goslim_candida "Candida GO slim"
+subsetdef: goslim_chembl "ChEMBL protein targets summary"
+subsetdef: goslim_generic "Generic GO slim"
+subsetdef: goslim_goa "GOA and proteome slim"
+subsetdef: goslim_metagenomics "Metagenomics GO slim"
+subsetdef: goslim_mouse "Mouse GO slim"
+subsetdef: goslim_pir "PIR GO slim"
+subsetdef: goslim_plant "Plant GO slim"
+subsetdef: goslim_pombe "Fission yeast GO slim"
+subsetdef: goslim_synapse "synapse GO slim"
+subsetdef: goslim_virus "Viral GO slim"
+subsetdef: goslim_yeast "Yeast GO slim"
+subsetdef: gosubset_prok "Prokaryotic GO subset"
+subsetdef: mf_needs_review "Catalytic activity terms in need of attention"
+subsetdef: termgenie_unvetted "Terms created by TermGenie that do not follow a template and require additional vetting by editors"
+subsetdef: virus_checked "Viral overhaul terms"
+synonymtypedef: syngo_official_label "label approved by the SynGO project"
+synonymtypedef: systematic_synonym "Systematic synonym" EXACT
+default-namespace: gene_ontology
+remark: cvs version: use data-version
+remark: Includes Ontology(OntologyID(OntologyIRI(<http://purl.obolibrary.org/obo/go/never_in_taxon.owl>))) [Axioms: 18 Logical Axioms: 0]
+ontology: go
+
+[Term]
+id: GO:0003674
+name: molecular_function
+namespace: molecular_function
+alt_id: GO:0005554
+def: "Elemental activities, such as catalysis or binding, describing the actions of a gene product at the molecular level. A given gene product may exhibit one or more molecular functions." [GOC:go_curators]
+comment: Note that, in addition to forming the root of the molecular function ontology, this term is recommended for use for the annotation of gene products whose molecular function is unknown. Note that when this term is used for annotation, it indicates that no information was available about the molecular function of the gene product annotated as of the date the annotation was made; the evidence code ND, no data, is used to indicate this. Despite its name, this is not a type of 'function' in the sense typically defined by upper ontologies such as Basic Formal Ontology (BFO). It is instead a BFO:process carried out by a single gene product or complex.
+subset: goslim_aspergillus
+subset: goslim_candida
+subset: goslim_chembl
+subset: goslim_generic
+subset: goslim_metagenomics
+subset: goslim_pir
+subset: goslim_plant
+subset: goslim_yeast
+subset: gosubset_prok
+synonym: "molecular function" EXACT []
+
+[Term]
+id: GO:0003676
+name: nucleic acid binding
+namespace: molecular_function
+def: "Interacting selectively and non-covalently with any nucleic acid." [GOC:jl]
+subset: goslim_chembl
+subset: goslim_metagenomics
+subset: goslim_pir
+subset: goslim_plant
+subset: gosubset_prok
+is_a: GO:0097159 ! organic cyclic compound binding
+is_a: GO:1901363 ! heterocyclic compound binding
+
+[Term]
+id: GO:0005488
+name: binding
+namespace: molecular_function
+def: "The selective, non-covalent, often stoichiometric, interaction of a molecule with one or more specific sites on another molecule." [GOC:ceb, GOC:mah, ISBN:0198506732]
+comment: Note that this term is in the subset of terms that should not be used for direct, manual gene product annotation. Please choose a more specific child term, or request a new one if no suitable term is available. For ligands that bind to signal transducing receptors, consider the molecular function term 'receptor binding ; GO:0005102' and its children.
+subset: gocheck_do_not_manually_annotate
+subset: goslim_pir
+subset: goslim_plant
+subset: gosubset_prok
+synonym: "ligand" NARROW []
+xref: Wikipedia:Binding_(molecular)
+is_a: GO:0003674 ! molecular_function
+
+[Term]
+id: GO:0007516
+name: hemocyte development
+namespace: biological_process
+def: "The process whose specific outcome is the progression of the hemocyte over time, from its formation to the mature structure. Hemocytes are blood cells associated with a hemocoel (the cavity containing most of the major organs of the arthropod body) which are involved in defense and clotting of hemolymph, but not involved in transport of oxygen." [GOC:bf, GOC:mtg_sensu]
+synonym: "arthropod blood cell development" EXACT []
+is_a: GO:0048468 ! cell development
+relationship: part_of GO:0042386 ! hemocyte differentiation
+
+[Term]
+id: GO:0008150
+name: biological_process
+namespace: biological_process
+alt_id: GO:0000004
+alt_id: GO:0007582
+def: "Any process specifically pertinent to the functioning of integrated living units: cells, tissues, organs, and organisms. A process is a collection of molecular events with a defined beginning and end." [GOC:go_curators, GOC:isa_complete]
+comment: Note that, in addition to forming the root of the biological process ontology, this term is recommended for use for the annotation of gene products whose biological process is unknown. Note that when this term is used for annotation, it indicates that no information was available about the biological process of the gene product annotated as of the date the annotation was made; the evidence code ND, no data, is used to indicate this.
+subset: goslim_aspergillus
+subset: goslim_candida
+subset: goslim_chembl
+subset: goslim_generic
+subset: goslim_metagenomics
+subset: goslim_pir
+subset: goslim_plant
+subset: goslim_pombe
+subset: goslim_yeast
+subset: gosubset_prok
+synonym: "biological process" EXACT []
+synonym: "physiological process" EXACT []
+xref: Wikipedia:Biological_process
+
+[Term]
+id: GO:0008219
+name: cell death
+namespace: biological_process
+def: "Any biological process that results in permanent cessation of all vital functions of a cell. A cell should be considered dead when any one of the following molecular or morphological criteria is met: (1) the cell has lost the integrity of its plasma membrane; (2) the cell, including its nucleus, has undergone complete fragmentation into discrete bodies (frequently referred to as apoptotic bodies). The cell corpse (or its fragments) may be engulfed by an adjacent cell in vivo, but engulfment of whole cells should not be considered a strict criteria to define cell death as, under some circumstances, live engulfed cells can be released from phagosomes (see PMID:18045538)." [GOC:mah, GOC:mtg_apoptosis, PMID:25236395]
+comment: This term should not be used for direct annotation. The only exception should be when experimental data (e.g., staining with trypan blue or propidium iodide) show that cell death has occurred, but fail to provide details on death modality (accidental versus programmed). When information is provided on the cell death mechanism, annotations should be made to the appropriate descendant of 'cell death' (such as, but not limited to, GO:0097300 'programmed necrotic cell death' or GO:0006915 'apoptotic process'). Also, if experimental data suggest that a gene product influences cell death indirectly, rather than being involved in the death process directly, consider annotating to a 'regulation' term.
+subset: goslim_chembl
+subset: goslim_generic
+subset: goslim_mouse
+subset: goslim_plant
+subset: gosubset_prok
+synonym: "accidental cell death" RELATED []
+synonym: "necrosis" RELATED []
+is_a: GO:0044763 ! single-organism cellular process
+
+[Term]
+id: GO:0009987
+name: cellular process
+namespace: biological_process
+alt_id: GO:0008151
+alt_id: GO:0050875
+def: "Any process that is carried out at the cellular level, but not necessarily restricted to a single cell. For example, cell communication occurs among more than one cell, but occurs at the cellular level." [GOC:go_curators, GOC:isa_complete]
+subset: goslim_pir
+subset: goslim_plant
+subset: gosubset_prok
+synonym: "cell growth and/or maintenance" NARROW []
+synonym: "cell physiology" EXACT []
+synonym: "cellular physiological process" EXACT []
+is_a: GO:0008150 ! biological_process
+
+[Term]
+id: GO:0032502
+name: developmental process
+namespace: biological_process
+def: "A biological process whose specific outcome is the progression of an integrated living unit: an anatomical structure (which may be a subcellular structure, cell, tissue, or organ), or organism over time from an initial condition to a later condition." [GOC:isa_complete]
+subset: goslim_agr
+subset: goslim_aspergillus
+subset: goslim_pir
+subset: gosubset_prok
+synonym: "development" NARROW []
+is_a: GO:0008150 ! biological_process
+
+[Term]
+id: GO:0036473
+name: cell death in response to oxidative stress
+namespace: biological_process
+def: "Any biological process that results in permanent cessation of all vital functions of a cell upon exposure to an oxidative stress stimulus." [GOC:bf, GOC:PARL]
+comment: This term should not be used for direct annotation. The only exception should be when experimental data (e.g., staining with trypan blue or propidium iodide) show that cell death has occurred in response to an oxidative stress stimulus, but fail to provide details on death modality (accidental versus programmed). When information is provided on the cell death mechanism, annotations should be made to the appropriate descendant of 'cell death' (such as, but not limited to, GO:0097300 'programmed necrotic cell death', GO:0006915 'apoptotic process' or GO:0097468 'programmed cell death in response to reactive oxygen species'). Also, if experimental data suggest that a gene product influences cell death indirectly, rather than being involved in the death process directly, consider annotating to a 'regulation' term.
+is_a: GO:0008219 ! cell death
+relationship: part_of GO:0034599 ! cellular response to oxidative stress
+
+[Term]
+id: GO:0036474
+name: cell death in response to hydrogen peroxide
+namespace: biological_process
+def: "Any biological process that results in permanent cessation of all vital functions of a cell upon exposure to hydrogen peroxide (H2O2)." [GOC:bf, GOC:PARL]
+comment: This term should not be used for direct annotation. The only exception should be when experimental data (e.g., staining with trypan blue or propidium iodide) show that cell death has occurred, but fail to provide details on death modality (accidental versus programmed). When information is provided on the cell death mechanism, annotations should be made to the appropriate descendant of 'cell death' (such as, but not limited to, GO:0010421 'hydrogen peroxide-mediated programmed cell death'). Also, if experimental data suggest that a gene product influences cell death indirectly, rather than being involved in the death process directly, consider annotating to a 'regulation' term.
+synonym: "cell death in response to H2O2" EXACT [GOC:bf]
+synonym: "hydrogen peroxide-mediated cell death" RELATED [GOC:bf]
+is_a: GO:0036473 ! cell death in response to oxidative stress
+relationship: part_of GO:0070301 ! cellular response to hydrogen peroxide
+
+[Term]
+id: GO:0036475
+name: neuron death in response to oxidative stress
+namespace: biological_process
+def: "Any biological process that results in permanent cessation of all vital functions of a neuron upon exposure to an oxidative stress stimulus." [GOC:bf, GOC:PARL]
+comment: This term should not be used for direct annotation. The only exception should be when experimental data (e.g., staining with trypan blue or propidium iodide or use of neuron-specific markers) show that neuron death has occurred, but fail to provide details on death modality (accidental versus programmed). When information is provided on the neuron death mechanism, annotations should be made to the appropriate descendant of 'cell death' (such as, but not limited to, GO:0097300 'programmed necrotic cell death', GO:0006915 'apoptotic process' or GO:0010421 'hydrogen peroxide-mediated programmed cell death'), and the cell type captured as an annotation extension; or the term GO:0051402 'neuron apoptotic process' may be considered, if appropriate.
+synonym: "neuronal cell death in response to oxidative stress" EXACT [GOC:bf]
+synonym: "oxidative stress-induced neuron death" EXACT [GOC:bf]
+is_a: GO:0036473 ! cell death in response to oxidative stress
+is_a: GO:0070997 ! neuron death
+
+[Term]
+id: GO:0036476
+name: neuron death in response to hydrogen peroxide
+namespace: biological_process
+def: "Any biological process that results in permanent cessation of all vital functions of a neuron upon exposure to hydrogen peroxide (H2O2)." [GOC:bf, GOC:PARL]
+comment: This term should not be used for direct annotation. The only exception should be when experimental data (e.g., staining with trypan blue or propidium iodide or use of neuron-specific markers) show that neuron death has occurred, but fail to provide details on death modality (accidental versus programmed). When information is provided on the neuron death mechanism, annotations should be made to the appropriate descendant of 'cell death' (such as, but not limited to, GO:0097300 'programmed necrotic cell death', GO:0006915 'apoptotic process' or GO:0010421 'hydrogen peroxide-mediated programmed cell death'), and the cell type captured as an annotation extension; or the term GO:0051402 'neuron apoptotic process' may be considered, if appropriate.
+synonym: "hydrogen peroxide-induced neuron death" EXACT [GOC:bf]
+synonym: "neuron death in response to H2O2" EXACT [GOC:bf]
+synonym: "neuronal cell death in response to hydrogen peroxide" EXACT [GOC:bf]
+is_a: GO:0036474 ! cell death in response to hydrogen peroxide
+is_a: GO:0036475 ! neuron death in response to oxidative stress
+
+[Term]
+id: GO:0044699
+name: single-organism process
+namespace: biological_process
+def: "A biological process that involves only one organism." [GOC:jl]
+synonym: "single organism process" EXACT []
+is_a: GO:0008150 ! biological_process
+
+[Term]
+id: GO:0044763
+name: single-organism cellular process
+namespace: biological_process
+def: "Any process that is carried out at the cellular level, occurring within a single organism." [GOC:jl]
+is_a: GO:0009987 ! cellular process
+is_a: GO:0044699 ! single-organism process
+
+[Term]
+id: GO:0044767
+name: single-organism developmental process
+namespace: biological_process
+def: "A biological process whose specific outcome is the progression of an integrated living unit: an anatomical structure (which may be a subcellular structure, cell, tissue, or organ), or organism over time from an initial condition to a later condition, involving only one organism." [GOC:jl]
+is_a: GO:0032502 ! developmental process
+is_a: GO:0044699 ! single-organism process
+
+[Term]
+id: GO:0048468
+name: cell development
+namespace: biological_process
+def: "The process whose specific outcome is the progression of the cell over time, from its formation to the mature structure. Cell development does not include the steps involved in committing a cell to a specific fate." [GOC:go_curators]
+subset: goslim_candida
+subset: gosubset_prok
+synonym: "terminal differentiation" RELATED [GOC:dph, GOC:tb]
+is_a: GO:0048856 ! anatomical structure development
+is_a: GO:0048869 ! cellular developmental process
+relationship: part_of GO:0030154 ! cell differentiation
+
+[Term]
+id: GO:0048856
+name: anatomical structure development
+namespace: biological_process
+def: "The biological process whose specific outcome is the progression of an anatomical structure from an initial condition to its mature state. This process begins with the formation of the structure and ends with the mature structure, whatever form that may be including its natural destruction. An anatomical structure is any biological entity that occupies space and is distinguished from its surroundings. Anatomical structures can be macroscopic such as a carpel, or microscopic such as an acrosome." [GO_REF:0000021, GOC:mtg_15jun06]
+comment: This term was added by GO_REF:0000021.
+subset: goslim_chembl
+subset: goslim_generic
+synonym: "development of an anatomical structure" EXACT []
+is_a: GO:0032502 ! developmental process
+
+[Term]
+id: GO:0048869
+name: cellular developmental process
+namespace: biological_process
+def: "A biological process whose specific outcome is the progression of a cell over time from an initial condition to a later condition." [GOC:isa_complete]
+subset: gosubset_prok
+is_a: GO:0044763 ! single-organism cellular process
+is_a: GO:0044767 ! single-organism developmental process
+
+[Term]
+id: GO:0070997
+name: neuron death
+namespace: biological_process
+def: "The process of cell death in a neuron." [GOC:BHF, GOC:mah]
+comment: This term should not be used for direct annotation. The only exception should be when experimental data (e.g., staining with trypan blue or propidium iodide or use of neuron-specific markers) show that neuron death has occurred, but fail to provide details on death modality (accidental versus programmed). When information is provided on the neuron death mechanism, annotations should be made to the appropriate descendant of 'cell death' (such as, but not limited to, GO:0097300 'programmed necrotic cell death' or GO:0006915 'apoptotic process'), and the cell type captured as an annotation extension; or the term GO:0051402 'neuron apoptotic process' may be considered, if appropriate.
+synonym: "neuron cell death" EXACT [GOC:mah, GOC:rl]
+synonym: "neuronal cell death" EXACT [GOC:mah]
+is_a: GO:0008219 ! cell death
+
+[Term]
+id: GO:0097159
+name: organic cyclic compound binding
+namespace: molecular_function
+def: "Interacting selectively and non-covalently with an organic cyclic compound, any molecular entity that contains carbon arranged in a cyclic molecular structure." [CHEBI:33832, GOC:sjw, PMID:7583672]
+is_a: GO:0005488 ! binding
+
+[Term]
+id: GO:1901363
+name: heterocyclic compound binding
+namespace: molecular_function
+def: "Interacting selectively and non-covalently with heterocyclic compound." [GOC:TermGenie]
+is_a: GO:0005488 ! binding
+

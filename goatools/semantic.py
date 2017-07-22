@@ -103,65 +103,64 @@ def lin_sim(go_id1, go_id2, goid, termcounts):
     return (-2*sim_r)/(get_info_content(go_id1, termcounts) + get_info_content(go_id2, termcounts))
 
 
-def common_parent_go_ids(terms, goid):
+def common_parent_go_ids(goids, godag):
     '''
         This function finds the common ancestors in the GO
-        tree of the list of terms in the input.
+        tree of the list of goids in the input.
     '''
     # Find candidates from first
-    rec = goid[terms[0]]
+    rec = godag[goids[0]]
     candidates = rec.get_all_parents()
-    candidates.update({terms[0]})
+    candidates.update({goids[0]})
 
-    # Find intersection with second to nth term
-    for term in terms[1:]:
-        rec = goid[term]
+    # Find intersection with second to nth goid
+    for goid in goids[1:]:
+        rec = godag[goid]
         parents = rec.get_all_parents()
-        parents.update({term})
+        parents.update({goid})
 
         # Find the intersection with the candidates, and update.
         candidates.intersection_update(parents)
-
     return candidates
 
 
-def deepest_common_ancestor(terms, goid):
+def deepest_common_ancestor(goterms, godag):
     '''
         This function gets the nearest common ancestor
         using the above function.
         Only returns single most specific - assumes unique exists.
     '''
     # Take the element at maximum depth.
-    return max(common_parent_go_ids(terms, goid), key=lambda t: goid[t].depth)
+    return max(common_parent_go_ids(goterms, godag), key=lambda t: godag[t].depth)
 
 
-def min_branch_length(go_id1, go_id2, goid):
+def min_branch_length(go_id1, go_id2, godag):
     '''
         Finds the minimum branch length between two terms in the GO DAG.
     '''
     # First get the deepest common ancestor
-    dca = deepest_common_ancestor([go_id1, go_id2], goid)
+    dca = deepest_common_ancestor([go_id1, go_id2], godag)
 
     # Then get the distance from the DCA to each term
-    dca_depth = goid[dca].depth
-    depth1 = goid[go_id1].depth - dca_depth
-    depth2 = goid[go_id2].depth - dca_depth
+    dca_depth = godag[dca].depth
+    depth1 = godag[go_id1].depth - dca_depth
+    depth2 = godag[go_id2].depth - dca_depth
 
     # Return the total distance - i.e., to the deepest common ancestor and back.
     return depth1 + depth2
 
 
-def semantic_distance(go_id1, go_id2, goid):
+def semantic_distance(go_id1, go_id2, godag):
     '''
         Finds the semantic distance (minimum number of connecting branches)
         between two GO terms.
     '''
-    return min_branch_length(go_id1, go_id2, goid)
+    return min_branch_length(go_id1, go_id2, godag)
 
 
-def semantic_similarity(go_id1, go_id2, goid):
+def semantic_similarity(go_id1, go_id2, godag):
     '''
         Finds the semantic similarity (inverse of the semantic distance)
         between two GO terms.
     '''
-    return 1.0 / float(semantic_distance(go_id1, go_id2, goid))
+    return 1.0 / float(semantic_distance(go_id1, go_id2, godag))
