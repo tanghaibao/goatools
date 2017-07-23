@@ -165,8 +165,8 @@ clobber:
 #    tests/test_wr_tbl_subset.py \
 #    tests/test_write_summary_cnts.py
 
+#tests/similarity_top_parent.py 
 NOSETESTS := \
-    tests/similarity_top_parent.py \
     tests/test_combine_nt_lists.py \
     tests/test_get_paths.py \
     tests/test_get_unique_fields.py \
