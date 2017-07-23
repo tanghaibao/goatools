@@ -23,7 +23,7 @@ run:
 	$(PYTHON) test_read_gaf_allow_nd.py
 	$(PYTHON) test_statsdescribe.py
 	$(PYTHON) semantic_similarity.py
-	$(PYTHON) similarity_top_parent.py
+	$(PYTHON) similarity_top_parent.py noprt
 
 dnld_dbs: go-basic.obo gene2go
 
