@@ -15,25 +15,38 @@ entities/genes. Here is one example producing this error
 import os
 import sys
 from goatools import obo_parser
-# from goatools.associations import read_gaf
-from goatools.semantic import semantic_distance, semantic_similarity 
-from goatools_alpha.gosubdag import GoSubDag
+from goatools.associations import read_gaf
+from goatools.semantic import semantic_distance, semantic_similarity, TermCounts
+from goatools.semantic import resnik_sim, lin_sim
 
 
 def test_top_parent(prt):
     """Semantic Similarity test for Issue #86."""
     fin_obo = "data/i86.obo"
+    fin_obo = "go-basic.obo"
     repo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
     godag = obo_parser.GODag(os.path.join(repo, fin_obo))
     # Get all the annotations from arabidopsis.
-    # associations = read_gaf("http://geneontology.org/gene-associations/gene_association.tair.gz")
     
     # Calculate the semantic distance and semantic similarity:
-    # goid_mf = 'GO:0003676' # level-03 depth-03 nucleic acid binding [molecular_function]
-    # goid_bp = 'GO:0007516' # level-04 depth-05 hemocyte development [biological_process]
     _test_path_same(godag, prt)
     _test_path_parallel(godag, prt)
+    #_test_path_bp_mf(godag, prt)
+    sys.stdout.write("TESTS PASSed: similarity_top_parent\n")
 
+def _test_path_bp_mf(godag, prt):
+    """Test distances between BP branch and MF branch."""
+    goid_mf = 'GO:0003676' # level-03 depth-03 nucleic acid binding [molecular_function]
+    goid_bp = 'GO:0007516' # level-04 depth-05 hemocyte development [biological_process]
+    sim = semantic_similarity(goid_mf, goid_bp, godag)
+    assert sim is None
+    fin_assc = "http://geneontology.org/gene-associations/gene_association.tair.gz"
+    assc = read_gaf(fin_assc)
+    termcounts = TermCounts(godag, assc)
+    sim_r = resnik_sim(goid_mf, goid_bp, godag, termcounts)
+    print('Resnik similarity score ({GO1}, {GO2}) = {VAL}'.format(GO1=goid_mf, GO2=goid_bp, VAL=sim_r))
+    sim_l = lin_sim(goid_mf, goid_bp, godag, termcounts)
+    print('Lin similarity score ({GO1}, {GO2}) = {VAL}'.format(GO1=goid_mf, GO2=goid_bp, VAL=sim_l))
 
 def _test_path_parallel(godag, prt):
     """Test distances between GO IDs on parallel branches."""
@@ -70,7 +83,6 @@ def _test_path_same(godag, prt):
         if prt is not None:
             prt.write(fmt.format(DST=dst_act, GO1=goid_bottom, GO2=goid))
         assert dst_act == dst_exp
-    # sim = semantic_similarity(goid_mf, goid_bp, godag)
 
 if __name__ == '__main__':
     PRT = None if len(sys.argv) != 1 else sys.stdout
