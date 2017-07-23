@@ -20,7 +20,7 @@ from goatools.semantic import semantic_distance, semantic_similarity, TermCounts
 from goatools.semantic import resnik_sim, lin_sim
 
 
-def test_top_parent(prt):
+def test_top_parent(prt=sys.stdout):
     """Semantic Similarity test for Issue #86."""
     fin_obo = "data/i86.obo"
     branch_dist = 5
