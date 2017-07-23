@@ -166,6 +166,7 @@ clobber:
 #    tests/test_write_summary_cnts.py
 
 NOSETESTS := \
+    tests/similarity_top_parent.py \
     tests/test_combine_nt_lists.py \
     tests/test_get_paths.py \
     tests/test_get_unique_fields.py \
