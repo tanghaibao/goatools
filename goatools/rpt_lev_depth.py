@@ -5,8 +5,8 @@
 
     Example:
 
-    >>> obodag = GODag("go-basic.obo")
-    >>> reporter = RptLevDepth(obodag)
+    >>> godag = GODag("go-basic.obo")
+    >>> reporter = RptLevDepth(godag)
     >>> reporter.write_summary_cnts_all()
         go-basic.obo: format-version(1.2) data-version(releases/2016-03-01)
         46162 nodes imported
@@ -38,6 +38,10 @@ __author__ = "DV Klopfenstein"
 
 import sys
 import collections as cx
+
+def prt_lev_depth(godag, prt=sys.stdout):
+    """Write the counts of GO terms found at each level and depth of the GO DAG."""
+    RptLevDepth(godag, prt).write_summary_cnts_all()
 
 class RptLevDepth(object):
     """Reports a summary of GO term levels in depths."""
