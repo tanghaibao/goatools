@@ -16,21 +16,21 @@ class TermCounts(object):
     '''
         TermCounts counts the term counts for each
     '''
-    def __init__(self, goid, annots):
+    def __init__(self, godag, annots):
         '''
             Initialise the counts and
         '''
         # Backup
-        self._go = goid
+        self.godag = godag
 
         # Initialise the counters
         self._counts = Counter()
         self._aspect_counts = Counter()
 
         # Fill the counters...
-        self._count_terms(goid, annots)
+        self._count_terms(godag, annots)
 
-    def _count_terms(self, goid, annots):
+    def _count_terms(self, godag, annots):
         '''
             Fills in the counts and overall aspect counts.
         '''
@@ -39,13 +39,13 @@ class TermCounts(object):
             # propagated but they won't get double-counted for the gene
             allterms = set(terms)
             for go_id in terms:
-                allterms |= goid[go_id].get_all_parents()
+                allterms |= godag[go_id].get_all_parents()
             for parent in allterms:
                 self._counts[parent] += 1
 
         for go_id, child in self._counts.items():
             # Group by namespace
-            namespace = goid[go_id].namespace
+            namespace = godag[go_id].namespace
             self._aspect_counts[namespace] += child
 
     def get_count(self, go_id):
@@ -66,7 +66,7 @@ class TermCounts(object):
             been observed in the annotations.
         '''
         try:
-            namespace = self._go[go_id].namespace
+            namespace = self.godag[go_id].namespace
             freq = float(self.get_count(go_id)) / float(self.get_total_count(namespace))
             #print self.get_count(go_id), self.get_total_count(namespace), freq
         except ZeroDivisionError:
@@ -86,21 +86,24 @@ def get_info_content(go_id, termcounts):
     return -1.0 * math.log(freq) if freq else 0
 
 
-def resnik_sim(go_id1, go_id2, goid, termcounts):
+def resnik_sim(go_id1, go_id2, godag, termcounts):
     '''
         Computes Resnik's similarity measure.
     '''
-    msca = deepest_common_ancestor([go_id1, go_id2], goid)
-    return get_info_content(msca, termcounts)
+    goterm1 = godag[go_id1]
+    goterm2 = godag[go_id2]
+    if goterm1.namespace == goterm2.namespace:
+        msca_goid = deepest_common_ancestor([go_id1, go_id2], godag)
+        return get_info_content(msca_goid, termcounts)
 
 
-def lin_sim(go_id1, go_id2, goid, termcounts):
+def lin_sim(goid1, goid2, godag, termcnts):
     '''
         Computes Lin's similarity measure.
     '''
-    sim_r = resnik_sim(go_id1, go_id2, goid, termcounts)
-
-    return (-2*sim_r)/(get_info_content(go_id1, termcounts) + get_info_content(go_id2, termcounts))
+    sim_r = resnik_sim(goid1, goid2, godag, termcnts)
+    if sim_r is not None:
+        return (-2*sim_r)/(get_info_content(goid1, termcnts) + get_info_content(goid2, termcnts))
 
 
 def common_parent_go_ids(goids, godag):
@@ -134,33 +137,41 @@ def deepest_common_ancestor(goterms, godag):
     return max(common_parent_go_ids(goterms, godag), key=lambda t: godag[t].depth)
 
 
-def min_branch_length(go_id1, go_id2, godag):
+def min_branch_length(go_id1, go_id2, godag, branch_dist):
     '''
         Finds the minimum branch length between two terms in the GO DAG.
     '''
     # First get the deepest common ancestor
-    dca = deepest_common_ancestor([go_id1, go_id2], godag)
+    goterm1 = godag[go_id1]
+    goterm2 = godag[go_id2]
+    if goterm1.namespace == goterm2.namespace:
+        dca = deepest_common_ancestor([go_id1, go_id2], godag)
 
-    # Then get the distance from the DCA to each term
-    dca_depth = godag[dca].depth
-    depth1 = godag[go_id1].depth - dca_depth
-    depth2 = godag[go_id2].depth - dca_depth
+        # Then get the distance from the DCA to each term
+        dca_depth = godag[dca].depth
+        depth1 = goterm1.depth - dca_depth
+        depth2 = goterm2.depth - dca_depth
 
-    # Return the total distance - i.e., to the deepest common ancestor and back.
-    return depth1 + depth2
+        # Return the total distance - i.e., to the deepest common ancestor and back.
+        return depth1 + depth2
+
+    elif branch_dist is not None:
+        return goterm1.depth + goterm2.depth + branch_dist
 
 
-def semantic_distance(go_id1, go_id2, godag):
+def semantic_distance(go_id1, go_id2, godag, branch_dist=None):
     '''
         Finds the semantic distance (minimum number of connecting branches)
         between two GO terms.
     '''
-    return min_branch_length(go_id1, go_id2, godag)
+    return min_branch_length(go_id1, go_id2, godag, branch_dist)
 
 
-def semantic_similarity(go_id1, go_id2, godag):
+def semantic_similarity(go_id1, go_id2, godag, branch_dist=None):
     '''
         Finds the semantic similarity (inverse of the semantic distance)
         between two GO terms.
     '''
-    return 1.0 / float(semantic_distance(go_id1, go_id2, godag))
+    dist = semantic_distance(go_id1, go_id2, godag, branch_dist)
+    if dist is not None:
+        return 1.0 / float(dist)
