@@ -163,4 +163,15 @@ def get_not(keep_not):
         return lambda nt: True
     return lambda nt: 'NOT' not in nt.Qualifier
 
+def get_b2aset(a2bset):
+    """Given gene2gos, return go2genes. Given go2genes, return gene2gos."""
+    b2aset = {}
+    for a_item, bset in a2bset.items():
+        for b_item in bset:
+            if b_item in b2aset:
+                b2aset[b_item].add(a_item)
+            else:
+                b2aset[b_item] = set([a_item])
+    return b2aset
+
 # Copyright (C) 2010-2017, H Tang et al. All rights reserved."
