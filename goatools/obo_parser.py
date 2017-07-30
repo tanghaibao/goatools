@@ -400,17 +400,21 @@ class TypeDef(object):
 class GODag(dict):
     """Holds the GO DAG as a dict."""
 
-    def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
-        self.version = self.load_obo_file(obo_file, optional_attrs)
+    def __init__(self, obo_file="go-basic.obo", optional_attrs=None, load_obsolete=False):
+        self.version = self.load_obo_file(obo_file, optional_attrs, load_obsolete)
 
-    def load_obo_file(self, obo_file, optional_attrs):
+    def load_obo_file(self, obo_file, optional_attrs, load_obsolete):
         """Read obo file. Store results."""
         sys.stdout.write("load obo file {OBO}\n".format(OBO=obo_file))
         reader = OBOReader(obo_file, optional_attrs)
         for rec in reader:
-            self[rec.id] = rec
-            for alt in rec.alt_ids:
-                self[alt] = rec
+            # Save record if:
+            #   1) Argument load_obsolete is True OR
+            #   2) Argument load_obsolete is False and the GO term is "live" (not obsolete)
+            if load_obsolete or not rec.is_obsolete:
+                self[rec.id] = rec
+                for alt in rec.alt_ids:
+                    self[alt] = rec
 
         num_items = len(self)
         data_version = reader.data_version
