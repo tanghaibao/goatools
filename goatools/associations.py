@@ -176,7 +176,7 @@ def get_b2aset(a2bset):
 
 
 def get_assc_pruned(assc_geneid2gos, max_genecnt, prt=sys.stdout):
-    """Remove GO IDs which are associated with large numbers of genes. Used in simulations."""
+    """Remove GO IDs associated with large numbers of genes. Used in stochastic simulations."""
     go2genes_orig = get_b2aset(assc_geneid2gos)
     go2genes_prun = {go:gs for go, gs in go2genes_orig.items() if len(gs) <= max_genecnt}
     num_was = len(go2genes_orig)
