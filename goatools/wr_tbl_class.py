@@ -51,7 +51,7 @@ class WrXlsx(object):
         row_idx += 1
         return row_idx
 
-    def wr_data(self, xlsx_data, row_idx, worksheet):
+    def wr_data(self, xlsx_data, row_i, worksheet):
         """Write data into xlsx worksheet."""
         fld2fmt = self.vars.fld2fmt
         # User may specify to skip rows based on values in row
@@ -67,7 +67,7 @@ class WrXlsx(object):
                 if prt_if is None or prt_if(data_nt):
                     wbfmt = get_wbfmt(data_nt)
                     # Print an xlsx row by printing each column in order.
-                    for col_idx, fld in enumerate(prt_flds):
+                    for col_i, fld in enumerate(prt_flds):
                         try:
                             # If fld "format_txt" present, use val for formatting, but don't print.
                             val = getattr(data_nt, fld, "")
@@ -75,23 +75,26 @@ class WrXlsx(object):
                             # If field value is empty (""), don't use fld2fmt
                             if fld2fmt is not None and fld in fld2fmt and val != "" and val != "*":
                                 val = fld2fmt[fld].format(val)
-                            worksheet.write(row_idx, col_idx, val, wbfmt)
+                            worksheet.write(row_i, col_i, val, wbfmt)
                         except:
-                            raise RuntimeError(self._get_fatal_rcv(row_idx, col_idx, fld, val))
-                    row_idx += 1
+                            raise RuntimeError(self._get_err_msg(row_i, col_i, fld, val, prt_flds))
+                    row_i += 1
         except RuntimeError as inst:
             import traceback
             traceback.print_exc()
             sys.stdout.write("\n  **FATAL in wr_data: {MSG}\n\n".format(MSG=str(inst)))
             sys.exit()
-        return row_idx
+        return row_i
 
     @staticmethod
-    def _get_fatal_rcv(row, col, fld, val):
+    def _get_err_msg(row, col, fld, val, prt_flds):
         """Return an informative message with details of xlsx write attempt."""
         import traceback
         traceback.print_exc()
-        return "ROW({R}) COL({C}) FIELD({F}) VAL({V})".format(R=row, C=col, F=fld, V=val)
+        err_msg = (
+            "ROW({R}) COL({C}) FIELD({F}) VAL({V})\n".format(R=row, C=col, F=fld, V=val),
+            "PRINT FIELDS({N}): {F}".format(N=len(prt_flds), F=" ".join(prt_flds)))
+        return "\n".join(err_msg)
 
     def add_worksheet(self):
         """Add a worksheet to the workbook."""
