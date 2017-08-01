@@ -683,15 +683,18 @@ class GODag(dict):
             grph.write_png(lineage_img)
 
     def update_association(self, association):
-        """Loop thru assc. GO IDs."""
+        """Add the GO parents of a gene's associated GO IDs to the gene's association."""
         bad_goids = set()
+        # Loop through all sets of GO IDs for all genes
         for goids in association.values():
             parents = set()
+            # Iterate thru each GO ID in the current gene's association
             for goid in goids:
                 try:
                     parents.update(self[goid].get_all_parents())
                 except:
                     bad_goids.add(goid.strip())
+            # Add the GO parents of all GO IDs in the current gene's association
             goids.update(parents)
         if bad_goids:
             sys.stderr.write("goids not found: %s\n" % (bad_goids,))
