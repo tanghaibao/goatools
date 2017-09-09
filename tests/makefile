@@ -29,6 +29,7 @@ dnld_dbs: go-basic.obo gene2go
 
 # These tests require a download with wget
 run_dnld:
+	$(PYTHON) test_get_godag.py
 	$(PYTHON) test_dnlds.py
 	$(PYTHON) test_genes_cell_cycle.py
 	$(PYTHON) test_ncbi_entrez_annotations.py

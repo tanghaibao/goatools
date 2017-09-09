@@ -8,6 +8,7 @@ import collections as cx
 def get_dict_w_id2nts(ids, id2nts, flds, dflt_null=""):
     """Return a new dict of namedtuples by combining "dicts" of namedtuples or objects."""
     assert len(ids) == len(set(ids)), "NOT ALL IDs ARE UNIQUE: {IDs}".format(IDs=ids)
+    assert len(flds) == len(set(flds)), "DUPLICATE FIELDS: {IDs}".format(IDs=cx.Counter(flds).most_common())
     usr_id_nt = []
     # 1. Instantiate namedtuple object
     ntobj = cx.namedtuple("Nt", " ".join(flds))

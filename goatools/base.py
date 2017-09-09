@@ -108,15 +108,21 @@ def ungzipper(fh, blocksize=16384):
         data[0] = save + data[0]
 
 
-def download_go_basic_obo(obo="go-basic.obo", prt=sys.stdout):
+def download_go_basic_obo(obo="go-basic.obo", prt=sys.stdout, loading_bar=True):
     """Download Ontologies, if necessary."""
     # Download: http://geneontology.org/ontology/go-basic.obo
     if not os.path.isfile(obo):
-        slim = "subsets" if "slim" in obo else "."
-        obo_remote = "http://geneontology.org/ontology/{SLIM}/{OBO}".format(SLIM=slim, OBO=obo)
-        wget.download(obo_remote)
+        http = "http://purl.obolibrary.org/obo/go"
+        if "slim" in obo:
+            http = "http://www.geneontology.org/ontology/subsets"
+        obo_remote = "{HTTP}/{OBO}".format(HTTP=http, OBO=os.path.basename(obo))
         if prt is not None:
-            prt.write("\n  DOWNLOADED: {FILE}\n".format(FILE=obo))
+            prt.write("  DOWNLOADING: {OBO}\n".format(OBO=obo_remote))
+        if loading_bar:
+            loading_bar = wget.bar_adaptive
+        wget.download(obo_remote, out=obo, bar=loading_bar)
+        if prt is not None:
+            prt.write("  DOWNLOADED: {FILE}\n".format(FILE=obo))
     else:
         if prt is not None:
             prt.write("  EXISTS: {FILE}\n".format(FILE=obo))
@@ -146,10 +152,10 @@ def gunzip(gzip_file, file_gunzip=None):
     os.remove(gzip_file)
     return file_gunzip
 
-def get_godag(fin_obo="go-basic.obo", prt=sys.stdout):
+def get_godag(fin_obo="go-basic.obo", prt=sys.stdout, loading_bar=True):
     """Return GODag object. Initialize, if necessary."""
     from goatools.obo_parser import GODag
-    download_go_basic_obo(fin_obo, prt)
+    download_go_basic_obo(fin_obo, prt, loading_bar)
     return GODag(fin_obo)
 
 def get_gaf_name(species):
