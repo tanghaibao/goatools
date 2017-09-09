@@ -166,7 +166,7 @@ python scripts/plot_go_term.py --term=GO:0008135
 
 This command will plot the following image.
 
-![GO term lineage](https://dl.dropboxusercontent.com/u/15937715/Data/github/goatools/gograph.png)
+![GO term lineage](https://www.dropbox.com/s/4zbqx8sqcls3mge/gograph.png?raw=1)
 
 Sometimes people like to stylize the graph themselves, use option
 `--gml` to generate a GML output which can then be used in an external
@@ -180,7 +180,7 @@ downloaded and installed in the `plugins` folder of Cytoscape:
 python scripts/plot_go_term.py --term=GO:0008135 --gml
 ```
 
-![GO term lineage (Cytoscape)](https://dl.dropboxusercontent.com/u/15937715/Data/github/goatools/gograph-gml.png)
+![GO term lineage (Cytoscape)](https://www.dropbox.com/s/ueov2ioxl063q8h/gograph-gml.png?raw=1)
 
 ### Map GO terms to GOslim terms
 
