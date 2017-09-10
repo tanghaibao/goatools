@@ -152,7 +152,7 @@ clobber:
 #    tests/test_optional_fields.py \
 
 NOSETESTS := \
-    tests/similarity_top_parent.py 
+    tests/similarity_top_parent.py \
     tests/test_goea_errors.py \
     tests/test_genes_cell_cycle.py \
     tests/test_ncbi_entrez_annotations.py \
