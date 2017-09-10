@@ -150,7 +150,6 @@ clobber:
 # TBD: Add these to NOSETEST after edits:
 #    tests/test_goea_local.py \
 #    tests/test_genes_cell_cycle.py \
-#    tests/test_go_print.py \
 #    tests/test_goea_errors.py \
 #    tests/test_goea_rpt_bonferroni.py \
 #    tests/test_nbt3102.py \
@@ -161,19 +160,22 @@ clobber:
 #    tests/test_wr_tbl_subset.py \
 
 #tests/similarity_top_parent.py 
+#NOSETESTS := \
+#    tests/test_annotations_gaf.py \
+#    tests/test_read_gaf_allow_nd.py \
+#    tests/test_write_summary_cnts.py \
+#    tests/test_pvalcalc.py \
+#    tests/test_dnlds.py \
+#    tests/test_get_godag.py \
+#    tests/test_altid_godag.py \
+#    tests/test_combine_nt_lists.py \
+#    tests/test_get_paths.py \
+#    tests/test_get_unique_fields.py \
+#    tests/test_go_draw.py \
+#    tests/test_goea_statsmodels.py \
+
 NOSETESTS := \
-    tests/test_annotations_gaf.py \
-    tests/test_read_gaf_allow_nd.py \
-    tests/test_write_summary_cnts.py \
-    tests/test_pvalcalc.py \
-    tests/test_dnlds.py \
-    tests/test_get_godag.py \
-    tests/test_altid_godag.py \
-    tests/test_combine_nt_lists.py \
-    tests/test_get_paths.py \
-    tests/test_get_unique_fields.py \
-    tests/test_go_draw.py \
-    tests/test_goea_statsmodels.py \
+    tests/test_go_print.py \
     tests/test_mapslim.py
 
 test:
