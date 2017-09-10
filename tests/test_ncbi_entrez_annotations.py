@@ -33,7 +33,7 @@ def test_ncbi_gene2go(log=sys.stdout):
     # (optional) multi-level dictionary separate associations by taxid
     taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
     # Simple dictionary containing id2gos
-    id2gos = get_assoc_ncbi_taxids(taxids=[9606, 10090, 7227], taxid2asscs=taxid2asscs)
+    id2gos = get_assoc_ncbi_taxids(taxids=[9606, 10090, 7227], taxid2asscs=taxid2asscs, loading_bar=None)
     log.write("  {N} items found in gene2go from NCBI's ftp server\n".format(N=len(id2gos)))
     taxid2pc = {9606:GeneID2nt_hsa, 7227:GeneID2nt_dme}
     # Report findings

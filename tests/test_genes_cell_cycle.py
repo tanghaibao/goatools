@@ -27,7 +27,7 @@ def get_genes_cell_cycle(taxid=9606, log=sys.stdout):
     # use the (optional) multi-level dictionary separate associations by taxid
     # taxid2asscs contains both GO2GeneIDs and GeneID2GOs.
     taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
-    get_assoc_ncbi_taxids([taxid], taxid2asscs=taxid2asscs)
+    get_assoc_ncbi_taxids([taxid], taxid2asscs=taxid2asscs, loading_bar=None)
 
     # Initialize GO-search helper object with obo and annotations(go2items)
     srch = GoSearch(fin_go_obo, go2items=taxid2asscs[taxid]['GO2GeneIDs'])

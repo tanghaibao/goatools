@@ -43,16 +43,17 @@ def get_geneid2symbol(fin_xlsx):
 
 def get_goeaobj(method, geneids_pop, taxid):
     """Load: ontologies, associations, and population geneids."""
-    obo_dag = get_godag()
-    assoc_geneid2gos = get_assoc_ncbi_taxids([taxid])
+    fin_obo = os.path.join(os.getcwd(), "go-basic.obo")
+    godag = get_godag(fin_obo, loading_bar=None)
+    assoc_geneid2gos = get_assoc_ncbi_taxids([taxid], loading_bar=None)
     goeaobj = GOEnrichmentStudy(
         geneids_pop,
         assoc_geneid2gos,
-        obo_dag,
+        godag,
         propagate_counts=False,
         alpha=0.05,
         methods=[method])
-     # obo_dag is also found in goeaobj.obo_dag
+     # godag is also found in goeaobj.godag
     return goeaobj
 
 
