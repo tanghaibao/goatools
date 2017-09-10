@@ -2,7 +2,6 @@
 
 import sys
 import os
-from goatools.obo_parser import GODag
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.associations import read_associations
 from goatools.base import get_godag
@@ -76,10 +75,8 @@ def test_goea_bonferroni():
 
 def get_goeaobj(methods=None):
     """Test GOEA with method, fdr."""
-    obo_fin = "{REPO}/go-basic.obo".format(REPO=REPO)
-    if not os.path.isfile(obo_fin):
-        get_godag("go-basic.obo", loading_bar=True)
-    obo_dag = GODag(obo_fin)
+    obo_fin = os.path.join(REPO, "go-basic.obo")
+    obo_dag = get_godag(obo_fin, loading_bar=None)
     assoc = read_associations("{REPO}/tests/data/small_association".format(REPO=REPO), no_top=True)
     popul_fin = "{REPO}/tests/data/small_population".format(REPO=REPO)
     popul_ids = [line.rstrip() for line in open(popul_fin)]
