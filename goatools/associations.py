@@ -53,7 +53,7 @@ def read_associations(assoc_fn, no_top=False):
 def get_assoc_ncbi_taxids(taxids, force_dnld=False, loading_bar=True, **kws):
     """Download NCBI's gene2go. Return annotations for user-specified taxid(s)."""
     fin = kws['gene2go'] if 'gene2go' in kws else os.path.join(os.getcwd(), "gene2go")
-    dnld_ncbi_gene_file(fin, force_dnld, loading_bar)
+    dnld_ncbi_gene_file(fin, force_dnld, loading_bar=loading_bar)
     return read_ncbi_gene2go(fin, taxids, **kws)
 
 def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout, loading_bar=True):
