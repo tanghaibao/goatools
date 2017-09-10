@@ -36,7 +36,7 @@ def _test_gaf_read(msg, species_ids, keepif, log=sys.stdout):
     # (optional) multi-level dictionary separate associations by taxid
     taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
     local_dir = os.path.dirname(os.path.abspath(__file__))
-    for fin_gaf in dnld_gafs(species_ids):
+    for fin_gaf in dnld_gafs(species_ids, loading_bar=None):
         fin_gaf = os.path.join(local_dir, fin_gaf)
         log.write("\n")
         id2gos = read_gaf(fin_gaf, taxid2asscs=taxid2asscs, keepif=keepif)

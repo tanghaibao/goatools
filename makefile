@@ -148,7 +148,6 @@ clobber:
 	rm -f gene2go gene2go.gz
 
 # TBD: Add these to NOSETEST after edits:
-#    tests/test_annotations_gaf.py \
 #    tests/test_goea_local.py \
 #    tests/test_genes_cell_cycle.py \
 #    tests/test_go_print.py \
@@ -163,6 +162,8 @@ clobber:
 
 #tests/similarity_top_parent.py 
 NOSETESTS := \
+    tests/test_annotations_gaf.py \
+    tests/test_read_gaf_allow_nd.py \
     tests/test_write_summary_cnts.py \
     tests/test_pvalcalc.py \
     tests/test_dnlds.py \

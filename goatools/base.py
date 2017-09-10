@@ -173,11 +173,11 @@ def get_gaf_name(species):
     # Return Examples: goa_human.gaf gene_association.mgi gene_association.fb
     return gaf_pats[gaf_key].format(S=species)
 
-def dnld_gaf(species_txt):
+def dnld_gaf(species_txt, prt=sys.stdout, loading_bar=True):
     """Download GAF file if necessary."""
-    return dnld_gafs([species_txt])[0]
+    return dnld_gafs([species_txt], prt, loading_bar)[0]
 
-def dnld_gafs(species_list, prt=sys.stdout):
+def dnld_gafs(species_list, prt=sys.stdout, loading_bar=True):
     """Download GAF files if necessary."""
     # Example GAF files:
     #   http://geneontology.org/gene-associations/gene_association.mgi.gz
@@ -189,18 +189,18 @@ def dnld_gafs(species_list, prt=sys.stdout):
     fin_gafs = []
     cwd = os.getcwd()
     for species_txt in species_list: # e.g., goa_human mgi fb
-        gaf_base = get_gaf_name(species_txt)
-        gaf_cwd = os.path.join(cwd, gaf_base)
+        gaf_base = get_gaf_name(species_txt) # goa_human.gaf
+        gaf_cwd = os.path.join(cwd, gaf_base) # {CWD}/goa_human.gaf
         if not os.path.isfile(gaf_cwd):
             wget_cmd = "{HTTP}/{GAF}.gz".format(HTTP=http, GAF=gaf_base)
             if prt is not None:
                 prt.write("  wget {FILE}\n".format(FILE=wget_cmd))
-            wget.download(wget_cmd)
             gaf_gz = "{GAF_LOCAL}.gz".format(GAF_LOCAL=gaf_cwd)
+            wget.download(wget_cmd, out=gaf_gz, bar=loading_bar)
             if prt is not None:
                 prt.write("\n  gunzip {FILE}\n".format(FILE=gaf_cwd))
-            with gzip.open(gaf_gz, 'rb') as zstrm:
-                with  open(gaf_cwd, 'wb') as ostrm:
+            with gzip.open(gaf_gz, 'rb') as zstrm:  # RD {CWD}/goa_human.gaf.gz
+                with  open(gaf_cwd, 'wb') as ostrm: # WR {CWD}/goa_human.gaf
                     ostrm.write(zstrm.read())
             os.remove(gaf_gz)
         fin_gafs.append(gaf_cwd)
