@@ -160,6 +160,7 @@ clobber:
 
 #tests/similarity_top_parent.py 
 #NOSETESTS := \
+#    tests/test_go_print.py \
 #    tests/test_annotations_gaf.py \
 #    tests/test_read_gaf_allow_nd.py \
 #    tests/test_write_summary_cnts.py \
@@ -175,7 +176,6 @@ clobber:
 
 NOSETESTS := \
     tests/test_write_hier.py \
-    tests/test_go_print.py \
     tests/test_mapslim.py
 
 test:

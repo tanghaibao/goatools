@@ -10,13 +10,13 @@ from goatools.obo_parser import GODag
 #################################################################
 # Sub-routines to tests
 #################################################################
-def test_write_hier_all(dag, out):
-    """test_write_hier.py: Prints the entire mini GO hierarchy, with counts of children."""
+def write_hier_all(dag, out):
+    """write_hier.py: Prints the entire mini GO hierarchy, with counts of children."""
     out.write('\nTEST ALL: Print all hierarchies:\n')
     dag.write_hier("GO:0000001", out, num_child=True)
 
 
-def test_write_hier_norep(dag, out):
+def write_hier_norep(dag, out):
     """Shortens hierarchy report by only printing branches once.
 
          Prints the 'entire hierarchy' of GO:0000005 the 1st time seen:
@@ -35,7 +35,7 @@ def test_write_hier_norep(dag, out):
     dag.write_hier("GO:0000001", out, num_child=True, short_prt=True)
 
 
-def test_write_hier_lim(dag, out):
+def write_hier_lim(dag, out):
     """Limits hierarchy list to GO Terms specified by user."""
     go_omit = ['GO:0000005', 'GO:0000010']
     go_ids = [go_id for go_id in dag if go_id not in go_omit]
@@ -43,7 +43,7 @@ def test_write_hier_lim(dag, out):
     dag.write_hier("GO:0000001", out, include_only=go_ids)
       #go_marks=[oGO.id for oGO in oGOs_in_cluster])
 
-def test_write_hier_mrk(dag, out):
+def write_hier_mrk(dag, out):
     """Print all paths, but mark GO Terms of interest. """
     mark_lst = ['GO:0000001', 'GO:0000003', 'GO:0000006', 'GO:0000008', 'GO:0000009']
     out.write('\nTEST MARK: 01->03->06->08->09:\n')
@@ -53,24 +53,22 @@ def test_write_hier_mrk(dag, out):
 #################################################################
 # Tests
 #################################################################
-def test_all(dag_fin, fout=None):
+def test_all():
     """Run numerous tests for various reports."""
+    dag_fin = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/mini_obo.obo")
     tic = timeit.default_timer()
     dag = GODag(dag_fin)
     toc = timeit.default_timer()
-    out = sys.stdout if fout is None else open(fout, 'w')
-    test_write_hier_all(dag, out)
-    test_write_hier_norep(dag, out)
-    test_write_hier_lim(dag, out)
-    test_write_hier_mrk(dag, out)
+    out = sys.stdout
+    write_hier_all(dag, out)
+    write_hier_norep(dag, out)
+    write_hier_lim(dag, out)
+    write_hier_mrk(dag, out)
     msg = "Elapsed HMS: {}\n\n".format(str(datetime.timedelta(seconds=(toc-tic))))
-    if fout is not None:
-        out.close()
-        sys.stdout.write("  WROTE: {}\n".format(fout))
     sys.stdout.write(msg)
 
 #################################################################
 # main
 #################################################################
 if __name__ == '__main__':
-    test_all(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/mini_obo.obo"))
+    test_all()
