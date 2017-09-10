@@ -1,5 +1,6 @@
 """Tests alternate OBOReader."""
 
+import os
 import sys
 import timeit
 import datetime
@@ -72,6 +73,4 @@ def test_all(dag_fin, fout=None):
 # main
 #################################################################
 if __name__ == '__main__':
-    test_all("./data/mini_obo.obo")
-
-
+    test_all(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/mini_obo.obo"))
