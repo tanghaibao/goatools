@@ -64,16 +64,17 @@ def _test_path_bp_mf(branch_dist, godag, prt):
 def _get_assc(godag):
     """Get association reduced for the test subset of the GO DAG."""
     assc_base = "gene_association.tair"
-    assc_remote = "http://geneontology.org/gene-associations/{ASSC}.gz".format(ASSC=assc_base)
     cwd = os.getcwd()
-    assc_locgz = os.path.join(cwd, "{ASSC}.gz".format(ASSC=assc_base))
     assc_local = os.path.join(cwd, assc_base)
-    if not os.path.isfile(assc_locgz):
-        wget.download(assc_remote, out=assc_locgz, bar=None)
-    assert os.path.isfile(assc_locgz)
     if not os.path.isfile(assc_local):
+        assc_locgz = os.path.join(cwd, "{ASSC}.gz".format(ASSC=assc_base))
+        if not os.path.isfile(assc_locgz):
+            assc_http = "http://geneontology.org/gene-associations/"
+            assc_remote = os.path.join(assc_http, "{ASSC}.gz".format(ASSC=assc_base))
+            wget.download(assc_remote, out=assc_locgz, bar=None)
+        assert os.path.isfile(assc_locgz)
         gunzip(assc_locgz, assc_local)
-    assert os.path.isfile(assc_local)
+        assert os.path.isfile(assc_local)
     assc = {}
     goids_dag = set(godag.keys())
     for gene, goids_cur in read_gaf(assc_local).items():
