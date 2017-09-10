@@ -17,7 +17,7 @@ def test_gaf_read(log=sys.stdout):
     #        639 GO:0008150      ND
 
     # Example species_ids: goa_human mgi fb
-    fin_gaf = dnld_gaf('goa_human')
+    fin_gaf = dnld_gaf('goa_human', loading_bar=None)
 
     # Example 1: Read GAF
     go2ids = read_gaf(fin_gaf, go2geneids=True)
