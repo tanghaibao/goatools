@@ -1,9 +1,3 @@
-import sys
-import os
-from goatools.go_enrichment import GOEnrichmentStudy
-from goatools.obo_parser import GODag
-from goatools.associations import read_associations
-
 """Test that GOEnrichmentStudy fails elegantly given incorrect stimulus.
 
         python test_goea_errors.py
@@ -12,17 +6,23 @@ from goatools.associations import read_associations
 __copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
+import sys
+import os
+from goatools.base import get_godag
+from goatools.go_enrichment import GOEnrichmentStudy
+from goatools.associations import read_associations
+
 ROOT = os.path.dirname(os.path.abspath(__file__)) + "/../data/"
 
 
 def init_goea(**kws):
     """Initialize GODag and GOEnrichmentStudy."""
-    obo_dag = GODag(ROOT + "go-basic.obo")
+    godag = get_godag(os.path.join(os.getcwd(), "go-basic.obo"), loading_bar=None)
     assoc = read_associations(ROOT + "association", no_top=True)
     popul_ids = [line.rstrip() for line in open(ROOT + "population")]
     methods = kws['methods'] if 'methods' in kws else ['not_bonferroni']
     study_ids = [line.rstrip() for line in open(ROOT + "study")]
-    return GOEnrichmentStudy(popul_ids, assoc, obo_dag, methods=methods), study_ids
+    return GOEnrichmentStudy(popul_ids, assoc, godag, methods=methods), study_ids
 
 
 def run_method_bad_ini():
@@ -42,8 +42,8 @@ def run_method_bad_run():
 def test_all(log=sys.stdout):
     """Run all error tests."""
     tests = [
-        (run_method_bad_ini, "INVALID METHOD(not_fdr)"),
-        (run_method_bad_run, "INVALID METHOD(invalid_method)"),
+        (run_method_bad_ini, "FATAL: UNRECOGNIZED METHOD(not_fdr)"),
+        (run_method_bad_run, "FATAL: UNRECOGNIZED METHOD(not_bonferroni)"),
     ]
     for test, exp_errmsg in tests:
         try:
