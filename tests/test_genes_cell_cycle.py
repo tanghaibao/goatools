@@ -3,8 +3,8 @@
 import sys
 import os
 import re
-import wget
 from collections import defaultdict
+from goatools.base import download_go_basic_obo
 from goatools.go_search import GoSearch
 from goatools.associations import get_assoc_ncbi_taxids
 from goatools.wr_tbl import prt_txt
@@ -21,10 +21,9 @@ def test_cell_cycle(taxid=9606, log=sys.stdout):
 def get_genes_cell_cycle(taxid=9606, log=sys.stdout):
     """Test GOEA with local multipletest correction methods for cell cycle."""
     # Download ontologies and annotations, if necessary
-    fin_go_obo = "go-basic.obo"
-    if not os.path.exists(fin_go_obo):
-        wget.download("http://geneontology.org/ontology/go-basic.obo")
-    # Because get_assoc_ncbi_taxids returns id2gos, we will opt to 
+    fin_go_obo = os.path.join(os.getcwd(), "go-basic.obo")
+    download_go_basic_obo(fin_go_obo, loading_bar=None)
+    # Because get_assoc_ncbi_taxids returns id2gos, we will opt to
     # use the (optional) multi-level dictionary separate associations by taxid
     # taxid2asscs contains both GO2GeneIDs and GeneID2GOs.
     taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
@@ -35,7 +34,7 @@ def get_genes_cell_cycle(taxid=9606, log=sys.stdout):
     # Compile search pattern for 'cell cycle'
     cell_cycle = re.compile(r'cell cycle', flags=re.IGNORECASE)
     # Find ALL GOs that have 'cell cycle'. Store results in file.
-    fout_allgos = "cell_cycle_gos_{TAXID}.log".format(TAXID=taxid) 
+    fout_allgos = "cell_cycle_gos_{TAXID}.log".format(TAXID=taxid)
     with open(fout_allgos, "w") as prt:
         # Search for 'cell cycle' in GO terms
         gos_cc_all = srch.get_matching_gos(cell_cycle, prt=prt)
@@ -65,9 +64,9 @@ def prt_genes(fout_genes, geneids, taxid, log):
         import importlib
         module_name = "".join(["goatools.test_data.", fin_symbols[:-3]])
         module = importlib.import_module(module_name)
-        GeneID2nt = module.GeneID2nt
+        geneid2nt = module.geneid2nt
         fmtstr = "{GeneID:>9} {Symbol:<16} {description}\n"
-        nts = [GeneID2nt[geneid] for geneid in sorted(geneids) if geneid in GeneID2nt]
+        nts = [geneid2nt[geneid] for geneid in sorted(geneids) if geneid in geneid2nt]
         with open(fout_genes, 'w') as prt:
             prt_txt(prt, nts, fmtstr)
             if log is not None:
@@ -78,7 +77,8 @@ def prt_genes(fout_genes, geneids, taxid, log):
             for geneid in geneids:
                 prt.write("{geneid}\n".format(geneid=geneid))
             if log is not None:
-                log.write("    WROTE {N:>5} genes: {FOUT}\n".format(FOUT=fout_genes, N=len(geneids)))
+                log.write("    WROTE {N:>5} genes: {FOUT}\n".format(
+                    FOUT=fout_genes, N=len(geneids)))
 
 if __name__ == '__main__':
     test_cell_cycle(9606)

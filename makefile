@@ -160,10 +160,10 @@ clobber:
 #    tests/test_write_hier.py \
 #    tests/test_wr_py_goea_results.py \
 #    tests/test_wr_tbl_subset.py \
-#    tests/test_write_summary_cnts.py
 
 #tests/similarity_top_parent.py 
 NOSETESTS := \
+    tests/test_write_summary_cnts.py \
     tests/test_pvalcalc.py \
     tests/test_dnlds.py \
     tests/test_get_godag.py \
