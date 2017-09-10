@@ -78,7 +78,7 @@ def get_goeaobj(methods=None):
     """Test GOEA with method, fdr."""
     obo_fin = "{REPO}/go-basic.obo".format(REPO=REPO)
     if not os.path.isfile(obo_fin):
-        get_godag("go-basic.obo")
+        get_godag("go-basic.obo", loading_bar=True)
     obo_dag = GODag(obo_fin)
     assoc = read_associations("{REPO}/tests/data/small_association".format(REPO=REPO), no_top=True)
     popul_fin = "{REPO}/tests/data/small_population".format(REPO=REPO)

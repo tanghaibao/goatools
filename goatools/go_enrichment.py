@@ -52,14 +52,14 @@ class GOEnrichmentRecord(object):
     def __init__(self, **kwargs):
         # Methods seen in current enrichment result
         self._methods = []
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-            if k == 'ratio_in_study':
-                setattr(self, 'study_count', v[0])
-                setattr(self, 'study_n', v[1])
-            if k == 'ratio_in_pop':
-                setattr(self, 'pop_count', v[0])
-                setattr(self, 'pop_n', v[1])
+        for key, val in kwargs.items():
+            setattr(self, key, val)
+            if key == 'ratio_in_study':
+                setattr(self, 'study_count', val[0])
+                setattr(self, 'study_n', val[1])
+            if key == 'ratio_in_pop':
+                setattr(self, 'pop_count', val[0])
+                setattr(self, 'pop_n', val[1])
         self._init_enrichment()
         self.goterm = None  # the reference to the GOTerm
 
@@ -88,9 +88,9 @@ class GOEnrichmentRecord(object):
         self._chk_fields(field_data, field_formatter)
 
         # default formatting only works for non-"n.a" data
-        for i, f in enumerate(field_data):
-            if f == "n.a.":
-                field_formatter[i] = "%s"
+        for idx, fld in enumerate(field_data):
+            if fld == "n.a.":
+                field_formatter[idx] = "%s"
 
         # print dots to show the level of the term
         dots = self.get_indent_dots() if indent else ""
@@ -263,7 +263,7 @@ class GOEnrichmentStudy(object):
         alpha = kws['alpha'] if 'alpha' in kws else self.alpha
         log = kws['log'] if 'log' in kws else self.log
         # Calculate uncorrected pvalues
-        results = self._get_pval_uncorr(study, log)
+        results = self.get_pval_uncorr(study, log)
         if not results:
             return []
 
@@ -307,10 +307,11 @@ class GOEnrichmentStudy(object):
                 N=len(pop_items), NT=self.pop_n, M=num_gos_pop))
         return msg
 
-    def _get_pval_uncorr(self, study, log=sys.stdout):
+    def get_pval_uncorr(self, study, log=sys.stdout):
         """Calculate the uncorrected pvalues for study items."""
         if log is not None:
-            log.write("Calculating uncorrected p-values using {PFNC}\n".format(PFNC=self.pval_obj.name))
+            log.write("Calculating uncorrected p-values using {PFNC}\n".format(
+                PFNC=self.pval_obj.name))
         results = []
         go2studyitems = get_terms("study", study, self.assoc, self.obo_dag, log)
         pop_n, study_n = self.pop_n, len(study)

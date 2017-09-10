@@ -4,7 +4,7 @@ from goatools.base import get_godag
 
 def test_alt_id():
     """Ensure that alternate GO IDs."""
-    obo_dag = get_godag("go-basic.obo")
+    obo_dag = get_godag("go-basic.obo", loading_bar=None)
     alt_ids = get_altids(obo_dag)
     obo_goids = obo_dag.keys()
     obo_goids_set = set(obo_goids)

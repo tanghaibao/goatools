@@ -148,10 +148,9 @@ clobber:
 	rm -f gene2go gene2go.gz
 
 # TBD: Add these to NOSETEST after edits:
+#    tests/test_pvalcalc.py \
 #    tests/test_goea_local.py \
 #    tests/test_annotations_gaf.py \
-#    tests/test_altid_godag.py \
-#    tests/test_dnlds.py \
 #    tests/test_genes_cell_cycle.py \
 #    tests/test_go_print.py \
 #    tests/test_goea_errors.py \
@@ -160,14 +159,15 @@ clobber:
 #    tests/test_ncbi_entrez_annotations.py \
 #    tests/test_optional_fields.py \
 #    tests/test_write_hier.py \
-#    tests/test_pvalcalc.py \
 #    tests/test_wr_py_goea_results.py \
 #    tests/test_wr_tbl_subset.py \
 #    tests/test_write_summary_cnts.py
 
 #tests/similarity_top_parent.py 
 NOSETESTS := \
+    tests/test_dnlds.py \
     tests/test_get_godag.py \
+    tests/test_altid_godag.py \
     tests/test_combine_nt_lists.py \
     tests/test_get_paths.py \
     tests/test_get_unique_fields.py \
