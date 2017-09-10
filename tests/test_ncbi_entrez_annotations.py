@@ -7,15 +7,15 @@ __copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights re
 __author__ = "DV Klopfenstein"
 
 import sys
-from goatools.associations import get_assoc_ncbi_taxids
 from collections import defaultdict
+from goatools.associations import get_assoc_ncbi_taxids
 from goatools.test_data.genes_NCBI_9606_ProteinCoding import GeneID2nt as GeneID2nt_hsa
 from goatools.test_data.genes_NCBI_7227_ProteinCoding import GeneID2nt as GeneID2nt_dme
 
 def test_ncbi_gene2go(log=sys.stdout):
     """Return GO associations to Entrez GeneIDs. Download if necessary.
 
-       Example report generated with Feb 22, 2013 download of: 
+       Example report generated with Feb 22, 2013 download of:
          NCBI Gene tables and associations in gene2go
 
             49672 items found in gene2go from NCBI's ftp server
@@ -33,7 +33,8 @@ def test_ncbi_gene2go(log=sys.stdout):
     # (optional) multi-level dictionary separate associations by taxid
     taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
     # Simple dictionary containing id2gos
-    id2gos = get_assoc_ncbi_taxids(taxids=[9606, 10090, 7227], taxid2asscs=taxid2asscs, loading_bar=None)
+    taxids = [9606, 10090, 7227]
+    id2gos = get_assoc_ncbi_taxids(taxids, taxid2asscs=taxid2asscs, loading_bar=None)
     log.write("  {N} items found in gene2go from NCBI's ftp server\n".format(N=len(id2gos)))
     taxid2pc = {9606:GeneID2nt_hsa, 7227:GeneID2nt_dme}
     # Report findings
@@ -53,7 +54,7 @@ def test_ncbi_gene2go(log=sys.stdout):
 def rpt_coverage(taxid, asscs, pc2nt, log):
     """Calculate and report GO coverage on protein-coding genes.
 
-       Example report generated with Feb 22, 2013 download of: 
+       Example report generated with Feb 22, 2013 download of:
          NCBI Gene tables and associations in gene2go
 
          taxid    GOs GeneIDs  Description
@@ -72,9 +73,10 @@ def rpt_coverage(taxid, asscs, pc2nt, log):
     gos_pcgenes = set()
     for geneid in pcgene_w_gos:
         gos_pcgenes |= geneid2gos[geneid]
-    log.write("  {TAXID:>6} {N:>6,} {M:>7,}  {COV:2.0f}% GO coverage of {TOT:,} protein-coding genes\n".format(
+    txt = "  {TAXID:>6} {N:>6,} {M:>7,}  {COV:2.0f}% GO coverage of {TOT:,} protein-coding genes\n"
+    log.write(txt.format(
         TAXID=taxid, N=len(gos_pcgenes), M=num_pcgene_w_gos, COV=perc_cov, TOT=num_pc_genes))
-    
+
 
 
 if __name__ == '__main__':
