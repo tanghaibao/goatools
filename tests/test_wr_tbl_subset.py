@@ -3,9 +3,9 @@
 import os
 import sys
 
+import filecmp
 from goatools.wr_tbl import get_fmtflds, wr_xlsx, wr_tsv
 from goatools.test_data.nature3102_goea import get_goea_results
-import filecmp
 
 
 def test_wr_methods(log=sys.stdout):

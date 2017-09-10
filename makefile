@@ -154,10 +154,10 @@ clobber:
 #    tests/test_nbt3102.py \
 #    tests/test_ncbi_entrez_annotations.py \
 #    tests/test_optional_fields.py \
-#    tests/test_wr_py_goea_results.py \
 
 #tests/similarity_top_parent.py 
 #NOSETESTS := \
+#    tests/test_wr_tbl_subset.py \
 #    tests/test_goea_local.py \
 #    tests/test_write_hier.py \
 #    tests/test_go_print.py \
@@ -175,7 +175,7 @@ clobber:
 #    tests/test_goea_statsmodels.py \
 
 NOSETESTS := \
-    tests/test_wr_tbl_subset.py \
+    tests/test_wr_py_goea_results.py \
     tests/test_mapslim.py
 
 test:

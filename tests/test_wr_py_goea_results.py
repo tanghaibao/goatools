@@ -1,10 +1,10 @@
 """_resultsTest writing GOATOOLS Gene Ontology Gene Enrichment results to a Python module."""
 
 import os
+import importlib
 from goatools.test_data.nature3102_goea import get_goea_results
 from goatools.go_enrichment import get_goea_nts_prt
 from goatools.nt_utils import wr_py_nts
-import importlib
 
 def test_wrpy():
     """Test writing GOATOOLS GOEA results to a Python module as a list of nts."""
@@ -41,4 +41,3 @@ def get_fout_py(module_name):
 
 if __name__ == '__main__':
     test_wrpy()
-
