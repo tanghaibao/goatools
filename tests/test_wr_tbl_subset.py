@@ -1,5 +1,6 @@
 """Show two methods to write the same data into: xlsx file, tsv file, and text file."""
 
+import os
 import sys
 
 from goatools.wr_tbl import get_fmtflds, wr_xlsx, wr_tsv
@@ -27,14 +28,17 @@ def test_wr_methods(log=sys.stdout):
         'prt_flds' : get_fmtflds(prtfmt)
     }
     #    2a. Use the write functions inside the GOEnrichmentStudy class.
-    _wr_3fmt_goeaobj(goea_results, goeaobj, wr_params, log)
+    cwddir = os.getcwd()
+    tsv_obj = os.path.join(cwddir, 'nbt3102_subset_obj.tsv')
+    tsv_nts = os.path.join(cwddir, 'nbt3102_subset_nt.tsv')
+    _wr_3fmt_goeaobj(tsv_obj, goea_results, goeaobj, wr_params, log)
     #    2b. Use the write functions from the wr_tbl package to print a list of namedtuples.
-    _wr_3fmt_wrtbl(goea_results, wr_params, log)
-    assert filecmp.cmp('nbt3102_subset_obj.tsv', 'nbt3102_subset_nt.tsv')
+    _wr_3fmt_wrtbl(tsv_nts, goea_results, wr_params, log)
+    assert filecmp.cmp(tsv_obj, tsv_nts)
 
 
 
-def _wr_3fmt_goeaobj(goea_results, goeaobj, wr_params, log):
+def _wr_3fmt_goeaobj(tsv_obj, goea_results, goeaobj, wr_params, log):
     """Using GOEnrichmentStudy object, demonstrate printing a subset of GOEA fields."""
     # List of all fields, printable or not, available from GOEnrichmentRecord
     flds = goea_results[0].get_prtflds_all()
@@ -47,10 +51,10 @@ def _wr_3fmt_goeaobj(goea_results, goeaobj, wr_params, log):
     title = "Print subset of fields from GOEnrichmentRecord"
     goeaobj.wr_xlsx("nbt3102_subset_obj.xlsx", goea_results, title=title, **wr_params)
     # Print to tab-separated file
-    goeaobj.wr_tsv("nbt3102_subset_obj.tsv", goea_results, **wr_params)
+    goeaobj.wr_tsv(tsv_obj, goea_results, **wr_params)
 
 
-def _wr_3fmt_wrtbl(goea_results, wr_params, log):
+def _wr_3fmt_wrtbl(tsv_nts, goea_results, wr_params, log):
     """Using functions in the wr_tbl pkg, demonstrate printing a subset of namedtuple fields."""
     from goatools.go_enrichment import get_goea_nts_prt
     goea_nts = get_goea_nts_prt(goea_results)
@@ -60,7 +64,7 @@ def _wr_3fmt_wrtbl(goea_results, wr_params, log):
     title = "Print subset of namedtuple fields"
     wr_xlsx("nbt3102_subset_nt.xlsx", goea_nts, title=title, **wr_params)
     # Print to tab-separated file
-    wr_tsv("nbt3102_subset_nt.tsv", goea_nts, **wr_params)
+    wr_tsv(tsv_nts, goea_nts, **wr_params)
 
 
 if __name__ == '__main__':
