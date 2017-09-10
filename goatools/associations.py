@@ -70,7 +70,7 @@ def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout, loading_bar=True)
         wget.download(fin_ftp, bar=loading_bar)
         with gzip.open(fin_gz, 'rb') as zstrm:
             log.write("\n  READ:  {F}\n".format(F=fin_gz))
-            with open(fin, 'w') as ostrm:
+            with open(fin, 'wb') as ostrm:
                 ostrm.write(zstrm.read())
                 log.write("  WROTE: {F}\n".format(F=fin))
 
