@@ -14,7 +14,9 @@ entities/genes. Here is one example producing this error
 
 import os
 import sys
+import wget
 from goatools import obo_parser
+from goatools.base import gunzip
 from goatools.associations import read_gaf
 from goatools.semantic import semantic_distance, semantic_similarity, TermCounts
 from goatools.semantic import resnik_sim, lin_sim
@@ -46,25 +48,35 @@ def _test_path_bp_mf(branch_dist, godag, prt):
     sim_r = resnik_sim(go_mf, go_bp, godag, termcounts)
     sim_l = lin_sim(go_mf, go_bp, godag, termcounts)
     if prt is not None:
-         prt.write(fmt.format(TYPE='semantic distance', GO1=go_mf, GO2=go_bp, VAL=dst_none))
-         prt.write(fmt.format(TYPE='semantic similarity', GO1=go_mf, GO2=go_bp, VAL=sim_none))
-         prt.write(fmt.format(TYPE='Resnik similarity', GO1=go_mf, GO2=go_bp, VAL=sim_r))
-         prt.write(fmt.format(TYPE='Lin similarity', GO1=go_mf, GO2=go_bp, VAL=sim_l))
+        prt.write(fmt.format(TYPE='semantic distance', GO1=go_mf, GO2=go_bp, VAL=dst_none))
+        prt.write(fmt.format(TYPE='semantic similarity', GO1=go_mf, GO2=go_bp, VAL=sim_none))
+        prt.write(fmt.format(TYPE='Resnik similarity', GO1=go_mf, GO2=go_bp, VAL=sim_r))
+        prt.write(fmt.format(TYPE='Lin similarity', GO1=go_mf, GO2=go_bp, VAL=sim_l))
     assert dst_none is None
     assert sim_none is None
     assert sim_r is None
     assert sim_l is None
     sim_d = semantic_distance(go_mf, go_bp, godag, branch_dist)
     if prt is not None:
-         prt.write(fmt.format(TYPE='semantic distance', GO1=go_mf, GO2=go_bp, VAL=sim_d))
+        prt.write(fmt.format(TYPE='semantic distance', GO1=go_mf, GO2=go_bp, VAL=sim_d))
     assert sim_d == godag[go_mf].depth + godag[go_bp].depth + branch_dist
 
 def _get_assc(godag):
     """Get association reduced for the test subset of the GO DAG."""
-    fin_assc = "http://geneontology.org/gene-associations/gene_association.tair.gz"
+    assc_base = "gene_association.tair"
+    assc_remote = "http://geneontology.org/gene-associations/{ASSC}.gz".format(ASSC=assc_base)
+    cwd = os.getcwd()
+    assc_locgz = os.path.join(cwd, "{ASSC}.gz".format(ASSC=assc_base))
+    assc_local = os.path.join(cwd, assc_base)
+    if not os.path.isfile(assc_locgz):
+        wget.download(assc_remote, out=assc_locgz, bar=None)
+    assert os.path.isfile(assc_locgz)
+    if not os.path.isfile(assc_local):
+        gunzip(assc_locgz, assc_local)
+    assert os.path.isfile(assc_local)
     assc = {}
     goids_dag = set(godag.keys())
-    for gene, goids_cur in read_gaf(fin_assc).items():
+    for gene, goids_cur in read_gaf(assc_local).items():
         assc[gene] = goids_cur.intersection(goids_dag)
     return assc
 
