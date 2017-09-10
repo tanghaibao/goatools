@@ -150,7 +150,6 @@ clobber:
 # TBD: Add these to NOSETEST after edits:
 #    tests/test_genes_cell_cycle.py \
 #    tests/test_goea_errors.py \
-#    tests/test_goea_rpt_bonferroni.py \
 #    tests/test_nbt3102.py \
 #    tests/test_ncbi_entrez_annotations.py \
 #    tests/test_optional_fields.py \
@@ -175,6 +174,7 @@ clobber:
 #    tests/test_goea_statsmodels.py \
 
 NOSETESTS := \
+    tests/test_goea_rpt_bonferroni.py \
     tests/test_wr_py_goea_results.py \
     tests/test_mapslim.py
 
