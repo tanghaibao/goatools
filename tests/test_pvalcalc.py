@@ -43,7 +43,7 @@ def _get_pvals(pvalfnc_names, prt=sys.stdout):
     file_obo = os.path.join(os.getcwd(), "go-basic.obo")
     obo_dag = get_godag(file_obo, prt, loading_bar=None)
     geneids_pop = GeneID2nt_mus.keys()
-    assoc_geneid2gos = get_assoc_ncbi_taxids([taxid])
+    assoc_geneid2gos = get_assoc_ncbi_taxids([taxid], loading_bar=None)
     geneids_study = _get_geneid2symbol("nbt.3102-S4_GeneIDs.xlsx")
     for fisher in pvalfnc_names:
         goeaobj = GOEnrichmentStudy(

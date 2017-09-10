@@ -50,13 +50,13 @@ def read_associations(assoc_fn, no_top=False):
 
     return assoc
 
-def get_assoc_ncbi_taxids(taxids, force_dnld=False, **kws):
+def get_assoc_ncbi_taxids(taxids, force_dnld=False, loading_bar=True, **kws):
     """Download NCBI's gene2go. Return annotations for user-specified taxid(s)."""
     fin = kws['gene2go'] if 'gene2go' in kws else os.path.join(os.getcwd(), "gene2go")
-    dnld_ncbi_gene_file(fin, force_dnld)
+    dnld_ncbi_gene_file(fin, force_dnld, loading_bar)
     return read_ncbi_gene2go(fin, taxids, **kws)
 
-def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout):
+def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout, loading_bar=True):
     """Download a file from NCBI Gene's ftp server."""
     if not os.path.exists(fin) or force_dnld:
         import wget
@@ -67,7 +67,7 @@ def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout):
         if os.path.exists(fin_gz):
             os.remove(fin_gz)
         fin_ftp = "https://ftp.ncbi.nlm.nih.gov/gene/DATA/{F}.gz".format(F=fin_base)
-        wget.download(fin_ftp)
+        wget.download(fin_ftp, bar=loading_bar)
         with gzip.open(fin_gz, 'rb') as zstrm:
             log.write("\n  READ:  {F}\n".format(F=fin_gz))
             with open(fin, 'w') as ostrm:

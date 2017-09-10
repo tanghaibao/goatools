@@ -148,8 +148,8 @@ clobber:
 	rm -f gene2go gene2go.gz
 
 # TBD: Add these to NOSETEST after edits:
-#    tests/test_goea_local.py \
 #    tests/test_annotations_gaf.py \
+#    tests/test_goea_local.py \
 #    tests/test_genes_cell_cycle.py \
 #    tests/test_go_print.py \
 #    tests/test_goea_errors.py \
