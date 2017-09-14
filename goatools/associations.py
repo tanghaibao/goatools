@@ -22,10 +22,12 @@ def dnld_assc(assc_name, go2obj):
         assc_locgz = os.path.join(dirloc, "{ASSC}.gz".format(ASSC=assc_base))
         if not os.path.isfile(assc_locgz):
             assc_http = "http://geneontology.org/gene-associations/"
-            assc_remote = os.path.join(assc_http, "{ASSC}.gz".format(ASSC=assc_base))
-            wget.download(assc_remote, out=assc_locgz, bar=None)
-            sys.stdout.write("  DOWNLOADING {DST}\n       from {SRC}\n".format(
-                DST=assc_locgz, SRC=assc_http))
+            sys.stdout.write("  DOWNLOADING FROM: {SRC}\n".format(SRC=assc_http))
+            for ext in ['gz', 'json']:
+                src = os.path.join(assc_http, "{ASSC}.{EXT}".format(ASSC=assc_base, EXT=ext))
+                dst = os.path.join(dirloc, "{ASSC}.{EXT}".format(ASSC=assc_base, EXT=ext))
+                wget.download(src, out=dst, bar=None)
+                sys.stdout.write("  DOWNLOADING {DST}\n".format(DST=dst))
         assert os.path.isfile(assc_locgz), "MISSING: {GZ}".format(GZ=assc_locgz)
         gunzip(assc_locgz, assc_local)
         assert os.path.isfile(assc_local), "MISSING: {GAF}".format(GAF=assc_local)
