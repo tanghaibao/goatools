@@ -56,7 +56,7 @@ class GafReader(object):
         "1.0" : 15}
 
     # Expected values for a Qualifier
-    exp_qualifiers = set(['NOT', 'contributes_to', 'colocalizes_with'])
+    exp_qualifiers = set(['NOT', 'contributes_to', 'Contributes_to', 'colocalizes_with'])
 
     def __init__(self, filename=None, hdr_only=False):
         self.filename = filename
@@ -117,20 +117,19 @@ class GafReader(object):
                 self._rd_fld_vals("Gene_Product_Form_ID", flds[16], is_set)]
         return ntgafobj._make(gafvals)
 
-    @staticmethod
-    def _rd_fld_vals(name, val, set_list_ft=True, qty_min=0, qty_max=None):
+    def _rd_fld_vals(self, name, val, set_list_ft=True, qty_min=0, qty_max=None):
         """Further split a GAF value within a single field."""
         if not val and qty_min == 0:
             return [] if set_list_ft else set()
         vals = val.split('|') # Use a pipe to separate entries
         num_vals = len(vals)
         assert num_vals >= qty_min, \
-            "FLD({F}): MIN QUANTITY({Q}) WASN'T MET: {V}".format(
-                F=name, Q=qty_min, V=vals)
+            "FIELD({F}): MIN QUANTITY({Q}) WASN'T MET: {V} in {GAF}".format(
+                F=name, Q=qty_min, V=vals, GAF=self.filename)
         if qty_max is not None:
             assert num_vals <= qty_max, \
-                "FLD({F}): MAX QUANTITY({Q}) EXCEEDED: {V}".format(
-                    F=name, Q=qty_max, V=vals)
+                "FIELD({F}): MAX QUANTITY({Q}) EXCEEDED: {V} in {GAF}".format(
+                    F=name, Q=qty_max, V=vals, GAF=self.filename)
         return vals if set_list_ft else set(vals)
 
     def read_gaf(self, fin_gaf, hdr_only=False):
@@ -176,7 +175,8 @@ class GafReader(object):
         """Check that qualifiers are expected values."""
         # http://geneontology.org/page/go-annotation-conventions#qual
         for qual in qualifiers:
-            assert qual in self.exp_qualifiers, "UNEXPECTED QUALIFIER({Q})".format(Q=qual)
+            assert qual in self.exp_qualifiers, "UNEXPECTED QUALIFIER({Q}) IN {GAF}".format(
+                Q=qual, GAF=self.filename)
 
     @staticmethod
     def _chk_qty_eq_1(flds, col_lst):
