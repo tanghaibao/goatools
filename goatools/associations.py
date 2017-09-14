@@ -8,6 +8,32 @@ __author__ = "various"
 from collections import defaultdict
 import os
 import sys
+import wget
+from goatools.base import gunzip
+
+def dnld_assc(assc_name, go2obj):
+    """Download association from http://geneontology.org/gene-associations."""
+    # Example assc_name: "gene_association.tair"
+    dirloc, assc_base = os.path.split(assc_name)
+    if not dirloc:
+        dirloc = os.getcwd()
+    assc_local = os.path.join(dirloc, assc_base) if not dirloc else assc_name
+    if not os.path.isfile(assc_local):
+        assc_locgz = os.path.join(dirloc, "{ASSC}.gz".format(ASSC=assc_base))
+        if not os.path.isfile(assc_locgz):
+            assc_http = "http://geneontology.org/gene-associations/"
+            assc_remote = os.path.join(assc_http, "{ASSC}.gz".format(ASSC=assc_base))
+            wget.download(assc_remote, out=assc_locgz, bar=None)
+            sys.stdout.write("  DOWNLOADING {DST}\n       from {SRC}\n".format(
+                DST=assc_locgz, SRC=assc_http))
+        assert os.path.isfile(assc_locgz), "MISSING: {GZ}".format(GZ=assc_locgz)
+        gunzip(assc_locgz, assc_local)
+        assert os.path.isfile(assc_local), "MISSING: {GAF}".format(GAF=assc_local)
+    assc = {}
+    goids_dag = set(go2obj.keys())
+    for gene, goids_cur in read_gaf(assc_local).items():
+        assc[gene] = goids_cur.intersection(goids_dag)
+    return assc
 
 def read_associations(assoc_fn, no_top=False):
     """
@@ -59,7 +85,6 @@ def get_assoc_ncbi_taxids(taxids, force_dnld=False, loading_bar=True, **kws):
 def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout, loading_bar=True):
     """Download a file from NCBI Gene's ftp server."""
     if not os.path.exists(fin) or force_dnld:
-        import wget
         import gzip
         fin_dir, fin_base = os.path.split(fin)
         fin_gz = "{F}.gz".format(F=fin_base)

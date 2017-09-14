@@ -6,10 +6,12 @@
 
 # How to compute semantic similarity between GO terms.
 
-# First we need to write a function that calculates the minimum number of branches connecting two GO terms.
+# First we need to write a function that calculates the minimum number
+# of branches connecting two GO terms.
 
-from goatools import obo_parser
-from goatools.associations import read_gaf
+import os
+from goatools.base import get_godag
+from goatools.associations import dnld_assc
 from goatools.semantic import semantic_similarity
 from goatools.semantic import TermCounts, get_info_content
 from goatools.semantic import resnik_sim
@@ -17,9 +19,9 @@ from goatools.semantic import lin_sim
 
 def test_semantic_similarity():
     """Computing basic semantic similarities between GO terms."""
-    godag = obo_parser.GODag("go-basic.obo")
+    godag = get_godag(os.path.join(os.getcwd(), "go-basic.obo"), loading_bar=None)
     # Get all the annotations from arabidopsis.
-    associations = read_gaf("http://geneontology.org/gene-associations/gene_association.tair.gz")
+    associations = dnld_assc(os.path.join(os.getcwd(), 'gene_association.tair'), godag)
 
 
     # Now we can calculate the semantic distance and semantic similarity, as so:
@@ -48,7 +50,8 @@ def test_semantic_similarity():
     # the GO. Then we can calculate this as follows:
     #       "Resnik similarity score (GO:0048364, GO:0044707) = 4.0540784252
     sim_r = resnik_sim(go_id3, go_id4, godag, termcounts)
-    print('Resnik similarity score ({GO1}, {GO2}) = {VAL}'.format(GO1=go_id3, GO2=go_id4, VAL=sim_r))
+    print('Resnik similarity score ({GO1}, {GO2}) = {VAL}'.format(
+        GO1=go_id3, GO2=go_id4, VAL=sim_r))
 
     # Lin similarity score (GO:0048364, GO:0044707) = -0.607721957763
     sim_l = lin_sim(go_id3, go_id4, godag, termcounts)

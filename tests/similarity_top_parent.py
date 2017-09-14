@@ -14,10 +14,8 @@ entities/genes. Here is one example producing this error
 
 import os
 import sys
-import wget
 from goatools import obo_parser
-from goatools.base import gunzip
-from goatools.associations import read_gaf
+from goatools.associations import dnld_assc
 from goatools.semantic import semantic_distance, semantic_similarity, TermCounts
 from goatools.semantic import resnik_sim, lin_sim
 
@@ -27,7 +25,7 @@ def test_top_parent(prt=sys.stdout):
     fin_obo = "data/i86.obo"
     branch_dist = 5
     repo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-    godag = obo_parser.GODag(os.path.join(repo, fin_obo))
+    godag = get_godag(os.path.join(repo, fin_obo))
     # Get all the annotations from arabidopsis.
 
     # Calculate the semantic distance and semantic similarity:
@@ -42,7 +40,7 @@ def _test_path_bp_mf(branch_dist, godag, prt):
     go_bp = 'GO:0007516' # level-04 depth-05 hemocyte development [biological_process]
     dst_none = semantic_distance(go_mf, go_bp, godag)
     sim_none = semantic_similarity(go_mf, go_bp, godag)
-    assc = _get_assc(godag)
+    assc = dnld_assc("gene_association.tair", godag)
     termcounts = TermCounts(godag, assc)
     fmt = '({GO1}, {GO2}) {TYPE:6} score = {VAL}\n'
     sim_r = resnik_sim(go_mf, go_bp, godag, termcounts)
@@ -60,26 +58,6 @@ def _test_path_bp_mf(branch_dist, godag, prt):
     if prt is not None:
         prt.write(fmt.format(TYPE='semantic distance', GO1=go_mf, GO2=go_bp, VAL=sim_d))
     assert sim_d == godag[go_mf].depth + godag[go_bp].depth + branch_dist
-
-def _get_assc(godag):
-    """Get association reduced for the test subset of the GO DAG."""
-    assc_base = "gene_association.tair"
-    cwd = os.getcwd()
-    assc_local = os.path.join(cwd, assc_base)
-    if not os.path.isfile(assc_local):
-        assc_locgz = os.path.join(cwd, "{ASSC}.gz".format(ASSC=assc_base))
-        if not os.path.isfile(assc_locgz):
-            assc_http = "http://geneontology.org/gene-associations/"
-            assc_remote = os.path.join(assc_http, "{ASSC}.gz".format(ASSC=assc_base))
-            wget.download(assc_remote, out=assc_locgz, bar=None)
-        assert os.path.isfile(assc_locgz)
-        gunzip(assc_locgz, assc_local)
-        assert os.path.isfile(assc_local)
-    assc = {}
-    goids_dag = set(godag.keys())
-    for gene, goids_cur in read_gaf(assc_local).items():
-        assc[gene] = goids_cur.intersection(goids_dag)
-    return assc
 
 def _test_path_parallel(godag, prt):
     """Test distances between GO IDs on parallel branches."""
