@@ -11,7 +11,7 @@ import sys
 import wget
 from goatools.base import gunzip
 
-def dnld_assc(assc_name, go2obj):
+def dnld_assc(assc_name, go2obj, prt=sys.stdout):
     """Download association from http://geneontology.org/gene-associations."""
     # Example assc_name: "gene_association.tair"
     dirloc, assc_base = os.path.split(assc_name)
@@ -22,12 +22,14 @@ def dnld_assc(assc_name, go2obj):
         assc_locgz = os.path.join(dirloc, "{ASSC}.gz".format(ASSC=assc_base))
         if not os.path.isfile(assc_locgz):
             assc_http = "http://geneontology.org/gene-associations/"
-            sys.stdout.write("  DOWNLOADING FROM: {SRC}\n".format(SRC=assc_http))
+            if prt is not None:
+                prt.write("  DOWNLOADING FROM: {SRC}\n".format(SRC=assc_http))
             for ext in ['gz', 'json']:
                 src = os.path.join(assc_http, "{ASSC}.{EXT}".format(ASSC=assc_base, EXT=ext))
                 dst = os.path.join(dirloc, "{ASSC}.{EXT}".format(ASSC=assc_base, EXT=ext))
                 wget.download(src, out=dst, bar=None)
-                sys.stdout.write("  DOWNLOADING {DST}\n".format(DST=dst))
+                if prt is not None:
+                    prt.write("  DOWNLOADING {DST}\n".format(DST=dst))
         assert os.path.isfile(assc_locgz), "MISSING: {GZ}".format(GZ=assc_locgz)
         gunzip(assc_locgz, assc_local)
         assert os.path.isfile(assc_local), "MISSING: {GAF}".format(GAF=assc_local)
