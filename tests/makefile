@@ -22,13 +22,14 @@ run:
 	$(PYTHON) test_go_draw.py
 	$(PYTHON) test_read_gaf_allow_nd.py
 	$(PYTHON) test_statsdescribe.py
-	$(PYTHON) semantic_similarity.py
+	$(PYTHON) test_semantic_similarity.py
 	$(PYTHON) similarity_top_parent.py noprt
 
 dnld_dbs: go-basic.obo gene2go
 
 # These tests require a download with wget
 run_dnld:
+	$(PYTHON) test_termcounts.py
 	$(PYTHON) test_get_godag.py
 	$(PYTHON) test_dnlds.py
 	$(PYTHON) test_genes_cell_cycle.py

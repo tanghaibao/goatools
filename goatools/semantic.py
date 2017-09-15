@@ -16,21 +16,21 @@ class TermCounts(object):
     '''
         TermCounts counts the term counts for each
     '''
-    def __init__(self, godag, annots):
+    def __init__(self, go2obj, annots):
         '''
             Initialise the counts and
         '''
         # Backup
-        self.godag = godag
+        self.go2obj = go2obj
 
         # Initialise the counters
-        self._counts = Counter()
-        self._aspect_counts = Counter()
+        self.gocnts = Counter()
+        self.aspect_counts = Counter()
 
         # Fill the counters...
-        self._count_terms(godag, annots)
+        self._count_terms(go2obj, annots)
 
-    def _count_terms(self, godag, annots):
+    def _count_terms(self, go2obj, annots):
         '''
             Fills in the counts and overall aspect counts.
         '''
@@ -40,19 +40,19 @@ class TermCounts(object):
             # propagated but they won't get double-counted for the gene
             allterms = set()
             for go_id in terms:
-                goobj = godag.get(go_id, None)
+                goobj = go2obj.get(go_id, None)
                 if goobj is not None:
                     allterms.add(go_id)
                     allterms |= goobj.get_all_parents()
                 else:
                     gonotindag.add(go_id)
             for parent in allterms:
-                self._counts[parent] += 1
+                self.gocnts[parent] += 1
 
-        for go_id, child in self._counts.items():
+        for go_id, child in self.gocnts.items():
             # Group by namespace
-            namespace = godag[go_id].namespace
-            self._aspect_counts[namespace] += child
+            namespace = go2obj[go_id].namespace
+            self.aspect_counts[namespace] += child
         if gonotindag:
             print("{N} GO IDs found in the associations are not found in the GODag\n".format(
                 N=len(gonotindag)))
@@ -61,27 +61,21 @@ class TermCounts(object):
         '''
             Returns the count of that GO term observed in the annotations.
         '''
-        return self._counts[go_id]
+        return self.gocnts[go_id]
 
     def get_total_count(self, aspect):
         '''
             Gets the total count that's been precomputed.
         '''
-        return self._aspect_counts[aspect]
+        return self.aspect_counts[aspect]
 
     def get_term_freq(self, go_id):
         '''
             Returns the frequency at which a particular GO term has
             been observed in the annotations.
         '''
-        try:
-            namespace = self.godag[go_id].namespace
-            freq = float(self.get_count(go_id)) / float(self.get_total_count(namespace))
-            #print self.get_count(go_id), self.get_total_count(namespace), freq
-        except ZeroDivisionError:
-            freq = 0
-
-        return freq
+        num_ns = float(self.get_total_count(self.go2obj[go_id].namespace))
+        return float(self.get_count(go_id))/num_ns if num_ns != 0 else 0
 
 
 def get_info_content(go_id, termcounts):
