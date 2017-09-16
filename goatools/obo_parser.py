@@ -118,7 +118,7 @@ class OBOReader(object):
                 self._chk_none(rec_curr.id, lnum)
                 rec_curr.id = field_value
             elif field_name == "alt_id":
-                rec_curr.alt_ids.append(field_value)
+                rec_curr.alt_ids.add(field_value)
             elif field_name == "name":
                 self._chk_none(rec_curr.name, lnum)
                 rec_curr.name = field_value
@@ -252,7 +252,7 @@ class GOTerm(object):
         self.level = None           # shortest distance from root node
         self.depth = None           # longest distance from root node
         self.is_obsolete = False    # is_obsolete
-        self.alt_ids = []           # alternative identifiers
+        self.alt_ids = set()        # alternative identifiers
 
     def __str__(self):
         ret = ['{GO}\t'.format(GO=self.id)]
