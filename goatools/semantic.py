@@ -105,8 +105,17 @@ def lin_sim(goid1, goid2, godag, termcnts):
         Computes Lin's similarity measure.
     '''
     sim_r = resnik_sim(goid1, goid2, godag, termcnts)
+    return lin_sim_calc(goid1, goid2, sim_r, termcnts)
+
+
+def lin_sim_calc(goid1, goid2, sim_r, termcnts):
+    '''
+        Computes Lin's similarity measure using pre-calculated Resnik's similarities.
+    '''
     if sim_r is not None:
-        return (-2*sim_r)/(get_info_content(goid1, termcnts) + get_info_content(goid2, termcnts))
+        info = get_info_content(goid1, termcnts) + get_info_content(goid2, termcnts)
+        if info != 0:
+            return (-2*sim_r)/info
 
 
 def common_parent_go_ids(goids, godag):
