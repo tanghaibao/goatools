@@ -35,7 +35,7 @@ def dnld_assc(assc_name, go2obj, prt=sys.stdout):
         assert os.path.isfile(assc_local), "MISSING: {GAF}".format(GAF=assc_local)
     assc = {}
     goids_dag = set(go2obj.keys())
-    for gene, goids_cur in read_gaf(assc_local).items():
+    for gene, goids_cur in read_gaf(assc_local, prt).items():
         assc[gene] = goids_cur.intersection(goids_dag)
     return assc
 
@@ -147,7 +147,7 @@ def get_gaf_hdr(fin_gaf):
     from goatools.gaf_reader import GafReader
     return GafReader(fin_gaf, hdr_only=True).hdr
 
-def read_gaf(fin_gaf, **kws):
+def read_gaf(fin_gaf, prt=sys.stdout, **kws):
     """Read Gene Association File (GAF). Return data."""
     # keyword arguments for choosing which GO IDs to keep
     taxid2asscs = kws.get('taxid2asscs', None)
@@ -162,7 +162,7 @@ def read_gaf(fin_gaf, **kws):
     # Simple associations
     id2gos = defaultdict(set)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
-    gafobj = GafReader(fin_gaf, hdr_only)
+    gafobj = GafReader(fin_gaf, hdr_only, prt)
     # Optionally specify a subset of GOs based on their evidence.
     # By default, return id2gos. User can cause go2geneids to be returned by:
     #   >>> read_ncbi_gene2go(..., go2geneids=True

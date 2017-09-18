@@ -58,12 +58,12 @@ class GafReader(object):
     # Expected values for a Qualifier
     exp_qualifiers = set(['NOT', 'contributes_to', 'Contributes_to', 'colocalizes_with'])
 
-    def __init__(self, filename=None, hdr_only=False):
+    def __init__(self, filename=None, hdr_only=False, prt=sys.stdout):
         self.filename = filename
         self.evobj = EvidenceCodes()
         # Initialize associations and header information
         self.hdr = None
-        self.associations = self.read_gaf(filename, hdr_only) if filename is not None else []
+        self.associations = self.read_gaf(filename, hdr_only, prt) if filename is not None else []
 
     def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print annotation/evidence code summary."""
@@ -132,7 +132,7 @@ class GafReader(object):
                     F=name, Q=qty_max, V=vals, GAF=self.filename)
         return vals if set_list_ft else set(vals)
 
-    def read_gaf(self, fin_gaf, hdr_only=False):
+    def read_gaf(self, fin_gaf, hdr_only, prt):
         """Read GAF file. HTTP address okay. GZIPPED/BZIPPED file okay."""
         ga_lst = []
         ver = None
@@ -159,8 +159,9 @@ class GafReader(object):
                 ntgaf = self._get_ntgaf(ntgafobj, flds, ver)
                 ga_lst.append(ntgaf)
         # GAF file has been read
-        readmsg = "  READ {N:,} associations: {FIN}\n"
-        sys.stdout.write(readmsg.format(N=len(ga_lst), FIN=fin_gaf))
+        if prt is not None:
+            readmsg = "  READ {N:,} associations: {FIN}\n"
+            prt.write(readmsg.format(N=len(ga_lst), FIN=fin_gaf))
         return self.evobj.sort_nts(ga_lst, 'Evidence_Code')
 
     @staticmethod
