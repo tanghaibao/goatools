@@ -39,22 +39,22 @@ def describe_go2obj(go2obj, prt):
 
 def describe_assc(org, fin_assc, go2obj, obj, prt):
     """Report statistics for a single association."""
-    # Assc.     | # Assc| range      | 25th | median | 75th | mean | stddev
-    # ----------|-------|------------|------|--------|------|------|-------
-    # hsa GOs   | 19394 | 1 to   212 |    5 |      9 |   17 |   13 |     14
-    # hsa Genes | 17277 | 1 to 8,897 |    1 |      3 |    8 |   15 |    120
+    # Assc.       | # Assc| range      | 25th | median | 75th | mean | stddev
+    # ------------|-------|------------|------|--------|------|------|-------
+    # hsa GO/gene | 19394 | 1 to   212 |    5 |      9 |   17 |   13 |     14
+    # hsa gene/GO | 17277 | 1 to 8,897 |    1 |      3 |    8 |   15 |    120
     #
-    # mus GOs   | 19870 | 1 to   261 |    5 |     10 |   18 |   14 |     15
-    # mus Genes | 17491 | 1 to 7,009 |    1 |      3 |    8 |   16 |    129
+    # mus GO/gene | 19870 | 1 to   261 |    5 |     10 |   18 |   14 |     15
+    # mus gene/GO | 17491 | 1 to 7,009 |    1 |      3 |    8 |   16 |    129
     #
-    # dme GOs   | 12551 | 1 to   137 |    2 |      4 |    8 |    6 |      7
-    # dme Genes |  7878 | 1 to 1,675 |    1 |      3 |    7 |   10 |     41
+    # dme GO/gene | 12551 | 1 to   137 |    2 |      4 |    8 |    6 |      7
+    # dme gene/GO |  7878 | 1 to 1,675 |    1 |      3 |    7 |   10 |     41
     gene2gos = dnld_assc(fin_assc, go2obj, prt=None) # Associations
     go2genes = get_b2aset(gene2gos)
-    cnts_gos = [len(gos) for gos in gene2gos.values()]
-    cnts_genes = [len(genes) for genes in go2genes.values()]
-    obj.prt_data("{ORG} GOs".format(ORG=org), cnts_gos, prt)
-    obj.prt_data("{ORG} Genes".format(ORG=org), cnts_genes, prt)
+    cnts_gos_p_gene = [len(gos) for gos in gene2gos.values()]
+    cnts_genes_p_go = [len(genes) for genes in go2genes.values()]
+    obj.prt_data("{ORG} GO/gene".format(ORG=org), cnts_gos_p_gene, prt)
+    obj.prt_data("{ORG} gene/GO".format(ORG=org), cnts_genes_p_go, prt)
 
 if __name__ == '__main__':
     test_assc_stats()
