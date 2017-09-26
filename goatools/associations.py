@@ -144,7 +144,7 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
 
 def get_gaf_hdr(fin_gaf):
     """Read Gene Association File (GAF). Return GAF version and data info."""
-    from goatools.gaf_reader import GafReader
+    from goatools.anno.gaf_reader import GafReader
     return GafReader(fin_gaf, hdr_only=True).hdr
 
 def read_gaf(fin_gaf, prt=sys.stdout, **kws):
@@ -158,7 +158,7 @@ def read_gaf(fin_gaf, prt=sys.stdout, **kws):
     # keyword arguments what is read from GAF.
     hdr_only = kws.get('hdr_only', None) # Read all data from GAF by default
     # Read GAF file
-    from goatools.gaf_reader import GafReader
+    from goatools.anno.gaf_reader import GafReader
     # Simple associations
     id2gos = defaultdict(set)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
