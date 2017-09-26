@@ -187,8 +187,8 @@ def dnld_file(src_ftp, dst_file, prt=sys.stdout, loading_bar=True):
         return
     do_gunzip = src_ftp[-3:] == '.gz' and dst_file[-3:] != '.gz'
     dst_wget = "{DST}.gz".format(DST=dst_file) if do_gunzip else dst_file
-    if prt is not None:
-        prt.write("  wget.download({SRC} out={DST})\n".format(SRC=src_ftp, DST=dst_wget))
+    # Write to stderr, not stdout so this message will be seen when running nosetests
+    sys.stderr.write("  wget.download({SRC} out={DST})\n".format(SRC=src_ftp, DST=dst_wget))
     if loading_bar:
         loading_bar = wget.bar_adaptive
     wget.download(src_ftp, out=dst_wget, bar=loading_bar)
