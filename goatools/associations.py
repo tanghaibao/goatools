@@ -95,13 +95,17 @@ def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout, loading_bar=True)
         fin_gz = os.path.join(fin_dir, fin_gz)
         if os.path.exists(fin_gz):
             os.remove(fin_gz)
-        fin_ftp = "https://ftp.ncbi.nlm.nih.gov/gene/DATA/{F}.gz".format(F=fin_base)
+        fin_ftp = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{F}.gz".format(F=fin_base)
+        if log is not None:
+            log.write("  DOWNLOADING GZIP: {GZ}\n".format(GZ=fin_ftp))
         wget.download(fin_ftp, bar=loading_bar)
         with gzip.open(fin_gz, 'rb') as zstrm:
-            log.write("\n  READ:  {F}\n".format(F=fin_gz))
+            if log is not None:
+                log.write("\n  READ GZIP:  {F}\n".format(F=fin_gz))
             with open(fin, 'wb') as ostrm:
                 ostrm.write(zstrm.read())
-                log.write("  WROTE: {F}\n".format(F=fin))
+                if log is not None:
+                    log.write("  WROTE UNZIPPED: {F}\n".format(F=fin))
 
 def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
