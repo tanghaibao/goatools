@@ -153,6 +153,7 @@ clobber:
 # TBD: Add these to NOSETEST after edits:
 #    tests/test_nbt3102.py \
 #    tests/test_optional_fields.py \
+#    tests/test_dnlds.py \
 
 NOSETESTS := \
     tests/test_gpad_dnld.py \
@@ -168,7 +169,6 @@ NOSETESTS := \
     tests/test_read_gaf_allow_nd.py \
     tests/test_write_summary_cnts.py \
     tests/test_pvalcalc.py \
-    tests/test_dnlds.py \
     tests/test_get_godag.py \
     tests/test_altid_godag.py \
     tests/test_combine_nt_lists.py \

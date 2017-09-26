@@ -1,4 +1,4 @@
-"""Test downloading go-basic.obo file."""
+"""tests/test_dnlds.py: Test downloading go-basic.obo file and goslims obo/owl."""
 
 import os
 import sys
