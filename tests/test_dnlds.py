@@ -1,10 +1,11 @@
 """Test downloading go-basic.obo file."""
 
 import os
+import sys
 from goatools.base import download_go_basic_obo
 from goatools.base import download_ncbi_associations
 
-def test_dnlds():
+def test_dnlds(prt=sys.stdout):
     """Test downloads of ontologies and NCBI associations."""
     goslims = [
         'goslim_aspergillus',
@@ -28,9 +29,9 @@ def test_dnlds():
             dnld_ontology(file_dst)
     # Test downloading of associations from NCBI.
     file_assc = os.path.join(cwd, "gene2go")
-    download_ncbi_associations(file_assc, loading_bar=None)
-    os.system("rm -f {FILE}".format(FILE=file_assc))
-    download_ncbi_associations(file_assc, loading_bar=None)
+    download_ncbi_associations(file_assc, prt, loading_bar=None)
+    # os.system("rm -f {FILE}".format(FILE=file_assc))
+    # download_ncbi_associations(file_assc, prt, loading_bar=None)
     assert os.path.isfile(file_assc), "FILE({F}) EXPECTED TO EXIST".format(F=file_assc)
 
 def dnld_ontology(filename):
