@@ -9,7 +9,7 @@ from collections import defaultdict
 import os
 import sys
 import wget
-from goatools.base import gunzip
+from goatools.base import dnld_file
 
 def dnld_assc(assc_name, go2obj, prt=sys.stdout):
     """Download association from http://geneontology.org/gene-associations."""
@@ -19,20 +19,10 @@ def dnld_assc(assc_name, go2obj, prt=sys.stdout):
         dirloc = os.getcwd()
     assc_local = os.path.join(dirloc, assc_base) if not dirloc else assc_name
     if not os.path.isfile(assc_local):
-        assc_locgz = os.path.join(dirloc, "{ASSC}.gz".format(ASSC=assc_base))
-        if not os.path.isfile(assc_locgz):
-            assc_http = "http://geneontology.org/gene-associations/"
-            if prt is not None:
-                prt.write("  DOWNLOADING FROM: {SRC}\n".format(SRC=assc_http))
-            for ext in ['gz', 'json']:
-                src = os.path.join(assc_http, "{ASSC}.{EXT}".format(ASSC=assc_base, EXT=ext))
-                dst = os.path.join(dirloc, "{ASSC}.{EXT}".format(ASSC=assc_base, EXT=ext))
-                wget.download(src, out=dst, bar=None)
-                if prt is not None:
-                    prt.write("  DOWNLOADING {DST}\n".format(DST=dst))
-        assert os.path.isfile(assc_locgz), "MISSING: {GZ}".format(GZ=assc_locgz)
-        gunzip(assc_locgz, assc_local)
-        assert os.path.isfile(assc_local), "MISSING: {GAF}".format(GAF=assc_local)
+        assc_http = "http://geneontology.org/gene-associations/"
+        for ext in ['gz', 'json']:
+            src = os.path.join(assc_http, "{ASSC}.{EXT}".format(ASSC=assc_base, EXT=ext))
+            dnld_file(src, assc_local, prt, loading_bar=None)
     assc = {}
     goids_dag = set(go2obj.keys())
     for gene, goids_cur in read_gaf(assc_local, prt).items():
