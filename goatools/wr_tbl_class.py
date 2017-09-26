@@ -82,8 +82,8 @@ class WrXlsx(object):
         except RuntimeError as inst:
             import traceback
             traceback.print_exc()
-            sys.stdout.write("\n  **FATAL in wr_data: {MSG}\n\n".format(MSG=str(inst)))
-            sys.exit()
+            sys.stderr.write("\n  **FATAL in wr_data: {MSG}\n\n".format(MSG=str(inst)))
+            sys.exit(1)
         return row_i
 
     @staticmethod
