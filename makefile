@@ -146,6 +146,8 @@ clobber:
 	rm -f $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
 	rm -f goa_human.gaf gene_association.*
 	rm -f gene2go gene2go.gz
+	rm -f *.gaf *.gaf.*
+	rm -f goslim_*.obo goslim_*.owl
 
 # TBD: Add these to NOSETEST after edits:
 #    tests/test_nbt3102.py \

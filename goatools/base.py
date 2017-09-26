@@ -1,3 +1,4 @@
+"""Utilities used in Gene Ontology Enrichment Analyses."""
 # Stolen from brentp:
 # <https://github.com/brentp/toolshed/blob/master/toolshed/files.py>
 
@@ -115,13 +116,7 @@ def download_go_basic_obo(obo="go-basic.obo", prt=sys.stdout, loading_bar=True):
         if "slim" in obo:
             http = "http://www.geneontology.org/ontology/subsets"
         obo_remote = "{HTTP}/{OBO}".format(HTTP=http, OBO=os.path.basename(obo))
-        if prt is not None:
-            prt.write("  DOWNLOADING: {OBO}\n".format(OBO=obo_remote))
-        if loading_bar:
-            loading_bar = wget.bar_adaptive
-        wget.download(obo_remote, out=obo, bar=loading_bar)
-        if prt is not None:
-            prt.write("  DOWNLOADED: {FILE}\n".format(FILE=obo))
+        dnld_file(obo_remote, obo, prt, loading_bar)
     else:
         if prt is not None:
             prt.write("  EXISTS: {FILE}\n".format(FILE=obo))
@@ -132,16 +127,9 @@ def download_ncbi_associations(gene2go="gene2go", prt=sys.stdout, loading_bar=Tr
     # Download: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz
     gzip_file = "{GENE2GO}.gz".format(GENE2GO=gene2go)
     if not os.path.isfile(gene2go):
-        file_remote = "https://ftp.ncbi.nlm.nih.gov/gene/DATA/{GZ}".format(
+        file_remote = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{GZ}".format(
             GZ=os.path.basename(gzip_file))
-        if loading_bar:
-            loading_bar = wget.bar_adaptive
-        if prt is not None:
-            prt.write("  DOWNLOADING: {ASSC}\n".format(ASSC=file_remote))
-        wget.download(file_remote, out=gzip_file, bar=loading_bar)
-        assert gunzip(gzip_file, gene2go) == gene2go
-        if prt is not None:
-            prt.write("  DOWNLOADED: {ASSC}\n".format(ASSC=gene2go))
+        dnld_file(file_remote, gene2go, prt, loading_bar)
     else:
         if prt is not None:
             prt.write("  EXISTS: {FILE}\n".format(FILE=gene2go))
@@ -151,11 +139,8 @@ def gunzip(gzip_file, file_gunzip=None):
     """Unzip .gz file. Return filename of unzipped file."""
     if file_gunzip is None:
         file_gunzip = os.path.splitext(gzip_file)[0]
-    with gzip.open(gzip_file, 'rb') as zstrm:
-        with  open(file_gunzip, 'wb') as ostrm:
-            ostrm.write(zstrm.read())
-    os.remove(gzip_file)
-    return file_gunzip
+        gzip_open_to(gzip_file, file_gunzip)
+        return file_gunzip
 
 def get_godag(fin_obo="go-basic.obo", prt=sys.stdout, loading_bar=True):
     """Return GODag object. Initialize, if necessary."""
@@ -191,19 +176,33 @@ def dnld_gafs(species_list, prt=sys.stdout, loading_bar=True):
     for species_txt in species_list: # e.g., goa_human mgi fb
         gaf_base = get_gaf_name(species_txt) # goa_human.gaf
         gaf_cwd = os.path.join(cwd, gaf_base) # {CWD}/goa_human.gaf
-        if not os.path.isfile(gaf_cwd):
-            wget_cmd = "{HTTP}/{GAF}.gz".format(HTTP=http, GAF=gaf_base)
-            if prt is not None:
-                prt.write("  wget {FILE}\n".format(FILE=wget_cmd))
-            gaf_gz = "{GAF_LOCAL}.gz".format(GAF_LOCAL=gaf_cwd)
-            wget.download(wget_cmd, out=gaf_gz, bar=loading_bar)
-            if prt is not None:
-                prt.write("\n  gunzip {FILE}\n".format(FILE=gaf_cwd))
-            with gzip.open(gaf_gz, 'rb') as zstrm:  # RD {CWD}/goa_human.gaf.gz
-                with  open(gaf_cwd, 'wb') as ostrm: # WR {CWD}/goa_human.gaf
-                    ostrm.write(zstrm.read())
-            os.remove(gaf_gz)
+        wget_cmd = "{HTTP}/{GAF}.gz".format(HTTP=http, GAF=gaf_base)
+        dnld_file(wget_cmd, gaf_cwd, prt, loading_bar)
         fin_gafs.append(gaf_cwd)
     return fin_gafs
+
+def dnld_file(src_ftp, dst_file, prt=sys.stdout, loading_bar=True):
+    """Download specified file if necessary."""
+    if os.path.isfile(dst_file):
+        return
+    do_gunzip = src_ftp[-3:] == '.gz' and dst_file[-3:] != '.gz'
+    dst_wget = "{DST}.gz".format(DST=dst_file) if do_gunzip else dst_file
+    if prt is not None:
+        prt.write("  wget.download({SRC} out={DST})\n".format(SRC=src_ftp, DST=dst_wget))
+    if loading_bar:
+        loading_bar = wget.bar_adaptive
+    wget.download(src_ftp, out=dst_wget, bar=loading_bar)
+    if do_gunzip:
+        if prt is not None:
+            prt.write("  gunzip {FILE}\n".format(FILE=dst_wget))
+            gzip_open_to(dst_wget, dst_file)
+
+def gzip_open_to(fin_gz, fout):
+    """Unzip a file.gz file."""
+    with gzip.open(fin_gz, 'rb') as zstrm:
+        with  open(fout, 'wb') as ostrm:
+            ostrm.write(zstrm.read())
+    assert os.path.isfile(fout), "COULD NOT GUNZIP({G}) TO FILE({F})".format(G=fin_gz, F=fout)
+    os.remove(fin_gz)
 
 # Copyright (C) 2013-2017, B Pedersen, et al. All rights reserved."
