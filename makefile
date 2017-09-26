@@ -148,12 +148,14 @@ clobber:
 	rm -f gene2go gene2go.gz
 	rm -f *.gaf *.gaf.*
 	rm -f goslim_*.obo goslim_*.owl
+	rm -f goa_*.gpi goa_*.gpa
 
 # TBD: Add these to NOSETEST after edits:
 #    tests/test_nbt3102.py \
 #    tests/test_optional_fields.py \
 
 NOSETESTS := \
+    tests/test_gpad_dnld.py \
     tests/test_semantic_similarity.py \
     tests/test_goea_errors.py \
     tests/test_genes_cell_cycle.py \
