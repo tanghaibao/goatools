@@ -144,7 +144,7 @@ class GafReader(object):
             # Read header
             if ntgafobj is None:
                 if line[0] == '!':
-                    if line[1:13] == 'gaf-version:':
+                    if ver is None and line[1:13] == 'gaf-version:':
                         ver = line[13:].strip()
                     hdrobj.chkaddhdr(line)
                 else:
