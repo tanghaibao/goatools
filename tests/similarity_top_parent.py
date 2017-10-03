@@ -14,7 +14,7 @@ entities/genes. Here is one example producing this error
 
 import os
 import sys
-from goatools import obo_parser
+from goatools.base import get_godag
 from goatools.associations import dnld_assc
 from goatools.semantic import semantic_distance, semantic_similarity, TermCounts
 from goatools.semantic import resnik_sim, lin_sim
