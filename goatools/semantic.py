@@ -35,6 +35,7 @@ class TermCounts(object):
             Fills in the counts and overall aspect counts.
         '''
         gonotindag = set()
+        # Fill gocnts with GO IDs in annotations and their corresponding counts
         for terms in annots.values(): # key is 'gene'
             # Make a union of all the terms for a gene, if term parents are
             # propagated but they won't get double-counted for the gene
@@ -48,14 +49,25 @@ class TermCounts(object):
                     gonotindag.add(go_id)
             for parent in allterms:
                 self.gocnts[parent] += 1
-
-        for go_id, child in self.gocnts.items():
-            # Group by namespace
-            namespace = go2obj[go_id].namespace
-            self.aspect_counts[namespace] += child
         if gonotindag:
-            print("{N} GO IDs found in the associations are not found in the GODag\n".format(
-                N=len(gonotindag)))
+            print("{N} Assc. GO IDs not found in the GODag\n".format(N=len(gonotindag)))
+
+        # Fill aspect_counts. Find alternate GO IDs that may not be on gocnts
+        alt_goids = set()
+        for go_id, cnt in self.gocnts.items():
+            # Group by namespace
+            goobj = go2obj[go_id]
+            alt_goids |= goobj.alt_ids
+            namespace = goobj.namespace
+            self.aspect_counts[namespace] += cnt
+
+        # Add missing alt GO IDs to gocnts
+        for alt_goid in alt_goids.difference(self.gocnts):
+            goobj = go2obj[alt_goid]
+            cnt = self.gocnts[goobj.id]
+            assert cnt != 0
+            self.gocnts[alt_goid] = cnt
+
 
     def get_count(self, go_id):
         '''
