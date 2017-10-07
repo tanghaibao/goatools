@@ -1,7 +1,7 @@
 language: python
 env:
     global:
-        - OSX_PYTHON_VERSIONS='2.7 3.4 3.5'
+        - OSX_PYTHON_VERSIONS='2.7 3.4'
 matrix:
     include:
         # Use the built in venv for linux builds
@@ -9,8 +9,6 @@ matrix:
           python: 2.7
         - os: linux
           python: 3.4
-        - os: linux
-          python: 3.5
         # Use generic language for osx and install python by hand
         - os: osx
           language: generic
@@ -26,7 +24,6 @@ before_install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
 
-
   # Useful for debugging any issues with conda
   - conda info -a
 
@@ -40,4 +37,3 @@ script:
   - for VERSION in $PYTHON_VERSIONS ; do source activate $VERSION ; make test; done
 
 sudo: false
-
