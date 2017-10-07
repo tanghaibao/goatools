@@ -48,7 +48,10 @@ class EvidenceCodes(object):
 
     def sort_nts(self, nt_list, codekey):
         """Sort list of namedtuples such so evidence codes in same order as code2name."""
-        sortby = lambda nt: self.ev2idx.get(getattr(nt, codekey))
+        # Problem is that some members in the nt_list do NOT have
+        # codekey=EvidenceCode, then it returns None, which breaks py34 and 35
+        # The fix here is that for these members, default to -1 (is this valid?)
+        sortby = lambda nt: self.ev2idx.get(getattr(nt, codekey), -1)
         return sorted(nt_list, key=sortby)
 
     def get_grp_name(self, code):

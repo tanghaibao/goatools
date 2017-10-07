@@ -13,12 +13,14 @@ GOATOOLS |       59 | 1.87e-07 to 4.94e-02 | 2.72e-04 | 1.03e-02 | 3.04e-02 | 1.
 
     """
     #pylint: disable=no-member
-    nts_goids = [nt for nt in nts if nt.p_fdr_bh < 0.05]
+    # Somehow nts contains fields of empty string, which we can check with:
+    # print([(nt.GO, nt.p_fdr_bh) for nt in nts])
+    nts_goids = [nt for nt in nts if nt.p_fdr_bh != '' and nt.p_fdr_bh < 0.05]
     fdr_vals = [nt.p_fdr_bh for nt in nts_goids]
     statsobj = StatsDescribe("fdr_bh", fmtstr="{:>8.2e}")
     statsobj.prt_hdr()
     statsobj.prt_data("GOATOOLS", fdr_vals)
 
+
 if __name__ == '__main__':
     test_statsdescribe()
-

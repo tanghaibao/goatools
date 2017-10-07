@@ -10,7 +10,7 @@ def test_dnlds(prt=sys.stdout):
     goslims = [
         'goslim_aspergillus',
         'goslim_candida',
-        'goslim_chembl',
+        #'goslim_chembl',  # 404 not found
         'goslim_generic',
         'goslim_metagenomics',
         'goslim_pir',
