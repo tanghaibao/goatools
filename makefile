@@ -181,4 +181,4 @@ NOSETESTS := \
     tests/test_mapslim.py
 
 test:
-	nosetests tests/test_goea_statsmodels.py $(NOSETESTS)
+	py.test tests/

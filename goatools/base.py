@@ -197,7 +197,7 @@ def dnld_file(src_ftp, dst_file, prt=sys.stdout, loading_bar=True):
         if do_gunzip:
             if prt is not None:
                 prt.write("  gunzip {FILE}\n".format(FILE=dst_wget))
-                gzip_open_to(dst_wget, dst_file)
+            gzip_open_to(dst_wget, dst_file)
     except IOError as errmsg:
         import traceback
         traceback.print_exc()

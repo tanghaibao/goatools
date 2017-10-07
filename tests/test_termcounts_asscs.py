@@ -63,7 +63,7 @@ def test_semantic_similarity():
         #'goa_uniprot_all_noiea.gaf',
     ]
     cwd = os.getcwd()
-    for assc_name in associations:
+    for assc_name in associations[:3]:  # Limit test numbers for speed
         # Get all the annotations from arabidopsis.
         assc_gene2gos = dnld_assc(os.path.join(cwd, assc_name), go2obj, prt=None)
 

@@ -1,7 +1,9 @@
+pytest
 pandas
 numpy
 scipy
 nose
+pydot
 xlsxwriter
 statsmodels
 xlrd

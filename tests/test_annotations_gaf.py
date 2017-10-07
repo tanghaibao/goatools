@@ -8,6 +8,8 @@ __author__ = "DV Klopfenstein"
 
 import os
 import sys
+import pytest
+
 from collections import defaultdict
 from goatools.associations import read_gaf
 from goatools.base import dnld_gafs
@@ -30,7 +32,9 @@ def test_gaf_read(log=sys.stdout):
     # Read GAF associations, allowing ND entries and NOT Qualifiers
     msg = "Read GAF associations; Allow ND Evidence codes and NOT Qualifiers"
     keepif = lambda nt: True
-    _test_gaf_read(msg, species_ids, keepif, log)
+    #_test_gaf_read(msg, species_ids, keepif, log)
+    # Limit number of tests for speed
+    _test_gaf_read(msg, species_ids[-1:], keepif, log)
 
 def _test_gaf_read(msg, species_ids, keepif, log=sys.stdout):
     # (optional) multi-level dictionary separate associations by taxid

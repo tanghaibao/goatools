@@ -20,7 +20,7 @@ def dnld_assc(assc_name, go2obj, prt=sys.stdout):
     assc_local = os.path.join(dirloc, assc_base) if not dirloc else assc_name
     if not os.path.isfile(assc_local):
         assc_http = "http://geneontology.org/gene-associations/"
-        for ext in ['gz', 'json']:
+        for ext in ['gz']:
             src = os.path.join(assc_http, "{ASSC}.{EXT}".format(ASSC=assc_base, EXT=ext))
             dnld_file(src, assc_local, prt, loading_bar=None)
     assc = {}
