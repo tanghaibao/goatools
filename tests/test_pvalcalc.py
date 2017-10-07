@@ -10,6 +10,7 @@ import xlrd
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.base import get_godag
 from goatools.test_data.genes_NCBI_10090_ProteinCoding import GeneID2nt as GeneID2nt_mus
+from goatools.test_data.nature3102_goea import get_geneid2symbol
 from goatools.associations import get_assoc_ncbi_taxids
 
 def test_pvalcalc(prt=None):
@@ -44,7 +45,7 @@ def _get_pvals(pvalfnc_names, prt=sys.stdout):
     obo_dag = get_godag(file_obo, prt, loading_bar=None)
     geneids_pop = GeneID2nt_mus.keys()
     assoc_geneid2gos = get_assoc_ncbi_taxids([taxid], loading_bar=None)
-    geneids_study = _get_geneid2symbol("nbt.3102-S4_GeneIDs.xlsx")
+    geneids_study = get_geneid2symbol("nbt.3102-S4_GeneIDs.xlsx")
     for fisher in pvalfnc_names:
         goeaobj = GOEnrichmentStudy(
             geneids_pop,
@@ -57,18 +58,6 @@ def _get_pvals(pvalfnc_names, prt=sys.stdout):
         fisher2pvals[fisher] = goeaobj.get_pval_uncorr(geneids_study, prt)
     return fisher2pvals
 
-def _get_geneid2symbol(fin_xlsx):
-    """Read xlsx file return dictionary with Entrez GeneID keys to Symbol data."""
-    gene2symbol = {}
-    data_dir = os.path.dirname(os.path.abspath(__file__)) + "/data/nbt_3102"
-    tbl_genes = "{DIR}/{FIN}".format(DIR=data_dir, FIN=fin_xlsx)
-    book = xlrd.open_workbook(tbl_genes)
-    sheet = book.sheet_by_index(0)
-    for row in range(sheet.nrows):
-        symbol, geneid, _ = [sheet.cell_value(row, c) for c in range(sheet.ncols)] # pval
-        if geneid:
-            gene2symbol[int(geneid)] = symbol
-    return gene2symbol
 
 if __name__ == '__main__':
     test_pvalcalc(sys.stdout)

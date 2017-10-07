@@ -34,6 +34,7 @@ setup(
     license=h.license,
     long_description=h.long_description,
     packages=[name, name + ".test_data", name + ".anno"],
+    package_data={"goatools.test_data.nbt_3102": ["*.*"]},
     scripts=glob('scripts/*.py'),
     classifiers=classifiers,
     url='http://github.com/tanghaibao/goatools',

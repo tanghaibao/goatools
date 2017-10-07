@@ -31,7 +31,7 @@ def get_goea_results(keep_if=None):
 def get_geneid2symbol(fin_xlsx):
     """Read xlsx file return dictionary with Entrez GeneID keys to Symbol data."""
     gene2symbol = {}
-    data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../tests/data/nbt_3102")
+    data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nbt_3102")
     tbl_genes = "{DIR}/{FIN}".format(DIR=data_dir, FIN=fin_xlsx)
     book = xlrd.open_workbook(tbl_genes)
     sheet = book.sheet_by_index(0)
