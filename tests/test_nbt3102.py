@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run a Gene Ontology Enrichment Analysis (GOEA), plots, etc.
 
-    Nature 2014_0126; 
+    Nature 2014_0126;
 			Computational analysis of cell-to-cell heterogeneity
       in single-cell RNA-sequencing data reveals hidden
       subpopulations of cells
@@ -19,7 +19,7 @@
                NOW: BP GO:0071353 1.668e-03 D06 cellular response to interleukin-4 (5 genes)
                   * BP GO:0070670: response to interleukin-4
                   * BP GO:0071353: cellular response to interleukin-4
-             * positive regulation of B-cell proliferation 
+             * positive regulation of B-cell proliferation
                NOW: BP GO:0030890 2.706e-04 D09 positive regulation of B cell proliferation (7 genes)
 
          * 401 genes: Supplementary table 4
@@ -32,6 +32,7 @@ import os
 import sys
 import xlrd
 import wget
+import pytest
 from collections import Counter, defaultdict, OrderedDict
 
 from goatools.test_data.genes_NCBI_10090_ProteinCoding import GeneID2nt as GeneID2nt_mus
@@ -44,6 +45,7 @@ from goatools.godag_plot import plot_gos, plot_results, plot_goid2goobj
 __copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
+@pytest.mark.skip(reason="requires pydot - works in py2.7 but not py3.4 and 3.5")
 def test_example(log=sys.stdout):
     """Run Gene Ontology Enrichment Analysis (GOEA) on Nature data."""
     # --------------------------------------------------------------------
@@ -94,7 +96,7 @@ def test_example(log=sys.stdout):
     go2res = {nt.GO:nt for nt in goea_results_sig}
     # Print words of interest, the sig GO terms which contain that word, and study genes.
     prt_word_GO_genes("nbt3102_GO_word_genes.txt", word2NS2gos, go2res, geneids_study, log)
-    # Plot each set of GOs along w/study gene info 
+    # Plot each set of GOs along w/study gene info
     for word, NS2gos in word2NS2gos.items():
        for NS in ['BP', 'MF', 'CC']:
            if NS in NS2gos:
@@ -114,16 +116,16 @@ def test_example(log=sys.stdout):
                            id2symbol=geneids_study, # Contains GeneID-to-Symbol
                            goea_results=goea_results_all, # pvals used for GO Term coloring
                            dpi=dpi)
-      
-    
+
+
     # --------------------------------------------------------------------
     # Item 2) Explore findings of Nature paper:
     #
     #     Gene Ontology (GO) enrichment analysis showed that the
     #     differentially expressed genes contained statistically
-    #     significant enrichments of genes involved in 
+    #     significant enrichments of genes involved in
     #         glycolysis,
-    #         cellular response to IL-4 stimulation and 
+    #         cellular response to IL-4 stimulation and
     #         positive regulation of B-cell proliferation
     # --------------------------------------------------------------------
     goid_subset = [
@@ -133,14 +135,14 @@ def test_example(log=sys.stdout):
     ]
     plot_gos("nbt3102_GOs.png", goid_subset, obo, dpi=dpi)
     plot_gos("nbt3102_GOs_genecnt.png", goid_subset, obo, goea_results=goea_results_all, dpi=dpi)
-    plot_gos("nbt3102_GOs_genelst.png", goid_subset, obo, 
+    plot_gos("nbt3102_GOs_genelst.png", goid_subset, obo,
         study_items=True, goea_results=goea_results_all, dpi=dpi)
-    plot_gos("nbt3102_GOs_symlst.png", goid_subset, obo, 
+    plot_gos("nbt3102_GOs_symlst.png", goid_subset, obo,
         study_items=True, id2symbol=geneids_study, goea_results=goea_results_all, dpi=dpi)
-    plot_gos("nbt3102_GOs_symlst_trunc.png", goid_subset, obo, 
+    plot_gos("nbt3102_GOs_symlst_trunc.png", goid_subset, obo,
         study_items=5, id2symbol=geneids_study, goea_results=goea_results_all, dpi=dpi)
-    plot_gos("nbt3102_GOs_GO0005743.png", ["GO:0005743"], obo, 
-        items_p_line=2, study_items=6, 
+    plot_gos("nbt3102_GOs_GO0005743.png", ["GO:0005743"], obo,
+        items_p_line=2, study_items=6,
         id2symbol=geneids_study, goea_results=goea_results_all, dpi=dpi)
 
     # --------------------------------------------------------------------
@@ -169,7 +171,7 @@ def test_example(log=sys.stdout):
       'GO:0005840', # CC D05 ribosome (35 genes)
       'GO:0005844', # CC D04 polysome (6 genes)
     ]
-    plot_gos("nbt3102_CC_ribosome.png", goid_subset, obo, 
+    plot_gos("nbt3102_CC_ribosome.png", goid_subset, obo,
         study_items=6, id2symbol=geneids_study, items_p_line=3,
         goea_results=goea_results_sig, dpi=dpi)
 
@@ -180,14 +182,14 @@ def test_example(log=sys.stdout):
       'GO:0019843', # MF D05 rRNA binding (6 genes)
       'GO:0003746', # MF D06 translation elongation factor activity (5 genes)
     ]
-    plot_gos("nbt3102_MF_RNA_genecnt.png", 
-        goid_subset, 
-        obo, 
+    plot_gos("nbt3102_MF_RNA_genecnt.png",
+        goid_subset,
+        obo,
         goea_results=goea_results_all, dpi=150)
     for dpi in [150, 1200]: # 150 for review, 1200 for publication
-        plot_gos("nbt3102_MF_RNA_dpi{DPI}.png".format(DPI=dpi), 
-            goid_subset, 
-            obo, 
+        plot_gos("nbt3102_MF_RNA_dpi{DPI}.png".format(DPI=dpi),
+            goid_subset,
+            obo,
             study_items=6, id2symbol=geneids_study, items_p_line=3,
             goea_results=goea_results_all, dpi=dpi)
 
@@ -216,12 +218,12 @@ def compare_results(goea_results_sig):
                 gos.add(rec.GO)
                 sig = '*' if rec.p_fdr_bh < 0.05 else ' '
                 prt.write("{I:>2} {NS} {SIG} {GO} D{D:>02} {ALPHA:5.2e} {NAME}({N} genes)\n".format(
-                    I=idx, NS=rec.NS, D=rec.goterm.depth, GO=rec.GO, NAME=rec.name, 
+                    I=idx, NS=rec.NS, D=rec.goterm.depth, GO=rec.GO, NAME=rec.name,
                     ALPHA=rec.p_fdr_bh, SIG=sig, N=rec.study_count))
                 idx += 1
         nogo = exp_goids.difference(gos)
         prt.write("NOT LISTED: {GO}\n".format(GO=", ".join(nogo)))
-   
+
 
 def prt_word2genecnt(fout, goea_results_sig, log):
     """Get words in GO term names and the number of study genes associated with GO words."""
@@ -235,12 +237,12 @@ def prt_word2genecnt(fout, goea_results_sig, log):
         for word, cnt in word2genecnt.most_common():
             wordstrm.write("{CNT:>3} {WORD}\n".format(CNT=cnt, WORD=word))
     log.write("  WROTE: {F}\n".format(F=fout))
-       
+
 def get_word2NS2gos(words, goea_results_sig):
-    """Get all GO terms which contain a word in 'words'."""        
+    """Get all GO terms which contain a word in 'words'."""
     word2NS2gos = defaultdict(lambda: defaultdict(set))
     sig_GOs = set([rec.GO for rec in goea_results_sig])
-    for word in words: 
+    for word in words:
         for rec in goea_results_sig:
             NS = rec.NS
             if word in rec.name:
@@ -262,8 +264,8 @@ def prt_word_GO_genes(fout, word2NS2gos, go2res, geneids_study, log):
       prt.write("""This file is generated by test_nbt3102.py and is intended to confirm
 this statement in the GOATOOLS manuscript:
 
-        We observed: 
-            N genes associated with RNA, 
+        We observed:
+            N genes associated with RNA,
 
 """)
       for word, NS2gos in word2NS2gos.items():
@@ -308,7 +310,7 @@ def paper_top20():
 
        The test statistics supported by topGO when using the topGO "elim" algorithm are
        [fisher, ks, t, globaltest, sum]. When using the "elim" algorithm, topGO
-       does not automatically do multiple-test correction. 
+       does not automatically do multiple-test correction.
        The documentation for topGO says:
        https://www.bioconductor.org/packages/3.3/bioc/vignettes/topGO/inst/doc/topGO.pdf
 
@@ -332,7 +334,7 @@ def paper_top20():
            5.   The study size is the 400 genes in supplemental table 4 (Rpl41 is listed twice in the Nature paper).
            5a.         372 of the 400 study genes contain GO annotations
 
-     
+
     """
     return [
         # GO ID         idx Term                                  Annotated Sig Exp  result1
@@ -358,7 +360,7 @@ def paper_top20():
         "GO:1901385", #  19 regulation of voltage-gated calcium chan...   7  3  0.14 0.00024
         "GO:0042102", #  20 positive regulation of T cell proliferat...  66  7  1.29 0.00028
     ]
-    
+
 if __name__ == '__main__':
     test_example()
 
