@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-from setuptools import setup
-from glob import glob
-import os
+import os.path as op
 
-setup_dir = os.path.abspath(os.path.dirname(__file__))
+from glob import glob
+from setuptools import setup
+from setup_helper import SetupHelper
+
+
+name = "goatools"
 classifiers = [
     'Development Status :: 4 - Beta',
     'Intended Audience :: Science/Research',
@@ -16,21 +19,24 @@ classifiers = [
     'Topic :: Scientific/Engineering :: Bio-Informatics',
     ]
 
-requirements = ['wget'] + [x.strip() for x in
-                           open(os.path.join(setup_dir, 'requirements.txt')).readlines()]
+# Use the helper
+h = SetupHelper(initfile="goatools/__init__.py", readmefile="README.md")
 
-exec(open(os.path.join(setup_dir, "goatools", "version.py")).read())
+setup_dir = op.abspath(op.dirname(__file__))
+requirements = ['wget'] + [x.strip() for x in
+                           open(op.join(setup_dir, 'requirements.txt')).readlines()]
+
 setup(
-    name="goatools",
-    version=__version__,
-    author='Haibao Tang',
-    author_email='tanghaibao@gmail.com',
-    packages=['goatools'],
+    name=name,
+    version=h.version,
+    author=h.author,
+    author_email=h.email,
+    license=h.license,
+    long_description=h.long_description,
+    packages=[name],
     scripts=glob('scripts/*.py'),
-    license='BSD',
     classifiers=classifiers,
     url='http://github.com/tanghaibao/goatools',
     description="Python scripts to find enrichment of GO terms",
-    long_description=open(os.path.join(setup_dir, "README.md")).read(),
     install_requires=requirements
-    )
+)
