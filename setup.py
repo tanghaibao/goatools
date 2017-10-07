@@ -33,7 +33,7 @@ setup(
     author_email=h.email,
     license=h.license,
     long_description=h.long_description,
-    packages=[name],
+    packages=[name, name + ".test_data", name + ".anno"],
     scripts=glob('scripts/*.py'),
     classifiers=classifiers,
     url='http://github.com/tanghaibao/goatools',
