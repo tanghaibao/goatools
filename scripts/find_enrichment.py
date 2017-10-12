@@ -160,7 +160,7 @@ if __name__ == "__main__":
 
     goea_results_all = results
     goea_results_sig = [r for r in goea_results_all if r.p_fdr_bh < 0.05]
-    from goatools.godag_plot import plot_gos, plot_results, plot_goid2goobj
-    plot_results( outfile_prefix + "_{NS}.png", goea_results_sig)
+    from goatools.godag_plot import plot_results
+    plot_results(outfile_prefix + "_{NS}.png", goea_results_sig)
 
 # Copyright (C) 2010-2017, H Tang et al. All rights reserved.
