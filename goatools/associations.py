@@ -88,6 +88,8 @@ def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout, loading_bar=True)
         fin_ftp = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{F}.gz".format(F=fin_base)
         if log is not None:
             log.write("  DOWNLOADING GZIP: {GZ}\n".format(GZ=fin_ftp))
+        if loading_bar:
+            loading_bar = wget.bar_adaptive
         wget.download(fin_ftp, bar=loading_bar)
         with gzip.open(fin_gz, 'rb') as zstrm:
             if log is not None:
