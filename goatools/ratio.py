@@ -1,5 +1,5 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
+"""Manage associations ratios."""
 
 __copyright__ = "Copyright (C) 2010-2017, H Tang et al., All rights reserved."
 __author__ = "various"
@@ -12,9 +12,9 @@ def count_terms(geneset, assoc, obo_dag):
     """
     term_cnt = Counter()
     for gene in (g for g in geneset if g in assoc):
-        for x in assoc[gene]:
-            if x in obo_dag:
-                term_cnt[obo_dag[x].id] += 1
+        for goid in assoc[gene]:
+            if goid in obo_dag:
+                term_cnt[obo_dag[goid].id] += 1
 
     return term_cnt
 
@@ -25,12 +25,14 @@ def get_terms(desc, geneset, assoc, obo_dag, log):
     term2itemids = defaultdict(set)
     genes = [g for g in geneset if g in assoc]
     for gene in genes:
-        for x in assoc[gene]:
-            if x in obo_dag:
-                term2itemids[obo_dag[x].id].add(gene)
+        for goid in assoc[gene]:
+            if goid in obo_dag:
+                term2itemids[obo_dag[goid].id].add(gene)
     if log is not None:
-        log.write("{N:>6,} out of {M:>6,} {DESC} items found in association\n".format(
-            DESC=desc, N=len(genes), M=len(geneset)))
+        num_stu = len(genes)
+        num_pop = len(geneset)
+        log.write("{P:3.0f}% {N:>6,} of {M:>6,} {DESC} items found in association\n".format(
+            DESC=desc, N=num_stu, M=num_pop, P=100.0*num_stu/num_pop))
     return term2itemids
 
 def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
@@ -40,17 +42,17 @@ def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
     """
     if min_ratio is None:
         return True
-    s = float(study_go) / study_n
-    p = float(pop_go) / pop_n
-    if s > p:
-        return s / p > min_ratio
-    return p / s > min_ratio
+    stu_ratio = float(study_go) / study_n
+    pop_ratio = float(pop_go) / pop_n
+    if stu_ratio > pop_ratio:
+        return stu_ratio / pop_ratio > min_ratio
+    return pop_ratio / stu_ratio > min_ratio
 
 def _chk_gene2go(assoc):
     """Check that associations is gene2go, not go2gene."""
     if not assoc:
         raise RuntimeError("NO ITEMS FOUND IN ASSOCIATIONS {A}".format(A=assoc))
-    for key, val in assoc.items():
+    for key in assoc.keys():
         if isinstance(key, str) and key[:3] == "GO:":
             raise Exception("ASSOCIATIONS EXPECTED TO BE gene2go, NOT go2gene: {EX}".format(
                 EX=assoc.items()[:2]))
