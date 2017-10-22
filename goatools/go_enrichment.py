@@ -513,11 +513,13 @@ class GOEnrichmentStudy(object):
             if hasattr(goea_results[0], "_fldsdefprt") or hasattr(goea_results[0], 'goterm'):
                 # Exclude some attributes from the namedtuple when saving results
                 # to a Python file because the information is redundant or verbose.
-                nts_goea = get_goea_nts_prt(goea_results)
+                nts_goea = get_goea_nts_prt(goea_results, **kws)
             docstring = "\n".join([docstring, "# {VER}\n\n".format(VER=self.obo_dag.version)])
             assert hasattr(nts_goea[0], '_fields')
             if sortby is None:
-                sortby = lambda nt: getattr(nt, 'p_uncorrected')
+                sortby = lambda nt: [getattr(nt, 'namespace'), getattr(nt, 'enrichment'), 
+                                     getattr(nt, 'p_uncorrected'), getattr(nt, 'depth'),
+                                     getattr(nt, 'GO')]
             nts_goea = sorted(nts_goea, key=sortby)
             wr_py_nts(fout_py, nts_goea, docstring, var_name)
 
