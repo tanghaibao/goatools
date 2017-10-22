@@ -341,10 +341,10 @@ class GOEnrichmentStudy(object):
         """Do multiple-test corrections on uncorrected pvalues."""
         assert 0 < alpha < 1, "Test-wise alpha must fall between (0, 1)"
         pvals = [r.p_uncorrected for r in results]
-        NtMt = cx.namedtuple("NtMt", "results pvals alpha nt_method study")
+        ntobj = cx.namedtuple("ntobj", "results pvals alpha nt_method study")
 
         for nt_method in usr_methods:
-            ntmt = NtMt(results, pvals, alpha, nt_method, study)
+            ntmt = ntobj(results, pvals, alpha, nt_method, study)
             if log is not None:
                 log.write("Running multitest correction: {MSRC} {METHOD}\n".format(
                     MSRC=ntmt.nt_method.source, METHOD=ntmt.nt_method.method))
@@ -407,7 +407,8 @@ class GOEnrichmentStudy(object):
     def prt_txt(self, prt, goea_results, prtfmt=None, **kws):
         """Print GOEA results in text format."""
         if prtfmt is None:
-            prtfmt = "{GO} {NS} {p_uncorrected:5.2e} {study_count:>5} {name}\n"
+            prtfmt = ("{GO} {NS} {p_uncorrected:5.2e} {ratio_in_study:>6} {ratio_in_pop:>9}"
+                      "{depth:02} {name:40} {study_items}\n")
         prtfmt = self.adjust_prtfmt(prtfmt)
         prt_flds = RPT.get_fmtflds(prtfmt)
         data_nts = get_goea_nts_prt(goea_results, prt_flds, **kws)
@@ -443,13 +444,13 @@ class GOEnrichmentStudy(object):
         return prtfmt
 
     @staticmethod
-    def get_NS2nts(results, fldnames=None, **kws):
+    def get_ns2nts(results, fldnames=None, **kws):
         """Get namedtuples of GOEA results, split into BP, MF, CC."""
-        NS2nts = cx.defaultdict(list)
+        ns2nts = cx.defaultdict(list)
         nts = get_goea_nts_all(results, fldnames, **kws)
-        for nt in nts:
-            NS2nts[nt.NS].append(nt)
-        return NS2nts
+        for ntgoea in nts:
+            ns2nts[ntgoea.NS].append(ntgoea)
+        return ns2nts
 
     @staticmethod
     def get_item_cnt(results, attrname="study_items"):
