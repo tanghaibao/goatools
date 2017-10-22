@@ -407,7 +407,7 @@ class GOEnrichmentStudy(object):
     def prt_txt(self, prt, goea_results, prtfmt=None, **kws):
         """Print GOEA results in text format."""
         if prtfmt is None:
-            prtfmt = ("{GO} {NS} {p_uncorrected:5.2e} {ratio_in_study:>6} {ratio_in_pop:>9}"
+            prtfmt = ("{GO} {NS} {p_uncorrected:5.2e} {ratio_in_study:>6} {ratio_in_pop:>9} "
                       "{depth:02} {name:40} {study_items}\n")
         prtfmt = self.adjust_prtfmt(prtfmt)
         prt_flds = RPT.get_fmtflds(prtfmt)
