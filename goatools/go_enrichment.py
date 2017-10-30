@@ -397,6 +397,8 @@ class GOEnrichmentStudy(object):
             sys.stdout.write("      0 GOEA results. NOT WRITING {FOUT}\n".format(FOUT=fout_txt))
             return
         with open(fout_txt, 'w') as prt:
+            if 'title' in kws:
+                prt.write("{TITLE}\n".format(TITLE=kws['title']))
             data_nts = self.prt_txt(prt, goea_results, prtfmt, **kws)
             log = self.log if self.log is not None else sys.stdout
             log.write("  {N:>5} GOEA results for {CUR:5} study items. WROTE: {F}\n".format(
