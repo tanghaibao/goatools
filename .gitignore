@@ -1,6 +1,8 @@
 # Ontologies and Annotations
+*.owl
 *.obo
 gene_association.*
+/*.gpa
 /*.gaf
 /*.json
 gene2go
