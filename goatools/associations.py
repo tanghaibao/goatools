@@ -135,7 +135,7 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
                             if taxid2asscs is not None:
                                 taxid2asscs[taxid_curr]['GeneID2GOs'][geneid].add(go_id)
                                 taxid2asscs[taxid_curr]['GO2GeneIDs'][go_id].add(geneid)
-        sys.stdout.write("  READ: {ASSC}\n".format(ASSC=fin_gene2go))
+        sys.stdout.write("  {N:,} items READ: {ASSC}\n".format(N=len(id2gos), ASSC=fin_gene2go))
     return id2gos # return simple associations
 
 def get_gaf_hdr(fin_gaf):
