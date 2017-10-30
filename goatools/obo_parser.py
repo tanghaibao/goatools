@@ -126,7 +126,7 @@ class OBOReader(object):
                 self._chk_none(rec_curr.namespace, lnum)
                 rec_curr.namespace = field_value
             elif field_name == "is_a":
-                rec_curr._parents.append(field_value.split()[0])
+                rec_curr._parents.add(field_value.split()[0])
             elif field_name == "is_obsolete" and field_value == "true":
                 rec_curr.is_obsolete = True
             elif field_name in self.optional_attrs:
@@ -246,7 +246,7 @@ class GOTerm(object):
         self.id = ""                # GO:NNNNNNN
         self.name = ""              # description
         self.namespace = ""         # BP, CC, MF
-        self._parents = []          # is_a basestring of parents
+        self._parents = set()       # is_a basestring of parents
         self.parents = []           # parent records
         self.children = []          # children records
         self.level = None           # shortest distance from root node
