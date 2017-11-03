@@ -150,6 +150,9 @@ clobber:
 	rm -f goslim_*.obo goslim_*.owl
 	rm -f goa_*.gpi goa_*.gpa
 
+# Tests which run longer and have much functionality covered by other tests
+#    tests/test_annotations_gaf.py \
+
 # TBD: Add these to NOSETEST after edits:
 #    tests/test_nbt3102.py \
 #    tests/test_optional_fields.py \
@@ -166,7 +169,6 @@ NOSETESTS := \
     tests/test_goea_local.py \
     tests/test_write_hier.py \
     tests/test_go_print.py \
-    tests/test_annotations_gaf.py \
     tests/test_read_gaf_allow_nd.py \
     tests/test_write_summary_cnts.py \
     tests/test_pvalcalc.py \
