@@ -1,5 +1,7 @@
 """Code as found in notebooks/semantic_similarity.ipynb."""
 
+from __future__ import print_function
+
 # Computing basic semantic similarities between GO terms
 
 # Adapted from book chapter written by _Alex Warwick Vesztrocy and Christophe Dessimoz_
@@ -45,6 +47,7 @@ def test_semantic_similarity():
     go_id = "GO:0048364"
     infocontent = get_info_content(go_id, termcounts)
     print('\nInformation content ({GO}) = {INFO}\n'.format(GO=go_id, INFO=infocontent))
+    assert infocontent, "FATAL INFORMATION CONTENT"
 
     # Resnik's similarity measure is defined as the information content of the most
     # informative common ancestor. That is, the most specific common parent-term in
@@ -53,10 +56,13 @@ def test_semantic_similarity():
     sim_r = resnik_sim(go_id3, go_id4, godag, termcounts)
     print('Resnik similarity score ({GO1}, {GO2}) = {VAL}'.format(
         GO1=go_id3, GO2=go_id4, VAL=sim_r))
+    assert sim_r, "FATAL RESNIK SCORE"
 
     # Lin similarity score (GO:0048364, GO:0044707) = -0.607721957763
     sim_l = lin_sim(go_id3, go_id4, godag, termcounts)
     print('Lin similarity score ({GO1}, {GO2}) = {VAL}'.format(GO1=go_id3, GO2=go_id4, VAL=sim_l))
+    assert sim_l, "FATAL LIN SCORE"
+
 
 
 if __name__ == '__main__':

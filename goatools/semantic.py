@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-
 """
 Compute semantic similarities between GO terms. Borrowed from book chapter from
 Alex Warwick Vesztrocy and Christophe Dessimoz (thanks). For details, please
 check out:
 notebooks/semantic_similarity.ipynb
 """
+
+from __future__ import print_function
 
 import math
 from collections import Counter
@@ -28,13 +29,24 @@ class TermCounts(object):
         self.aspect_counts = Counter()
 
         # Fill the counters...
-        self._count_terms(go2obj, annots)
+        self._init_termcounts(annots)
 
-    def _count_terms(self, go2obj, annots):
+
+    def _init_termcounts(self, annots):
+        '''
+            Fill aspect_counts. Find alternate GO IDs that may not be on gocnts.
+        '''
+        self._init_count_terms(annots)
+        self._init_add_goid_alt()
+
+
+    def _init_count_terms(self, annots):
         '''
             Fills in the counts and overall aspect counts.
         '''
         gonotindag = set()
+        gocnts = self.gocnts
+        go2obj = self.go2obj
         # Fill gocnts with GO IDs in annotations and their corresponding counts
         for terms in annots.values(): # key is 'gene'
             # Make a union of all the terms for a gene, if term parents are
@@ -48,25 +60,40 @@ class TermCounts(object):
                 else:
                     gonotindag.add(go_id)
             for parent in allterms:
-                self.gocnts[parent] += 1
+                gocnts[parent] += 1
         if gonotindag:
             print("{N} Assc. GO IDs not found in the GODag\n".format(N=len(gonotindag)))
 
-        # Fill aspect_counts. Find alternate GO IDs that may not be on gocnts
-        alt_goids = set()
-        for go_id, cnt in self.gocnts.items():
-            # Group by namespace
-            goobj = go2obj[go_id]
-            alt_goids |= goobj.alt_ids
-            namespace = goobj.namespace
-            self.aspect_counts[namespace] += cnt
 
+    def _init_add_goid_alt(self):
+        '''
+            Add alternate GO IDs to term counts.
+        '''
+        # Fill aspect_counts. Find alternate GO IDs that may not be on gocnts
+        goid_alts = set()
+        go2cnt_add = {}
+        aspect_counts = self.aspect_counts
+        gocnts = self.gocnts
+        go2obj = self.go2obj
+        for go_id, cnt in gocnts.items():
+            goobj = go2obj[go_id]
+            assert cnt, "NO TERM COUNTS FOR {GO}".format(GO=goobj.id)
+            # Was the count set using an alternate GO?
+            if go_id != goobj.id:
+                go2cnt_add[goobj.id] = cnt
+            goid_alts |= goobj.alt_ids
+            # Group by namespace
+            aspect_counts[goobj.namespace] += cnt
+        # If alternate GO used to set count, add main GO ID
+        for goid, cnt in go2cnt_add.items():
+            gocnts[goid] = cnt
         # Add missing alt GO IDs to gocnts
-        for alt_goid in alt_goids.difference(self.gocnts):
+        for alt_goid in goid_alts.difference(gocnts):
             goobj = go2obj[alt_goid]
-            cnt = self.gocnts[goobj.id]
-            assert cnt != 0
-            self.gocnts[alt_goid] = cnt
+            cnt = gocnts[goobj.id]
+            assert cnt, "NO TERM COUNTS FOR ALT_ID({GOa}) ID({GO}): {NAME}".format(
+                GOa=alt_goid, GO=goobj.id, NAME=goobj.name)
+            gocnts[alt_goid] = cnt
 
 
     def get_count(self, go_id):
