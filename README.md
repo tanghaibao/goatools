@@ -283,8 +283,9 @@ strategy which may lead to slightly different q-values between runs.
 ## Want to Help?
 
 Prior to submitting your pull request, please add a test which verifies your code, and run: 
-
-- make test
+```
+make test
+```
 
 Items that we know we need include:
 
