@@ -34,6 +34,6 @@ install:
 
 # command to run tests
 script:
-  - for VERSION in $PYTHON_VERSIONS ; do source activate $VERSION ; make test; done
+  - for VERSION in $PYTHON_VERSIONS ; do source activate $VERSION ; make test_travis_subset; done
 
 sudo: false

@@ -282,8 +282,9 @@ strategy which may lead to slightly different q-values between runs.
 
 ## Want to Help?
 
-If you add new code, please be sure to also add python tests which
-verify your code.
+Prior to submitting your pull request, please add a test which verifies your code, and run: 
+
+- make test
 
 Items that we know we need include:
 

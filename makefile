@@ -182,5 +182,13 @@ NOSETESTS := \
     tests/test_wr_py_goea_results.py \
     tests/test_mapslim.py
 
+# Run all tests. If you are submitting a pull request, all tests must pass.
 test:
 	py.test tests/
+
+# This Representative test subset is automatically run for all push requests using Travis-CI.
+# Running a subset of tests prevents Travis-CI from timeing out.
+test_travis_subset:
+	py.test $(NOSETESTS)
+
+# Copyright (C) 2010-2017. Haibao Tang et al. All rights reserved.
