@@ -85,7 +85,7 @@ class RptLevDepth(object):
     def write_summary_cnts(self, go_ids):
         """Write summary of level and depth counts for specific GO ids."""
         obo = self.obo
-        cnts = self.get_cnts_levels_depths_recs([obo[GO] for GO in go_ids])
+        cnts = self.get_cnts_levels_depths_recs([obo.get(GO) for GO in go_ids])
         self._write_summary_cnts(cnts)
 
     def write_summary_cnts_goobjs(self, goobjs):
@@ -112,7 +112,7 @@ class RptLevDepth(object):
         """Collect counts of levels and depths in a Group of GO Terms."""
         cnts = cx.defaultdict(lambda: cx.defaultdict(cx.Counter))
         for rec in recs:
-            if not rec.is_obsolete:
+            if rec is not None and not rec.is_obsolete:
                 cnts['level'][rec.level][rec.namespace] += 1
                 cnts['depth'][rec.depth][rec.namespace] += 1
         return cnts

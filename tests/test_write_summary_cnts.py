@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Tests GO depth and level hierarchy reporting."""
 
 __copyright__ = "Copyright (C) 2015-2017, DV Klopfenstein, H Tang, All rights reserved."
@@ -30,7 +31,7 @@ def test_write_summary_cnts(log=sys.stdout):
         go_ids = assc['GO2GeneIDs'].keys()
         rptobj.write_summary_cnts(go_ids)
         log.write("\nSummary for Ontologies for taxid({T}):\n".format(T=taxid))
-        go_objs = [godag[goid] for goid in go_ids]
+        go_objs = [godag.get(goid) for goid in go_ids]
         rptobj.write_summary_cnts_goobjs(go_objs)
 
 if __name__ == '__main__':
