@@ -1,7 +1,8 @@
+#!/usr/bin/env python
 """Test StatsDescribe."""
 
 from goatools.statsdescribe import StatsDescribe
-from goatools.test_data.goids_GOATOOLS_Consistent_Increase import nts
+from goatools.test_data.gjoneska_goea_consistent_increase import goea_results
 
 def test_statsdescribe():
     """Use StatsDescribe to create a markdown table.
@@ -13,9 +14,9 @@ GOATOOLS |       59 | 1.87e-07 to 4.94e-02 | 2.72e-04 | 1.03e-02 | 3.04e-02 | 1.
 
     """
     #pylint: disable=no-member
-    # Somehow nts contains fields of empty string, which we can check with:
-    # print([(nt.GO, nt.p_fdr_bh) for nt in nts])
-    nts_goids = [nt for nt in nts if nt.p_fdr_bh != '' and nt.p_fdr_bh < 0.05]
+    # Somehow goea_results contains fields of empty string, which we can check with:
+    # print([(nt.GO, nt.p_fdr_bh) for nt in goea_results])
+    nts_goids = [nt for nt in goea_results if nt.p_fdr_bh != '' and nt.p_fdr_bh < 0.05]
     fdr_vals = [nt.p_fdr_bh for nt in nts_goids]
     statsobj = StatsDescribe("fdr_bh", fmtstr="{:>8.2e}")
     statsobj.prt_hdr()
