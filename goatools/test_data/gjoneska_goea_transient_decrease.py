@@ -9,11 +9,11 @@
   SIGNIFICANT GENE ONTOLOGY ENRICHMENT ANALYSIS RESULTS:
   
 
-# go-basic.obo: fmt(1.2) rel(2017-11-21) 47,039 GO Terms
+# go-basic.obo: fmt(1.2) rel(2017-11-22) 47,038 GO Terms
 
 """
 
-# Created: 2017-11-22
+# Created: 2017-11-24
 import collections as cx
 
 nt_fields = [
