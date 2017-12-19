@@ -229,6 +229,7 @@ class GOEnrichmentStudy(object):
         'NS'        :  3,
         'GO'        : 12,
         'level'     :  3,
+        'depth'     :  3,
         'enrichment':  1,
         'name'      : 60,
         'ratio_in_study':  8,

@@ -31,8 +31,10 @@ def test_example():
     goea_results_all = goeaobj.run_study(geneids_study)
     goea_results_sig = [r for r in goea_results_all if r.p_fdr_bh < 0.05]
     # Print GOEA results to files: With study genes printed as geneids or symbols
-    goeaobj.wr_xlsx("nbt3102_symbols.xlsx", goea_results_sig, itemid2name=geneids2symbol_study)
-    goeaobj.wr_xlsx("nbt3102_geneids.xlsx", goea_results_sig)
+    goeaobj.wr_xlsx("nbt3102_sig_symbols.xlsx", goea_results_sig, itemid2name=geneids2symbol_study)
+    goeaobj.wr_xlsx("nbt3102_sig_geneids.xlsx", goea_results_sig)
+    goeaobj.wr_xlsx("nbt3102_all_symbols.xlsx", goea_results_all, itemid2name=geneids2symbol_study)
+    goeaobj.wr_xlsx("nbt3102_all_geneids.xlsx", goea_results_all)
 
 if __name__ == '__main__':
     test_example()
