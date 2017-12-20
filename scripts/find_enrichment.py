@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-from __future__ import print_function
-
 """
-python {} study.file population.file gene-association.file
+python find_enrichment.py study.file population.file gene-association.file
 
 This program returns P-values for functional enrichment in a cluster of study
 genes using Fisher's exact test, and corrected for multiple testing (including
@@ -14,22 +12,26 @@ About significance cutoff:
         (most often you don't need to change this other than 0.05 or 0.01)
 --pval: experiment-wise alpha; for the entire experiment, what significance
         level to apply after Bonferroni correction
-""".format(__file__)
+"""
+
+from __future__ import print_function
 
 __copyright__ = "Copyright (C) 2010-2017, H Tang et al. All rights reserved."
 __author__ = "various"
 
 import sys
 import os.path as op
-sys.path.insert(0, op.join(op.dirname(__file__), ".."))
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.obo_parser import GODag
 from goatools.associations import read_associations
 from goatools.multiple_testing import Methods
 from goatools.pvalcalc import FisherFactory
 
+sys.path.insert(0, op.join(op.dirname(__file__), ".."))
+
 
 def read_geneset(study_fn, pop_fn, compare=False):
+    """Open files containing genes. Return study genes and population genes."""
     pop = set(_.strip() for _ in open(pop_fn) if _.strip())
     study = frozenset(_.strip() for _ in open(study_fn) if _.strip())
     # some times the pop is a second group to compare, rather than the
@@ -68,37 +70,37 @@ if __name__ == "__main__":
 
     import argparse
     p = argparse.ArgumentParser(__doc__,
-                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+                                formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     p.add_argument('filenames', type=str, nargs=3,
-                 help='data/study data/population data/association')
+                   help='data/study data/population data/association')
     p.add_argument('--alpha', default=0.05, type=float,
-                 help="Test-wise alpha for multiple testing ")
+                   help="Test-wise alpha for multiple testing ")
     p.add_argument('--pval', default=.05, type=float,
-                 help="Only print out when uncorrected p-value < this value.")
+                   help="Only print out when uncorrected p-value < this value.")
     p.add_argument('--compare', dest='compare', default=False,
-                 action='store_true',
-                 help="the population file as a comparison group. if this "
-                 "flag is specified, the population is used as the study "
-                 "plus the `population/comparison`")
+                   action='store_true',
+                   help="the population file as a comparison group. if this "
+                   "flag is specified, the population is used as the study "
+                   "plus the `population/comparison`")
     p.add_argument('--ratio', dest='ratio', type=float, default=None,
-                 help="only show values where the difference between study "
-                 "and population ratios is greater than this. useful for "
-                 "excluding GO categories with small differences, but "
-                 "containing large numbers of genes. should be a value "
-                 "between 1 and 2. ")
+                   help="only show values where the difference between study "
+                   "and population ratios is greater than this. useful for "
+                   "excluding GO categories with small differences, but "
+                   "containing large numbers of genes. should be a value "
+                   "between 1 and 2. ")
     p.add_argument('--indent', dest='indent', default=False,
-                 action='store_true', help="indent GO terms")
+                   action='store_true', help="indent GO terms")
     p.add_argument('--obo', default="go-basic.obo", type=str,
-                 help="Specifies location and name of the obo file")
+                   help="Specifies location and name of the obo file")
     p.add_argument('--no_propagate_counts', default=False, action='store_true',
-                 help="Do not propagate counts to parent terms")
+                   help="Do not propagate counts to parent terms")
     p.add_argument('--outfile', default=None, type=str,
-                 help="Write enrichment results into xlsx or tsv file")
+                   help="Write enrichment results into xlsx or tsv file")
     p.add_argument('--method', default="bonferroni,sidak,holm,fdr_bh", type=str,
-                 help=Methods().getmsg_valid_methods())
+                   help=Methods().getmsg_valid_methods())
     p.add_argument('--pvalcalc', default="fisher", type=str,
-                 help=str(FisherFactory()))
+                   help=str(FisherFactory()))
 
     if len(sys.argv) == 1:
         sys.exit(not p.print_help())
@@ -150,7 +152,7 @@ if __name__ == "__main__":
             # Only print results when uncorrected p-value < this value.A
             num_orig = len(results)
             results = [r for r in results if r.p_uncorrected < args.pval]
-            sys.stdout.write("{N:7,} of {M:,} results have uncorrected P-values < {PVAL}\n".format(
+            sys.stdout.write("{N:7,} of {M:,} results have uncorrected P-values < {PVAL}=pval\n".format(
                 N=len(results), M=num_orig, PVAL=args.pval))
         for outfile in outfiles:
             if outfile.endswith(".xlsx"):
