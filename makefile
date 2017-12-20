@@ -167,9 +167,9 @@ clobber:
 #    tests/test_optional_fields.py \
 #    tests/test_dnlds.py \
 #    tests/test_get_godag.py \
+#    tests/test_gpad_dnld.py \
 
 NOSETESTS := \
-    tests/test_gpad_dnld.py \
     tests/test_semantic_similarity.py \
     tests/test_goea_errors.py \
     tests/test_genes_cell_cycle.py \
