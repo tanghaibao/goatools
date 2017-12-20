@@ -9,6 +9,7 @@ study genes using Fisher's exact test, and corrected for multiple testing
 (including Bonferroni, Holm, Sidak, and false discovery rate)
 """
 
+from __future__ import print_function
 from __future__ import absolute_import
 
 __copyright__ = "Copyright (C) 2010-2017, H Tang et al., All rights reserved."
@@ -51,6 +52,9 @@ class GOEnrichmentRecord(object):
 
     def __init__(self, **kwargs):
         # Methods seen in current enrichment result
+        self.name = None  # Set by set_goterm
+        self.NS = None    # Set by set_goterm
+        self.is_ratio_different = None  # Set by update_remaining_fldsdefprt
         self._methods = []
         for key, val in kwargs.items():
             setattr(self, key, val)
@@ -186,7 +190,7 @@ class GOEnrichmentRecord(object):
                     row.append(val)
                 else:
                     # 3. Field not found, raise Exception
-                    self._err_fld(fld, fldnames, row)
+                    self._err_fld(fld, fldnames)
             if rpt_fmt:
                 assert not isinstance(val, list), \
                    "UNEXPECTED LIST: FIELD({F}) VALUE({V}) FMT({P})".format(
@@ -268,6 +272,9 @@ class GOEnrichmentStudy(object):
         if not results:
             return []
 
+        if log is not None:
+            log.write("  {MSG}\n".format(MSG="\n  ".join(self.get_results_msg(results, study))))
+
         # Do multipletest corrections on uncorrected pvalues and update results
         self._run_multitest_corr(results, methods, alpha, study, log)
 
@@ -283,11 +290,7 @@ class GOEnrichmentStudy(object):
             results = [r for r in results if keep_if(r)]
 
         # Default sort order: First, sort by BP, MF, CC. Second, sort by pval
-        results.sort(key=lambda r: [r.NS, r.p_uncorrected])
-
-        if log is not None:
-            log.write("  {MSG}\n".format(MSG="\n  ".join(self.get_results_msg(results, study))))
-
+        results.sort(key=lambda r: [r.NS, r.enrichment, r.p_uncorrected])
         return results # list of GOEnrichmentRecord objects
 
     def run_study_nts(self, study, **kws):
@@ -300,24 +303,24 @@ class GOEnrichmentStudy(object):
         # To convert msg list to string: "\n".join(msg)
         msg = []
         if results:
+            fmt = "{M:6,} GO terms are associated with {N:6,} of {NT:6,}"
             stu_items, num_gos_stu = self.get_item_cnt(results, "study_items")
             pop_items, num_gos_pop = self.get_item_cnt(results, "pop_items")
-            msg.append("{M:,} GO terms are associated with {N:,} of {NT:,} study items".format(
-                N=len(stu_items), NT=len(set(study)), M=num_gos_stu))
-            msg.append("{M:,} GO terms are associated with {N:,} of {NT:,} population items".format(
-                N=len(pop_items), NT=self.pop_n, M=num_gos_pop))
+            stu_txt = fmt.format(N=len(stu_items), M=num_gos_stu, NT=len(set(study)))
+            pop_txt = fmt.format(N=len(pop_items), M=num_gos_pop, NT=self.pop_n)
+            msg.append("{POP} population items".format(POP=pop_txt))
+            msg.append("{STU} study items".format(STU=stu_txt))
         return msg
 
     def get_pval_uncorr(self, study, log=sys.stdout):
         """Calculate the uncorrected pvalues for study items."""
-        if log is not None:
-            log.write("Calculating uncorrected p-values using {PFNC}\n".format(
-                PFNC=self.pval_obj.name))
         results = []
         go2studyitems = get_terms("study", study, self.assoc, self.obo_dag, log)
         pop_n, study_n = self.pop_n, len(study)
-        allterms = set(go2studyitems.keys()).union(
-            set(self.go2popitems.keys()))
+        allterms = set(go2studyitems).union(set(self.go2popitems))
+        if log is not None:
+            log.write("Calculating {N:,} uncorrected p-values using {PFNC}\n".format(
+                N=len(allterms), PFNC=self.pval_obj.name))
         calc_pvalue = self.pval_obj.calc_pvalue
 
         for term in allterms:
@@ -346,10 +349,18 @@ class GOEnrichmentStudy(object):
 
         for nt_method in usr_methods:
             ntmt = ntobj(results, pvals, alpha, nt_method, study)
-            if log is not None:
-                log.write("Running multitest correction: {MSRC} {METHOD}\n".format(
-                    MSRC=ntmt.nt_method.source, METHOD=ntmt.nt_method.method))
             self._run_multitest[nt_method.source](ntmt)
+            if log is not None:
+                self._log_multitest_corr(log, results, ntmt, alpha)
+
+    def _log_multitest_corr(self, log, results, ntmt, alpha):
+        """Print information regarding multitest correction results."""
+        ntm = ntmt.nt_method
+        attr_mult = "p_{M}".format(M=self.methods.get_fldnm_method(ntm.method))
+        sig_cnt = sum(1 for r in results if getattr(r, attr_mult) < alpha)
+        log.write("{N:8,} GO terms found significant (< alpha={A}) ".format(N=sig_cnt, A=alpha))
+        log.write("after multitest correction: ")
+        log.write("{MSRC} {METHOD}\n".format(MSRC=ntm.source, METHOD=ntm.method))
 
     def _run_multitest_statsmodels(self, ntmt):
         """Use multitest mthods that have been implemented in statsmodels."""
@@ -486,7 +497,8 @@ class GOEnrichmentStudy(object):
         import goatools
 
         # Header contains provenance and parameters
-        print("# Generated by GOATOOLS v{0} ({1})".format(goatools.__version__, datetime.date.today()))
+        date = datetime.date.today()
+        print("# Generated by GOATOOLS v{0} ({1})".format(goatools.__version__, date))
         print("# min_ratio={0} pval={1}".format(min_ratio, pval))
 
         # field names for output
@@ -520,7 +532,7 @@ class GOEnrichmentStudy(object):
             docstring = "\n".join([docstring, "# {VER}\n\n".format(VER=self.obo_dag.version)])
             assert hasattr(nts_goea[0], '_fields')
             if sortby is None:
-                sortby = lambda nt: [getattr(nt, 'namespace'), getattr(nt, 'enrichment'), 
+                sortby = lambda nt: [getattr(nt, 'namespace'), getattr(nt, 'enrichment'),
                                      getattr(nt, 'p_uncorrected'), getattr(nt, 'depth'),
                                      getattr(nt, 'GO')]
             nts_goea = sorted(nts_goea, key=sortby)
