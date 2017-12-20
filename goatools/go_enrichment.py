@@ -52,9 +52,6 @@ class GOEnrichmentRecord(object):
 
     def __init__(self, **kwargs):
         # Methods seen in current enrichment result
-        self.name = None  # Set by set_goterm
-        self.NS = None    # Set by set_goterm
-        self.is_ratio_different = None  # Set by update_remaining_fldsdefprt
         self._methods = []
         for key, val in kwargs.items():
             setattr(self, key, val)
