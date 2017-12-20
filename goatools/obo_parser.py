@@ -697,6 +697,7 @@ class GODag(dict):
             # Add the GO parents of all GO IDs in the current gene's association
             goids.update(parents)
         if bad_goids:
-            sys.stderr.write("goids not found: %s\n" % (bad_goids,))
+            sys.stderr.write("{N} GO IDs in association are not found in the GO-DAG: {GOs}\n".format(
+                N=len(bad_goids), GOs=" ".join(bad_goids)))
 
 # Copyright (C) 2010-2017, H Tang et al., All rights reserved.
