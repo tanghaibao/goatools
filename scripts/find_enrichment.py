@@ -95,7 +95,7 @@ if __name__ == "__main__":
                  help="Do not propagate counts to parent terms")
     p.add_argument('--outfile', default=None, type=str,
                  help="Write enrichment results into xlsx or tsv file")
-    p.add_argument('--method', default="bonferroni,sidak,holm", type=str,
+    p.add_argument('--method', default="bonferroni,sidak,holm,fdr_bh", type=str,
                  help=Methods().getmsg_valid_methods())
     p.add_argument('--pvalcalc', default="fisher", type=str,
                  help=str(FisherFactory()))
@@ -146,14 +146,16 @@ if __name__ == "__main__":
     else:
         # Users can print to both tab-separated file and xlsx file in one run.
         outfiles = args.outfile.split(",")
-        prt_if = None # Print all values
         if args.pval is not None:
-            # Only print out when uncorrected p-value < this value.
-            prt_if = lambda nt: nt.p_uncorrected < args.pval
+            # Only print results when uncorrected p-value < this value.A
+            num_orig = len(results)
+            results = [r for r in results if r.p_uncorrected < args.pval]
+            sys.stdout.write("{N:7,} of {M:,} results have uncorrected P-values < {PVAL}\n".format(
+                N=len(results), M=num_orig, PVAL=args.pval))
         for outfile in outfiles:
             if outfile.endswith(".xlsx"):
-                g.wr_xlsx(outfile, results, prt_if=prt_if, indent=args.indent)
+                g.wr_xlsx(outfile, results, indent=args.indent)
             else:
-                g.wr_tsv(outfile, results, prt_if=prt_if, indent=args.indent)
+                g.wr_tsv(outfile, results, indent=args.indent)
 
 # Copyright (C) 2010-2017, H Tang et al. All rights reserved.
