@@ -49,17 +49,17 @@ def read_geneset(study_fn, pop_fn, compare=False):
     return study, pop
 
 
-def check_input_files(ns, p):
+def check_input_files(args, argparser):
     """check filename args. otherwise if one of the 3 filenames is bad
     it's hard to tell which one"""
     import os
-    if not len(ns.filenames) == 3:
-        p.print_help()
+    if not len(args.filenames) == 3:
+        argparser.print_help()
         msg = """
   3 Expected files; Expected content: study population association",
-  {} Actual   files: {}""".format(len(ns.filenames), ' '.join(ns.filenames))
+  {} Actual   files: {}""".format(len(args.filenames), ' '.join(args.filenames))
         raise Exception(msg)
-    for fin in ns.filenames:
+    for fin in args.filenames:
         if not os.path.exists(fin):
             return "*{}* does not exist".format(fin)
 
@@ -152,7 +152,7 @@ if __name__ == "__main__":
             # Only print results when uncorrected p-value < this value.A
             num_orig = len(results)
             results = [r for r in results if r.p_uncorrected <= args.pval]
-            sys.stdout.write("{N:7,} of {M:,} results have uncorrected P-values <= {PVAL}=pval\n".format(
+            print("{N:7,} of {M:,} results have uncorrected P-values <= {PVAL}=pval".format(
                 N=len(results), M=num_orig, PVAL=args.pval))
         for outfile in outfiles:
             if outfile.endswith(".xlsx"):
