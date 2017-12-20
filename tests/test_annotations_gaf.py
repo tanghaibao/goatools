@@ -14,7 +14,6 @@ from collections import defaultdict
 from goatools.associations import read_gaf
 from goatools.base import dnld_gafs
 
-@pytest.mark.skip(reason="long sim times. fnc covered elsewhere.")
 def test_gaf_read(log=sys.stdout):
     """Return GO associations from a GAF file. Download if necessary."""
     # Get associations for human(9606), mouse(10090), and fly(7227)
@@ -42,7 +41,6 @@ def _test_gaf_read(msg, species_ids, keepif, log=sys.stdout):
     taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
     local_dir = os.path.dirname(os.path.abspath(__file__))
     for fin_gaf in dnld_gafs(species_ids, loading_bar=None):
-        print(local_dir, fin_gaf)
         fin_gaf = os.path.join(local_dir, fin_gaf)
         log.write("\n")
         id2gos = read_gaf(fin_gaf, taxid2asscs=taxid2asscs, keepif=keepif)

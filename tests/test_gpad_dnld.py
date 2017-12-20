@@ -6,7 +6,7 @@ __author__ = "DV Klopfenstein"
 
 import os
 import sys
-from goatools.parsers.dnld_ebi_goa import DnldGoa
+from goatools.anno.dnld_ebi_goa import DnldGoa
 
 def test_ebi_goa_dnld(run_full=False):
     """Test downloading files from GOA source http://www.ebi.ac.uk/GOA."""
