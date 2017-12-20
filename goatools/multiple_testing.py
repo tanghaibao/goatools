@@ -90,6 +90,10 @@ class Methods(object):
             msg.append("        )")
         return "\n".join(msg)
 
+    def get_fieldname(self, method_source, method):
+        """Get the name of the method used to create namedtuple fieldnames which store floats."""
+        return self._srcmethod2fieldname[(method_source, method)]
+
     def _init_srcmethod2fieldname(self):
         """Return an OrderedDict with key, (method_src, method), and value, attrname."""
         srcmethod_fieldname = []

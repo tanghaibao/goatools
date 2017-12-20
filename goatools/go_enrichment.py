@@ -353,9 +353,9 @@ class GOEnrichmentStudy(object):
     def _log_multitest_corr(self, log, results, ntmt, alpha):
         """Print information regarding multitest correction results."""
         ntm = ntmt.nt_method
-        attr_mult = "p_{M}".format(M=self.methods.get_fldnm_method(ntm.method))
-        # sig_cnt = sum(1 for r in results if getattr(r, attr_mult) < alpha)
-        # log.write("{N:8,} GO terms found significant (< {A}=alpha) after ".format(N=sig_cnt, A=alpha))
+        attr_mult = "p_{M}".format(M=self.methods.get_fieldname(ntm.source, ntm.method))
+        sig_cnt = sum(1 for r in results if getattr(r, attr_mult) < alpha)
+        log.write("{N:8,} GO terms found significant (< {A}=alpha) after ".format(N=sig_cnt, A=alpha))
         log.write("multitest correction: ")
         log.write("{MSRC} {METHOD}\n".format(MSRC=ntm.source, METHOD=ntm.method))
 
