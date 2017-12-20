@@ -156,11 +156,20 @@ def get_gaf_name(species):
     # Example species text: goa_human mgi fb
     gaf_key = 'goa' if species[:4] == "goa_" else 'gas'
     # Return Examples: goa_human.gaf gene_association.mgi gene_association.fb
-    return gaf_pats[gaf_key].format(S=species)
+    return gaf_pats[gaf_key].format(S=species.replace(".gaf", ""))
 
-def dnld_gaf(species_txt, prt=sys.stdout, loading_bar=True):
+def dnld_gaf(gaf_filename, prt=sys.stdout, loading_bar=True):
     """Download GAF file if necessary."""
-    return dnld_gafs([species_txt], prt, loading_bar)[0]
+    http = "http://geneontology.org/gene-associations"
+    dir_gaf = os.path.split(gaf_filename)
+    if not dir_gaf:
+        _err_dnld_gafs(gaf_filename)
+    loc_dir = dir_gaf[0] if dir_gaf[0] != '' else os.getcwd()
+    gaf_base = get_gaf_name(dir_gaf[1]) # goa_human.gaf
+    gaf_cwd = os.path.join(loc_dir, gaf_base) # {CWD}/goa_human.gaf
+    wget_cmd = "{HTTP}/{GAF}.gz".format(HTTP=http, GAF=gaf_base)
+    dnld_file(wget_cmd, gaf_cwd, prt, loading_bar)
+    return os.path.join(loc_dir, gaf_base)
 
 def dnld_gafs(species_list, prt=sys.stdout, loading_bar=True):
     """Download GAF files if necessary."""
@@ -169,22 +178,27 @@ def dnld_gafs(species_list, prt=sys.stdout, loading_bar=True):
     #   http://geneontology.org/gene-associations/gene_association.fb.gz
     #   http://geneontology.org/gene-associations/goa_human.gaf.gz
     #   NA: http://geneontology.org/gene-associations/gene_association.goa_human.gz
-    http = "http://geneontology.org/gene-associations"
     # There are two filename patterns for gene associations on geneontology.org
     fin_gafs = []
-    cwd = os.getcwd()
     for species_txt in species_list: # e.g., goa_human mgi fb
-        gaf_base = get_gaf_name(species_txt) # goa_human.gaf
-        gaf_cwd = os.path.join(cwd, gaf_base) # {CWD}/goa_human.gaf
-        wget_cmd = "{HTTP}/{GAF}.gz".format(HTTP=http, GAF=gaf_base)
-        dnld_file(wget_cmd, gaf_cwd, prt, loading_bar)
-        fin_gafs.append(gaf_cwd)
+        gaf = dnld_gaf(species_txt, prt, loading_bar)
+        print("GAF", gaf)
+        fin_gafs.append(gaf)
     return fin_gafs
+
+def _err_dnld_gafs(species):
+    """Unknown species. Report RuntimeError."""
+    txt = ["UNEXPECTED GAF FILE: dnld_gafs({GAF})".format(GAF=species),
+           "EXPECTED: gene_association.<SPECIES>.gz",
+           "EXPECTED: goa_<SPECIES>.gaf.gz"
+           "GAF FILES CAN BE FOUND: http://geneontology.org/page/download-annotations"]
+    raise RuntimeError("\n".join(txt))
 
 def dnld_file(src_ftp, dst_file, prt=sys.stdout, loading_bar=True):
     """Download specified file if necessary."""
     if os.path.isfile(dst_file):
         return
+    loc_dir, loc_gaf = os.path.split(src_ftp)
     do_gunzip = src_ftp[-3:] == '.gz' and dst_file[-3:] != '.gz'
     dst_wget = "{DST}.gz".format(DST=dst_file) if do_gunzip else dst_file
     # Write to stderr, not stdout so this message will be seen when running nosetests

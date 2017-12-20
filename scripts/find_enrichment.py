@@ -151,8 +151,8 @@ if __name__ == "__main__":
         if args.pval is not None:
             # Only print results when uncorrected p-value < this value.A
             num_orig = len(results)
-            results = [r for r in results if r.p_uncorrected < args.pval]
-            sys.stdout.write("{N:7,} of {M:,} results have uncorrected P-values < {PVAL}=pval\n".format(
+            results = [r for r in results if r.p_uncorrected <= args.pval]
+            sys.stdout.write("{N:7,} of {M:,} results have uncorrected P-values <= {PVAL}=pval\n".format(
                 N=len(results), M=num_orig, PVAL=args.pval))
         for outfile in outfiles:
             if outfile.endswith(".xlsx"):
