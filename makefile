@@ -9,6 +9,12 @@ GOEA_FILES = data/study data/population data/association
 # Example GO: translation factor activity RNA binding
 GO = GO:0008135
 
+# -------------------------------------------------------------------------------
+# ---- Run GOEA -----------------------------------------------------------------
+# -------------------------------------------------------------------------------
+goea: $(GO_OBO_FILE)
+	python scripts/find_enrichment.py --pval=0.05 --indent $(GOEA_FILES) --outfile results.txt
+
 
 # -------------------------------------------------------------------------------
 # ---- Sphinx-Generated Documentation -------------------------------------------
@@ -67,9 +73,6 @@ gh-pages:
 # -------------------------------------------------------------------------------
 # ---- Run Scripts --------------------------------------------------------------
 # -------------------------------------------------------------------------------
-goea: $(GO_OBO_FILE)
-	python scripts/find_enrichment.py --pval=0.05 --indent $(GOEA_FILES)
-
 goea_scipy_pval: $(GO_OBO_FILE)
 	python scripts/find_enrichment.py --pval=0.05 --indent $(GOEA_FILES) --pvalcalc fisher_scipy_stats
 
@@ -100,6 +103,12 @@ map_slim: $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
 
 goea_all: goea goea_basic goea_xlsx goea_xlsx_bonferroni goea_tsv goea_files
 
+vim_ext:
+	vim -p \
+	tests/test_gpad_read.py \
+	goatools/parsers/gpad_reader.py \
+	goatools/anno/extensions/extensions.py \
+	goatools/anno/extensions/extension.py
 
 # if the gene ontology files don't exist, download them
 dnld_obo: $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
