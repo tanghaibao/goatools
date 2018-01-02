@@ -71,7 +71,7 @@ def wr_py_nts(fout_py, nts, docstring=None, varname="nts"):
             for ntup in nts:
                 prt.write("    {NT},\n".format(NT=ntup))
             prt.write("]\n")
-            sys.stdout.write("  WROTE: {PY}\n".format(PY=fout_py))
+            sys.stdout.write(" {N:7,} items WROTE: {PY}\n".format(N=len(nts), PY=fout_py))
 
 def get_unique_fields(fld_lists):
     """Get unique namedtuple fields, despite potential duplicates in lists of fields."""
