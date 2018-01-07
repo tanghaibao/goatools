@@ -2,7 +2,7 @@
 
 from collections import defaultdict
 
-__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 class GODagSmall(object):
@@ -31,5 +31,5 @@ class GODagSmall(object):
         return edge_from_to
         
    
-# Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.
 

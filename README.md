@@ -312,5 +312,5 @@ Items that we know we need include:
 
 ## Reference
 
-Haibao Tang et al. (2015). GOATOOLS: Tools for Gene Ontology. Zenodo.
+Copyright (C) 2010-2018. Haibao Tang et al. GOATOOLS: Tools for Gene Ontology. Zenodo.
 [10.5281/zenodo.31628](http://dx.doi.org/10.5281/zenodo.31628).

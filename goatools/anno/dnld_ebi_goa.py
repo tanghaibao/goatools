@@ -1,6 +1,6 @@
 """Download GOA files from the Gene Ontology Annotation (GOA) resource http://www.ebi.ac.uk/GOA."""
 
-__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import os
@@ -57,4 +57,4 @@ class DnldGoa(object):
         return 'goa_{SPECIES}_{ITEM}.{EXT}'.format(SPECIES=species, ITEM=item, EXT=ext)
 
 
-# Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."

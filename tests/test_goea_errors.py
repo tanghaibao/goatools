@@ -3,7 +3,7 @@
         python test_goea_errors.py
 """
 
-__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -61,4 +61,4 @@ def test_all(log=sys.stdout):
 if __name__ == '__main__':
     test_all()
 
-# Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved.
+# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.

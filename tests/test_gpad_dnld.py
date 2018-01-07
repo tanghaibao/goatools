@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Test downloading files from Gene Ontology Annotation (GOA) resource http://www.ebi.ac.uk/GOA."""
 
-__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import os
@@ -31,4 +31,4 @@ if __name__ == '__main__':
     RUN_FULL = True if len(sys.argv) != 1 else False
     test_ebi_goa_dnld(RUN_FULL)
 
-# Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."

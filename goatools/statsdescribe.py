@@ -1,6 +1,6 @@
 """Runs stats describe on data. Prints data in a markdown table."""
 
-__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -89,4 +89,4 @@ class StatsDescribe(object):
         maxval = self.fmtstr.format(minmax[1])
         return '{A} to {B:6>}'.format(A=minval, B=maxval)
 
-# Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved.
+# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.

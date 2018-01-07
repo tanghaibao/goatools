@@ -6,7 +6,7 @@ from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.associations import read_associations
 from goatools.base import get_godag
 
-__copyright__ = "Copyright (C) 2010-2017, H Tang et al., All rights reserved."
+__copyright__ = "Copyright (C) 2010-2018, H Tang et al., All rights reserved."
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
@@ -93,4 +93,4 @@ def run_all():
 if __name__ == '__main__':
     run_all()
 
-# Copyright (C) 2010-2017, H Tang et al., All rights reserved.
+# Copyright (C) 2010-2018, H Tang et al., All rights reserved.

@@ -2,7 +2,7 @@
 Routines to read in association file between genes and GO terms.
 """
 
-__copyright__ = "Copyright (C) 2010-2017, H Tang et al. All rights reserved."
+__copyright__ = "Copyright (C) 2010-2018, H Tang et al. All rights reserved."
 __author__ = "various"
 
 from collections import defaultdict
@@ -214,4 +214,4 @@ def get_assc_pruned(assc_geneid2gos, max_genecnt, prt=sys.stdout):
             N=num_was-num_now, G=max_genecnt, A=num_was, B=num_now))
     return get_b2aset(go2genes_prun), gos_rm
 
-# Copyright (C) 2010-2017, H Tang et al. All rights reserved."
+# Copyright (C) 2010-2018, H Tang et al. All rights reserved."

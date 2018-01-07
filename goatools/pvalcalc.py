@@ -1,6 +1,6 @@
 """Options for calculating uncorrected p-values."""
 
-__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang et al., All rights reserved."
+__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang et al., All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import collections as cx
@@ -98,4 +98,4 @@ class FisherFactory(object):
         return " ".join(self.options.keys())
 
 
-# Copyright (C) 2016-2017, DV Klopfenstein, H Tang et al., All rights reserved.
+# Copyright (C) 2016-2018, DV Klopfenstein, H Tang et al., All rights reserved.

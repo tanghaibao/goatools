@@ -16,7 +16,7 @@ About significance cutoff:
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2010-2017, H Tang et al. All rights reserved."
+__copyright__ = "Copyright (C) 2010-2018, H Tang et al. All rights reserved."
 __author__ = "various"
 
 import sys
@@ -160,4 +160,4 @@ if __name__ == "__main__":
             else:
                 g.wr_tsv(outfile, results, indent=args.indent)
 
-# Copyright (C) 2010-2017, H Tang et al. All rights reserved.
+# Copyright (C) 2010-2018, H Tang et al. All rights reserved.

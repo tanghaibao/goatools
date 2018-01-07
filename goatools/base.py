@@ -213,4 +213,4 @@ def gzip_open_to(fin_gz, fout):
     assert os.path.isfile(fout), "COULD NOT GUNZIP({G}) TO FILE({F})".format(G=fin_gz, F=fout)
     os.remove(fin_gz)
 
-# Copyright (C) 2013-2017, B Pedersen, et al. All rights reserved."
+# Copyright (C) 2013-2018, B Pedersen, et al. All rights reserved."

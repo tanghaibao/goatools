@@ -23,7 +23,7 @@
                'ntval2wbfmtdict': namedtuple value and corresponding xlsx format dict. Examples:
 """
 
-__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import re
@@ -208,4 +208,4 @@ def mk_fmtfld(nt_item):
     fldstrs.append("\n")
     return " ".join(fldstrs)
 
-# Copyright (C) 2016-2017, DV Klopfenstein, H Tang. All rights reserved.
+# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.

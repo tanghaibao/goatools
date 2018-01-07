@@ -214,4 +214,4 @@ def get_hdrs(flds_all, **kws):
     # All fields in the namedtuple will be in the headers
     return flds_all
 
-#  Copyright (C) 2015-2017. All rights reserved.
+#  Copyright (C) 2015-2018. All rights reserved.

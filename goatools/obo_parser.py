@@ -1,4 +1,4 @@
-# Copyright 2010-2016 by Haibao Tang et al. All rights reserved.
+# Copyright (C) 2010-2018 by Haibao Tang et al. All rights reserved.
 #
 # This code is part of the goatools distribution and goverend by its
 # license. Please see the LICENSE file included with goatools.
@@ -14,7 +14,7 @@ import re
 
 GraphEngines = ("pygraphviz", "pydot")
 
-__copyright__ = "Copyright (C) 2010-2017, H Tang et al., All rights reserved."
+__copyright__ = "Copyright (C) 2010-2018, H Tang et al., All rights reserved."
 __author__ = "various"
 
 class OBOReader(object):
@@ -700,4 +700,4 @@ class GODag(dict):
             sys.stdout.write("{N} GO IDs in association are not found in the GO-DAG: {GOs}\n".format(
                 N=len(bad_goids), GOs=" ".join(bad_goids)))
 
-# Copyright (C) 2010-2017, H Tang et al., All rights reserved.
+# Copyright (C) 2010-2018, H Tang et al., All rights reserved.

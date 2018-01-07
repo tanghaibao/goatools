@@ -9,7 +9,7 @@
 
 """
 
-__copyright__ = "Copyright (C) 2010-2017, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2010-2018, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "various"
 
 import sys
@@ -62,4 +62,4 @@ class WrSubObo(object):
                 parents |= goterm.get_all_parents()
         return parents
 
-# Copyright (C) 2010-2017, DV Klopfenstein, H Tang. All rights reserved.
+# Copyright (C) 2010-2018, DV Klopfenstein, H Tang. All rights reserved.

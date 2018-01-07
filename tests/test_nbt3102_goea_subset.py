@@ -11,7 +11,7 @@
 from goatools.test_data.genes_NCBI_10090_ProteinCoding import GeneID2nt as GeneID2nt_mus
 from goatools.test_data.nature3102_goea import get_geneid2symbol, get_goeaobj
 
-__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 def test_example():
@@ -38,4 +38,4 @@ def test_example():
 if __name__ == '__main__':
     test_example()
 
-# Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.

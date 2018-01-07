@@ -9,7 +9,7 @@ from goatools.go_search import GoSearch
 from goatools.associations import get_assoc_ncbi_taxids
 from goatools.wr_tbl import prt_txt
 
-__copyright__ = "Copyright (C) 2010-2017, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 def test_cell_cycle(taxid=9606, log=sys.stdout):
@@ -84,4 +84,4 @@ if __name__ == '__main__':
     test_cell_cycle(9606)
     test_cell_cycle(10090)
 
-# Copyright (C) 2010-2017, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved.

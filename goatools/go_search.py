@@ -3,7 +3,7 @@
 import sys
 from goatools.obo_parser import GODag
 
-__copyright__ = "Copyright (C) 2010-2017, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 class GoSearch(object):
@@ -88,4 +88,4 @@ class GoSearch(object):
             items.extend(self.go2items.get(go_id, []))
         return set(items)
 
-# Copyright (C) 2010-2017, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved.

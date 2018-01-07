@@ -8,7 +8,7 @@ from goatools.associations import read_associations
 
 ROOT = os.path.dirname(os.path.abspath(__file__)) + "/data/"
 
-__copyright__ = "Copyright (C) 2010-2017, H Tang et al., All rights reserved."
+__copyright__ = "Copyright (C) 2010-2018, H Tang et al., All rights reserved."
 
 
 def test_goea_statsmodels(log=sys.stdout):
@@ -51,4 +51,4 @@ def get_goeaobj(methods=None):
 if __name__ == '__main__':
     test_goea_statsmodels()
 
-# Copyright (C) 2010-2017, H Tang et al., All rights reserved.
+# Copyright (C) 2010-2018, H Tang et al., All rights reserved.

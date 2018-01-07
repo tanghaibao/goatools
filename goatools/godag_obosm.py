@@ -6,7 +6,7 @@
 from collections import defaultdict
 from goatools.godag_small import GODagSmall
 
-__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 class OboToGoDagSmall(object):
@@ -82,5 +82,5 @@ class OboToGoDagSmall(object):
             if child_id not in self.seen_pids:
                 self._traverse_child_objs(child_obj)
 
-# Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.
 

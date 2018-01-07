@@ -33,7 +33,7 @@
 
 """
 
-__copyright__ = "Copyright (C) 2015-2017, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2015-2018, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -131,4 +131,4 @@ class RptLevDepth(object):
             data.append(ntobj._make(vals))
         return data
 
-# Copyright (C) 2015-2017, DV Klopfenstein, H Tang, All rights reserved."
+# Copyright (C) 2015-2018, DV Klopfenstein, H Tang, All rights reserved."
