@@ -229,6 +229,7 @@ class GOEnrichmentStudy(object):
     default_fld2col_widths = {
         'NS'        :  3,
         'GO'        : 12,
+        'alt'       :  2,
         'level'     :  3,
         'depth'     :  3,
         'enrichment':  1,
