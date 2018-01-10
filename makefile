@@ -122,11 +122,15 @@ $(GOSLIM_OBO_FILE):
 	wget -O $(GOSLIM_OBO_FILE) $(GOSLIM_OBO_DOWNLOAD)
 
 clean:
+	make clean_pyc
 	rm -f goea*.xlsx goea.tsv GO_lineage.png
 	cd tests; make --no-print-directory clean
-	cd goatools; rm -f *.pyc
 	rm -f *.xlsx *.tsv *.log
 	rm -f nbt3102_*
+
+clean_pyc:
+	find . -name \*.pyc | xargs rm -f
+	rm -f py*.*.st*p
 
 # Removes local files in master branch generated using Sphinx
 clean_docgen:
