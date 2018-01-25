@@ -14,18 +14,24 @@ from goatools.base import dnld_file
 def dnld_assc(assc_name, go2obj, prt=sys.stdout):
     """Download association from http://geneontology.org/gene-associations."""
     # Example assc_name: "gene_association.tair"
+    # Download the Association
     dirloc, assc_base = os.path.split(assc_name)
     if not dirloc:
         dirloc = os.getcwd()
-    assc_local = os.path.join(dirloc, assc_base) if not dirloc else assc_name
-    if not os.path.isfile(assc_local):
+    assc_locfile = os.path.join(dirloc, assc_base) if not dirloc else assc_name
+    if not os.path.isfile(assc_locfile):
         assc_http = "http://geneontology.org/gene-associations/"
         for ext in ['gz']:
             src = os.path.join(assc_http, "{ASSC}.{EXT}".format(ASSC=assc_base, EXT=ext))
-            dnld_file(src, assc_local, prt, loading_bar=None)
+            dnld_file(src, assc_locfile, prt, loading_bar=None)
+    # Read the downloaded association
+    assc_orig = read_gaf(assc_locfile, prt)
+    if go2obj is None:
+        return assc_orig
+    # If a GO DAG is provided, use only GO IDs present in the GO DAG
     assc = {}
     goids_dag = set(go2obj.keys())
-    for gene, goids_cur in read_gaf(assc_local, prt).items():
+    for gene, goids_cur in assc_orig.items():
         assc[gene] = goids_cur.intersection(goids_dag)
     return assc
 
@@ -201,17 +207,31 @@ def get_b2aset(a2bset):
     return b2aset
 
 
-def get_assc_pruned(assc_geneid2gos, max_genecnt, prt=sys.stdout):
+def get_assc_pruned(assc_geneid2gos, min_genecnt=None, max_genecnt=None, prt=sys.stdout):
     """Remove GO IDs associated with large numbers of genes. Used in stochastic simulations."""
+    # DEFN WAS: get_assc_pruned(assc_geneid2gos, max_genecnt=None, prt=sys.stdout):
+    #      ADDED min_genecnt argument and functionality
+    if max_genecnt is None and min_genecnt is None:
+        return assc_geneid2gos, set()
     go2genes_orig = get_b2aset(assc_geneid2gos)
-    go2genes_prun = {go:gs for go, gs in go2genes_orig.items() if len(gs) <= max_genecnt}
+    # go2genes_prun = {go:gs for go, gs in go2genes_orig.items() if len(gs) <= max_genecnt}
+    go2genes_prun = {}
+    for goid, genes in go2genes_orig.items():
+        num_genes = len(genes)
+        if (min_genecnt is None or num_genes >= min_genecnt) and \
+           (max_genecnt is None or num_genes <= max_genecnt):
+            go2genes_prun[goid] = genes
     num_was = len(go2genes_orig)
     num_now = len(go2genes_prun)
     gos_rm = set(go2genes_orig.keys()).difference(set(go2genes_prun.keys()))
     assert num_was-num_now == len(gos_rm)
     if prt is not None:
-        prt.write("{N} GO IDs removed assc. w/>{G} genes = {A} - {B}\n".format(
-            N=num_was-num_now, G=max_genecnt, A=num_was, B=num_now))
+        if min_genecnt is None:
+            min_genecnt = 1
+        if max_genecnt is None:
+            max_genecnt = "Max"
+        prt.write("{N:4} GO IDs pruned. Kept {NOW} GOs assc w/({m} to {M} genes)\n".format(
+            m=min_genecnt, M=max_genecnt, N=num_was-num_now, NOW=num_now))
     return get_b2aset(go2genes_prun), gos_rm
 
 # Copyright (C) 2010-2018, H Tang et al. All rights reserved."
