@@ -54,7 +54,7 @@ class GafReader(object):
                         ntgaf = datobj.get_ntgaf(line)
                         if ntgaf is not None:
                             ga_lst.append(ntgaf)
-        except StandardError as inst:
+        except Exception as inst:
             import traceback
             traceback.print_exc()
             sys.stderr.write("\n  **FATAL in read_gaf: {MSG}\n\n".format(MSG=str(inst)))
