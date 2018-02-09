@@ -1,16 +1,18 @@
 """Test TermCounts object used in Resnik and Lin similarity calculations."""
 
+from __future__ import print_function
+
 import os
-import numpy as np
+import sys
 from goatools.base import get_godag
 from goatools.associations import dnld_assc
 from goatools.semantic import TermCounts
 from goatools.semantic import get_info_content
 
-def test_semantic_similarity():
+def test_semantic_similarity(usr_assc=None):
     """Computing basic semantic similarities between GO terms."""
     go2obj = get_go2obj()
-    goids = go2obj.keys()
+    # goids = go2obj.keys()
     associations = [
         'gene_association.GeneDB_Lmajor',
         'gene_association.GeneDB_Pfalciparum',
@@ -62,8 +64,10 @@ def test_semantic_similarity():
         'goa_uniprot_all.gaf',
         #'goa_uniprot_all_noiea.gaf',
     ]
+    if usr_assc is not None:
+        associations = [usr_assc]
     cwd = os.getcwd()
-    for assc_name in associations[:3]:  # Limit test numbers for speed
+    for assc_name in associations:  # Limit test numbers for speed
         # Get all the annotations from arabidopsis.
         assc_gene2gos = dnld_assc(os.path.join(cwd, assc_name), go2obj, prt=None)
 
@@ -76,7 +80,8 @@ def test_semantic_similarity():
         #print termcounts.gocnts.most_common()
 
         if go_cnt:
-            print(termcounts.aspect_counts.most_common())
+            print("\n{ASSC}".format(ASSC=assc_name))
+            print(sorted(termcounts.aspect_counts.most_common()))
             gocnt_max = go_cnt[0][1]
             prt_info(termcounts, go_cnt, None)
             prt_info(termcounts, go_cnt, gocnt_max/2.0)
@@ -86,8 +91,8 @@ def prt_info(termcounts, go_cnt, max_val):
     """Print the information content of a frequently used GO ID."""
     go_id, cnt = get_goid(go_cnt, max_val)
     infocontent = get_info_content(go_id, termcounts)
-    msg = 'Information content ({GO} {CNT:7,}) = {INFO}'
-    print(msg.format(GO=go_id, CNT=cnt, INFO=infocontent))
+    msg = 'Information content ({GO} {CNT:7,}) = {INFO:8.6f} {NAME}'
+    print(msg.format(GO=go_id, CNT=cnt, INFO=infocontent, NAME=termcounts.go2obj[go_id].name))
 
 def get_goid(go_cnt, max_val):
     """Get frequently used GO ID."""
@@ -104,4 +109,5 @@ def get_go2obj():
     return {go:o for go, o in godag.items() if not o.is_obsolete}
 
 if __name__ == '__main__':
-    test_semantic_similarity()
+    ASSC_NAME = None if len(sys.argv) == 1 else sys.argv[1]
+    test_semantic_similarity(ASSC_NAME)

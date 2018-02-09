@@ -10,14 +10,76 @@
 import sys
 import re
 import collections as cx
-from goatools.base import nopen
+# from goatools.base import nopen
 from goatools.evidence_codes import EvidenceCodes
 
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
+
+# pylint: disable=too-few-public-methods
 class GafReader(object):
     """Reads a Gene Annotation File (GAF). Returns a Python object."""
+
+    def __init__(self, filename=None, hdr_only=False, prt=sys.stdout):
+        self.filename = filename
+        self.evobj = EvidenceCodes()
+        # Initialize associations and header information
+        self.hdr = None
+        self.associations = self.read_gaf(filename, hdr_only, prt) if filename is not None else []
+
+    def read_gaf(self, fin_gaf, hdr_only, prt):
+        """Read GAF file. HTTP address okay. GZIPPED/BZIPPED file okay."""
+        ga_lst = []
+        ver = None
+        hdrobj = GafHdr()
+        datobj = None
+        lnum = line = -1
+        try:
+            with open(fin_gaf) as ifstrm:
+                for lnum, line in enumerate(ifstrm, 1):
+                    # Read header
+                    if datobj is None:
+                        if line[0] == '!':
+                            if ver is None and line[1:13] == 'gaf-version:':
+                                ver = line[13:].strip()
+                            hdrobj.chkaddhdr(line)
+                        else:
+                            self.hdr = hdrobj.get_hdr()
+                            if hdr_only:
+                                return ga_lst
+                            datobj = GafData(ver)
+                    # Read data
+                    if datobj is not None and line[0] != '!':
+                        ntgaf = datobj.get_ntgaf(line)
+                        if ntgaf is not None:
+                            ga_lst.append(ntgaf)
+        except StandardError as inst:
+            import traceback
+            traceback.print_exc()
+            sys.stderr.write("\n  **FATAL in read_gaf: {MSG}\n\n".format(MSG=str(inst)))
+            sys.stderr.write("**FATAL: {FIN}[{LNUM}]:\n{L}".format(FIN=fin_gaf, L=line, LNUM=lnum))
+            sys.exit(1)
+        # GAF file has been read
+        if prt is not None:
+            prt.write("  READ {N:,} associations: {FIN}\n".format(N=len(ga_lst), FIN=fin_gaf))
+        return self.evobj.sort_nts(ga_lst, 'Evidence_Code')
+
+    def prt_summary_anno2ev(self, prt=sys.stdout):
+        """Print annotation/evidence code summary."""
+        ctr = cx.Counter()
+        for ntgaf in self.associations:
+            evidence_code = ntgaf.Evidence_Code
+            if 'NOT' not in ntgaf.Qualifier:
+                ctr[evidence_code] += 1
+            elif 'NOT' in ntgaf.Qualifier:
+                ctr["NOT {EV}".format(EV=ntgaf.Evidence_Code)] += 1
+            else:
+                raise Exception("UNEXPECTED INFO")
+        self.evobj.prt_ev_cnts(ctr, prt)
+
+class GafData(object):
+    """Extracts GAF fields from a GAF line."""
 
     gafhdr = [ #           Col Req?     Cardinality    Example
         #                  --- -------- -------------- -----------------
@@ -56,40 +118,39 @@ class GafReader(object):
         "1.0" : 15}
 
     # Expected values for a Qualifier
-    exp_qualifiers = set(['NOT', 'contributes_to', 'Contributes_to', 'colocalizes_with'])
+    exp_qualifiers = set(['not', 'contributes_to', 'colocalizes_with'])
 
-    def __init__(self, filename=None, hdr_only=False, prt=sys.stdout):
-        self.filename = filename
-        self.evobj = EvidenceCodes()
-        # Initialize associations and header information
-        self.hdr = None
-        self.associations = self.read_gaf(filename, hdr_only, prt) if filename is not None else []
+    def __init__(self, ver):
+        self.ver = ver
+        self.ntgafobj = cx.namedtuple("ntgafobj", " ".join(self.gaf_columns[ver]))
+        self.exp_ncol = self.gaf_numcol[ver]
 
-    def prt_summary_anno2ev(self, prt=sys.stdout):
-        """Print annotation/evidence code summary."""
-        ctr = cx.Counter()
-        for ntgaf in self.associations:
-            evidence_code = ntgaf.Evidence_Code
-            if 'NOT' not in ntgaf.Qualifier:
-                ctr[evidence_code] += 1
-            elif 'NOT' in ntgaf.Qualifier:
-                ctr["NOT {EV}".format(EV=ntgaf.Evidence_Code)] += 1
-            else:
-                raise Exception("UNEXPECTED INFO")
-        self.evobj.prt_ev_cnts(ctr, prt)
+    def get_ntgaf(self, line):
+        """Return namedtuple filled with data."""
+        flds = self._split_line(line)
+        return self._get_ntgaf(flds)
 
-    def _get_ntgaf(self, ntgafobj, flds, ver):
+    def _split_line(self, line):
+        """Split line into field values."""
+        line = line.rstrip('\r\n')
+        flds = re.split('\t', line)
+        assert len(flds) == self.exp_ncol, "EXP {E} COLUMNS, SAW {A}".format(
+            A=len(flds), E=self.exp_ncol)
+        return flds
+
+    def _get_ntgaf(self, flds):
         """Convert fields from string to preferred format for GAF ver 2.1 and 2.0."""
         # Cardinality
         is_set = False
         is_list = True
-        qualifiers = self._rd_fld_vals("Qualifier", flds[3], is_set)
+        qualifiers = [t.lower() for t in self._rd_fld_vals("Qualifier", flds[3], is_set)]
         db_reference = self._rd_fld_vals("DB_Reference", flds[5], is_set, 1)
         with_from = self._rd_fld_vals("With_From", flds[7], is_set)
         db_name = self._rd_fld_vals("DB_Name", flds[9], is_set, 0, 1)
         db_synonym = self._rd_fld_vals("DB_Synonym", flds[10], is_set)
         taxons = self._rd_fld_vals("Taxon", flds[12], is_list, 1, 2)
-        self._chk_qty_eq_1(flds, [0, 1, 2, 4, 6, 8, 11, 13, 14])
+        if not self._chk_qty_eq_1(flds, [0, 1, 2, 4, 6, 8, 11, 13, 14]):
+            return None
         # Additional Formatting
         taxons = self._do_taxons(taxons)
         self._chk_qualifier(qualifiers)
@@ -111,80 +172,42 @@ class GafReader(object):
             flds[12],     # 13 Date
             flds[13]]     # 14 Assigned_By
         # Version 2.x has these additional fields not found in v1.0
-        if ver[0] == '2':
+        if self.ver[0] == '2':
             gafvals += [
                 self._rd_fld_vals("Annotation_Extension", flds[15], is_set),
                 self._rd_fld_vals("Gene_Product_Form_ID", flds[16], is_set)]
-        return ntgafobj._make(gafvals)
+        return self.ntgafobj._make(gafvals)
 
-    def _rd_fld_vals(self, name, val, set_list_ft=True, qty_min=0, qty_max=None):
+    @staticmethod
+    def _rd_fld_vals(name, val, set_list_ft=True, qty_min=0, qty_max=None):
         """Further split a GAF value within a single field."""
         if not val and qty_min == 0:
             return [] if set_list_ft else set()
         vals = val.split('|') # Use a pipe to separate entries
         num_vals = len(vals)
         assert num_vals >= qty_min, \
-            "FIELD({F}): MIN QUANTITY({Q}) WASN'T MET: {V} in {GAF}".format(
-                F=name, Q=qty_min, V=vals, GAF=self.filename)
+            "FIELD({F}): MIN QUANTITY({Q}) WASN'T MET: {V}".format(F=name, Q=qty_min, V=vals)
         if qty_max is not None:
             assert num_vals <= qty_max, \
-                "FIELD({F}): MAX QUANTITY({Q}) EXCEEDED: {V} in {GAF}".format(
-                    F=name, Q=qty_max, V=vals, GAF=self.filename)
+                "FIELD({F}): MAX QUANTITY({Q}) EXCEEDED: {V}".format(F=name, Q=qty_max, V=vals)
         return vals if set_list_ft else set(vals)
-
-    def read_gaf(self, fin_gaf, hdr_only, prt):
-        """Read GAF file. HTTP address okay. GZIPPED/BZIPPED file okay."""
-        ga_lst = []
-        ver = None
-        ntgafobj = None
-        exp_numcol = None
-        hdrobj = GafHdr()
-        ifstrm = nopen(fin_gaf)
-        for line in ifstrm:
-            # Read header
-            if ntgafobj is None:
-                if line[0] == '!':
-                    if ver is None and line[1:13] == 'gaf-version:':
-                        ver = line[13:].strip()
-                    hdrobj.chkaddhdr(line)
-                else:
-                    self.hdr = hdrobj.get_hdr()
-                    if hdr_only:
-                        return ga_lst
-                    ntgafobj = cx.namedtuple("ntgafobj", " ".join(self.gaf_columns[ver]))
-                    exp_numcol = self.gaf_numcol[ver]
-            # Read data
-            if ntgafobj is not None:
-                flds = self._split_line(line, exp_numcol)
-                ntgaf = self._get_ntgaf(ntgafobj, flds, ver)
-                ga_lst.append(ntgaf)
-        # GAF file has been read
-        if prt is not None:
-            readmsg = "  READ {N:,} associations: {FIN}\n"
-            prt.write(readmsg.format(N=len(ga_lst), FIN=fin_gaf))
-        return self.evobj.sort_nts(ga_lst, 'Evidence_Code')
-
-    @staticmethod
-    def _split_line(line, exp_numcol):
-        """Split line into field values."""
-        line = line.rstrip('\r\n')
-        flds = re.split('\t', line)
-        assert len(flds) == exp_numcol, "UNEXPECTED NUMBER OF COLUMNS"
-        return flds
 
     def _chk_qualifier(self, qualifiers):
         """Check that qualifiers are expected values."""
         # http://geneontology.org/page/go-annotation-conventions#qual
         for qual in qualifiers:
-            assert qual in self.exp_qualifiers, "UNEXPECTED QUALIFIER({Q}) IN {GAF}".format(
-                Q=qual, GAF=self.filename)
+            assert qual in self.exp_qualifiers, "UNEXPECTED QUALIFIER({Q})".format(Q=qual)
 
-    @staticmethod
-    def _chk_qty_eq_1(flds, col_lst):
+    def _chk_qty_eq_1(self, flds, col_lst):
         """Check that these fields have only one value: required 1."""
         for col in col_lst:
-            assert flds[col], "UNEXPECTED REQUIRED VALUE({V}) AT INDEX({R})".format(
-                V=flds[col], R=col)
+            if not flds[col]:
+                sys.stderr.write("**ERROR: UNEXPECTED REQUIRED VAL({V}) FOR COL({R}):{H}: ".format(
+                    V=flds[col], H=self.gafhdr[col], R=col))
+                sys.stderr.write("{H0}({DB}) {H1}({ID})\n".format(
+                    H0=self.gafhdr[0], DB=flds[0], H1=self.gafhdr[1], ID=flds[1]))
+                return False  # Check failed
+        return True  # Check passed
 
     @staticmethod
     def _do_taxons(taxons):
