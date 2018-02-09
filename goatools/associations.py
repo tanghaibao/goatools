@@ -10,6 +10,7 @@ import os
 import sys
 import wget
 from goatools.base import dnld_file
+from goatools.semantic import TermCounts
 
 def dnld_assc(assc_name, go2obj, prt=sys.stdout):
     """Download association from http://geneontology.org/gene-associations."""
@@ -206,7 +207,6 @@ def get_b2aset(a2bset):
                 b2aset[b_item] = set([a_item])
     return b2aset
 
-
 def get_assc_pruned(assc_geneid2gos, min_genecnt=None, max_genecnt=None, prt=sys.stdout):
     """Remove GO IDs associated with large numbers of genes. Used in stochastic simulations."""
     # DEFN WAS: get_assc_pruned(assc_geneid2gos, max_genecnt=None, prt=sys.stdout):
@@ -233,5 +233,26 @@ def get_assc_pruned(assc_geneid2gos, min_genecnt=None, max_genecnt=None, prt=sys
         prt.write("{N:4} GO IDs pruned. Kept {NOW} GOs assc w/({m} to {M} genes)\n".format(
             m=min_genecnt, M=max_genecnt, N=num_was-num_now, NOW=num_now))
     return get_b2aset(go2genes_prun), gos_rm
+
+def read_annotations(**kws):
+    """Read annotations from either a GAF file or NCBI's gene2go file."""
+    if 'gaf' not in kws and 'gene2go' not in kws:
+        return
+    gene2gos = None
+    if 'gaf' in kws:
+        gene2gos = read_gaf(kws['gaf'], prt=sys.stdout)
+    elif 'gene2go' in kws:
+        gene2gos = read_ncbi_gene2go(kws['gene2go'], taxids=[kws['taxid']])
+    if not gene2gos:
+        raise RuntimeError("NO ASSOCIATIONS LOADED")
+    return gene2gos
+
+def get_tcntobj(go2obj, **kws):
+    """Return a TermCounts object if the user provides an annotation file."""
+    # kws: gaf gene2go
+    annots = read_annotations(**kws)
+    if annots:
+        return TermCounts(go2obj, annots)
+
 
 # Copyright (C) 2010-2018, H Tang et al. All rights reserved."
