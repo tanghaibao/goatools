@@ -8,6 +8,7 @@
 """
 
 import sys
+import os
 import re
 import collections as cx
 # from goatools.base import nopen
@@ -54,6 +55,8 @@ class GafReader(object):
                         ntgaf = datobj.get_ntgaf(line)
                         if ntgaf is not None:
                             ga_lst.append(ntgaf)
+                        else:
+                            self.prt_ignore_line(fin_gaf, line, lnum)
         except Exception as inst:
             import traceback
             traceback.print_exc()
@@ -77,6 +80,12 @@ class GafReader(object):
             else:
                 raise Exception("UNEXPECTED INFO")
         self.evobj.prt_ev_cnts(ctr, prt)
+
+    @staticmethod
+    def prt_ignore_line(fin_gaf, line, lnum):
+        """Print a message saying that we are ignoring an association line."""
+        sys.stderr.write("**WARNING: IGNORED {FIN}[{LNUM}]:\n{L}\n\n".format(
+            FIN=os.path.basename(fin_gaf), L=line, LNUM=lnum))
 
 class GafData(object):
     """Extracts GAF fields from a GAF line."""
@@ -146,7 +155,7 @@ class GafData(object):
         qualifiers = [t.lower() for t in self._rd_fld_vals("Qualifier", flds[3], is_set)]
         db_reference = self._rd_fld_vals("DB_Reference", flds[5], is_set, 1)
         with_from = self._rd_fld_vals("With_From", flds[7], is_set)
-        db_name = self._rd_fld_vals("DB_Name", flds[9], is_set, 0, 1)
+        db_name = self._rd_fld_vals("DB_Name", flds[9], is_set, 0)  # , 1)
         db_synonym = self._rd_fld_vals("DB_Synonym", flds[10], is_set)
         taxons = self._rd_fld_vals("Taxon", flds[12], is_list, 1, 2)
         if not self._chk_qty_eq_1(flds, [0, 1, 2, 4, 6, 8, 11, 13, 14]):
