@@ -7,8 +7,8 @@ http://geneontology.cvs.sourceforge.net/viewvc/geneontology/go-dev/go-perl/doc/m
 
 [Term]
 id: GO:0000001
-name: alpha-1,6-mannosyltransferase activity
-namespace: molecular_function
+name: top
+namespace: biological_process
 def: "Catalysis of the transfer of a mannose residue to an oligosaccharide, forming an alpha-(1->6) linkage." [GOC:mcc, PMID:2644248]
 synonym: "1,6-alpha-mannosyltransferase activity" EXACT []
 xref: EC:2.4.1.-
@@ -17,7 +17,7 @@ xref: Reactome:REACT_22383 "Addition of a third mannose to the N-glycan precurso
 
 [Term]
 id: GO:0000002
-name: maltose catabolic process
+name: B
 namespace: biological_process
 def: "The chemical reactions and pathways resulting in the breakdown of the disaccharide maltose (4-O-alpha-D-glucopyranosyl-D-glucopyranose)." [GOC:jl, ISBN:0198506732]
 subset: gosubset_prok
@@ -31,36 +31,52 @@ is_a: GO:0000001
 
 [Term]
 id: GO:0000003
+name: A
+namespace: biological_process
 is_a: GO:0000001
 
 [Term]
 id: GO:0000004
+name: b
+namespace: biological_process
 is_a: GO:0000003
 
 [Term]
 id: GO:0000005
+name: c
+namespace: biological_process
 is_a: GO:0000002
 is_a: GO:0000003
 
 [Term]
 id: GO:0000006
+name: a
+namespace: biological_process
 is_a: GO:0000003
 
 [Term]
 id: GO:0000007
+name: b1
+namespace: biological_process
 is_a: GO:0000004
 
 [Term]
 id: GO:0000008
+name: a1
+namespace: biological_process
 is_a: GO:0000006
 
 [Term]
 id: GO:0000009
+name: ab
+namespace: biological_process
 is_a: GO:0000007
 is_a: GO:0000008
 
 [Term]
 id: GO:0000010
+name: ac
+namespace: biological_process
 is_a: GO:0000005
 is_a: GO:0000008
 
