@@ -11,27 +11,28 @@ import sys
 import os
 import re
 import collections as cx
-# from goatools.base import nopen
 from goatools.evidence_codes import EvidenceCodes
 
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
-# pylint: disable=too-few-public-methods
+# pylint: disable=broad-except,too-few-public-methods,line-too-long
 class GafReader(object):
     """Reads a Gene Annotation File (GAF). Returns a Python object."""
 
-    def __init__(self, filename=None, hdr_only=False, prt=sys.stdout):
+    def __init__(self, filename=None, hdr_only=False, prt=sys.stdout, **kws):
+        # kws: allow_missing_symbol
         self.filename = filename
         self.evobj = EvidenceCodes()
         # Initialize associations and header information
         self.hdr = None
-        self.associations = self.read_gaf(filename, hdr_only, prt) if filename is not None else []
+        self.associations = self.read_gaf(filename, hdr_only, prt, **kws) if filename is not None else []
 
-    def read_gaf(self, fin_gaf, hdr_only, prt):
-        """Read GAF file. HTTP address okay. GZIPPED/BZIPPED file okay."""
-        ga_lst = []
+    def read_gaf(self, fin_gaf, hdr_only, prt, **kws):
+        """Read GAF file. Store annotation data in a list of namedtuples."""
+        # kws: allow_missing_symbol
+        nts = []
         ver = None
         hdrobj = GafHdr()
         datobj = None
@@ -48,13 +49,13 @@ class GafReader(object):
                         else:
                             self.hdr = hdrobj.get_hdr()
                             if hdr_only:
-                                return ga_lst
-                            datobj = GafData(ver)
+                                return nts
+                            datobj = GafData(ver, **kws)
                     # Read data
                     if datobj is not None and line[0] != '!':
                         ntgaf = datobj.get_ntgaf(line)
                         if ntgaf is not None:
-                            ga_lst.append(ntgaf)
+                            nts.append(ntgaf)
                         else:
                             self.prt_ignore_line(fin_gaf, line, lnum)
         except Exception as inst:
@@ -65,8 +66,8 @@ class GafReader(object):
             sys.exit(1)
         # GAF file has been read
         if prt is not None:
-            prt.write("  READ {N:,} associations: {FIN}\n".format(N=len(ga_lst), FIN=fin_gaf))
-        return self.evobj.sort_nts(ga_lst, 'Evidence_Code')
+            prt.write("  READ {N:,} associations: {FIN}\n".format(N=len(nts), FIN=fin_gaf))
+        return self.evobj.sort_nts(nts, 'Evidence_Code')
 
     def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print annotation/evidence code summary."""
@@ -89,6 +90,8 @@ class GafReader(object):
 
 class GafData(object):
     """Extracts GAF fields from a GAF line."""
+
+    spec_req1 = [0, 1, 2, 4, 6, 8, 11, 13, 14]
 
     gafhdr = [ #           Col Req?     Cardinality    Example
         #                  --- -------- -------------- -----------------
@@ -129,10 +132,11 @@ class GafData(object):
     # Expected values for a Qualifier
     exp_qualifiers = set(['not', 'contributes_to', 'colocalizes_with'])
 
-    def __init__(self, ver):
+    def __init__(self, ver, allow_missing_symbol=False):
         self.ver = ver
         self.ntgafobj = cx.namedtuple("ntgafobj", " ".join(self.gaf_columns[ver]))
         self.exp_ncol = self.gaf_numcol[ver]
+        self.req1 = self.spec_req1 if not allow_missing_symbol else [i for i in self.spec_req1 if i != 2]
 
     def get_ntgaf(self, line):
         """Return namedtuple filled with data."""
@@ -158,8 +162,7 @@ class GafData(object):
         db_name = self._rd_fld_vals("DB_Name", flds[9], is_set, 0)  # , 1)
         db_synonym = self._rd_fld_vals("DB_Synonym", flds[10], is_set)
         taxons = self._rd_fld_vals("Taxon", flds[12], is_list, 1, 2)
-        if not self._chk_qty_eq_1(flds, [0, 1, 4, 6, 8, 11, 13, 14]):
-        # if not self._chk_qty_eq_1(flds, [0, 1, 2, 4, 6, 8, 11, 13, 14]):
+        if not self._chk_qty_eq_1(flds):
             return None
         # Additional Formatting
         taxons = self._do_taxons(taxons)
@@ -208,9 +211,9 @@ class GafData(object):
         for qual in qualifiers:
             assert qual in self.exp_qualifiers, "UNEXPECTED QUALIFIER({Q})".format(Q=qual)
 
-    def _chk_qty_eq_1(self, flds, col_lst):
+    def _chk_qty_eq_1(self, flds):
         """Check that these fields have only one value: required 1."""
-        for col in col_lst:
+        for col in self.req1:
             if not flds[col]:
                 sys.stderr.write("**ERROR: UNEXPECTED REQUIRED VAL({V}) FOR COL({R}):{H}: ".format(
                     V=flds[col], H=self.gafhdr[col], R=col))

@@ -11,6 +11,7 @@ import sys
 import wget
 from goatools.base import dnld_file
 from goatools.semantic import TermCounts
+from goatools.anno.gaf_reader import GafReader
 
 def dnld_assc(assc_name, go2obj, prt=sys.stdout):
     """Download association from http://geneontology.org/gene-associations."""
@@ -147,7 +148,6 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
 
 def get_gaf_hdr(fin_gaf):
     """Read Gene Association File (GAF). Return GAF version and data info."""
-    from goatools.anno.gaf_reader import GafReader
     return GafReader(fin_gaf, hdr_only=True).hdr
 
 def read_gaf(fin_gaf, prt=sys.stdout, **kws):
@@ -161,11 +161,10 @@ def read_gaf(fin_gaf, prt=sys.stdout, **kws):
     # keyword arguments what is read from GAF.
     hdr_only = kws.get('hdr_only', None) # Read all data from GAF by default
     # Read GAF file
-    from goatools.anno.gaf_reader import GafReader
     # Simple associations
     id2gos = defaultdict(set)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
-    gafobj = GafReader(fin_gaf, hdr_only, prt)
+    gafobj = GafReader(fin_gaf, hdr_only, prt, **kws)
     # Optionally specify a subset of GOs based on their evidence.
     # By default, return id2gos. User can cause go2geneids to be returned by:
     #   >>> read_ncbi_gene2go(..., go2geneids=True
