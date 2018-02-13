@@ -1,11 +1,14 @@
 """Tests alternate OBOReader."""
 
+import os
 import sys
 import timeit
 import datetime
 import pytest
 
 from goatools.obo_parser import GODag
+
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 #################################################################
 # Sub-routines to tests
@@ -21,7 +24,7 @@ def test_write_hier_all(name, go_id, dag, out):
 
 @pytest.mark.skip
 def test_write_hier_norep(name, go_id, dag, out):
-    """Shortens hierarchy report by only printing branches once.
+    """Shortens hierarchy REPOrt by only printing branches once.
 
          Prints the 'entire hierarchy' of GO:0000005 the 1st time seen:
 
@@ -58,9 +61,9 @@ def test_write_hier_mrk(dag, out):
       #go_marks=[oGO.id for oGO in oGOs_in_cluster])
 
 def _load_dag(dag_fin, opt_fields=None, out=None):
-    """Run numerous tests for various reports."""
+    """Run numerous tests for various REPOrts."""
     tic = timeit.default_timer()
-    dag = GODag(dag_fin, opt_fields)
+    dag = GODag(os.path.join(REPO, dag_fin), opt_fields)
     toc = timeit.default_timer()
     msg = "Elapsed HMS for OBO DAG load: {}\n\n".format(str(datetime.timedelta(seconds=(toc-tic))))
     if out is not None:
@@ -72,7 +75,6 @@ def _load_dag(dag_fin, opt_fields=None, out=None):
 #################################################################
 # Tests
 #################################################################
-@pytest.mark.skip(reason="can't locate data/mini_obo.obo")
 def test_all(fout=None):
     """Run all tests in this module."""
     out = sys.stdout if fout is None else open(fout, 'w')
@@ -97,8 +99,8 @@ def test_full_contents(out=sys.stdout):
     all_fields = [
         'comment', 'consider', 'defn', 'is_class_level', 'is_metadata_tag', 'is_transitive',
         'relationship', 'replaced_by', 'subset', 'synonym', 'transitive_over', 'xref']
-    dag_all = _load_dag("./go-basic.obo", all_fields, out)
-    dag = _load_dag("./go-basic.obo", None, out)
+    dag_all = _load_dag("go-basic.obo", all_fields, out)
+    dag = _load_dag("go-basic.obo", None, out)
     if len(dag_all) != len(dag):
         raise Exception("FAILED: test_full_contents")
 
@@ -109,19 +111,17 @@ def test_full(out=sys.stdout, opt_fields=None):
     test_write_hier_all("FULL", "GO:0000009", dag, out)
     test_write_hier_norep("FULL", "GO:0000010", dag, out)
 
-@pytest.mark.skip(reason="can't locate data/mini_obo.obo")
 def test_mini(out, opt_fields=None):
-    """Run numerous tests for various reports."""
-    dag = _load_dag("./data/mini_obo.obo", opt_fields, out)
+    """Run numerous tests for various REPOrts."""
+    dag = _load_dag("tests/data/mini_obo.obo", opt_fields, out)
     test_write_hier_lim(dag, out)
     test_write_hier_mrk(dag, out)
     test_write_hier_all("MINI", "GO:0000009", dag, out)
     test_write_hier_norep("MINI", "GO:0000010", dag, out)
 
-@pytest.mark.skip(reason="can't locate data/mini_obo.obo")
 def test_mini_contents(out, opt_fields):
     """Test that optional terms were loaded."""
-    dag = _load_dag("./data/mini_obo.obo", opt_fields, out)
+    dag = _load_dag("tests/data/mini_obo.obo", opt_fields, out)
     go_1 = dag["GO:0000001"]
     go_2 = dag["GO:0000002"]
     # CHECK 'xref'
