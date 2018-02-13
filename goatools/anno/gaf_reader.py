@@ -158,7 +158,8 @@ class GafData(object):
         db_name = self._rd_fld_vals("DB_Name", flds[9], is_set, 0)  # , 1)
         db_synonym = self._rd_fld_vals("DB_Synonym", flds[10], is_set)
         taxons = self._rd_fld_vals("Taxon", flds[12], is_list, 1, 2)
-        if not self._chk_qty_eq_1(flds, [0, 1, 2, 4, 6, 8, 11, 13, 14]):
+        if not self._chk_qty_eq_1(flds, [0, 1, 4, 6, 8, 11, 13, 14]):
+        # if not self._chk_qty_eq_1(flds, [0, 1, 2, 4, 6, 8, 11, 13, 14]):
             return None
         # Additional Formatting
         taxons = self._do_taxons(taxons)
