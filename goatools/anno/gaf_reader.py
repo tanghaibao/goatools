@@ -21,17 +21,19 @@ __author__ = "DV Klopfenstein"
 class GafReader(object):
     """Reads a Gene Annotation File (GAF). Returns a Python object."""
 
+    exp_kwdct = set(['allow_missing_symbol'])
+
     def __init__(self, filename=None, hdr_only=False, prt=sys.stdout, **kws):
         # kws: allow_missing_symbol
+        self.kws = {k:v for k, v in kws.items() if k in self.exp_kwdct}
         self.filename = filename
         self.evobj = EvidenceCodes()
         # Initialize associations and header information
         self.hdr = None
-        self.associations = self.read_gaf(filename, hdr_only, prt, **kws) if filename is not None else []
+        self.associations = self.read_gaf(filename, hdr_only, prt) if filename is not None else []
 
-    def read_gaf(self, fin_gaf, hdr_only, prt, **kws):
+    def read_gaf(self, fin_gaf, hdr_only, prt):
         """Read GAF file. Store annotation data in a list of namedtuples."""
-        # kws: allow_missing_symbol
         nts = []
         ver = None
         hdrobj = GafHdr()
@@ -50,7 +52,7 @@ class GafReader(object):
                             self.hdr = hdrobj.get_hdr()
                             if hdr_only:
                                 return nts
-                            datobj = GafData(ver, **kws)
+                            datobj = GafData(ver, **self.kws)
                     # Read data
                     if datobj is not None and line[0] != '!':
                         ntgaf = datobj.get_ntgaf(line)
