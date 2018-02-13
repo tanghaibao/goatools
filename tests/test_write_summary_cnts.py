@@ -33,6 +33,8 @@ def test_write_summary_cnts(log=sys.stdout):
         log.write("\nSummary for Ontologies for taxid({T}):\n".format(T=taxid))
         go_objs = [godag.get(goid) for goid in go_ids]
         rptobj.write_summary_cnts_goobjs(go_objs)
+    # Print GO depth count table for full GO DAG in LaTeX format
+    rptobj.prttex_summary_cnts_all(prt=log)
 
 if __name__ == '__main__':
     test_write_summary_cnts()

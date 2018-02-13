@@ -46,15 +46,18 @@ def prt_lev_depth(godag, prt=sys.stdout):
 class RptLevDepth(object):
     """Reports a summary of GO term levels in depths."""
 
+    nss = ['biological_process', 'molecular_function', 'cellular_component']
+
     def __init__(self, obodag, log=sys.stdout):
         self.obo = obodag
         self.log = log
+        self.title = "GO Counts in {VER}".format(VER=self.obo.version)
 
     def wr_xlsx(self, fout_xlsx):
         """Write counts of GO terms at all levels and depths."""
         from goatools.wr_tbl import wr_xlsx
         kws = {
-            'title' : "GO Counts in {VER}".format(VER=self.obo.version),
+            'title' : self.title(),
             'hdrs' :["Dep/Lev",
                      "BP Depth", "MF Depth", "CC Depth",
                      "BP Level", "MF Level", "CC Level"]}
@@ -64,18 +67,21 @@ class RptLevDepth(object):
         """Write counts of GO terms at all levels and depths."""
         from goatools.wr_tbl import prt_txt
         data = self.get_data()
-        title = "GO Counts in {VER}".format(VER=self.obo.version)
         with open(fout_txt, 'w') as prt:
             prtfmt = "{Depth_Level:>7} " \
                      "{BP_D:6,} {MF_D:6,} {CC_D:>6,} " \
                      "{BP_L:>6,} {MF_L:>6,} {CC_L:>6,}\n"
-            prt.write("{TITLE}\n\n".format(TITLE=title))
+            prt.write("{TITLE}\n\n".format(TITLE=self.title))
             prt.write("         |<---- Depth ---->|  |<---- Level ---->|\n")
             prt.write("Dep/Lev     BP     MF     CC     BP     MF     CC\n")
             prt.write("-------  -----  -----  -----  -----  -----  -----\n")
-            prt_txt(prt, data, prtfmt=prtfmt, title=title)
+            prt_txt(prt, data, prtfmt=prtfmt, title=self.title)
             sys.stdout.write("  {N:>5,} items WROTE: {TXT}\n".format(
                 N=len(data), TXT=fout_txt))
+
+    def prttex_summary_cnts_all(self, prt=sys.stdout):
+        cnts = self.get_cnts_levels_depths_recs(set(self.obo.values()))
+        self._prttex_summary_cnts(prt, cnts)
 
     def write_summary_cnts_all(self):
         """Write summary of level and depth counts for all active GO Terms."""
@@ -93,18 +99,38 @@ class RptLevDepth(object):
         cnts = self.get_cnts_levels_depths_recs(goobjs)
         self._write_summary_cnts(cnts)
 
+    def _prttex_summary_cnts(self, prt, cnts):
+        """Write summary of level and depth counts for active GO Terms."""
+        # Count level(shortest path to root) and depth(longest path to root)
+        # values for all unique GO Terms.
+        prt.write("\n\n% LaTeX Table for GO counts at each level and depth in the GO DAG\n")
+        prt.write("\\begin{table}[bt]\n")
+        prt.write(" ".join(["\\caption{\label{tab:godepcnt}", self.title, "}\n"]))
+        prt.write("\\begin{tabular}{r r r r r r r}\n")
+        prt.write("\\toprule\n")
+        prt.write("Depth/Level & "
+                  "BP Depth & MF Depth & CC Depth & "
+                  "BP Level & MF Level & CC Level \\\\\n")
+        prt.write("\midrule\n")
+        max_val = max(max(dep for dep in cnts['depth']), max(lev for lev in cnts['level']))
+        for i in range(max_val+1):
+            vals = ['{:>5}'.format(cnts[desc][i][ns]) for desc in cnts for ns in self.nss]
+            self.log.write('{:>02} & {} \\\\\n'.format(i, ' & '.join(vals)))
+        prt.write("\\bottomrule\n")
+        prt.write("\\end{tabular}\n")
+        prt.write("\\end{table}\n")
+
     def _write_summary_cnts(self, cnts):
         """Write summary of level and depth counts for active GO Terms."""
         # Count level(shortest path to root) and depth(longest path to root)
         # values for all unique GO Terms.
         max_val = max(max(dep for dep in cnts['depth']),
                       max(lev for lev in cnts['level']))
-        nss = ['biological_process', 'molecular_function', 'cellular_component']
         self.log.write('Dep <-Depth Counts->  <-Level Counts->\n')
         self.log.write('Lev   BP    MF    CC    BP    MF    CC\n')
         self.log.write('--- ----  ----  ----  ----  ----  ----\n')
         for i in range(max_val+1):
-            vals = ['{:>5}'.format(cnts[desc][i][ns]) for desc in cnts for ns in nss]
+            vals = ['{:>5}'.format(cnts[desc][i][ns]) for desc in cnts for ns in self.nss]
             self.log.write('{:>02} {}\n'.format(i, ' '.join(vals)))
 
     @staticmethod
@@ -125,9 +151,8 @@ class RptLevDepth(object):
         ntobj = cx.namedtuple("NtGoCnt", "Depth_Level BP_D MF_D CC_D BP_L MF_L CC_L")
         cnts = self.get_cnts_levels_depths_recs(set(self.obo.values()))
         max_val = max(max(dep for dep in cnts['depth']), max(lev for lev in cnts['level']))
-        nss = ['biological_process', 'molecular_function', 'cellular_component']
         for i in range(max_val+1):
-            vals = [i] + [cnts[desc][i][ns] for desc in cnts for ns in nss]
+            vals = [i] + [cnts[desc][i][ns] for desc in cnts for ns in self.nss]
             data.append(ntobj._make(vals))
         return data
 
