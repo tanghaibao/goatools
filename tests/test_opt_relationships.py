@@ -41,7 +41,7 @@ class _Run(object):
     def __init__(self, fin_obo, opt_field):
         self.opt = opt_field
         self.obo = os.path.join(self.repo, fin_obo)
-        self.go2obj = self.load_dag(opt_field)
+        self.go2obj = self._init_go2obj(opt_field)
         self.num_tot = len(self.go2obj)
         self.go2relset_exp = self._init_go2relset_exp()  # For EXPECTED results
 
@@ -63,6 +63,9 @@ class _Run(object):
         ctr = cx.Counter()
         for goid in self.go2relset_exp:
             rel2gos = getattr(self.go2obj[goid], self.opt)
+            # num_gos = len(set(go for gos in rel2gos.values() for go in gos))
+            # if num_gos > 1:
+            #     print("RRRRRRRRRRRRRRR", goid, rel2gos)
             for rel in rel2gos:
                 ctr[rel] += 1 
         return ctr

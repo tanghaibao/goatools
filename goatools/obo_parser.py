@@ -146,7 +146,14 @@ class OBOReader(object):
         if name == "def":
             name = "defn"
 
-        # A 'relationship' will be stored in a dictionary containing a set of GO IDs
+        # relationships are now stored in a dict of sets. This mirrors
+        # the structure implied by the GO DAG itself. The structure
+        # that stores the relationships now looks likes this:
+        # 
+        #  relationship = {
+        #     'part_of': set(['GO:0021513', 'GO:0006310']),
+        #     'negatively_regulates': set(['GO:0021910'])i
+        # }
         if hasattr(rec, name):
             if name not in self.attrs_scalar:
                 if name == 'relationship':
