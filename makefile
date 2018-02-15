@@ -174,6 +174,7 @@ clobber:
 #    tests/test_gpad_dnld.py \
 
 NOSETESTS := \
+    tests/test_opt_relationships.py \
     tests/test_gpad_read.py \
     tests/test_semantic_similarity.py \
     tests/test_goea_errors.py \

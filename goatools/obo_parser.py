@@ -17,6 +17,8 @@ GraphEngines = ("pygraphviz", "pydot")
 __copyright__ = "Copyright (C) 2010-2018, H Tang et al., All rights reserved."
 __author__ = "various"
 
+
+#pylint: disable=too-few-public-methods
 class OBOReader(object):
     """Read goatools.org's obo file. Load into this iterable class.
 
@@ -26,10 +28,14 @@ class OBOReader(object):
         >>> for rec in reader:
                 print(rec)
     """
+    attrs_req = set(['id', 'alt_id', 'name', 'namespace', 'is_a', 'is_obsolete'])
+    attrs_scalar = set(['comment', 'defn',
+                        'is_class_level', 'is_metadata_tag',
+                        'is_transitive', 'transitive_over'])
 
     def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
         """Read obo file. Load dictionary."""
-        self._init_optional_attrs(optional_attrs)
+        self.optional_attrs = self._init_optional_attrs(optional_attrs)
         self.format_version = None # e.g., "1.2" of "format-version:" line
         self.data_version = None # e.g., "releases/2016-07-07" from "data-version:" line
         self.typedefs = {}
@@ -140,13 +146,11 @@ class OBOReader(object):
         if name == "def":
             name = "defn"
 
-        # If we have a relationship, then we will split this into a further
-        # dictionary.
-
+        # A 'relationship' will be stored in a dictionary containing a set of GO IDs
         if hasattr(rec, name):
             if name not in self.attrs_scalar:
-                if name not in self.attrs_nested:
-                    getattr(rec, name).add(value)
+                if name == 'relationship':
+                    self._add_to_relationship(rec, value)
                 else:
                     self._add_nested(rec, name, value)
             else:
@@ -155,12 +159,22 @@ class OBOReader(object):
         else: # Initialize new GOTerm attr
             if name in self.attrs_scalar:
                 setattr(rec, name, value)
-            elif name not in self.attrs_nested:
-                setattr(rec, name, set([value]))
+            elif name == 'relationship':
+                rel, goid = value.split()[:2]
+                setattr(rec, name, {rel: set([goid])})
             else:
                 name = '_{:s}'.format(name)
                 setattr(rec, name, defaultdict(list))
                 self._add_nested(rec, name, value)
+
+    @staticmethod
+    def _add_to_relationship(rec, rel_value):
+        """Add GO ID and its relationship to the optional 'relationship' data member."""
+        rel, goid = rel_value.split()[:2]
+        if rel in rec.relationship:
+            rec.relationship[rel].add(goid)
+        else:
+            rec.relationship[rel] = set([goid])
 
     def _add_to_typedef(self, typedef_curr, line, lnum):
         """Add new fields to the current typedef."""
@@ -193,7 +207,7 @@ class OBOReader(object):
         # Save the nested term.
         getattr(rec, name)[typedef].append(target_term)
 
-    def _init_optional_attrs(self, optional_attrs):
+    def _init_optional_attrs(self, opts):
         """Prepare to store data from user-desired optional fields.
 
           Not loading these optional fields by default saves in space and speed.
@@ -202,26 +216,20 @@ class OBOReader(object):
               comment consider def is_class_level is_metadata_tag is_transitive
               relationship replaced_by subset synonym transitive_over xref
         """
-        # Written by DV Klopfenstein
         # Required attributes are always loaded. All others are optionally loaded.
-        self.attrs_req = ['id', 'alt_id', 'name', 'namespace', 'is_a', 'is_obsolete']
-        self.attrs_scalar = ['comment', 'defn',
-                             'is_class_level', 'is_metadata_tag',
-                             'is_transitive', 'transitive_over']
-        self.attrs_nested = frozenset(['relationship'])
         # Allow user to specify either: 'def' or 'defn'
         #   'def' is an obo field name, but 'defn' is legal Python attribute name
-        fnc = lambda aopt: aopt if aopt != "defn" else "def"
-        if optional_attrs is None:
-            optional_attrs = []
-        elif isinstance(optional_attrs, str):
-            optional_attrs = [fnc(optional_attrs)] if optional_attrs not in self.attrs_req else []
-        elif isinstance(optional_attrs, list) or isinstance(optional_attrs, set):
-            optional_attrs = set([fnc(f) for f in optional_attrs if f not in self.attrs_req])
+        getnm = lambda aopt: aopt if aopt != "defn" else "def"
+        # pylint: disable=redefined-variable-type
+        if opts is None:
+            opts = []
+        elif isinstance(opts, str):
+            opts = [getnm(opts)] if opts not in self.attrs_req else []
+        elif isinstance(opts, list) or isinstance(opts, set):
+            opts = set([getnm(f) for f in opts if f not in self.attrs_req])
         else:
-            raise Exception("optional_attrs arg MUST BE A str, list, or set.")
-        self.optional_attrs = optional_attrs
-
+            raise Exception("opts arg MUST BE A str, list, or set.")
+        return opts
 
     def _die(self, msg, lnum):
         """Raise an Exception if file read is unexpected."""
@@ -233,8 +241,6 @@ class OBOReader(object):
         if init_val is None or init_val is "":
             return
         self._die("FIELD IS ALREADY INITIALIZED", lnum)
-
-
 
 
 class GOTerm(object):
@@ -560,7 +566,7 @@ class GODag(dict):
         go_term = self[term]
         return _paths_to_top_recursive(go_term)
 
-    def _label_wrap(self, label):
+    def label_wrap(self, label):
         wrapped_label = r"%s\n%s" % (label,
                                      self[label].name.replace(",", r"\n"))
         return wrapped_label
@@ -581,7 +587,7 @@ class GODag(dict):
 
         rec_id_set = set([rec_id for endpts in edgeset for rec_id in endpts])
         nodes = {str(ID):pydot.Node(
-            self._label_wrap(ID).replace("GO:", ""),  # Node name
+            self.label_wrap(ID).replace("GO:", ""),  # Node name
             shape="box",
             style="rounded, filled",
             # Highlight query terms in plum:
@@ -619,14 +625,14 @@ class GODag(dict):
             if draw_children:
                 edgeset.update(rec.get_all_child_edges())
 
-        edgeset = [(self._label_wrap(a), self._label_wrap(b))
+        edgeset = [(self.label_wrap(a), self.label_wrap(b))
                    for (a, b) in edgeset]
 
         # add nodes explicitly via add_node
         # adding nodes implicitly via add_edge misses nodes
         # without at least one edge
         for rec in recs:
-            grph.add_node(self._label_wrap(rec.id))
+            grph.add_node(self.label_wrap(rec.id))
 
         for src, target in edgeset:
             # default layout in graphviz is top->bottom, so we invert
@@ -641,7 +647,7 @@ class GODag(dict):
         # highlight the query terms
         for rec in recs:
             try:
-                node = grph.get_node(self._label_wrap(rec.id))
+                node = grph.get_node(self.label_wrap(rec.id))
                 node.attr.update(fillcolor="plum")
             except:
                 continue
@@ -671,7 +677,7 @@ class GODag(dict):
             del NG.graph['node']
             del NG.graph['edge']
             gmlfile = gmlbase + ".gml"
-            nx.write_gml(Nself._label_wrapG, gmlfile)
+            nx.write_gml(self.label_wrap, gmlfile)
             sys.stderr.write("GML graph written to {0}\n".format(gmlfile))
 
         sys.stderr.write(("lineage info for terms %s written to %s\n" %
@@ -697,7 +703,7 @@ class GODag(dict):
             # Add the GO parents of all GO IDs in the current gene's association
             goids.update(parents)
         if bad_goids:
-            sys.stdout.write("{N} GO IDs in association are not found in the GO-DAG: {GOs}\n".format(
+            sys.stdout.write("{N} GO IDs in assc. are not found in the GO-DAG: {GOs}\n".format(
                 N=len(bad_goids), GOs=" ".join(bad_goids)))
 
 # Copyright (C) 2010-2018, H Tang et al., All rights reserved.
