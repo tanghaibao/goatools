@@ -24,7 +24,7 @@ from goatools.base import download_go_basic_obo
 # GO:0007260
 
 def test_defn():
-    """Test loading optional GO term field, 'def'."""
+    """Test loading optional GO term field, 'relationship'."""
     obj = _Run("go-basic.obo", "relationship")
     # obj.load_dag(obo)  # 0:00:03.017731 (HMS for GO-DAG load w/no optional attrs)
     # Check that all GO IDs that should have relationships do have relationships.
