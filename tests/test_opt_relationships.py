@@ -12,6 +12,7 @@ In go-basic.obo fmt(1.2) rel(2018-02-11) 15,329 out of 47,120 GO Terms have rela
 
 import os
 import sys
+import collections as cx
 import timeit
 import datetime
 from goatools.obo_parser import GODag
@@ -27,6 +28,7 @@ def test_defn():
     obj = _Run("go-basic.obo", "relationship")
     # obj.load_dag(obo)  # 0:00:03.017731 (HMS for GO-DAG load w/no optional attrs)
     # Check that all GO IDs that should have relationships do have relationships.
+    obj.prt_summary()
     obj.chk_cnt_go()
     obj.chk_cnt_rel()
 
@@ -37,9 +39,33 @@ class _Run(object):
     repo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
     def __init__(self, fin_obo, opt_field):
+        self.opt = opt_field
         self.obo = os.path.join(self.repo, fin_obo)
         self.go2obj = self.load_dag(opt_field)
+        self.num_tot = len(self.go2obj)
         self.go2relset_exp = self._init_go2relset_exp()  # For EXPECTED results
+
+    def prt_summary(self, prt=sys.stdout):
+        """Print percentage of GO IDs that have a specific relationship."""
+        prt.write("\nSummary of frequency of relationship on GO terms:\n")
+        num_rel = len(self.go2relset_exp)
+        self._prt_perc(num_rel, self.opt, prt)
+        for relname, cnt in self._get_cnts().most_common():
+            self._prt_perc(cnt, "relationship:{R}".format(R=relname), prt)
+
+    def _prt_perc(self, num_rel, name, prt=sys.stdout):
+        """Print percentage of GO IDs that have a specific relationship."""
+        prt.write("    {N:6,} of {M:,} ({P:2.0f}%) GO IDs has field({A})\n".format(
+            N=num_rel, M=self.num_tot, P=float(num_rel)/self.num_tot*100, A=name))
+
+    def _get_cnts(self):
+        """Get counts of if a specific relationship was seen on a GO."""
+        ctr = cx.Counter()
+        for goid in self.go2relset_exp:
+            rel2gos = getattr(self.go2obj[goid], self.opt)
+            for rel in rel2gos:
+                ctr[rel] += 1 
+        return ctr
 
     def chk_cnt_rel(self):
         """Check that all GO IDs that should have relationships do have relationships."""
