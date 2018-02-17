@@ -111,6 +111,7 @@ def test_full(out=sys.stdout, opt_fields=None):
     test_write_hier_all("FULL", "GO:0000009", dag, out)
     test_write_hier_norep("FULL", "GO:0000010", dag, out)
 
+@pytest.mark.skip
 def test_mini(out, opt_fields=None):
     """Run numerous tests for various REPOrts."""
     dag = _load_dag("tests/data/mini_obo.obo", opt_fields, out)
@@ -119,6 +120,7 @@ def test_mini(out, opt_fields=None):
     test_write_hier_all("MINI", "GO:0000009", dag, out)
     test_write_hier_norep("MINI", "GO:0000010", dag, out)
 
+@pytest.mark.skip
 def test_mini_contents(out, opt_fields):
     """Test that optional terms were loaded."""
     dag = _load_dag("tests/data/mini_obo.obo", opt_fields, out)

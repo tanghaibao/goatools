@@ -29,9 +29,12 @@ class OBOReader(object):
                 print(rec)
     """
     attrs_req = set(['id', 'alt_id', 'name', 'namespace', 'is_a', 'is_obsolete'])
-    attrs_scalar = set(['comment', 'defn',
-                        'is_class_level', 'is_metadata_tag',
-                        'is_transitive', 'transitive_over'])
+    attrs_scalar = set(['comment', 'defn'])
+    attrs_set = set(['subset', 'synonym', 'xref'])  # 12 subset 284 synonym 827 xref
+
+    # Scalar attributes for Typedefs:
+    #                    'is_class_level', 'is_metadata_tag',
+    #                    'is_transitive', 'transitive_over'])
 
     def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
         """Read obo file. Load dictionary."""
@@ -52,7 +55,6 @@ class OBOReader(object):
 
     def __iter__(self):
         """Return one GO Term record at a time from an obo file."""
-        # Written by DV Klopfenstein
         # Wait to open file until needed. Automatically close file when done.
         with open(self.obo_file) as fstream:
             rec_curr = None # Stores current GO Term
@@ -68,10 +70,7 @@ class OBOReader(object):
                 elif rec_curr is not None or typedef_curr is not None:
                     line = line.rstrip() # chomp
                     if ":" in line:
-                        if rec_curr is not None:
-                            self._add_to_ref(rec_curr, line, lnum)
-                        else:
-                            self._add_to_typedef(typedef_curr, line, lnum)
+                        self._add_to_obj(rec_curr, typedef_curr, line, lnum)
                     elif line == "":
                         if rec_curr is not None:
                             yield rec_curr
@@ -85,6 +84,13 @@ class OBOReader(object):
             # Return last record, if necessary
             if rec_curr is not None:
                 yield rec_curr
+
+    def _add_to_obj(self, rec_curr, typedef_curr, line, lnum):
+        """Add information on line to GOTerm or Typedef."""
+        if rec_curr is not None:
+            self._add_to_ref(rec_curr, line, lnum)
+        else:
+            self._add_to_typedef(typedef_curr, line, lnum)
 
     def _init_obo_version(self, line):
         """Save obo version and release."""
@@ -149,27 +155,32 @@ class OBOReader(object):
         # relationships are now stored in a dict of sets. This mirrors
         # the structure implied by the GO DAG itself. The structure
         # that stores the relationships now looks likes this:
-        # 
+        #
         #  relationship = {
         #     'part_of': set(['GO:0021513', 'GO:0006310']),
         #     'negatively_regulates': set(['GO:0021910'])i
         # }
         if hasattr(rec, name):
-            if name not in self.attrs_scalar:
-                if name == 'relationship':
-                    self._add_to_relationship(rec, value)
-                else:
-                    self._add_nested(rec, name, value)
-            else:
+            if name in self.attrs_scalar:
                 raise Exception("ATTR({NAME}) ALREADY SET({VAL})".format(
                     NAME=name, VAL=getattr(rec, name)))
+            elif name in self.attrs_set:
+                getattr(rec, name).add(value)
+            elif name == 'relationship':
+                self._add_to_relationship(rec, value)
+            elif ' ! ' in value:
+                self._add_nested(rec, name, value)
         else: # Initialize new GOTerm attr
+            # def defn comment
             if name in self.attrs_scalar:
                 setattr(rec, name, value)
+            # xref synonym xref
+            elif name in self.attrs_set:
+                setattr(rec, name, set([value]))
             elif name == 'relationship':
                 rel, goid = value.split()[:2]
                 setattr(rec, name, {rel: set([goid])})
-            else:
+            elif ' ! ' in value:
                 name = '_{:s}'.format(name)
                 setattr(rec, name, defaultdict(list))
                 self._add_nested(rec, name, value)
@@ -206,13 +217,15 @@ class OBOReader(object):
             self._die("UNEXPECTED FIELD CONTENT: {L}\n".format(L=line), lnum)
 
     @staticmethod
-    def _add_nested(rec, name, value):
+    def _add_nested(rec, attrname, value):
         """Adds a term's nested attributes."""
         # Remove comments and split term into typedef / target term.
+        # Ex: is_a: GO:2001316 ! kojic acid metabolic process
+        #     is_a: GO:1901362 ! organic cyclic compound biosynthetic process
         (typedef, target_term) = value.split('!')[0].rstrip().split(' ')
 
         # Save the nested term.
-        getattr(rec, name)[typedef].append(target_term)
+        getattr(rec, attrname)[typedef].append(target_term)
 
     def _init_optional_attrs(self, opts):
         """Prepare to store data from user-desired optional fields.
@@ -574,6 +587,7 @@ class GODag(dict):
         return _paths_to_top_recursive(go_term)
 
     def label_wrap(self, label):
+        """Label text for plot."""
         wrapped_label = r"%s\n%s" % (label,
                                      self[label].name.replace(",", r"\n"))
         return wrapped_label
@@ -679,10 +693,10 @@ class GODag(dict):
         if gml:
             import networkx as nx  # use networkx to do the conversion
             gmlbase = lineage_img.rsplit(".", 1)[0]
-            NG = nx.from_agraph(grph) if engine == "pygraphviz" else nx.from_pydot(grph)
+            obj = nx.from_agraph(grph) if engine == "pygraphviz" else nx.from_pydot(grph)
 
-            del NG.graph['node']
-            del NG.graph['edge']
+            del obj.graph['node']
+            del obj.graph['edge']
             gmlfile = gmlbase + ".gml"
             nx.write_gml(self.label_wrap, gmlfile)
             sys.stderr.write("GML graph written to {0}\n".format(gmlfile))
