@@ -61,5 +61,13 @@ def test_optional_attrs():
     print("PASSED: relationship")
 
 
+def test_no_optional_attrs():
+    """Test loading DAG with no optional attributes."""
+    obj = OptionalAttrs("go-basic.obo", None)
+
+
 if __name__ == '__main__':
+    test_no_optional_attrs()
     test_optional_attrs()
+
+# Copyright (C) 2010-2018, H Tang et al., All rights reserved.

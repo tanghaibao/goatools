@@ -256,6 +256,8 @@ class OBOReader(object):
     def _init_compile_patterns(self, optional_attrs):
         """Compile search patterns for optional attributes if needed."""
         attr2cmp = {}
+        if optional_attrs is None:
+            return attr2cmp
         # Ex: "peptidase inhibitor complex" EXACT [GOC:bf, GOC:pr]
         # Ex: "blood vessel formation from pre-existing blood vessels" EXACT systematic_synonym []
         # Ex: "mitochondrial inheritance" EXACT []
