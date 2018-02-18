@@ -8,6 +8,7 @@
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
 from collections import defaultdict
+import collections as cx
 import sys
 import os
 import re
@@ -28,7 +29,7 @@ class OBOReader(object):
         >>> for rec in reader:
                 print(rec)
     """
-   
+
     field_pattern = re.compile(r'^(\S+):\s*(\S.*)$')
     attrs_req = set(['id', 'alt_id', 'name', 'namespace', 'is_a', 'is_obsolete'])
     attrs_scalar = set(['comment', 'defn'])
@@ -165,44 +166,57 @@ class OBOReader(object):
         #     'negatively_regulates': set(['GO:0021910'])i
         # }
         if hasattr(rec, name):
-            if name in self.attrs_scalar:
-                raise Exception("ATTR({NAME}) ALREADY SET({VAL})".format(
-                    NAME=name, VAL=getattr(rec, name)))
-            elif name in self.attrs_set:
-                getattr(rec, name).add(value)
-            elif name == 'relationship':
-                self._add_to_relationship(rec, value)
-            elif name == 'synonym':
-                getattr(rec, name).add(self._get_synonym(value))
-            elif name == 'xref':
-                getattr(rec, name).add(self._get_xref(value))
-            elif ' ! ' in value:
-                self._add_nested(rec, name, value)
+            self._optattr_addval(rec, name, value)
         else: # Initialize new GOTerm attr
-            # def defn comment
-            if name in self.attrs_scalar:
-                setattr(rec, name, value)
-            # subset
-            elif name in self.attrs_set:
-                setattr(rec, name, set([value]))
-            elif name == 'relationship':
-                rel, goid = value.split()[:2]
-                setattr(rec, name, {rel: set([goid])})
-            elif name == 'synonym':
-                setattr(rec, name, set([self._get_synonym(value)]))
-            elif name == 'xref':
-                setattr(rec, name, set([self._get_xref(value)]))
-            elif ' ! ' in value:
-                name = '_{:s}'.format(name)
-                setattr(rec, name, defaultdict(list))
-                self._add_nested(rec, name, value)
+            self._optattr_new(rec, name, value)
+
+    def _optattr_new(self, rec, name, value):
+        """Create structure to store data for an optional attribute."""
+        # def defn comment
+        if name in self.attrs_scalar:
+            setattr(rec, name, value)
+        # subset
+        elif name in self.attrs_set:
+            setattr(rec, name, set([value]))
+        elif name == 'relationship':
+            rel, goid = value.split()[:2]
+            setattr(rec, name, {rel: set([goid])})
+        elif name == 'synonym':
+            setattr(rec, name, [self._get_synonym(value)])
+        elif name == 'xref':
+            setattr(rec, name, set([self._get_xref(value)]))
+        elif ' ! ' in value:
+            name = '_{:s}'.format(name)
+            setattr(rec, name, defaultdict(list))
+            self._add_nested(rec, name, value)
+
+    def _optattr_addval(self, rec, name, value):
+        """Add new data from an optional attribute."""
+        if name in self.attrs_scalar:
+            raise Exception("ATTR({NAME}) ALREADY SET({VAL})".format(
+                NAME=name, VAL=getattr(rec, name)))
+        elif name in self.attrs_set:
+            getattr(rec, name).add(value)
+        elif name == 'relationship':
+            self._add_to_relationship(rec, value)
+        elif name == 'synonym':
+            getattr(rec, name).append(self._get_synonym(value))
+        elif name == 'xref':
+            getattr(rec, name).add(self._get_xref(value))
+        elif ' ! ' in value:
+            self._add_nested(rec, name, value)
 
     def _get_synonym(self, line):
         """Given line, return optional attribute synonym value in a namedtuple."""
-        # Ex: synonym: "peptidase inhibitor complex" EXACT [GOC:bf, GOC:pr]
+        # Example synonyms:
+        # "peptidase inhibitor complex" EXACT [GOC:bf, GOC:pr]
+        # "regulation of postsynaptic cytosolic calcium levels" EXACT syngo_official_label []
+        # "tocopherol 13-hydroxylase activity" EXACT systematic_synonym []
         mtch = self.attr2cmp['synonym'].match(line)
-        assert mtch, "({})".format(line)
-        return line
+        text, scope, typename, dbxrefs, _ = mtch.groups()
+        typename = typename.strip()
+        dbxrefs = set(dbxrefs.split(', ')) if dbxrefs else set()
+        return self.attr2cmp['synonym nt']._make([text, scope, typename, dbxrefs])
 
     def _get_xref(self, line):
         """Given line, return optional attribute xref value in a dict of sets."""
@@ -253,16 +267,19 @@ class OBOReader(object):
         # Save the nested term.
         getattr(rec, attrname)[typedef].append(target_term)
 
-    def _init_compile_patterns(self, optional_attrs):
+    @staticmethod
+    def _init_compile_patterns(optional_attrs):
         """Compile search patterns for optional attributes if needed."""
         attr2cmp = {}
         if optional_attrs is None:
             return attr2cmp
-        # Ex: "peptidase inhibitor complex" EXACT [GOC:bf, GOC:pr]
-        # Ex: "blood vessel formation from pre-existing blood vessels" EXACT systematic_synonym []
-        # Ex: "mitochondrial inheritance" EXACT []
+        # "peptidase inhibitor complex" EXACT [GOC:bf, GOC:pr]
+        # "blood vessel formation from pre-existing blood vessels" EXACT systematic_synonym []
+        # "mitochondrial inheritance" EXACT []
+        # "tricarboxylate transport protein" RELATED [] {comment="WIkipedia:Mitochondrial_carrier"}
         if 'synonym' in optional_attrs:
-            attr2cmp['synonym'] = re.compile(r'"(\S.*\S)" ([A-Z]+) (.*)$')
+            attr2cmp['synonym'] = re.compile(r'"(\S.*\S)" ([A-Z]+) (.*)\[(.*)\](.*)$')
+            attr2cmp['synonym nt'] = cx.namedtuple("synonym", "text scope typename dbxrefs")
         # xref      Wikipedia:Zygotene
         if 'xref' in optional_attrs:
             #attr2cmp['xref'] = re.compile(r'^(\S+):(\S+)\b\s*(.*)$')
@@ -469,6 +486,7 @@ class GODag(dict):
     """Holds the GO DAG as a dict."""
 
     def __init__(self, obo_file="go-basic.obo", optional_attrs=None, load_obsolete=False):
+        super(GODag, self).__init__()
         self.version = self.load_obo_file(obo_file, optional_attrs, load_obsolete)
 
     def load_obo_file(self, obo_file, optional_attrs, load_obsolete):

@@ -1,4 +1,5 @@
 """Test the loading of the optional GO term fields."""
+# https://owlcollab.github.io/oboformat/doc/GO.format.obo-1_4.html
 
 __copyright__ = "Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
@@ -20,6 +21,8 @@ class OptionalAttrs(object):
 
     repo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../..")
     cmpfld = re.compile(r'^(\S+): (\S.*\S)\s*$')  # Field line pattern
+    exp_scopes = set(['EXACT', 'BROAD', 'NARROW', 'RELATED'])
+    exp_xrefpat = re.compile(r'^\S+:\S+$')
 
     def __init__(self, fin_obo, opt_field=None):
         self.opt = opt_field  # None causes all fields to read to exp dict
@@ -40,6 +43,27 @@ class OptionalAttrs(object):
         for fld, maxqty in sorted(self._get_cnts_max().items(), key=lambda t: t[1]):
             prt.write("    {MAX:3} {MRK} {FLD}\n".format(
                 MAX=maxqty, MRK=self._get_fldmrk(fld), FLD=fld))
+
+    def chk_synonyms(self, prt=None):
+        """Check synonyms."""
+        # Get GO IDs which are expected to have synonyms
+        goids = set(go for go, d in self.go2dct.items() if 'synonym' in d)
+        for goid in goids:
+            goobj = self.go2obj[goid]
+            ntsyns = getattr(goobj, 'synonym', None)
+            assert ntsyns is not None, "{GO} MISSING SYNONYM".format(GO=goid)
+            # Iterate through list of synonym data stored in named tuples
+            for ntsyn in ntsyns:
+                if prt is not None:
+                    prt.write("{GO} {NT}\n".format(GO=goid, NT=ntsyn))
+                assert ntsyn.text, "SYNONYM CANNOT BE EMPTY"
+                assert ntsyn.scope in self.exp_scopes, "INVALID SYNONYM SCOPE"
+                for dbxref in ntsyn.dbxrefs:
+                    assert self.exp_xrefpat.match(dbxref), "INVALID SYNONYM DBXREF"
+
+    # def _chk_synonym(self, ntsyns):
+    #     """Check that scopes are present in all synonyms and have valid values."""
+
 
     @staticmethod
     def _get_fldmrk(fld):
@@ -85,13 +109,17 @@ class OptionalAttrs(object):
 
     def chk_cnt_set(self, opt):
         """For each GO ID, check that actual count of a set attr equals expected count."""
+        errpat = "SET EXP({EXP}) ACT({ACT}) {GO}\n{DESC}\n:\nEXP:\n{Es}\n\nACT:\n{As}"
         for goid, dct in self.go2dct.items():
             act_set = getattr(self.go2obj[goid], opt, None)
             if opt in dct:
                 exp_num = len(dct[opt])
                 act_num = len(act_set)
-                assert exp_num == act_num, "SET EXP({}) ACT({}) {}:\nEXP({})\nACT({})".format(
-                    exp_num, act_num, goid, dct[opt], act_set)
+                assert exp_num == act_num, errpat.format(
+                    EXP=exp_num, ACT=act_num, GO=goid,
+                    DESC=str(self.go2obj[goid]),
+                    Es="\n".join(sorted(dct[opt])),
+                    As="\n".join(sorted(act_set)))
             else:
                 assert act_set is None
 

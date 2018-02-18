@@ -31,11 +31,14 @@ In go-basic.obo fmt(1.2) rel(2018-02-11) 15,329 out of 47,120 GO Terms have syno
 
 from __future__ import print_function
 
+import sys
 from goatools.test_data.optional_attrs import OptionalAttrs
 
 
 def test_optional_attrs():
     """Test loading optional GO term field, 'synonym'."""
+    prt = sys.stdout
+    prt = None
     # Summary for all fields in a GO DAG
     opt_attrs = ['def', 'comment', 'subset', 'synonym', 'xref', 'relationship']
     obj = OptionalAttrs("go-basic.obo", opt_attrs)
@@ -60,14 +63,20 @@ def test_optional_attrs():
     obj.chk_cnt_relationship()
     print("PASSED: relationship")
 
+    # SYNONYM: Stored in a namedtuple
+    obj.chk_synonyms(prt)
+    print("PASSED: synonyms")
+
 
 def test_no_optional_attrs():
     """Test loading DAG with no optional attributes."""
-    obj = OptionalAttrs("go-basic.obo", None)
+    OptionalAttrs("go-basic.obo", None)
+    OptionalAttrs("go-basic.obo", [])
+    OptionalAttrs("go-basic.obo", set([]))
 
 
 if __name__ == '__main__':
-    test_no_optional_attrs()
+    #test_no_optional_attrs()
     test_optional_attrs()
 
 # Copyright (C) 2010-2018, H Tang et al., All rights reserved.
