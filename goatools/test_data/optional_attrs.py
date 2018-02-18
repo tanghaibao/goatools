@@ -52,6 +52,10 @@ class OptionalAttrs(object):
             return 'set'
         if fld == 'relationship':
             return 'rel'
+        if fld == 'synonym':
+            return 'syn'
+        if fld == 'xref':
+            return 'xrf'
         raise RuntimeError("UNEXPECTED FIELD({})".format(fld))
 
     def _prt_perc(self, num_rel, name, prt=sys.stdout):

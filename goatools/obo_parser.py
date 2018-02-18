@@ -32,7 +32,8 @@ class OBOReader(object):
     field_pattern = re.compile(r'^(\S+):\s*(\S.*)$')
     attrs_req = set(['id', 'alt_id', 'name', 'namespace', 'is_a', 'is_obsolete'])
     attrs_scalar = set(['comment', 'defn'])
-    attrs_set = set(['subset', 'synonym', 'xref'])  # 12 subset 284 synonym 827 xref
+    attrs_set = set(['subset'])  # 12 subset 284 synonym 827 xref
+    # special handling: relationship, synonym, xref
 
     # Scalar attributes for Typedefs:
     #                    'is_class_level', 'is_metadata_tag',
@@ -171,22 +172,45 @@ class OBOReader(object):
                 getattr(rec, name).add(value)
             elif name == 'relationship':
                 self._add_to_relationship(rec, value)
+            elif name == 'synonym':
+                getattr(rec, name).add(self._get_synonym(value))
+            elif name == 'xref':
+                getattr(rec, name).add(self._get_xref(value))
             elif ' ! ' in value:
                 self._add_nested(rec, name, value)
         else: # Initialize new GOTerm attr
             # def defn comment
             if name in self.attrs_scalar:
                 setattr(rec, name, value)
-            # xref synonym xref
+            # subset
             elif name in self.attrs_set:
                 setattr(rec, name, set([value]))
             elif name == 'relationship':
                 rel, goid = value.split()[:2]
                 setattr(rec, name, {rel: set([goid])})
+            elif name == 'synonym':
+                setattr(rec, name, set([self._get_synonym(value)]))
+            elif name == 'xref':
+                setattr(rec, name, set([self._get_xref(value)]))
             elif ' ! ' in value:
                 name = '_{:s}'.format(name)
                 setattr(rec, name, defaultdict(list))
                 self._add_nested(rec, name, value)
+
+    def _get_synonym(self, line):
+        """Given line, return optional attribute synonym value in a namedtuple."""
+        # Ex: synonym: "peptidase inhibitor complex" EXACT [GOC:bf, GOC:pr]
+        mtch = self.attr2cmp['synonym'].match(line)
+        assert mtch, "({})".format(line)
+        return line
+
+    def _get_xref(self, line):
+        """Given line, return optional attribute xref value in a dict of sets."""
+        # Ex: xref      Wikipedia:Zygotene
+        # Ex: Reactome:REACT_22295 "Addition of a third mannose to ..."
+        mtch = self.attr2cmp['xref'].match(line)
+        assert mtch, "({})".format(line)
+        return line
 
     @staticmethod
     def _add_to_relationship(rec, rel_value):
@@ -226,19 +250,21 @@ class OBOReader(object):
         # Ex: is_a: GO:2001316 ! kojic acid metabolic process
         #     is_a: GO:1901362 ! organic cyclic compound biosynthetic process
         (typedef, target_term) = value.split('!')[0].rstrip().split(' ')
-
         # Save the nested term.
         getattr(rec, attrname)[typedef].append(target_term)
 
     def _init_compile_patterns(self, optional_attrs):
         """Compile search patterns for optional attributes if needed."""
         attr2cmp = {}
-        # synonym   synonym: "peptidase inhibitor complex" EXACT [GOC:bf, GOC:pr]
+        # Ex: "peptidase inhibitor complex" EXACT [GOC:bf, GOC:pr]
+        # Ex: "blood vessel formation from pre-existing blood vessels" EXACT systematic_synonym []
+        # Ex: "mitochondrial inheritance" EXACT []
         if 'synonym' in optional_attrs:
-            attr2cmp['synonym'] = re.compile(r'"(\S.*\S)" ([A-Z]+)')
+            attr2cmp['synonym'] = re.compile(r'"(\S.*\S)" ([A-Z]+) (.*)$')
         # xref      Wikipedia:Zygotene
-        elif 'xref' in optional_attrs:
-            attr2cmp['xref'] = re.compile(r'^(\S+):(\S+)$')
+        if 'xref' in optional_attrs:
+            #attr2cmp['xref'] = re.compile(r'^(\S+):(\S+)\b\s*(.*)$')
+            attr2cmp['xref'] = re.compile(r'^(\S+):\s*(\S+)\b(.*)$')
         return attr2cmp
 
     def _init_optional_attrs(self, opts):
