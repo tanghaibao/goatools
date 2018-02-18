@@ -28,6 +28,8 @@ class OBOReader(object):
         >>> for rec in reader:
                 print(rec)
     """
+   
+    field_pattern = re.compile(r'^(\S+):\s*(\S.*)$')
     attrs_req = set(['id', 'alt_id', 'name', 'namespace', 'is_a', 'is_obsolete'])
     attrs_scalar = set(['comment', 'defn'])
     attrs_set = set(['subset', 'synonym', 'xref'])  # 12 subset 284 synonym 827 xref
@@ -122,7 +124,7 @@ class OBOReader(object):
         #   namespace: biological_process
         #   def: "The maintenance of ...
         #   is_a: GO:0007005 ! mitochondrion organization
-        mtch = re.match(r'^(\S+):\s*(\S.*)$', line)
+        mtch = self.field_pattern.match(line)
         if mtch:
             field_name = mtch.group(1)
             field_value = mtch.group(2)
@@ -196,7 +198,7 @@ class OBOReader(object):
 
     def _add_to_typedef(self, typedef_curr, line, lnum):
         """Add new fields to the current typedef."""
-        mtch = re.match(r'^(\S+):\s*(\S.*)$', line)
+        mtch = self.field_pattern.match(line)
         if mtch:
             field_name = mtch.group(1)
             field_value = mtch.group(2).split('!')[0].rstrip()
