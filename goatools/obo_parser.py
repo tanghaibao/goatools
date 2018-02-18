@@ -192,10 +192,7 @@ class OBOReader(object):
 
     def _optattr_addval(self, rec, name, value):
         """Add new data from an optional attribute."""
-        if name in self.attrs_scalar:
-            raise Exception("ATTR({NAME}) ALREADY SET({VAL})".format(
-                NAME=name, VAL=getattr(rec, name)))
-        elif name in self.attrs_set:
+        if name in self.attrs_set:
             getattr(rec, name).add(value)
         elif name == 'relationship':
             self._add_to_relationship(rec, value)
@@ -203,6 +200,9 @@ class OBOReader(object):
             getattr(rec, name).append(self._get_synonym(value))
         elif name == 'xref':
             getattr(rec, name).add(self._get_xref(value))
+        elif name in self.attrs_scalar:
+            raise Exception("ATTR({NAME}) ALREADY SET({VAL})".format(
+                NAME=name, VAL=getattr(rec, name)))
         elif ' ! ' in value:
             self._add_nested(rec, name, value)
 
@@ -223,8 +223,7 @@ class OBOReader(object):
         # Ex: xref      Wikipedia:Zygotene
         # Ex: Reactome:REACT_22295 "Addition of a third mannose to ..."
         mtch = self.attr2cmp['xref'].match(line)
-        assert mtch, "({})".format(line)
-        return line
+        return mtch.group(1).replace(' ', '')
 
     @staticmethod
     def _add_to_relationship(rec, rel_value):
@@ -280,10 +279,10 @@ class OBOReader(object):
         if 'synonym' in optional_attrs:
             attr2cmp['synonym'] = re.compile(r'"(\S.*\S)" ([A-Z]+) (.*)\[(.*)\](.*)$')
             attr2cmp['synonym nt'] = cx.namedtuple("synonym", "text scope typename dbxrefs")
-        # xref      Wikipedia:Zygotene
+        # Wikipedia:Zygotene
+        # Reactome:REACT_27267 "DHAP from Ery4P and PEP, Mycobacterium tuberculosis"
         if 'xref' in optional_attrs:
-            #attr2cmp['xref'] = re.compile(r'^(\S+):(\S+)\b\s*(.*)$')
-            attr2cmp['xref'] = re.compile(r'^(\S+):\s*(\S+)\b(.*)$')
+            attr2cmp['xref'] = re.compile(r'^(\S+:\s*\S+)\b(.*)$')
         return attr2cmp
 
     def _init_optional_attrs(self, opts):

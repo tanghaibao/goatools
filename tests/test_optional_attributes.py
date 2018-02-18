@@ -48,7 +48,7 @@ def test_optional_attrs():
     for attr in ['def', 'comment']:
         # Check that all GO IDs that should have relationships do have relationships.
         obj.chk_cnt_go(attr)
-        print("PASSED: {ATTR}".format(ATTR=attr))
+        print("PASSED COUNT TEST: {ATTR}".format(ATTR=attr))
 
     # SET: Check optional attributes whose information is stored in a set
     for attr in ['subset', 'synonym', 'xref']:
@@ -56,7 +56,7 @@ def test_optional_attrs():
         obj.chk_cnt_go(attr)
         # For each GO ID, check that actual count of a set attr equals expected count
         obj.chk_cnt_set(attr)
-        print("PASSED: {ATTR}".format(ATTR=attr))
+        print("PASSED COUNT TEST: {ATTR}".format(ATTR=attr))
 
     # RELATIONSHIP: Stored in a dict with values being sets
     obj.chk_cnt_go('relationship')
@@ -67,6 +67,9 @@ def test_optional_attrs():
     obj.chk_synonyms(prt)
     print("PASSED: synonyms")
 
+    # XREF: Stored in a set
+    obj.chk_xref(prt)
+    print("PASSED: xrefs")
 
 def test_no_optional_attrs():
     """Test loading DAG with no optional attributes."""

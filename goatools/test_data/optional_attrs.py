@@ -44,6 +44,20 @@ class OptionalAttrs(object):
             prt.write("    {MAX:3} {MRK} {FLD}\n".format(
                 MAX=maxqty, MRK=self._get_fldmrk(fld), FLD=fld))
 
+    def chk_xref(self, prt=None):
+        """Check synonyms."""
+        # Get GO IDs which are expected to have synonyms
+        goids = set(go for go, d in self.go2dct.items() if 'xref' in d)
+        for goid in goids:
+            goobj = self.go2obj[goid]
+            xrefs = getattr(goobj, 'xref', None)
+            assert xrefs is not None, "{GO} MISSING XREF".format(GO=goid)
+            # Iterate through list of synonym data stored in named tuples
+            for dbxref in xrefs:
+                if prt is not None:
+                    prt.write("{GO} {DBXREF}\n".format(GO=goid, DBXREF=dbxref))
+                assert self.exp_xrefpat.match(dbxref), "INVALID XREF FORMAT"
+
     def chk_synonyms(self, prt=None):
         """Check synonyms."""
         # Get GO IDs which are expected to have synonyms
@@ -60,10 +74,6 @@ class OptionalAttrs(object):
                 assert ntsyn.scope in self.exp_scopes, "INVALID SYNONYM SCOPE"
                 for dbxref in ntsyn.dbxrefs:
                     assert self.exp_xrefpat.match(dbxref), "INVALID SYNONYM DBXREF"
-
-    # def _chk_synonym(self, ntsyns):
-    #     """Check that scopes are present in all synonyms and have valid values."""
-
 
     @staticmethod
     def _get_fldmrk(fld):
