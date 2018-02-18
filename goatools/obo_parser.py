@@ -40,6 +40,7 @@ class OBOReader(object):
 
     def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
         """Read obo file. Load dictionary."""
+        self.attr2cmp = self._init_compile_patterns(optional_attrs)
         self.optional_attrs = self._init_optional_attrs(optional_attrs)
         self.format_version = None # e.g., "1.2" of "format-version:" line
         self.data_version = None # e.g., "releases/2016-07-07" from "data-version:" line
@@ -228,6 +229,17 @@ class OBOReader(object):
 
         # Save the nested term.
         getattr(rec, attrname)[typedef].append(target_term)
+
+    def _init_compile_patterns(self, optional_attrs):
+        """Compile search patterns for optional attributes if needed."""
+        attr2cmp = {}
+        # synonym   synonym: "peptidase inhibitor complex" EXACT [GOC:bf, GOC:pr]
+        if 'synonym' in optional_attrs:
+            attr2cmp['synonym'] = re.compile(r'"(\S.*\S)" ([A-Z]+)')
+        # xref      Wikipedia:Zygotene
+        elif 'xref' in optional_attrs:
+            attr2cmp['xref'] = re.compile(r'^(\S+):(\S+)$')
+        return attr2cmp
 
     def _init_optional_attrs(self, opts):
         """Prepare to store data from user-desired optional fields.
