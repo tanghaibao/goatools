@@ -28,19 +28,14 @@
          * GO enrichment results are in: Supplementary table 6
            http://www.nature.com/nbt/journal/v33/n2/extref/nbt.3102-S6.xlsx
 """
-import os
 import sys
-import xlrd
-import wget
-import pytest
 from collections import Counter, defaultdict, OrderedDict
+import pytest
 
 from goatools.test_data.genes_NCBI_10090_ProteinCoding import GeneID2nt as GeneID2nt_mus
 from goatools.test_data.nature3102_goea import get_geneid2symbol, get_goeaobj
-from goatools.obo_parser import GODag
-from goatools.go_enrichment import GOEnrichmentStudy, get_study_items
-from goatools.associations import get_assoc_ncbi_taxids
-from goatools.godag_plot import plot_gos, plot_results, plot_goid2goobj
+from goatools.go_enrichment import get_study_items
+from goatools.godag_plot import plot_gos, plot_goid2goobj
 
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"

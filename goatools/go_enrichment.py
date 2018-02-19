@@ -12,6 +12,7 @@ study genes using Fisher's exact test, and corrected for multiple testing
 from __future__ import print_function
 from __future__ import absolute_import
 
+
 __copyright__ = "Copyright (C) 2010-2018, H Tang et al., All rights reserved."
 __author__ = "various"
 
@@ -19,7 +20,12 @@ import sys
 import collections as cx
 import datetime
 
-from goatools.multiple_testing import Methods, Bonferroni, Sidak, HolmBonferroni, FDR, calc_qval
+from goatools.multiple_testing import Methods
+from goatools.multiple_testing import Bonferroni
+from goatools.multiple_testing import Sidak
+from goatools.multiple_testing import HolmBonferroni
+from goatools.multiple_testing import FDR
+from goatools.multiple_testing import calc_qval
 from goatools.ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
 from goatools.pvalcalc import FisherFactory

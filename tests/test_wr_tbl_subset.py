@@ -39,16 +39,16 @@ def test_wr_methods(log=sys.stdout):
 
 
 def _wr_3fmt_goeaobj(tsv_obj, goea_results, goeaobj, wr_params, log):
-    """Using GOEnrichmentStudy object, demonstrate printing a subset of GOEA fields."""
-    # List of all fields, printable or not, available from GOEnrichmentRecord
+    """Demonstrate printing a subset of GOEA fields."""
+    # List of all fields, printable or not, available from GOEA
     flds = goea_results[0].get_prtflds_all()
-    log.write("\nALL nGOEnrichmentRecord FIELDS: {F}\n".format(F=" ".join(flds)))
+    log.write("\nALL GOEA FIELDS: {F}\n".format(F=" ".join(flds)))
     # Use the subset of namedtuple fields_names that are listed in the format string:
     # Same format: print to screen and print to file:
     goeaobj.prt_txt(log, goea_results, **wr_params) # Print to screen
     goeaobj.wr_txt("nbt3102_subset_obj.txt", goea_results, **wr_params)
     # Print to Excel Spreadsheet
-    title = "Print subset of fields from GOEnrichmentRecord"
+    title = "Print subset of GOEA fields"
     goeaobj.wr_xlsx("nbt3102_subset_obj.xlsx", goea_results, title=title, **wr_params)
     # Print to tab-separated file
     goeaobj.wr_tsv(tsv_obj, goea_results, **wr_params)
