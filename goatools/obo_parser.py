@@ -10,7 +10,6 @@ from __future__ import print_function
 
 import sys
 import os
-import re
 from collections import defaultdict
 from goatools.godag.obo_optional_attributes import OboOptionalAttrs
 
@@ -30,8 +29,6 @@ class OBOReader(object):
         >>> for rec in reader:
                 print(rec)
     """
-
-    field_pattern = re.compile(r'^(\S+):\s*(\S.*)$')
 
     # Scalar attributes for Typedefs:
     #                    'is_class_level', 'is_metadata_tag',
@@ -64,15 +61,15 @@ class OBOReader(object):
                 # obo lines start with any of: [Term], [Typedef], /^\S+:/, or /^\s*/
                 if self.data_version is None:
                     self._init_obo_version(line)
-                if line[0:6].lower() == "[term]":
+                if rec_curr is None and line[0:6].lower() == "[term]":
                     rec_curr = self._init_goterm_ref(rec_curr, "Term", lnum)
-                elif line[0:9].lower() == "[typedef]":
+                elif typedef_curr is None and line[0:9].lower() == "[typedef]":
                     typedef_curr = self._init_typedef(rec_curr, "Typedef", lnum)
                 elif rec_curr is not None or typedef_curr is not None:
                     line = line.rstrip()  # chomp
-                    if ":" in line:
+                    if line:
                         self._add_to_obj(rec_curr, typedef_curr, line, lnum)
-                    elif line == "":
+                    else:
                         if rec_curr is not None:
                             yield rec_curr
                             rec_curr = None
@@ -80,8 +77,6 @@ class OBOReader(object):
                             # Save typedef.
                             self.typedefs[typedef_curr.id] = typedef_curr
                             typedef_curr = None
-                    else:
-                        self._die("UNEXPECTED LINE CONTENT: {L}".format(L=line), lnum)
             # Return last record, if necessary
             if rec_curr is not None:
                 yield rec_curr
@@ -142,25 +137,22 @@ class OBOReader(object):
 
     def _add_to_typedef(self, typedef_curr, line, lnum):
         """Add new fields to the current typedef."""
-        mtch = self.field_pattern.match(line)
-        if mtch:
-            field_name = mtch.group(1)
-            field_value = mtch.group(2).split('!')[0].rstrip()
-
-            if field_name == "id":
-                self._chk_none(typedef_curr.id, lnum)
-                typedef_curr.id = field_value
-            elif field_name == "name":
-                self._chk_none(typedef_curr.name, lnum)
-                typedef_curr.name = field_value
-            elif field_name == "transitive_over":
-                typedef_curr.transitive_over.append(field_value)
-            elif field_name == "inverse_of":
-                self._chk_none(typedef_curr.inverse_of, lnum)
-                typedef_curr.inverse_of = field_value
-            # Note: there are other tags that aren't imported here.
-        else:
-            self._die("UNEXPECTED FIELD CONTENT: {L}\n".format(L=line), lnum)
+        if line[:4] == "id: ":
+            self._chk_none(typedef_curr.id, lnum)
+            typedef_curr.id = line[4:]
+        elif line[:6] == "name: ":
+            self._chk_none(typedef_curr.name, lnum)
+            typedef_curr.name = line[6:]
+        elif line[:11] == "namespace: ":
+            self._chk_none(typedef_curr.namespace, lnum)
+            typedef_curr.namespace = line[11:]
+        elif line[17:] == "transitive_over: ":
+            field_value = line[17:].split('!')[0].rstrip()
+            typedef_curr.transitive_over.append(field_value)
+        elif line[12:] == "inverse_of":
+            self._chk_none(typedef_curr.inverse_of, lnum)
+            field_value = line[12:].split('!')[0].rstrip()
+            typedef_curr.inverse_of = field_value
 
     @staticmethod
     def _add_nested(rec, attrname, value):
@@ -338,6 +330,7 @@ class TypeDef(object):
     def __init__(self):
         self.id = ""                # GO:NNNNNNN
         self.name = ""              # description
+        self.namespace = ""         # external
         self.transitive_over = []   # List of other typedefs
         self.inverse_of = ""        # Name of inverse typedef.
 
