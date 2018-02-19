@@ -32,8 +32,6 @@ class OBOReader(object):
 
     field_pattern = re.compile(r'^(\S+):\s*(\S.*)$')
     attrs_req = set(['id', 'alt_id', 'name', 'namespace', 'is_a', 'is_obsolete'])
-    attrs_scalar = set(['comment', 'defn'])
-    attrs_set = set(['subset'])  # 12 subset 284 synonym 827 xref
     # special handling: relationship, synonym, xref
 
     # Scalar attributes for Typedefs:
@@ -73,7 +71,7 @@ class OBOReader(object):
                 elif line[0:9].lower() == "[typedef]":
                     typedef_curr = self._init_typedef(rec_curr, "Typedef", lnum)
                 elif rec_curr is not None or typedef_curr is not None:
-                    line = line.rstrip() # chomp
+                    line = line.rstrip()  # chomp
                     if ":" in line:
                         self._add_to_obj(rec_curr, typedef_curr, line, lnum)
                     elif line == "":
@@ -120,43 +118,36 @@ class OBOReader(object):
 
     def _add_to_ref(self, rec_curr, line, lnum):
         """Add new fields to the current reference."""
-        # Written by DV Klopfenstein
         # Examples of record lines containing ':' include:
         #   id: GO:0000002
         #   name: mitochondrial genome maintenance
         #   namespace: biological_process
         #   def: "The maintenance of ...
         #   is_a: GO:0007005 ! mitochondrion organization
-        mtch = self.field_pattern.match(line)
-        if mtch:
-            field_name = mtch.group(1)
-            field_value = mtch.group(2)
-            if field_name == "id":
-                self._chk_none(rec_curr.id, lnum)
-                rec_curr.id = field_value
-            elif field_name == "alt_id":
-                rec_curr.alt_ids.add(field_value)
-            elif field_name == "name":
-                self._chk_none(rec_curr.name, lnum)
-                rec_curr.name = field_value
-            elif field_name == "namespace":
-                self._chk_none(rec_curr.namespace, lnum)
-                rec_curr.namespace = field_value
-            elif field_name == "is_a":
-                rec_curr._parents.add(field_value.split()[0])
-            elif field_name == "is_obsolete" and field_value == "true":
-                rec_curr.is_obsolete = True
-            elif field_name in self.optional_attrs:
-                self.update_rec(rec_curr, field_name, field_value)
-        else:
-            self._die("UNEXPECTED FIELD CONTENT: {L}\n".format(L=line), lnum)
+        if line[:4] == "id: ":
+            self._chk_none(rec_curr.id, lnum)
+            rec_curr.id = line[4:]
+        elif line[:8] == "alt_id: ":
+            rec_curr.alt_ids.add(line[8:])
+        elif line[:6] == "name: ":
+            self._chk_none(rec_curr.name, lnum)
+            rec_curr.name = line[6:]
+        elif line[:11] == "namespace: ":
+            self._chk_none(rec_curr.namespace, lnum)
+            rec_curr.namespace = line[11:]
+        elif line[:6] == "is_a: ":
+            rec_curr._parents.add(line[6:].split()[0])
+        elif line[:13] == "is_obsolete: " and line[13:] == "true":
+            rec_curr.is_obsolete = True
+        elif self.optional_attrs and ':' in line:
+            self._update_rec(rec_curr, line)
 
-    def update_rec(self, rec, name, value):
+    def _update_rec(self, rec, line):  # name, value):
         """Update current GOTerm with optional record."""
-        # 'def' is a reserved word in python, do not use it as a Class attr.
-        if name == "def":
-            name = "defn"
-
+        if line[:5] == "def: ":
+            self._optattr_def(rec, line[5:])
+        elif line[:9] == "synonym: ":
+            self._optattr_synonym(rec, line[9:])
         # relationships are now stored in a dict of sets. This mirrors
         # the structure implied by the GO DAG itself. The structure
         # that stores the relationships now looks likes this:
@@ -165,46 +156,62 @@ class OBOReader(object):
         #     'part_of': set(['GO:0021513', 'GO:0006310']),
         #     'negatively_regulates': set(['GO:0021910'])i
         # }
-        if hasattr(rec, name):
-            self._optattr_addval(rec, name, value)
-        else: # Initialize new GOTerm attr
-            self._optattr_new(rec, name, value)
+        elif line[:14] == "relationship: ":
+            self._optattr_relationship(rec, line[14:])
+        elif line[:6] == "xref: ":
+            self._optattr_xref(rec, line[6:])
+        elif line[:8] == "subset: ":
+            self._optattr_subset(rec, line[8:])
+        elif line[:9] == "comment: ":
+            self._optattr_comment(rec, line[9:])
 
-    def _optattr_new(self, rec, name, value):
-        """Create structure to store data for an optional attribute."""
-        # def defn comment
-        if name in self.attrs_scalar:
-            setattr(rec, name, value)
-        # subset
-        elif name in self.attrs_set:
-            setattr(rec, name, set([value]))
-        elif name == 'relationship':
-            rel, goid = value.split()[:2]
-            setattr(rec, name, {rel: set([goid])})
-        elif name == 'synonym':
-            setattr(rec, name, [self._get_synonym(value)])
-        elif name == 'xref':
-            setattr(rec, name, set([self._get_xref(value)]))
-        elif ' ! ' in value:
-            name = '_{:s}'.format(name)
-            setattr(rec, name, defaultdict(list))
-            self._add_nested(rec, name, value)
+    @staticmethod
+    def _optattr_def(rec, value):
+        """Store optional attribute, 'defn' in a string."""
+        # 'def' is a reserved word in python, do not use it as a Class attr.
+        if not hasattr(rec, 'defn'):
+            rec.defn = value
+        else:
+            raise Exception("ATTR(defn) ALREADY SET({VAL})".format(VAL=rec.defn))
 
-    def _optattr_addval(self, rec, name, value):
-        """Add new data from an optional attribute."""
-        if name in self.attrs_set:
-            getattr(rec, name).add(value)
-        elif name == 'relationship':
+    def _optattr_synonym(self, rec, value):
+        """Store optional attribute, 'synonym' in a list."""
+        if hasattr(rec, 'synonym'):
+            rec.synonym.append(self._get_synonym(value))
+        else:
+            rec.synonym = [self._get_synonym(value)]
+
+    def _optattr_relationship(self, rec, value):
+        """Store optional attribute, 'relationship' in a dict of sets."""
+        if hasattr(rec, 'relationship'):
             self._add_to_relationship(rec, value)
-        elif name == 'synonym':
-            getattr(rec, name).append(self._get_synonym(value))
-        elif name == 'xref':
-            getattr(rec, name).add(self._get_xref(value))
-        elif name in self.attrs_scalar:
-            raise Exception("ATTR({NAME}) ALREADY SET({VAL})".format(
-                NAME=name, VAL=getattr(rec, name)))
-        elif ' ! ' in value:
-            self._add_nested(rec, name, value)
+        else:
+            rel, goid = value.split()[:2]
+            rec.relationship = {rel: set([goid])}
+
+    def _optattr_xref(self, rec, value):
+        """Store optional attribute, 'xref' in a set."""
+        if hasattr(rec, 'xref'):
+            rec.xref.add(self._get_xref(value))
+        else:
+            rec.xref = set([self._get_xref(value)])
+
+    @staticmethod
+    def _optattr_subset(rec, value):
+        """Store optional attribute, 'subset' in a set."""
+        if hasattr(rec, 'subset'):
+            rec.subset.add(value)
+        else:
+            rec.subset = set([value])
+
+    @staticmethod
+    def _optattr_comment(rec, value):
+        """Store optional attribute, 'comment' in a string."""
+        # 'def' is a reserved word in python, do not use it as a Class attr.
+        if not hasattr(rec, 'comment'):
+            rec.comment = value
+        else:
+            raise Exception("ATTR(comment) ALREADY SET({VAL})".format(VAL=rec.comment))
 
     def _get_synonym(self, line):
         """Given line, return optional attribute synonym value in a namedtuple."""
@@ -541,6 +548,7 @@ class GODag(dict):
             rec.parents = [self[x] for x in rec._parents]
 
             if hasattr(rec, '_relationship'):
+                #print("WWWWWWWWWWW1")
                 rec.relationship = defaultdict(set)
                 for (typedef, terms) in rec._relationship.items():
                     rec.relationship[typedef].update(set([self[x] for x in terms]))
@@ -554,6 +562,7 @@ class GODag(dict):
 
             # Add invert relationships
             if hasattr(rec, 'relationship'):
+                #print("WWWWWWWWWWW2")
                 for (typedef, terms) in rec.relationship.items():
                     invert_typedef = self.typedefs[typedef].inverse_of
                     if invert_typedef:

@@ -12,7 +12,6 @@ import collections as cx
 import timeit
 import datetime
 from goatools.obo_parser import GODag
-from goatools.obo_parser import OBOReader
 from goatools.base import download_go_basic_obo
 
 
@@ -20,9 +19,17 @@ class OptionalAttrs(object):
     """Holds data for GO relationship test."""
 
     repo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../..")
-    cmpfld = re.compile(r'^(\S+): (\S.*\S)\s*$')  # Field line pattern
+    cmpfld = re.compile(r'^(\S+)\s*:\s*(\S.*\S)\s*$')  # Field line pattern
     exp_scopes = set(['EXACT', 'BROAD', 'NARROW', 'RELATED'])
     exp_xrefpat = re.compile(r'^\S+:\S+$')
+    # Required attributes are always loaded
+    exp_req = set(['name', 'id', 'is_obsolete', 'namespace', 'alt_ids'])
+    # Generated attributes
+    exp_gen = set(['level', 'depth', 'parents', 'children', '_parents'])
+
+    attrs_req = set(['id', 'namespace', 'name', 'is_a', 'alt_ids'])
+    attrs_scalar = set(['id', 'namespace', 'name', 'def', 'comment'])
+    attrs_set = set(['xref', 'subset', 'alt_id'])
 
     def __init__(self, fin_obo, opt_field=None):
         self.opt = opt_field  # None causes all fields to read to exp dict
@@ -32,17 +39,57 @@ class OptionalAttrs(object):
         self.dcts = self._init_go2dct()  # dagdct go2dct typdefdct flds
         self.go2dct = {go:d for go, d in self.dcts['go2dct'].items() if go in self.go2obj}
         self.num_tot = len(self.go2obj)
+        self._chk_required()
 
     def prt_summary(self, prt=sys.stdout):
         """Print percentage of GO IDs that have a specific relationship."""
         prt.write("\nThese fields appear at least once on a GO term:\n")
         # Ex: 28,951 of 44,948 (64%) GO IDs has field(synonym)
         for relname, cnt in self._get_cnts_gte1().most_common():
-            self._prt_perc(cnt, "relationship:{R}".format(R=relname), prt)
+            self._prt_perc(cnt, relname, prt)
         prt.write("\nMaximum number of fields on a GO term:\n")
         for fld, maxqty in sorted(self._get_cnts_max().items(), key=lambda t: t[1]):
             prt.write("    {MAX:3} {MRK} {FLD}\n".format(
                 MAX=maxqty, MRK=self._get_fldmrk(fld), FLD=fld))
+
+    def _chk_required(self):
+        """Check the required attributes."""
+        for goid, goobj in self.go2obj.items():
+            godct = self.go2dct[goid]
+            assert goobj.id == godct['GO']
+            assert goobj.namespace == next(iter(godct['namespace'])), godct
+            assert goobj.name == next(iter(godct['name']))
+            self._chk_is_obsolete(goobj, godct)
+            self._chk_alt_ids(goobj, godct)
+
+    @staticmethod
+    def _chk_alt_ids(goobj, godct):
+        """Check 'alt_ids' required attribute."""
+        if 'alt_id' in godct:
+            assert godct['alt_id'] == goobj.alt_ids
+        else:
+            assert not goobj.alt_ids
+
+    @staticmethod
+    def _chk_is_obsolete(goobj, godct):
+        """Check 'is_obsolete' required attribute."""
+        act_obso = getattr(goobj, 'is_obsolete', None)
+        if act_obso:
+            assert 'is_obsolete' in godct, "EXP({})\nACT({})".format(
+                godct, getattr(goobj, 'is_obsolete', None))
+        else:
+            assert 'is_obsolete' not in godct, "EXP({})\nACT({})".format(
+                godct, getattr(goobj, 'is_obsolete', None))
+
+    def chk_no_optattrs(self):
+        """Check that only the optional attributes requested are the attributes implemented."""
+        # name is_obsolete namespace id alt_ids
+        # level namespace depth parents children _parents
+        exp_flds = self.exp_req.union(self.exp_gen)
+        for goobj in self.go2obj.values():
+            assert not set(vars(goobj).keys()).difference(exp_flds)
+            # print(vars(goobj).keys())
+            # print(" ".join(vars(goobj).keys()))
 
     def chk_xref(self, prt=None):
         """Check synonyms."""
@@ -75,14 +122,16 @@ class OptionalAttrs(object):
                 for dbxref in ntsyn.dbxrefs:
                     assert self.exp_xrefpat.match(dbxref), "INVALID SYNONYM DBXREF"
 
-    @staticmethod
-    def _get_fldmrk(fld):
+    def _get_fldmrk(self, fld):
         """Get a mark for each field indicating if it is required or optional"""
-        if fld in OBOReader.attrs_req or fld == 'def':
+        #pylint: disable=too-many-return-statements
+        if fld in self.attrs_req:
             return 'REQ'
-        if fld in OBOReader.attrs_scalar:
+        if fld == 'def':
             return 'str'
-        if fld in OBOReader.attrs_set:
+        if fld in self.attrs_scalar:
+            return 'str'
+        if fld in self.attrs_set:
             return 'set'
         if fld == 'relationship':
             return 'rel'
@@ -164,28 +213,30 @@ class OptionalAttrs(object):
             rec = {}
             for line in ifstrm:
                 line = line.rstrip()
-                # Beginning of GO record
-                if line[:7] == "id: GO:":
-                    assert not rec, "NOW({}) WAS({})".format(line[4:], rec)
-                    rec = {'GO':line[4:]}
                 # End of GO record
-                elif not line:
+                if not line:
                     if rec:  # and option is None or option in rec:
                         # 'Definition' is specified in obo as 'def' and in Python by 'defn'
                         if 'def' in rec:
                             rec['defn'] = rec['def']
                         go2dct[rec['GO']] = rec
                     rec = {}
-                # Middle of GO record
-                elif rec:
-                    # r'^(\S+): (\S.*\S)\s*$')  # Field line pattern
+                else:
                     mtch = self.cmpfld.match(line)
                     if mtch:
                         fld = mtch.group(1)
-                        flds.add(fld)
-                        if fld not in rec:
-                            rec[fld] = set()
-                        rec[fld].add(mtch.group(2))
+                        val = mtch.group(2)
+
+                        # Beginning of GO record
+                        if fld == "id":
+                            assert not rec, "NOW({}) WAS({})".format(line, rec)
+                            rec = {'GO':val}
+                        # Middle of GO record
+                        elif rec:
+                            flds.add(fld)
+                            if fld not in rec:
+                                rec[fld] = set()
+                            rec[fld].add(val)
         return {'dagdct':dagdct, 'go2dct':go2dct, 'typedefdct':typedefdct, 'flds':flds}
 
     def _init_dnld_dag(self):

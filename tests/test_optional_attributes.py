@@ -58,12 +58,12 @@ def test_optional_attrs():
         obj.chk_cnt_set(attr)
         print("PASSED COUNT TEST: {ATTR}".format(ATTR=attr))
 
-    # RELATIONSHIP: Stored in a dict with values being sets
+    # RELATIONSHIP: Stored in a dict with values being sets of GO IDs
     obj.chk_cnt_go('relationship')
     obj.chk_cnt_relationship()
     print("PASSED: relationship")
 
-    # SYNONYM: Stored in a namedtuple
+    # SYNONYM: Synonyms are stored in a list of namedtuples
     obj.chk_synonyms(prt)
     print("PASSED: synonyms")
 
@@ -73,13 +73,16 @@ def test_optional_attrs():
 
 def test_no_optional_attrs():
     """Test loading DAG with no optional attributes."""
-    OptionalAttrs("go-basic.obo", None)
-    OptionalAttrs("go-basic.obo", [])
-    OptionalAttrs("go-basic.obo", set([]))
+    obj = OptionalAttrs("go-basic.obo", None)
+    obj.chk_no_optattrs()
+    obj = OptionalAttrs("go-basic.obo", [])
+    obj.chk_no_optattrs()
+    obj = OptionalAttrs("go-basic.obo", set([]))
+    obj.chk_no_optattrs()
 
 
 if __name__ == '__main__':
-    #test_no_optional_attrs()
+    test_no_optional_attrs()
     test_optional_attrs()
 
 # Copyright (C) 2010-2018, H Tang et al., All rights reserved.

@@ -33,7 +33,12 @@ setup(
     author_email=h.email,
     license=h.license,
     long_description=h.long_description,
-    packages=[name, name + ".test_data", name + ".anno", name + ".anno.extensions"],
+    packages=[
+        name,
+        name + ".godag",
+        name + ".test_data",
+        name + ".anno",
+        name + ".anno.extensions"],
     include_package_data=True,
     package_data={"goatools.test_data.nbt_3102": ["*.*"]},
     scripts=glob('scripts/*.py'),
