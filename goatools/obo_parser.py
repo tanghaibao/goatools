@@ -339,8 +339,7 @@ class GODag(dict):
         # populate children, levels and add inverted relationships
         for rec in self.values():
             for parent in rec.parents:
-                if rec not in parent.children:
-                    parent.children.append(rec)
+                parent.children.append(rec)
 
             # Add invert relationships
             if hasattr(rec, 'relationship'):
