@@ -310,18 +310,18 @@ class GODag(dict):
 
         def _init_level(rec):
             if rec.level is None:
-                if not rec.parents:
-                    rec.level = 0
-                else:
+                if rec.parents:
                     rec.level = min(_init_level(rec) for rec in rec.parents) + 1
+                else:
+                    rec.level = 0
             return rec.level
 
         def _init_depth(rec):
             if rec.depth is None:
-                if not rec.parents:
-                    rec.depth = 0
-                else:
+                if rec.parents:
                     rec.depth = max(_init_depth(rec) for rec in rec.parents) + 1
+                else:
+                    rec.depth = 0
             return rec.depth
 
         # Make parents and relationships references to the actual GO terms.
@@ -329,10 +329,11 @@ class GODag(dict):
             rec.parents = [self[x] for x in rec._parents]
 
             if hasattr(rec, '_relationship'):
-                #print("WWWWWWWWWWW1")
+                # print("AAAAAAAAAAA1", rec.id, rec._relationship)
                 rec.relationship = defaultdict(set)
                 for (typedef, terms) in rec._relationship.items():
                     rec.relationship[typedef].update(set([self[x] for x in terms]))
+                # print("AAAAAAAAAAA2", rec.id, rec.relationship)
                 delattr(rec, '_relationship')
 
         # populate children, levels and add inverted relationships
@@ -343,15 +344,18 @@ class GODag(dict):
 
             # Add invert relationships
             if hasattr(rec, 'relationship'):
-                #print("WWWWWWWWWWW2")
+                # print("BBBBBBBBBBB1", rec.id, rec.relationship)
                 for (typedef, terms) in rec.relationship.items():
                     invert_typedef = self.typedefs[typedef].inverse_of
+                    # print("BBBBBBBBBBB2 {} ({}) ({}) ({})".format(
+                    #    rec.id, rec.relationship, typedef, invert_typedef))
                     if invert_typedef:
                         # Add inverted relationship
                         for term in terms:
                             if not hasattr(term, 'relationship'):
                                 term.relationship = defaultdict(set)
                             term.relationship[invert_typedef].add(rec)
+                # print("BBBBBBBBBBB3", rec.id, rec.relationship)
 
             if rec.level is None:
                 _init_level(rec)

@@ -23,7 +23,7 @@ class OptionalAttrs(object):
     exp_scopes = set(['EXACT', 'BROAD', 'NARROW', 'RELATED'])
     exp_xrefpat = re.compile(r'^\S+:\S+$')
     # Required attributes are always loaded
-    exp_req = set(['name', 'id', 'is_obsolete', 'namespace', 'alt_ids'])
+    exp_req = set(['name', 'id', 'is_obsolete', 'namespace', 'alt_ids', 'is_a'])
     # Generated attributes
     exp_gen = set(['level', 'depth', 'parents', 'children', '_parents'])
 
@@ -40,6 +40,7 @@ class OptionalAttrs(object):
         self.go2dct = {go:d for go, d in self.dcts['go2dct'].items() if go in self.go2obj}
         self.num_tot = len(self.go2obj)
         self._chk_required()
+        self._chk_parents()
 
     def prt_summary(self, prt=sys.stdout):
         """Print percentage of GO IDs that have a specific relationship."""
@@ -51,6 +52,15 @@ class OptionalAttrs(object):
         for fld, maxqty in sorted(self._get_cnts_max().items(), key=lambda t: t[1]):
             prt.write("    {MAX:3} {MRK} {FLD}\n".format(
                 MAX=maxqty, MRK=self._get_fldmrk(fld), FLD=fld))
+
+    def _chk_parents(self):
+        """Check that parent relationships."""
+        for goobj in self.go2obj.values():
+            exp_dct = self.go2dct[goobj.id]
+            if 'is_a' in exp_dct:
+                exp_parents = exp_dct['is_a']
+                act_parents = goobj._parents
+                assert exp_parents == act_parents
 
     def _chk_required(self):
         """Check the required attributes."""
@@ -236,6 +246,11 @@ class OptionalAttrs(object):
                             flds.add(fld)
                             if fld not in rec:
                                 rec[fld] = set()
+                            # Strip comment if it exists
+                            loc = val.find(' ! ')
+                            if loc != -1:
+                                val = val[:loc]
+                            # Add value
                             rec[fld].add(val)
         return {'dagdct':dagdct, 'go2dct':go2dct, 'typedefdct':typedefdct, 'flds':flds}
 
