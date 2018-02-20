@@ -41,6 +41,8 @@ class OptionalAttrs(object):
         self.num_tot = len(self.go2obj)
         self._chk_required()
         self._chk_parents()
+        self._set_exp_children()
+        self._chk_children()
 
     def prt_summary(self, prt=sys.stdout):
         """Print percentage of GO IDs that have a specific relationship."""
@@ -58,9 +60,31 @@ class OptionalAttrs(object):
         for goobj in self.go2obj.values():
             exp_dct = self.go2dct[goobj.id]
             if 'is_a' in exp_dct:
+                # pylint: disable=protected-access
                 exp_parents = exp_dct['is_a']
                 act_parents = goobj._parents
                 assert exp_parents == act_parents
+
+    def _chk_children(self):
+        """Check that parent relationships."""
+        for goobj in self.go2obj.values():
+            exp_dct = self.go2dct[goobj.id]
+            if '_children' in exp_dct:
+                exp_children = exp_dct['_children']
+                act_children = set(o.id for o in goobj.children)
+                assert exp_children == act_children
+
+    def _set_exp_children(self):
+        """Fill expected child GO IDs."""
+        # Initialize empty sets for child GO IDs
+        for exp_dct in self.go2dct.values():
+            exp_dct['_children'] = set()
+        # Loop thru all GO IDs
+        for goid_child, exp_dct in self.go2dct.items():
+            if 'is_a' in exp_dct:
+                # Add current GO ID to all of it's parents' set of children
+                for goid_parent in exp_dct['is_a']:
+                    self.go2dct[goid_parent]['_children'].add(goid_child)
 
     def _chk_required(self):
         """Check the required attributes."""
