@@ -64,6 +64,8 @@ class OptionalAttrs(object):
                 exp_parents = exp_dct['is_a']
                 act_parents = goobj._parents
                 assert exp_parents == act_parents
+            else:
+                assert not goobj.parents
 
     def _chk_children(self):
         """Check that parent relationships."""
@@ -73,6 +75,8 @@ class OptionalAttrs(object):
                 exp_children = exp_dct['_children']
                 act_children = set(o.id for o in goobj.children)
                 assert exp_children == act_children
+            else:
+                assert not goobj.children
 
     def _set_exp_children(self):
         """Fill expected child GO IDs."""
