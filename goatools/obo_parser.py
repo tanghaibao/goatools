@@ -59,7 +59,7 @@ class OBOReader(object):
         with open(self.obo_file) as fstream:
             rec_curr = None # Stores current GO Term
             typedef_curr = None  # Stores current typedef
-            for lnum, line in enumerate(fstream):
+            for line in fstream:
                 # obo lines start with any of: [Term], [Typedef], /^\S+:/, or /^\s*/
                 if self.data_version is None:
                     self._init_obo_version(line)
@@ -70,7 +70,7 @@ class OBOReader(object):
                 elif rec_curr is not None or typedef_curr is not None:
                     line = line.rstrip()  # chomp
                     if line:
-                        self._add_to_obj(rec_curr, typedef_curr, line, lnum)
+                        self._add_to_obj(rec_curr, typedef_curr, line)
                     else:
                         if rec_curr is not None:
                             yield rec_curr
@@ -83,10 +83,10 @@ class OBOReader(object):
             if rec_curr is not None:
                 yield rec_curr
 
-    def _add_to_obj(self, rec_curr, typedef_curr, line, lnum):
+    def _add_to_obj(self, rec_curr, typedef_curr, line):
         """Add information on line to GOTerm or Typedef."""
         if rec_curr is not None:
-            self._add_to_ref(rec_curr, line, lnum)
+            self._add_to_ref(rec_curr, line)
         else:
             add_to_typedef(typedef_curr, line)
 
@@ -97,7 +97,7 @@ class OBOReader(object):
         if line[0:12] == "data-version":
             self.data_version = line[14:-1]
 
-    def _add_to_ref(self, rec_curr, line, lnum):
+    def _add_to_ref(self, rec_curr, line):
         """Add new fields to the current reference."""
         # Examples of record lines containing ':' include:
         #   id: GO:0000002
@@ -143,8 +143,8 @@ class GOTerm(object):
         self.name = ""              # description
         self.namespace = ""         # BP, CC, MF
         self._parents = set()       # is_a basestring of parents
-        self.parents = []           # parent records
-        self.children = []          # children records
+        self.parents = set()        # parent records
+        self.children = set()       # children records
         self.level = None           # shortest distance from root node
         self.depth = None           # longest distance from root node
         self.is_obsolete = False    # is_obsolete
@@ -280,14 +280,17 @@ class GODag(dict):
         """Read obo file. Store results."""
         sys.stdout.write("load obo file {OBO}\n".format(OBO=obo_file))
         reader = OBOReader(obo_file, optional_attrs)
+        # Save alt_ids and their corresponding main GO ID. Add to GODag after populating GO Terms
+        alt2id = {}
         for rec in reader:
             # Save record if:
             #   1) Argument load_obsolete is True OR
             #   2) Argument load_obsolete is False and the GO term is "live" (not obsolete)
             if load_obsolete or not rec.is_obsolete:
-                self[rec.id] = rec
+                goid_main = rec.id
+                self[goid_main] = rec
                 for alt in rec.alt_ids:
-                    self[alt] = rec
+                    alt2id[alt] = goid_main
 
         num_items = len(self)
         data_version = reader.data_version
@@ -302,6 +305,10 @@ class GODag(dict):
         #### self.optional_attrs = reader.optional_attrs
 
         self.populate_terms()
+
+        # Add alt_ids to go2obj
+        for goid_alt, goid_main in alt2id.items():
+            self[goid_alt] = self[goid_main]
         sys.stdout.write("{VER}\n".format(VER=version))
         return version
 
@@ -326,20 +333,19 @@ class GODag(dict):
 
         # Make parents and relationships references to the actual GO terms.
         for rec in self.values():
-            rec.parents = [self[x] for x in rec._parents]
+            # Given parent GO IDs, set parent GO Term objects
+            rec.parents = set([self[goid] for goid in rec._parents])
 
-            if hasattr(rec, '_relationship'):
-                # print("AAAAAAAAAAA1", rec.id, rec._relationship)
-                rec.relationship = defaultdict(set)
-                for (typedef, terms) in rec._relationship.items():
-                    rec.relationship[typedef].update(set([self[x] for x in terms]))
-                # print("AAAAAAAAAAA2", rec.id, rec.relationship)
-                delattr(rec, '_relationship')
+            # For each parent GO Term object, add it's child GO Term to the children data member
+            for parent in rec.parents:
+                parent.children.add(rec)
+
+            if hasattr(rec, 'relationship'):
+                for relationship_type, goids in rec.relationship.items():
+                    rec.relationship[relationship_type] = set([self[goid] for goid in goids])
 
         # populate children, levels and add inverted relationships
         for rec in self.values():
-            for parent in rec.parents:
-                parent.children.append(rec)
 
             # Add invert relationships
             if hasattr(rec, 'relationship'):

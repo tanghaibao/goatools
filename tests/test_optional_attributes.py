@@ -60,7 +60,7 @@ def test_optional_attrs():
 
     # RELATIONSHIP: Stored in a dict with values being sets of GO IDs
     obj.chk_cnt_go('relationship')
-    obj.chk_cnt_relationship()
+    obj.chk_relationships()
     print("PASSED: relationship")
 
     # SYNONYM: Synonyms are stored in a list of namedtuples

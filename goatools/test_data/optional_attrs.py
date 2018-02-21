@@ -220,17 +220,18 @@ class OptionalAttrs(object):
             else:
                 assert act_set is None
 
-    def chk_cnt_relationship(self, opt='relationship'):
+    def chk_relationships(self):
         """Check that all GO IDs that should have relationships do have relationships."""
+        opt = 'relationship'
         for goid, dct in self.go2dct.items():
-            act_rel2gos = getattr(self.go2obj[goid], opt, None)
+            act_rel2goobjs = getattr(self.go2obj[goid], opt, None)
             if opt in dct:
-                exp_gos = set(s.split()[1] for s in dct[opt])
-                act_gos = set(go for gos in act_rel2gos.values() for go in gos)
-                assert exp_gos == act_gos, "EXP({}) ACT({}) {}:\nEXP({})\nACT({})".format(
-                    len(exp_gos), len(act_gos), goid, exp_gos, act_gos)
+                exp_goids = set(s.split()[1] for s in dct[opt])
+                act_goids = set(goobj.id for goobjs in act_rel2goobjs.values() for goobj in goobjs)
+                assert exp_goids == act_goids, "EXP({}) ACT({}) {}:\nEXP({})\nACT({})".format(
+                    len(exp_goids), len(act_goids), goid, exp_goids, act_goids)
             else:
-                assert act_rel2gos is None
+                assert act_rel2goobjs is None
 
     def chk_cnt_go(self, opt):
         """Check that all GO IDs that should have relationships do have relationships."""
@@ -242,7 +243,7 @@ class OptionalAttrs(object):
             opt, num_exp, len(go_act))
 
     def _init_go2dct(self):
-        """Get a list of GO IDs that have relationships."""
+        """Create a dict of GO fields for use as expected results during test."""
         dagdct = {}
         go2dct = {}
         typedefdct = {}
