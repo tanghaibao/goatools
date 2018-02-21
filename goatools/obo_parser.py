@@ -38,7 +38,7 @@ class OBOReader(object):
 
     def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
         """Read obo file. Load dictionary."""
-        self.optional_attrs = self._init_optional_attrs(optional_attrs)
+        self.optobj = self._init_optional_attrs(optional_attrs)
         self.format_version = None # e.g., "1.2" of "format-version:" line
         self.data_version = None # e.g., "releases/2016-07-07" from "data-version:" line
         self.typedefs = {}
@@ -120,8 +120,8 @@ class OBOReader(object):
             rec_curr._parents.add(line[6:].split()[0])
         elif line[:13] == "is_obsolete: " and line[13:] == "true":
             rec_curr.is_obsolete = True
-        elif self.optional_attrs and ':' in line:
-            self.optional_attrs.update_rec(rec_curr, line)
+        elif self.optobj and ':' in line:
+            self.optobj.update_rec(rec_curr, line)
 
     @staticmethod
     def _init_optional_attrs(optional_attrs):
@@ -281,16 +281,17 @@ class GODag(dict):
         sys.stdout.write("load obo file {OBO}\n".format(OBO=obo_file))
         reader = OBOReader(obo_file, optional_attrs)
         # Save alt_ids and their corresponding main GO ID. Add to GODag after populating GO Terms
-        alt2id = {}
+        alt2rec = {}
         for rec in reader:
             # Save record if:
             #   1) Argument load_obsolete is True OR
             #   2) Argument load_obsolete is False and the GO term is "live" (not obsolete)
             if load_obsolete or not rec.is_obsolete:
-                goid_main = rec.id
-                self[goid_main] = rec
+                self[rec.id] = rec
                 for alt in rec.alt_ids:
-                    alt2id[alt] = goid_main
+                    alt2rec[alt] = rec
+        # self.optobj = reader.optobj
+        self.typedefs = reader.typedefs
 
         num_items = len(self)
         data_version = reader.data_version
@@ -301,19 +302,18 @@ class GODag(dict):
             REL=data_version, N=num_items)
 
         # Save the typedefs and parsed optional_attrs
-        self.typedefs = reader.typedefs
-        #### self.optional_attrs = reader.optional_attrs
 
         self.populate_terms()
 
         # Add alt_ids to go2obj
-        for goid_alt, goid_main in alt2id.items():
-            self[goid_alt] = self[goid_main]
+        for goid_alt, rec in alt2rec.items():
+            self[goid_alt] = rec
         sys.stdout.write("{VER}\n".format(VER=version))
         return version
 
     def populate_terms(self):
         """Add level and depth to GO objects."""
+        # has_relationship = self.optobj is not None and 'relationship' in self.optobj.optional_attrs
 
         def _init_level(rec):
             if rec.level is None:
