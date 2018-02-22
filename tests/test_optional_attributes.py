@@ -45,21 +45,18 @@ def test_optional_attrs():
     obj.prt_summary()
 
     # SCALAR: Check optional attributes whose information is stored in string
-    for attr in ['def', 'comment']:
-        # Check that all GO IDs that should have relationships do have relationships.
-        obj.chk_cnt_go(attr)
+    for attr in ['defn', 'comment']:
+        # Check that all GOTerms have a string; ACTUAL matches EXPECTED if present, else ""
+        obj.chk_str(attr)
         print("PASSED COUNT TEST: {ATTR}".format(ATTR=attr))
 
     # SET: Check optional attributes whose information is stored in a set
-    for attr in ['subset', 'synonym', 'xref']:
-        # Check that all GO IDs that should have relationships do have relationships.
-        obj.chk_cnt_go(attr)
-        # For each GO ID, check that actual count of a set attr equals expected count
-        obj.chk_cnt_set(attr)
-        print("PASSED COUNT TEST: {ATTR}".format(ATTR=attr))
+    # Check that all GO IDs that should have relationships do have relationships.
+    # For each GO ID, check that actual count of a set attr equals expected count
+    obj.chk_set('subset')
+    print("PASSED: subset")
 
     # RELATIONSHIP: Stored in a dict with values being sets of GO IDs
-    obj.chk_cnt_go('relationship')
     obj.chk_relationships()
     print("PASSED: relationship")
 

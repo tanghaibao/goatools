@@ -7,84 +7,52 @@ import re
 import collections as cx
 
 
-# pylint: disable=too-few-public-methods
 class OboOptionalAttrs(object):
     """Manage optional GO-DAG attributes."""
 
-    def __init__(self, optional_attrs=None):
-        self.attr2cmp = self._init_compile_patterns(optional_attrs)
+    def __init__(self, optional_attrs):
+        assert optional_attrs
         self.optional_attrs = optional_attrs
+        self.attr2cmp = self._init_compile_patterns(optional_attrs)
 
     def update_rec(self, rec, line):
         """Update current GOTerm with optional record."""
         if 'def' in self.optional_attrs and line[:5] == "def: ":
-            self._optattr_def(rec, line[5:])
+            assert not hasattr(rec, 'defn'), "ATTR(defn) ALREADY SET({VAL})".format(VAL=rec.defn)
+            # Use 'defn' because 'def' is a reserved word in python
+            rec.defn = line[5:]
         elif 'synonym' in self.optional_attrs and line[:9] == "synonym: ":
-            self._optattr_synonym(rec, line[9:])
+            rec.synonym.append(self._get_synonym(line[9:]))
         elif 'relationship' in self.optional_attrs and line[:14] == "relationship: ":
-            # relationships are now stored in a dict of sets. This mirrors
-            # the structure implied by the GO DAG itself. The structure
-            # that stores the relationships now looks likes this:
+            # relationships are stored in a dict of sets, mirroring
+            # the structure implied in the GO DAG. Example:
             #
             #  relationship = {
             #     'part_of': set(['GO:0021513', 'GO:0006310']),
-            #     'negatively_regulates': set(['GO:0021910'])i
+            #     'regulates': set(['GO:0006313']),
+            #     'negatively_regulates': set(['GO:0021910']),
+            #     'positively_regulates': set(['GO:0006313']),
             # }
-            self._optattr_relationship(rec, line[14:])
+            rel, goid = line[14:].split()[:2]
+            if rel not in rec.relationship:
+                rec.relationship[rel] = set([goid])
+            else:
+                rec.relationship[rel].add(goid)
         elif 'xref' in self.optional_attrs and line[:6] == "xref: ":
-            self._optattr_xref(rec, line[6:])
+            rec.xref.add(self._get_xref(line[6:]))
         elif 'subset' in self.optional_attrs and line[:8] == "subset: ":
-            self._optattr_subset(rec, line[8:])
+            rec.subset.add(line[8:])
         elif 'comment' in self.optional_attrs and line[:9] == "comment: ":
-            self._optattr_comment(rec, line[9:])
+            rec.comment = line[9:]
 
-    @staticmethod
-    def _optattr_def(rec, value):
-        """Store optional attribute, 'defn' in a string."""
-        # 'def' is a reserved word in python, do not use it as a Class attr.
-        if not hasattr(rec, 'defn'):
-            rec.defn = value
-        else:
-            raise Exception("ATTR(defn) ALREADY SET({VAL})".format(VAL=rec.defn))
-
-    def _optattr_synonym(self, rec, value):
-        """Store optional attribute, 'synonym' in a list."""
-        if hasattr(rec, 'synonym'):
-            rec.synonym.append(self._get_synonym(value))
-        else:
-            rec.synonym = [self._get_synonym(value)]
-
-    def _optattr_relationship(self, rec, value):
-        """Store optional attribute, 'relationship' in a dict of sets."""
-        if hasattr(rec, 'relationship'):
-            self._add_to_relationship(rec, value)
-        else:
-            rel, goid = value.split()[:2]
-            rec.relationship = {rel: set([goid])}
-
-    def _optattr_xref(self, rec, value):
-        """Store optional attribute, 'xref' in a set."""
-        if hasattr(rec, 'xref'):
-            rec.xref.add(self._get_xref(value))
-        else:
-            rec.xref = set([self._get_xref(value)])
-
-    @staticmethod
-    def _optattr_subset(rec, value):
-        """Store optional attribute, 'subset' in a set."""
-        if hasattr(rec, 'subset'):
-            rec.subset.add(value)
-        else:
-            rec.subset = set([value])
-
-    @staticmethod
-    def _optattr_comment(rec, value):
-        """Store optional attribute, 'comment' in a string."""
-        # 'def' is a reserved word in python, do not use it as a Class attr.
-        if not hasattr(rec, 'comment'):
-            rec.comment = value
-        else:
-            raise Exception("ATTR(comment) ALREADY SET({VAL})".format(VAL=rec.comment))
+    def init_datamembers(self, rec):
+        """Initialize current GOTerm with data members for storing optional attributes."""
+        # pylint: disable=multiple-statements
+        if 'synonym'      in self.optional_attrs: rec.synonym = []
+        if 'relationship' in self.optional_attrs: rec.relationship = {}
+        if 'xref'         in self.optional_attrs: rec.xref = set()
+        if 'subset'       in self.optional_attrs: rec.subset = set()
+        if 'comment'      in self.optional_attrs: rec.comment = ""
 
     def _get_synonym(self, line):
         """Given line, return optional attribute synonym value in a namedtuple."""
@@ -100,19 +68,10 @@ class OboOptionalAttrs(object):
 
     def _get_xref(self, line):
         """Given line, return optional attribute xref value in a dict of sets."""
-        # Ex: xref      Wikipedia:Zygotene
+        # Ex: Wikipedia:Zygotene
         # Ex: Reactome:REACT_22295 "Addition of a third mannose to ..."
         mtch = self.attr2cmp['xref'].match(line)
         return mtch.group(1).replace(' ', '')
-
-    @staticmethod
-    def _add_to_relationship(rec, rel_value):
-        """Add GO ID and its relationship to the optional 'relationship' data member."""
-        rel, goid = rel_value.split()[:2]
-        if rel in rec.relationship:
-            rec.relationship[rel].add(goid)
-        else:
-            rec.relationship[rel] = set([goid])
 
     @staticmethod
     def _init_compile_patterns(optional_attrs):

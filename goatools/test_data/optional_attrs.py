@@ -22,10 +22,14 @@ class OptionalAttrs(object):
     cmpfld = re.compile(r'^(\S+)\s*:\s*(\S.*\S)\s*$')  # Field line pattern
     exp_scopes = set(['EXACT', 'BROAD', 'NARROW', 'RELATED'])
     exp_xrefpat = re.compile(r'^\S+:\S+$')
+    exp_xrefpat = re.compile(r'^\S+:\S+$')
     # Required attributes are always loaded
     exp_req = set(['name', 'id', 'is_obsolete', 'namespace', 'alt_ids', 'is_a'])
     # Generated attributes
     exp_gen = set(['level', 'depth', 'parents', 'children', '_parents'])
+    exp_relationships = set(['part_of',
+                             'regulates', 'negatively_regulates', 'positively_regulates'])
+    # Expected data structure for a GO ID that has no relationships
 
     attrs_req = set(['id', 'namespace', 'name', 'is_a', 'alt_ids'])
     attrs_scalar = set(['id', 'namespace', 'name', 'def', 'comment'])
@@ -36,13 +40,28 @@ class OptionalAttrs(object):
         self.obo = os.path.join(self.repo, fin_obo)
         self._init_dnld_dag()
         self.go2obj = {o.id:o for o in self.load_dag(opt_field).values()}
-        self.dcts = self._init_go2dct()  # dagdct go2dct typdefdct flds
+        self.dcts = self._init_go2dct()  # go2dct typdefdct flds
         self.go2dct = {go:d for go, d in self.dcts['go2dct'].items() if go in self.go2obj}
         self.num_tot = len(self.go2obj)
         self._chk_required()
         self._chk_parents()
         self._set_exp_children()
         self._chk_children()
+
+    def chk_str(self, attr):
+        """Check that expected scalar value matches actual string value."""
+        for goid, rec in self.go2obj.items():
+            # A string data member must always be present, even if the value is ""
+            act_str = getattr(rec, attr)
+            exp_dct = self.go2dct[goid]
+            # Expected string equals actual string?
+            if attr in exp_dct:
+                exp_str = next(iter(exp_dct[attr]))
+                assert exp_str == act_str, "{} EXP({}) ACT({})".format(
+                    goid, exp_str, act_str)
+            # If there is no expected string, is actual string ""?
+            else:
+                assert act_str == ""
 
     def prt_summary(self, prt=sys.stdout):
         """Print percentage of GO IDs that have a specific relationship."""
@@ -56,7 +75,7 @@ class OptionalAttrs(object):
                 MAX=maxqty, MRK=self._get_fldmrk(fld), FLD=fld))
 
     def _chk_parents(self):
-        """Check that parent relationships."""
+        """Check parents."""
         for goobj in self.go2obj.values():
             exp_dct = self.go2dct[goobj.id]
             if 'is_a' in exp_dct:
@@ -68,7 +87,7 @@ class OptionalAttrs(object):
                 assert not goobj.parents
 
     def _chk_children(self):
-        """Check that parent relationships."""
+        """Check children."""
         for goobj in self.go2obj.values():
             exp_dct = self.go2dct[goobj.id]
             if '_children' in exp_dct:
@@ -146,19 +165,21 @@ class OptionalAttrs(object):
     def chk_synonyms(self, prt=None):
         """Check synonyms."""
         # Get GO IDs which are expected to have synonyms
-        goids = set(go for go, d in self.go2dct.items() if 'synonym' in d)
-        for goid in goids:
+        for goid, dct_exp in self.go2dct.items():
             goobj = self.go2obj[goid]
-            ntsyns = getattr(goobj, 'synonym', None)
-            assert ntsyns is not None, "{GO} MISSING SYNONYM".format(GO=goid)
-            # Iterate through list of synonym data stored in named tuples
-            for ntsyn in ntsyns:
-                if prt is not None:
-                    prt.write("{GO} {NT}\n".format(GO=goid, NT=ntsyn))
-                assert ntsyn.text, "SYNONYM CANNOT BE EMPTY"
-                assert ntsyn.scope in self.exp_scopes, "INVALID SYNONYM SCOPE"
-                for dbxref in ntsyn.dbxrefs:
-                    assert self.exp_xrefpat.match(dbxref), "INVALID SYNONYM DBXREF"
+            if 'synonym' in dct_exp:
+                ntsyns = getattr(goobj, 'synonym', None)
+                assert ntsyns is not None, "{GO} MISSING SYNONYM".format(GO=goid)
+                # Iterate through list of synonym data stored in named tuples
+                for ntsyn in ntsyns:
+                    if prt is not None:
+                        prt.write("{GO} {NT}\n".format(GO=goid, NT=ntsyn))
+                    assert ntsyn.text, "SYNONYM CANNOT BE EMPTY"
+                    assert ntsyn.scope in self.exp_scopes, "INVALID SYNONYM SCOPE"
+                    for dbxref in ntsyn.dbxrefs:
+                        assert self.exp_xrefpat.match(dbxref), "INVALID SYNONYM DBXREF"
+            else:
+                assert goobj.synonym == []
 
     def _get_fldmrk(self, fld):
         """Get a mark for each field indicating if it is required or optional"""
@@ -204,47 +225,52 @@ class OptionalAttrs(object):
                     ctr[opt] += 1
         return ctr
 
-    def chk_cnt_set(self, opt):
-        """For each GO ID, check that actual count of a set attr equals expected count."""
-        errpat = "SET EXP({EXP}) ACT({ACT}) {GO}\n{DESC}\n:\nEXP:\n{Es}\n\nACT:\n{As}"
+    def chk_set(self, opt):
+        """Check that actual set contents match expected set contents."""
+        errpat = "SET EXP({EXP}) ACT({ACT}) {GO}\n{DESC}:\nEXP:\n{Es}\n\nACT:\n{As}"
         for goid, dct in self.go2dct.items():
             act_set = getattr(self.go2obj[goid], opt, None)
             if opt in dct:
-                exp_num = len(dct[opt])
-                act_num = len(act_set)
-                assert exp_num == act_num, errpat.format(
-                    EXP=exp_num, ACT=act_num, GO=goid,
-                    DESC=str(self.go2obj[goid]),
-                    Es="\n".join(sorted(dct[opt])),
+                exp_set = dct[opt]
+                assert exp_set == act_set, errpat.format(
+                    EXP=len(exp_set), ACT=len(act_set), GO=goid,
+                    DESC=str(self.go2obj[goid].name),
+                    Es="\n".join(sorted(exp_set)),
                     As="\n".join(sorted(act_set)))
             else:
-                assert act_set is None
+                assert act_set == set(), "EXPECTED EMPTY SET FOR {O}: ACT({A})\n".format(
+                    O=opt, A=act_set)
 
     def chk_relationships(self):
-        """Check that all GO IDs that should have relationships do have relationships."""
-        opt = 'relationship'
+        """Expected relationship GO IDs should match actual relationship GO IDs."""
         for goid, dct in self.go2dct.items():
-            act_rel2goobjs = getattr(self.go2obj[goid], opt, None)
-            if opt in dct:
-                exp_goids = set(s.split()[1] for s in dct[opt])
-                act_goids = set(goobj.id for goobjs in act_rel2goobjs.values() for goobj in goobjs)
-                assert exp_goids == act_goids, "EXP({}) ACT({}) {}:\nEXP({})\nACT({})".format(
-                    len(exp_goids), len(act_goids), goid, exp_goids, act_goids)
+            act_rel2recs = getattr(self.go2obj[goid], 'relationship', None)
+            if 'relationship' in dct:
+                rel2gos = self._mk_exp_relatinship_sets(dct['relationship'])
+                # Check if expected relationships and actual relationships are the same
+                assert set(act_rel2recs.keys()) == set(rel2gos.keys()), "EXP({}) != ACT({})".format(
+                    set(act_rel2recs.keys()), set(rel2gos.keys()))
+                for rel, exp_goids in rel2gos.items():
+                    # Expected relationships store GO IDs.
+                    # Actual relationships store GO Terms.
+                    act_goids = set(o.id for o in act_rel2recs[rel])
+                    assert exp_goids == act_goids, "EXP({}) ACT({}) {}:\nEXP({})\nACT({})".format(
+                        len(exp_goids), len(act_goids), goid, exp_goids, act_goids)
             else:
-                assert act_rel2goobjs is None
+                assert act_rel2recs == {}, act_rel2recs
 
-    def chk_cnt_go(self, opt):
-        """Check that all GO IDs that should have relationships do have relationships."""
-        if opt == 'def':
-            opt = 'defn'
-        num_exp = sum(1 for d in self.go2dct.values() if opt in d)
-        go_act = set(o.id for o in self.go2obj.values() if hasattr(o, opt))
-        assert num_exp == len(go_act), "GO CNTS({}): EXP({}) ACT({})".format(
-            opt, num_exp, len(go_act))
+    def _mk_exp_relatinship_sets(self, relationship_str_set):
+        """Transform a set of relationship strings into a dict of sets containing GO IDs."""
+        rel2gos = cx.defaultdict(set)
+        for rel_str in relationship_str_set:
+            rel, goid = rel_str.split()
+            assert rel in self.exp_relationships
+            assert goid[:3] == "GO:" and goid[3:].isdigit()
+            rel2gos[rel].add(goid)
+        return rel2gos
 
     def _init_go2dct(self):
-        """Create a dict of GO fields for use as expected results during test."""
-        dagdct = {}
+        """Create EXPECTED RESULTS stored in a dict of GO fields."""
         go2dct = {}
         typedefdct = {}
         flds = set()
@@ -281,7 +307,10 @@ class OptionalAttrs(object):
                                 val = val[:loc]
                             # Add value
                             rec[fld].add(val)
-        return {'dagdct':dagdct, 'go2dct':go2dct, 'typedefdct':typedefdct, 'flds':flds}
+        for dct in go2dct.values():
+            if 'def' in dct:
+                dct['defn'] = dct['def']
+        return {'go2dct':go2dct, 'typedefdct':typedefdct, 'flds':flds}
 
     def _init_dnld_dag(self):
         """If dag does not exist, download it."""

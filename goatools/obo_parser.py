@@ -65,6 +65,8 @@ class OBOReader(object):
                     self._init_obo_version(line)
                 if rec_curr is None and line[0:6].lower() == "[term]":
                     rec_curr = GOTerm()
+                    if self.optobj:
+                        self.optobj.init_datamembers(rec_curr)
                 elif typedef_curr is None and line[0:9].lower() == "[typedef]":
                     typedef_curr = TypeDef()
                 elif rec_curr is not None or typedef_curr is not None:
@@ -303,7 +305,8 @@ class GODag(dict):
 
         # Save the typedefs and parsed optional_attrs
 
-        self.populate_terms()
+        self._populate_terms(reader.optobj)
+        self._set_level_depth(reader.optobj)
 
         # Add alt_ids to go2obj
         for goid_alt, rec in alt2rec.items():
@@ -311,9 +314,25 @@ class GODag(dict):
         sys.stdout.write("{VER}\n".format(VER=version))
         return version
 
-    def populate_terms(self):
-        """Add level and depth to GO objects."""
-        # has_relationship = self.optobj is not None and 'relationship' in self.optobj.optional_attrs
+    def _populate_terms(self, optobj):
+        """Convert GO IDs to GO Term record objects. Populate children."""
+        has_relationship = optobj is not None and 'relationship' in optobj.optional_attrs
+        # Make parents and relationships references to the actual GO terms.
+        for rec in self.values():
+            # Given parent GO IDs, set parent GO Term objects
+            rec.parents = set([self[goid] for goid in rec._parents])
+
+            # For each parent GO Term object, add it's child GO Term to the children data member
+            for parent in rec.parents:
+                parent.children.add(rec)
+
+            if has_relationship:
+                for relationship_type, goids in rec.relationship.items():
+                    rec.relationship[relationship_type] = set([self[goid] for goid in goids])
+
+    def _set_level_depth(self, optobj):
+        """Set level, depth and add inverted relationships."""
+        has_relationship = optobj is not None and 'relationship' in optobj.optional_attrs
 
         def _init_level(rec):
             if rec.level is None:
@@ -331,24 +350,10 @@ class GODag(dict):
                     rec.depth = 0
             return rec.depth
 
-        # Make parents and relationships references to the actual GO terms.
-        for rec in self.values():
-            # Given parent GO IDs, set parent GO Term objects
-            rec.parents = set([self[goid] for goid in rec._parents])
-
-            # For each parent GO Term object, add it's child GO Term to the children data member
-            for parent in rec.parents:
-                parent.children.add(rec)
-
-            if hasattr(rec, 'relationship'):
-                for relationship_type, goids in rec.relationship.items():
-                    rec.relationship[relationship_type] = set([self[goid] for goid in goids])
-
-        # populate children, levels and add inverted relationships
         for rec in self.values():
 
             # Add invert relationships
-            if hasattr(rec, 'relationship'):
+            if has_relationship:
                 # print("BBBBBBBBBBB1", rec.id, rec.relationship)
                 for (typedef, terms) in rec.relationship.items():
                     invert_typedef = self.typedefs[typedef].inverse_of
