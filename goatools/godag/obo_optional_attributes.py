@@ -49,10 +49,12 @@ class OboOptionalAttrs(object):
         """Initialize current GOTerm with data members for storing optional attributes."""
         # pylint: disable=multiple-statements
         if 'synonym'      in self.optional_attrs: rec.synonym = []
-        if 'relationship' in self.optional_attrs: rec.relationship = {}
         if 'xref'         in self.optional_attrs: rec.xref = set()
         if 'subset'       in self.optional_attrs: rec.subset = set()
         if 'comment'      in self.optional_attrs: rec.comment = ""
+        if 'relationship' in self.optional_attrs:
+            rec.relationship = {}
+            rec.relationship_rev = {}
 
     def _get_synonym(self, line):
         """Given line, return optional attribute synonym value in a namedtuple."""

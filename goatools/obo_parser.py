@@ -323,12 +323,22 @@ class GODag(dict):
             rec.parents = set([self[goid] for goid in rec._parents])
 
             # For each parent GO Term object, add it's child GO Term to the children data member
-            for parent in rec.parents:
-                parent.children.add(rec)
+            for parent_rec in rec.parents:
+                parent_rec.children.add(rec)
 
             if has_relationship:
-                for relationship_type, goids in rec.relationship.items():
-                    rec.relationship[relationship_type] = set([self[goid] for goid in goids])
+                self._populate_relationships(rec)
+
+    def _populate_relationships(self, rec_curr):
+        """Convert GO IDs in relationships to GO Term record objects. Populate children."""
+        for relationship_type, goids in rec_curr.relationship.items():
+            parent_recs = set([self[goid] for goid in goids])
+            rec_curr.relationship[relationship_type] = parent_recs
+            for parent_rec in parent_recs:
+                if relationship_type not in parent_rec.relationship_rev:
+                    parent_rec.relationship_rev[relationship_type] = set([rec_curr])
+                else:
+                    parent_rec.relationship_rev[relationship_type].add(rec_curr)
 
     def _set_level_depth(self, optobj):
         """Set level, depth and add inverted relationships."""

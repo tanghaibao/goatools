@@ -103,13 +103,15 @@ map_slim: $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
 
 goea_all: goea goea_basic goea_xlsx goea_xlsx_bonferroni goea_tsv goea_files
 
+# ./tests/test_optional_attributes.py
 vim_attr:
 	vim -p \
-	./tests/test_optional_attributes.py \
+	./tests/test_optional_relationship.py \
 	./goatools/obo_parser.py \
 	./goatools/godag/obo_optional_attributes.py \
 	./goatools/godag/typedef.py \
-	./goatools/test_data/optional_attrs.py
+	./goatools/test_data/optional_attrs.py \
+	./goatools/test_data/godag_timed.py
 
 vim_ext:
 	vim -p \

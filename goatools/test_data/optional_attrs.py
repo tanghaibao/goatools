@@ -9,10 +9,7 @@ import os
 import sys
 import re
 import collections as cx
-import timeit
-import datetime
-from goatools.obo_parser import GODag
-from goatools.base import download_go_basic_obo
+from goatools.test_data.godag_timed import GoDagTimed
 
 
 class OptionalAttrs(object):
@@ -29,17 +26,15 @@ class OptionalAttrs(object):
     exp_gen = set(['level', 'depth', 'parents', 'children', '_parents'])
     exp_relationships = set(['part_of',
                              'regulates', 'negatively_regulates', 'positively_regulates'])
-    # Expected data structure for a GO ID that has no relationships
 
     attrs_req = set(['id', 'namespace', 'name', 'is_a', 'alt_ids'])
     attrs_scalar = set(['id', 'namespace', 'name', 'def', 'comment'])
     attrs_set = set(['xref', 'subset', 'alt_id'])
 
-    def __init__(self, fin_obo, opt_field=None):
+    def __init__(self, fin_obo, opt_field=None, keep_alt_ids=False):
         self.opt = opt_field  # None causes all fields to read to exp dict
         self.obo = os.path.join(self.repo, fin_obo)
-        self._init_dnld_dag()
-        self.go2obj = {o.id:o for o in self.load_dag(opt_field).values()}
+        self.go2obj = GoDagTimed(self.obo, opt_field, keep_alt_ids).go2obj
         self.dcts = self._init_go2dct()  # go2dct typdefdct flds
         self.go2dct = {go:d for go, d in self.dcts['go2dct'].items() if go in self.go2obj}
         self.num_tot = len(self.go2obj)
@@ -47,6 +42,31 @@ class OptionalAttrs(object):
         self._chk_parents()
         self._set_exp_children()
         self._chk_children()
+
+    def chk_relationships_rev(self, reltype='part_of', prt=None):
+        """Check reciprocal relationships. Print all GO pairs in one type of relationship."""
+        spc = " "*len(reltype)
+        rec2revs = cx.defaultdict(set)
+        for rec in sorted(self.go2obj.values(), key=lambda o: o.namespace):
+            reldct = rec.relationship
+            if reltype in reldct:
+                if prt is not None:
+                    prt.write("{SPC} {GO}\n".format(SPC=spc, GO=str(rec)))
+                for related_to in reldct[reltype]:
+                    rec2revs[related_to].add(rec)
+                    if prt is not None:
+                        prt.write("{RELTYPE} {GO}\n".format(RELTYPE=reltype, GO=str(related_to)))
+                if prt is not None:
+                    prt.write("\n")
+        for rec, exp_revs in sorted(rec2revs.items(), key=lambda t: t[0].namespace):
+            if prt is not None:
+                prt.write("    {SPC} {GO}\n".format(SPC=spc, GO=str(rec)))
+            assert rec.relationship_rev[reltype] == exp_revs
+            for related_from in rec.relationship_rev[reltype]:
+                if prt is not None:
+                    prt.write("rev {RELTYPE} {GO}\n".format(RELTYPE=reltype, GO=str(related_from)))
+            if prt is not None:
+                prt.write("\n")
 
     def chk_str(self, attr):
         """Check that expected scalar value matches actual string value."""
@@ -311,21 +331,6 @@ class OptionalAttrs(object):
             if 'def' in dct:
                 dct['defn'] = dct['def']
         return {'go2dct':go2dct, 'typedefdct':typedefdct, 'flds':flds}
-
-    def _init_dnld_dag(self):
-        """If dag does not exist, download it."""
-        if not os.path.exists(self.obo):
-            download_go_basic_obo(self.obo, loading_bar=None)
-
-    def load_dag(self, opt_fields=None):
-        """Run numerous tests for various self.reports."""
-        tic = timeit.default_timer()
-        dag = GODag(self.obo, opt_fields)
-        toc = timeit.default_timer()
-        msg = "Elapsed HMS for OBO DAG load: {HMS} OPTIONAL_ATTR({O})\n".format(
-            HMS=str(datetime.timedelta(seconds=(toc-tic))), O=opt_fields)
-        sys.stdout.write(msg)
-        return dag
 
 
 # Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved.
