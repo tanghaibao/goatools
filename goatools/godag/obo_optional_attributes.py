@@ -10,6 +10,8 @@ import collections as cx
 class OboOptionalAttrs(object):
     """Manage optional GO-DAG attributes."""
 
+    relationships = set(['part_of', 'regulates', 'negatively_regulates', 'positively_regulates'])
+
     def __init__(self, optional_attrs):
         assert optional_attrs
         self.optional_attrs = optional_attrs
