@@ -188,8 +188,8 @@ class GOTerm(object):
 
     def has_parent(self, term):
         """Return True if this GO object has a parent GO ID."""
-        for praent in self.parents:
-            if praent.id == term or praent.has_parent(term):
+        for parent in self.parents:
+            if parent.id == term or parent.has_parent(term):
                 return True
         return False
 
