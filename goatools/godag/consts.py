@@ -1,15 +1,22 @@
-"""GO-DAG items."""
+"""GO-DAG constants."""
 
 __copyright__ = "Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
-NAMESPACE2NS = {
-    'biological_process' : 'BP',
-    'molecular_function' : 'MF',
-    'cellular_component' : 'CC'}
+# pylint: disable=too-few-public-methods
+class Consts(object):
+    """Constants commonly used in GO-DAG operations."""
 
-RELATIONSHIPS = set(['part_of', 'regulates', 'negatively_regulates', 'positively_regulates'])
+    NAMESPACE2NS = {
+        'biological_process' : 'BP',
+        'molecular_function' : 'MF',
+        'cellular_component' : 'CC'}
+
+    RELATIONSHIP_LIST = ['part_of', 'regulates', 'negatively_regulates', 'positively_regulates']
+
+    def __init__(self):
+        self.relationships = set(self.RELATIONSHIP_LIST)
 
 
 # Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved.
