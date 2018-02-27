@@ -47,13 +47,20 @@ class RelationshipStr(object):
     def __init__(self, relationships):
         self.consts = Consts()
         assert set(self.rel2chr.keys()) == self.consts.relationships
-        # Order relationships consistently
+        # Ordered relationships
         self.rels = [r for r in self.consts.RELATIONSHIP_LIST if r in relationships]
 
     def str_relationships(self, goobj):
         """Get a string representing the presence of absence of relationships. Ex: P..."""
         rel_cur = goobj.relationship
         return "".join([self.rel2chr[r] if r in rel_cur else '.' for r in self.rels])
+
+    def str_rel_short(self, goobj):
+        """Get a string representing the presence of absence of relationships. Ex: P"""
+        if not goobj.relationship:
+            return ''
+        rel_cur = goobj.relationship
+        return "".join([self.rel2chr[r] for r in self.rels if r in rel_cur])
 
     def str_relationships_rev(self, goobj):
         """Get a string representing the presence of absence of relationships. Ex: pr.."""
