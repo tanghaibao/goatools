@@ -13,6 +13,7 @@ class Consts(object):
         'molecular_function' : 'MF',
         'cellular_component' : 'CC'}
 
+    # https://owlcollab.github.io/oboformat/doc/GO.format.obo-1_4.html
     RELATIONSHIP_LIST = ['part_of', 'regulates', 'negatively_regulates', 'positively_regulates']
 
     def __init__(self):
