@@ -32,6 +32,13 @@ from goatools.godag.consts import Consts
 class RelationshipStr(object):
     """Create strings representing relationships on GO Terms."""
 
+    # go-basic.obo: fmt(1.2) rel(2018-02-20) 47,177 GO Terms; optional_attrs(relationship)
+    # relationship:
+    #     6,882 part_of
+    #     3,230 regulates
+    #     2,804 negatively_regulates
+    #     2,785 positively_regulates
+
     rel2chr = {
         'part_of':   'P',
         'regulates': 'R',
