@@ -182,7 +182,7 @@ class OptionalAttrs(object):
         # level namespace depth parents children _parents
         exp_flds = self.exp_req.union(self.exp_gen)
         for goobj in self.go2obj.values():
-            assert not set(vars(goobj).keys()).difference(exp_flds)
+            assert set(vars(goobj).keys()).difference(exp_flds) == set(['alt_ids'])
             # print(vars(goobj).keys())
             # print(" ".join(vars(goobj).keys()))
 
