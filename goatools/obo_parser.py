@@ -38,7 +38,7 @@ class OBOReader(object):
 
     def __init__(self, obo_file="go-basic.obo", optional_attrs=None):
         """Read obo file. Load dictionary."""
-        self.optobj = self._init_optional_attrs(optional_attrs)
+        self.optobj = self._init_optional_attrs(optional_attrs)  # OboOptionalAttrs or None
         self.format_version = None # e.g., "1.2" of "format-version:" line
         self.data_version = None # e.g., "releases/2016-07-07" from "data-version:" line
         self.typedefs = {}
@@ -282,6 +282,7 @@ class GODag(dict):
         """Read obo file. Store results."""
         sys.stdout.write("load obo file {OBO}\n".format(OBO=obo_file))
         reader = OBOReader(obo_file, optional_attrs)
+
         # Save alt_ids and their corresponding main GO ID. Add to GODag after populating GO Terms
         alt2rec = {}
         for rec in reader:
@@ -292,18 +293,10 @@ class GODag(dict):
                 self[rec.id] = rec
                 for alt in rec.alt_ids:
                     alt2rec[alt] = rec
-        # self.optobj = reader.optobj
-        self.typedefs = reader.typedefs
-
-        num_items = len(self)
-        data_version = reader.data_version
-        if data_version is not None:
-            data_version = data_version.replace("releases/", "")
-        version = "{OBO}: fmt({FMT}) rel({REL}) {N:,} GO Terms".format(
-            OBO=obo_file, FMT=reader.format_version,
-            REL=data_version, N=num_items)
 
         # Save the typedefs and parsed optional_attrs
+        # self.optobj = reader.optobj
+        self.typedefs = reader.typedefs
 
         self._populate_terms(reader.optobj)
         self._set_level_depth(reader.optobj)
@@ -311,8 +304,22 @@ class GODag(dict):
         # Add alt_ids to go2obj
         for goid_alt, rec in alt2rec.items():
             self[goid_alt] = rec
-        sys.stdout.write("{VER}\n".format(VER=version))
-        return version
+        desc = self._str_desc(reader)
+        sys.stdout.write("{DESC}\n".format(DESC=desc))
+        return desc
+
+    def _str_desc(self, reader):
+        """String containing information about the current GO DAG."""
+        data_version = reader.data_version
+        if data_version is not None:
+            data_version = data_version.replace("releases/", "")
+        desc = "{OBO}: fmt({FMT}) rel({REL}) {N:,} GO Terms".format(
+            OBO=reader.obo_file, FMT=reader.format_version,
+            REL=data_version, N=len(self))
+        if reader.optobj:
+            desc = "{D}; optional_attrs({A})\n".format(D=desc, A=" ".join(sorted(reader.optobj.optional_attrs)))
+        return desc
+        
 
     def _populate_terms(self, optobj):
         """Convert GO IDs to GO Term record objects. Populate children."""
