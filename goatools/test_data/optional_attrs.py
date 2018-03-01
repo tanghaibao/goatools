@@ -21,13 +21,12 @@ class OptionalAttrs(object):
     exp_xrefpat = re.compile(r'^\S+:\S+$')
     exp_xrefpat = re.compile(r'^\S+:\S+$')
     # Required attributes are always loaded
-    exp_req = set(['name', 'id', 'is_obsolete', 'namespace', 'alt_ids', 'is_a'])
+    exp_req = set(['name', 'id', 'is_obsolete', 'namespace', 'alt_id', 'is_a', 'is_obsolete'])
     # Generated attributes
     exp_gen = set(['level', 'depth', 'parents', 'children', '_parents'])
     exp_relationships = set(['part_of',
                              'regulates', 'negatively_regulates', 'positively_regulates'])
 
-    attrs_req = set(['id', 'namespace', 'name', 'is_a', 'alt_ids'])
     attrs_scalar = set(['id', 'namespace', 'name', 'def', 'comment'])
     attrs_set = set(['xref', 'subset', 'alt_id'])
 
@@ -85,14 +84,33 @@ class OptionalAttrs(object):
 
     def prt_summary(self, prt=sys.stdout):
         """Print percentage of GO IDs that have a specific relationship."""
-        prt.write("\nThese fields appear at least once on a GO term:\n")
+        sep = "\n-----------------------------------------------------------\n"
+        flds_seen = self.dcts['flds']
+        fld_cnts_go = self._get_cnts_gte1(self.go2dct.values())
+        prt.write("{SEP}GO TERM REQUIRED FIELDS:\n".format(SEP=sep))
+        self._prt_summary(prt, fld_cnts_go, self.exp_req, self.go2dct.values())
+        flds_seen = flds_seen.difference(self.exp_req)
+        prt.write("{SEP}GO TERM OPTIONAL FIELDS:\n".format(SEP=sep))
+        self._prt_summary(prt, fld_cnts_go, flds_seen, self.go2dct.values())
+        flds_seen = flds_seen.difference(fld_cnts_go.keys())
+        prt.write("{SEP}Typedef FIELDS:\n".format(SEP=sep))
+        fld_cnts_typedef = self._get_cnts_gte1(self.dcts['typedefdct'].values())
+        self._prt_summary(prt, fld_cnts_typedef, flds_seen, self.dcts['typedefdct'])
+        flds_seen = flds_seen.difference(fld_cnts_typedef.keys())
+        assert flds_seen == set(['consider', 'replaced_by']), "UNEXPECTED FIELDS({})".format(
+            flds_seen)
+
+    def _prt_summary(self, prt, fld_cnts, prt_flds, dcts):
+        prt.write("\n    These fields appear at least once\n")
         # Ex: 28,951 of 44,948 (64%) GO IDs has field(synonym)
-        for relname, cnt in self._get_cnts_gte1().most_common():
-            self._prt_perc(cnt, relname, prt)
-        prt.write("\nMaximum number of fields on a GO term:\n")
-        for fld, maxqty in sorted(self._get_cnts_max().items(), key=lambda t: t[1]):
-            prt.write("    {MAX:3} {MRK} {FLD}\n".format(
-                MAX=maxqty, MRK=self._get_fldmrk(fld), FLD=fld))
+        for relname, cnt in fld_cnts.most_common():
+            if prt_flds is None or relname in prt_flds:
+                self._prt_perc(cnt, relname, len(dcts), prt)
+        prt.write("\n    Maximum number of fields:\n")
+        for fld, maxqty in sorted(self._get_cnts_max(dcts).items(), key=lambda t: t[1]):
+            if prt_flds is None or fld in prt_flds:
+                prt.write("        {MAX:3} {MRK} {FLD}\n".format(
+                    MAX=maxqty, MRK=self._get_fldmrk(fld), FLD=fld))
 
     def _chk_parents(self):
         """Check parents."""
@@ -204,7 +222,7 @@ class OptionalAttrs(object):
     def _get_fldmrk(self, fld):
         """Get a mark for each field indicating if it is required or optional"""
         #pylint: disable=too-many-return-statements
-        if fld in self.attrs_req:
+        if fld in self.exp_req:
             return 'REQ'
         if fld == 'def':
             return 'str'
@@ -220,26 +238,29 @@ class OptionalAttrs(object):
             return 'xrf'
         raise RuntimeError("UNEXPECTED FIELD({})".format(fld))
 
-    def _prt_perc(self, num_rel, name, prt=sys.stdout):
+    @staticmethod
+    def _prt_perc(num_rel, name, num_tot, prt=sys.stdout):
         """Print percentage of GO IDs that have a specific relationship."""
-        prt.write("    {N:6,} of {M:,} ({P:3.0f}%) GO IDs has field({A})\n".format(
-            N=num_rel, M=self.num_tot, P=float(num_rel)/self.num_tot*100, A=name))
+        prt.write("        {N:6,} of {M:,} ({P:3.0f}%) GO IDs has field({A})\n".format(
+            N=num_rel, M=num_tot, P=float(num_rel)/num_tot*100, A=name))
 
-    def _get_cnts_max(self):
+    def _get_cnts_max(self, dcts):
         """Get the maximum count of times a specific relationship was seen on a GO."""
         fld2qtys = cx.defaultdict(set)
         flds = self.dcts['flds']
-        for recdct in self.go2dct.values():
+        # for recdct in self.go2dct.values():
+        for recdct in dcts:
             for opt in flds:
                 if opt in recdct:
                     fld2qtys[opt].add(len(recdct[opt]))
         return {f:max(qtys) for f, qtys in fld2qtys.items()}
 
-    def _get_cnts_gte1(self):
+    def _get_cnts_gte1(self, record_dicts):
         """Get counts of if a specific relationship was seen on a GO."""
         ctr = cx.Counter()
         flds = self.dcts['flds']
-        for recdct in self.go2dct.values():
+        # for recdct in self.go2dct.values():
+        for recdct in record_dicts:
             for opt in flds:
                 if opt in recdct:
                     ctr[opt] += 1
@@ -289,13 +310,16 @@ class OptionalAttrs(object):
             rel2gos[rel].add(goid)
         return rel2gos
 
+    # pylint: disable=too-many-branches
     def _init_go2dct(self):
         """Create EXPECTED RESULTS stored in a dict of GO fields."""
         go2dct = {}
+        # pylint: disable=unsubscriptable-object
         typedefdct = {}
         flds = set()
         with open(self.obo) as ifstrm:
             rec = {}
+            rec_typedef = None
             for line in ifstrm:
                 line = line.rstrip()
                 # End of GO record
@@ -306,6 +330,11 @@ class OptionalAttrs(object):
                             rec['defn'] = rec['def']
                         go2dct[rec['GO']] = rec
                     rec = {}
+                    if rec_typedef is not None:
+                        typedefdct[rec_typedef['id']] = rec_typedef
+                        rec_typedef = None
+                elif line[:9] == "[Typedef]":
+                    rec_typedef = {}
                 else:
                     mtch = self.cmpfld.match(line)
                     if mtch:
@@ -315,7 +344,8 @@ class OptionalAttrs(object):
                         # Beginning of GO record
                         if fld == "id":
                             assert not rec, "NOW({}) WAS({})".format(line, rec)
-                            rec = {'GO':val}
+                            rec = {'GO':val, 'id':val}
+                            flds.add(fld)
                         # Middle of GO record
                         elif rec:
                             flds.add(fld)
@@ -327,6 +357,10 @@ class OptionalAttrs(object):
                                 val = val[:loc]
                             # Add value
                             rec[fld].add(val)
+
+                        if rec_typedef is not None:
+                            rec_typedef[fld] = val
+
         for dct in go2dct.values():
             if 'def' in dct:
                 dct['defn'] = dct['def']
