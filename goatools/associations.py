@@ -247,7 +247,7 @@ def read_annotations(**kws):
     return gene2gos
 
 def get_tcntobj(go2obj, **kws):
-    """Return a TermCounts object if the user provides an annotation file."""
+    """Return a TermCounts object if the user provides an annotation file, otherwise None."""
     # kws: gaf gene2go
     annots = read_annotations(**kws)
     if annots:
