@@ -10,7 +10,7 @@ import collections as cx
 class OboOptionalAttrs(object):
     """Manage optional GO-DAG attributes."""
 
-    relationships = set(['part_of', 'regulates', 'negatively_regulates', 'positively_regulates'])
+    attributes = set(['def', 'defn', 'synonym', 'relationship', 'xref', 'subset', 'comment']) 
 
     def __init__(self, optional_attrs):
         assert optional_attrs
@@ -25,6 +25,7 @@ class OboOptionalAttrs(object):
             rec.defn = line[5:]
         elif 'synonym' in self.optional_attrs and line[:9] == "synonym: ":
             rec.synonym.append(self._get_synonym(line[9:]))
+        # http://geneontology.org/page/ontology-relations
         elif 'relationship' in self.optional_attrs and line[:14] == "relationship: ":
             # relationships are stored in a dict of sets, mirroring
             # the structure implied in the GO DAG. Example:
