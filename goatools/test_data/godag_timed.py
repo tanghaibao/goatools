@@ -21,12 +21,8 @@ class GoDagTimed(object):
         self.opt = opt_field  # None causes all fields to read to exp dict
         self.obo = fin_obo
         self._init_dnld_dag()
-        self.go2obj = self._init_go2obj(keep_alt_ids)
-
-    def _init_go2obj(self, keep_alt_ids):
-        """GO DAG with or without alternate GO IDs."""
-        go2obj = self.load_dag(self.opt)
-        return go2obj if keep_alt_ids else {o.id:o for o in go2obj.values()}
+        self.godag = self.load_dag(self.opt)
+        self.go2obj = self.godag if keep_alt_ids else {o.id:o for o in self.godag.values()}
 
     def _init_dnld_dag(self):
         """If dag does not exist, download it."""
