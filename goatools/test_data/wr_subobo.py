@@ -16,6 +16,8 @@ import sys
 from goatools.obo_parser import GODag
 from goatools.godag.go_tasks import CurNHigher
 
+
+# pylint: disable=too-few-public-methods
 class WrSubObo(object):
     """Read a large GO-DAG from an obo file. Write a subset GO-DAG into a small obo file."""
 
@@ -37,6 +39,8 @@ class WrSubObo(object):
                         if line[:6] == "[Term]":
                             b_trm = True
                             b_prt = False
+                        elif line[:6] == "[Typedef]":
+                            b_prt = True
                     else:
                         if line[:6] == 'id: GO':
                             b_trm = False
@@ -52,14 +56,18 @@ class WrSubObo(object):
         go2obj_user = {}
         objrel = CurNHigher(self.relationships, self.godag)
         objrel.get_go2obj_cur_n_high(go2obj_user, go_sources)
-        return set(go2obj_user)
+        goids = set(go2obj_user)
+        for goterm in go2obj_user.values():
+            if goterm.alt_ids:
+                goids.update(goterm.alt_ids)
+        return goids
 
     def _prt_info(self, prt, goid_sources, goids_all):
         """Print information describing how this obo setset was created."""
-        prt.write("Contains {N} GO IDs. Created using {M} GO sources:\n".format(
+        prt.write("! Contains {N} GO IDs. Created using {M} GO sources:\n".format(
             N=len(goids_all), M=len(goid_sources)))
         for goid in goid_sources:
-            prt.write("    {GO}\n".format(GO=str(self.godag.get(goid, ""))))
+            prt.write("!    {GO}\n".format(GO=str(self.godag.get(goid, ""))))
         prt.write("\n")
 
 

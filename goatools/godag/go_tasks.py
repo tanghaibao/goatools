@@ -69,23 +69,18 @@ class CurNHigher(object):
     def get_go2obj_cur_n_high(self, go2obj_user, go_sources):
         """Get go2obj containing: go_srcs and parents."""
         if not self.relationships:
-            self._get_go2obj_high_r0(go2obj_user, go_sources)
+            self._get_go2obj_high(go2obj_user, go_sources, self.fill_parentgoid2obj_r0)
         else:
-            self._get_go2obj_high_r1(go2obj_user, go_sources)
+            self._get_go2obj_high(go2obj_user, go_sources, self.fill_parentgoid2obj_r1)
 
-    def _get_go2obj_high_r0(self, go2obj_user, go_sources):
+    def _get_go2obj_high(self, go2obj_user, go_sources, fnc_fill):
         """Get go2obj containing: go_srcs and parents."""
         for goid_user in go_sources:
             goobj_user = self.go2obj_all[goid_user]
-            self.fill_parentgoid2obj_r0(go2obj_user, goobj_user)
+            fnc_fill(go2obj_user, goobj_user)
             go2obj_user[goobj_user.id] = goobj_user
-
-    def _get_go2obj_high_r1(self, go2obj_user, go_sources):
-        """Get go2obj containing: go_srcs and parents/relationships."""
-        for goid_user in go_sources:
-            goobj_user = self.go2obj_all[goid_user]
-            self.fill_parentgoid2obj_r1(go2obj_user, goobj_user)
-            go2obj_user[goobj_user.id] = goobj_user
+            if goid_user != goobj_user.id:
+                go2obj_user[goid_user] = goobj_user
 
     def fill_parentgoid2obj_r0(self, go2obj, child_obj):
         """Fill go2obj with all parent key GO IDs and their objects."""
