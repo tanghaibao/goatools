@@ -57,5 +57,57 @@ def _get_go2children(goid, goterm, go2children):
     go2children[goid] = child_goids
     return child_goids
 
+# ------------------------------------------------------------------------------------
+class CurNHigher(object):
+    """Fill go2obj with GO IDs in relatinships."""
+
+    def __init__(self, relationships, go2obj_all):
+        # True or A set of relationships we would like to keep
+        self.relationships = relationships
+        self.go2obj_all = go2obj_all
+
+    def get_go2obj_cur_n_high(self, go2obj_user, go_sources):
+        """Get go2obj containing: go_srcs and parents."""
+        if not self.relationships:
+            self._get_go2obj_high_r0(go2obj_user, go_sources)
+        else:
+            self._get_go2obj_high_r1(go2obj_user, go_sources)
+
+    def _get_go2obj_high_r0(self, go2obj_user, go_sources):
+        """Get go2obj containing: go_srcs and parents."""
+        for goid_user in go_sources:
+            goobj_user = self.go2obj_all[goid_user]
+            self.fill_parentgoid2obj_r0(go2obj_user, goobj_user)
+            go2obj_user[goobj_user.id] = goobj_user
+
+    def _get_go2obj_high_r1(self, go2obj_user, go_sources):
+        """Get go2obj containing: go_srcs and parents/relationships."""
+        for goid_user in go_sources:
+            goobj_user = self.go2obj_all[goid_user]
+            self.fill_parentgoid2obj_r1(go2obj_user, goobj_user)
+            go2obj_user[goobj_user.id] = goobj_user
+
+    def fill_parentgoid2obj_r0(self, go2obj, child_obj):
+        """Fill go2obj with all parent key GO IDs and their objects."""
+        for parent_obj in child_obj.parents:
+            if parent_obj.id not in go2obj:
+                go2obj[parent_obj.id] = parent_obj
+                self.fill_parentgoid2obj_r0(go2obj, parent_obj)
+
+    def fill_parentgoid2obj_r1(self, go2obj_user, child_obj):
+        """Fill go2obj_user with all parent/relationship key GO IDs and their objects."""
+        for higher_obj in self._getobjs_higher(child_obj):
+            if higher_obj.id not in go2obj_user:
+                go2obj_user[higher_obj.id] = higher_obj
+                self.fill_parentgoid2obj_r1(go2obj_user, higher_obj)
+
+    def _getobjs_higher(self, goobj):
+        """Get all parents/relationships on this GOTerm."""
+        goobjs_higher = set(goobj.parents)
+        for reltyp, relgoobjs in goobj.relationship.items():
+            if self.relationships is True or reltyp in self.relationships:
+                goobjs_higher.update(relgoobjs)
+        return goobjs_higher
+
 
 # Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved.
