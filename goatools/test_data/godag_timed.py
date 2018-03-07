@@ -39,7 +39,7 @@ class GoDagTimed(object):
         sys.stdout.write(msg)
         return dag
 
-def prt_hms(prt, tic, msg):
+def prt_hms(tic, msg, prt=sys.stdout):
     """Print elapsed time including Hours, Minutes, and seconds with a user message."""
     hms = str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))
     prt.write("{HMS}: {MSG}\n".format(HMS=hms, MSG=msg))

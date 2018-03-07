@@ -26,10 +26,10 @@ def test_get_children(prt=sys.stdout):
     go2children_orig = {}
     for goobj in go2obj.values():
         go2children_orig[goobj.id] = goobj.get_all_children()
-    tic = prt_hms(prt, tic, "Get all goobj's children using GOTerm.get_all_children()")
+    tic = prt_hms(tic, "Get all goobj's children using GOTerm.get_all_children()", prt)
     # Get all children for all GO IDs using GOTerm get_all_children
     go2children_fast = get_go2children(go2obj.values())
-    prt_hms(prt, tic, "Get all goobj's children using go_tasks::get_go3children")
+    prt_hms(tic, "Get all goobj's children using go_tasks::get_go3children", prt)
     # Compare children lists
     _chk_a2bset(go2children_orig, go2children_fast)
 

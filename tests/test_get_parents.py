@@ -26,10 +26,10 @@ def test_get_parent(prt=sys.stdout):
     go2parents_orig = {}
     for goobj in go2obj.values():
         go2parents_orig[goobj.id] = goobj.get_all_parents()
-    tic = prt_hms(prt, tic, "Get all goobj's parents using GOTerm.get_all_parents()")
+    tic = prt_hms(tic, "Get all goobj's parents using GOTerm.get_all_parents()", prt)
     # Get all parents for all GO IDs using GOTerm get_all_parents
     go2parents_fast = get_go2parents(go2obj.values())
-    prt_hms(prt, tic, "Get all goobj's parents using go_tasks::get_go2parents")
+    prt_hms(tic, "Get all goobj's parents using go_tasks::get_go2parents", prt)
     # Compare parent lists
     _chk_a2bset(go2parents_orig, go2parents_fast)
     print("PASSED: get_parent test")

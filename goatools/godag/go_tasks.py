@@ -1,4 +1,4 @@
-"""GO-DAG tasks."""
+src/tests/test_dcnt_r01.py"""GO-DAG tasks."""
 
 __copyright__ = "Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
@@ -59,7 +59,7 @@ def _get_go2children(goid, goterm, go2children):
 
 # ------------------------------------------------------------------------------------
 class CurNHigher(object):
-    """Fill go2obj with GO IDs in relatinships."""
+    """Fill go2obj with GO IDs in relationships."""
 
     def __init__(self, relationships, go2obj_all):
         # True or A set of relationships we would like to keep
