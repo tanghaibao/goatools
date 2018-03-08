@@ -8,15 +8,29 @@ def get_go2parents(goterms):
     """Get all parent GO IDs for each GO in dict keys."""
     go2parents = {}
     for goterm in goterms:
-        _get_go2parents(goterm.id, goterm, go2parents)
+        _get_go2parents(go2parents, goterm.id, goterm)
     return go2parents
 
 def get_go2children(goterms):
     """Get all parent GO IDs for each GO in dict keys."""
     go2children = {}
     for goterm in goterms:
-        _get_go2children(goterm.id, goterm, go2children)
+        _get_go2children(go2children, goterm.id, goterm)
     return go2children
+
+def get_go2upper(goterms):
+    """Get all parent GO IDs for each GO in dict keys."""
+    go2upper = {}
+    for goterm in goterms:
+        _get_go2upper(go2upper, goterm.id, goterm)
+    return go2upper
+
+def get_go2lower(goterms):
+    """Get all parent GO IDs for each GO in dict keys."""
+    go2lower = {}
+    for goterm in goterms:
+        _get_go2lower(go2lower, goterm.id, goterm)
+    return go2lower
 
 def get_relationship_targets(goids, relationships, go2rec):
     """Get GO ID set of GO IDs in a relationship target set."""
@@ -33,7 +47,7 @@ def get_relationship_targets(goids, relationships, go2rec):
     return reltgt_goterms_all
 
 # ------------------------------------------------------------------------------------
-def _get_go2parents(goid, goterm, go2parents):
+def _get_go2parents(go2parents, goid, goterm):
     """Add the parent GO IDs for one GO term and their parents."""
     if goid in go2parents:
         return go2parents[goid]
@@ -41,11 +55,11 @@ def _get_go2parents(goid, goterm, go2parents):
     for parent_goterm in goterm.parents:
         parent_goid = parent_goterm.id
         parent_goids.add(parent_goid)
-        parent_goids |= _get_go2parents(parent_goid, parent_goterm, go2parents)
+        parent_goids |= _get_go2parents(go2parents, parent_goid, parent_goterm)
     go2parents[goid] = parent_goids
     return parent_goids
 
-def _get_go2children(goid, goterm, go2children):
+def _get_go2children(go2children, goid, goterm):
     """Add the child GO IDs for one GO term and their children."""
     if goid in go2children:
         return go2children[goid]
@@ -53,9 +67,33 @@ def _get_go2children(goid, goterm, go2children):
     for child_goterm in goterm.children:
         child_goid = child_goterm.id
         child_goids.add(child_goid)
-        child_goids |= _get_go2children(child_goid, child_goterm, go2children)
+        child_goids |= _get_go2children(go2children, child_goid, child_goterm)
     go2children[goid] = child_goids
     return child_goids
+
+def _get_go2upper(go2upper, goid, goterm):
+    """Add the parent GO IDs for one GO term and their upper."""
+    if goid in go2upper:
+        return go2upper[goid]
+    upper_goids = set()
+    for upper_goterm in goterm.get_goterms_upper():
+        upper_goid = upper_goterm.id
+        upper_goids.add(upper_goid)
+        upper_goids |= _get_go2upper(go2upper, upper_goid, upper_goterm)
+    go2upper[goid] = upper_goids
+    return upper_goids
+
+def _get_go2lower(go2lower, goid, goterm):
+    """Add the lower GO IDs for one GO term and their lowerren."""
+    if goid in go2lower:
+        return go2lower[goid]
+    lower_goids = set()
+    for lower_goterm in goterm.get_goterms_lower():
+        lower_goid = lower_goterm.id
+        lower_goids.add(lower_goid)
+        lower_goids |= _get_go2lower(go2lower, lower_goid, lower_goterm)
+    go2lower[goid] = lower_goids
+    return lower_goids
 
 # ------------------------------------------------------------------------------------
 class CurNHigher(object):

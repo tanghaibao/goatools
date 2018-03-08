@@ -232,6 +232,19 @@ class GOTerm(object):
             all_child_edges |= parent.get_all_child_edges()
         return all_child_edges
 
+    def get_goterms_upper(self):
+        """Returns a set containing parents and relationship GO Terms."""
+        # Requires GODag is created with 'relationship' in optional_attrs argument
+        # pylint: disable=no-member
+        return set.union(self.parents, *self.relationship.values())
+
+    def get_goterms_lower(self):
+        """Returns a set containing children and reverse-relationship GO Terms."""
+        # Requires GODag is created with 'relationship' in optional_attrs argument
+        # pylint: disable=no-member
+        return set.union(self.children, *self.relationship_rev.values())
+
+
     def write_hier_rec(self, gos_printed, out=sys.stdout,
                        len_dash=1, max_depth=None, num_child=None, short_prt=False,
                        include_only=None, go_marks=None,
@@ -319,7 +332,7 @@ class GODag(dict):
         if reader.optobj:
             desc = "{D}; optional_attrs({A})\n".format(D=desc, A=" ".join(sorted(reader.optobj.optional_attrs)))
         return desc
-        
+
 
     def _populate_terms(self, optobj):
         """Convert GO IDs to GO Term record objects. Populate children."""

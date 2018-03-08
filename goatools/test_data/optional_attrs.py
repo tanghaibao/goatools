@@ -8,8 +8,10 @@ __author__ = "DV Klopfenstein"
 import os
 import sys
 import re
+import timeit
 import collections as cx
 from goatools.test_data.godag_timed import GoDagTimed
+from goatools.test_data.godag_timed import prt_hms
 
 
 class OptionalAttrs(object):
@@ -42,6 +44,47 @@ class OptionalAttrs(object):
         self._set_exp_children()
         self._chk_children()
 
+    def chk_get_goterms_upper(self):
+        """Check that GOTerm's 'get_upper' returns parents and relationships."""
+        tic = timeit.default_timer()
+        for goterm in self.go2obj.values():
+            goids_act = set(o.id for o in goterm.get_goterms_upper())
+            goids_exp = self._get_goterms_upper(goterm.id)
+            assert goids_act == goids_exp
+        prt_hms(tic, "get_goterms_upper")
+
+    def chk_get_goterms_lower(self):
+        """Check that GOTerm's 'get_lower' returns parents and relationships."""
+        tic = timeit.default_timer()
+        for goterm in self.go2obj.values():
+            goids_act = set(o.id for o in goterm.get_goterms_lower())
+            goids_exp = self._get_goterms_lower(goterm.id)
+            assert goids_act == goids_exp, "{GO} EXP({E}) ACT({A})".format(
+                GO=goterm.id, E=goids_exp, A=goids_act)
+        prt_hms(tic, "get_goterms_lower")
+
+    def _get_goterms_upper(self, goid):
+        """Get expected GO IDs returned by GOTerm's 'get_goterms_upper'."""
+        goids_exp = set()
+        dct = self.go2dct[goid]
+        if 'is_a' in dct:
+            goids_exp.update(dct['is_a'])
+        if 'relationship' in dct:
+            for rel_go in dct['relationship']:
+                goids_exp.add(rel_go.split()[1])
+        return goids_exp
+
+    def _get_goterms_lower(self, goid):
+        """Get expected GO IDs returned by GOTerm's 'get_goterms_lower'."""
+        goids_exp = set()
+        dct = self.go2dct[goid]
+        if 'is_a_rev' in dct:
+            goids_exp.update(dct['is_a_rev'])
+        if 'relationship_rev' in dct:
+            for rel_gos in dct['relationship_rev'].values():
+                goids_exp.update(rel_gos)
+        return goids_exp
+
     def chk_relationships_rev(self, reltype='part_of', prt=None):
         """Check reciprocal relationships. Print all GO pairs in one type of relationship."""
         spc = " "*len(reltype)
@@ -50,6 +93,7 @@ class OptionalAttrs(object):
             reldct = rec.relationship
             if reltype in reldct:
                 if prt is not None:
+
                     prt.write("{SPC} {GO}\n".format(SPC=spc, GO=str(rec)))
                 for related_to in reldct[reltype]:
                     rec2revs[related_to].add(rec)
@@ -310,6 +354,30 @@ class OptionalAttrs(object):
             rel2gos[rel].add(goid)
         return rel2gos
 
+    @staticmethod
+    def add_is_a_rev(go2dct):
+        """If there 'is_a' exists, add 'is_a_rev'."""
+        for go_src, dct in go2dct.items():
+            if 'is_a' in dct:
+                for go_parent in dct['is_a']:
+                    if 'is_a_rev' not in go2dct[go_parent]:
+                        go2dct[go_parent]['is_a_rev'] = set()
+                    go2dct[go_parent]['is_a_rev'].add(go_src)
+
+    @staticmethod
+    def add_relationship_rev(go2dct):
+        """If there is a relationship, add 'relationship_rev'."""
+        for go_src, dct in go2dct.items():
+            if 'relationship' in dct:
+                for rel in dct['relationship']:
+                    reltype, go_dst = rel.split()
+                    # print("RRRRRRRRR", go_src, reltype, go_dst)
+                    if 'relationship_rev' not in go2dct[go_dst]:
+                        go2dct[go_dst]['relationship_rev'] = {}
+                    if reltype not in go2dct[go_dst]['relationship_rev']:
+                        go2dct[go_dst]['relationship_rev'][reltype] = set()
+                    go2dct[go_dst]['relationship_rev'][reltype].add(go_src)
+
     # pylint: disable=too-many-branches
     def _init_go2dct(self):
         """Create EXPECTED RESULTS stored in a dict of GO fields."""
@@ -364,6 +432,8 @@ class OptionalAttrs(object):
         for dct in go2dct.values():
             if 'def' in dct:
                 dct['defn'] = dct['def']
+        self.add_relationship_rev(go2dct)
+        self.add_is_a_rev(go2dct)
         return {'go2dct':go2dct, 'typedefdct':typedefdct, 'flds':flds}
 
 
