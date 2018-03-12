@@ -142,11 +142,11 @@ def gunzip(gzip_file, file_gunzip=None):
         gzip_open_to(gzip_file, file_gunzip)
         return file_gunzip
 
-def get_godag(fin_obo="go-basic.obo", prt=sys.stdout, loading_bar=True):
+def get_godag(fin_obo="go-basic.obo", prt=sys.stdout, loading_bar=True, optional_attrs=None):
     """Return GODag object. Initialize, if necessary."""
     from goatools.obo_parser import GODag
     download_go_basic_obo(fin_obo, prt, loading_bar)
-    return GODag(fin_obo)
+    return GODag(fin_obo, optional_attrs)
 
 def get_gaf_name(species):
     """Given a species (eg goa_human, mgi, fb), return filename of GAF file."""
