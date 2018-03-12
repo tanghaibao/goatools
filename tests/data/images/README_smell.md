@@ -1,11 +1,11 @@
 # smell.obo
-Figures showing the "smell" obo subset used for testing.
+Figures showing an obo subset which contains GO terms related to 'smell' and used for testing.
 
-  * [Smell without relationships loaded](smell-without-relationships-loaded)    
-    go_plot --obo=tests/data/smell.obo -o tests/data/images/smell_r0.png
+  * [**'Smell' GO terms without relationships loaded**](#smell-without-relationships-loaded)    
+    % go_plot --obo=tests/data/smell.obo -o tests/data/images/smell_r0.png
 
-  * [Smell with relationships loaded](smell-with-relationships-loaded)    
-    go_plot --obo=tests/data/smell.obo -o tests/data/images/smell_r1.png -r
+  * [**'Smell' GO terms with relationships loaded**](#smell-with-relationships-loaded)    
+    % go_plot --obo=tests/data/smell.obo -o tests/data/images/smell_r1.png -r
 
 
 ## Smell without relationships loaded
