@@ -1,0 +1,224 @@
+! Contains 20 GO IDs. Created using 2 GO sources:
+!    GO:0050911	level-05	depth-05	detection of chemical stimulus involved in sensory perception of smell [biological_process]
+!    GO:0007608	level-06	depth-06	sensory perception of smell [biological_process]
+
+format-version: 1.2
+data-version: releases/2018-03-02
+subsetdef: goantislim_grouping "Grouping classes that can be excluded"
+subsetdef: gocheck_do_not_annotate "Term not to be used for direct annotation"
+subsetdef: gocheck_do_not_manually_annotate "Term not to be used for direct manual annotation"
+subsetdef: goslim_agr "AGR slim"
+subsetdef: goslim_aspergillus "Aspergillus GO slim"
+subsetdef: goslim_candida "Candida GO slim"
+subsetdef: goslim_chembl "ChEMBL protein targets summary"
+subsetdef: goslim_generic "Generic GO slim"
+subsetdef: goslim_goa "GOA and proteome slim"
+subsetdef: goslim_metagenomics "Metagenomics GO slim"
+subsetdef: goslim_mouse "Mouse GO slim"
+subsetdef: goslim_pir "PIR GO slim"
+subsetdef: goslim_plant "Plant GO slim"
+subsetdef: goslim_pombe "Fission yeast GO slim"
+subsetdef: goslim_synapse "synapse GO slim"
+subsetdef: goslim_virus "Viral GO slim"
+subsetdef: goslim_yeast "Yeast GO slim"
+subsetdef: gosubset_prok "Prokaryotic GO subset"
+subsetdef: mf_needs_review "Catalytic activity terms in need of attention"
+subsetdef: termgenie_unvetted "Terms created by TermGenie that do not follow a template and require additional vetting by editors"
+subsetdef: virus_checked "Viral overhaul terms"
+synonymtypedef: syngo_official_label "label approved by the SynGO project"
+synonymtypedef: systematic_synonym "Systematic synonym" EXACT
+default-namespace: gene_ontology
+remark: cvs version: use data-version
+remark: Includes Ontology(OntologyID(Anonymous-35)) [Axioms: 228 Logical Axioms: 226]
+remark: Includes Ontology(OntologyID(OntologyIRI(<http://purl.obolibrary.org/obo/go/never_in_taxon.owl>))) [Axioms: 18 Logical Axioms: 0]
+ontology: go
+
+[Term]
+id: GO:0003008
+name: system process
+namespace: biological_process
+def: "A multicellular organismal process carried out by any of the organs or tissues in an organ system. An organ system is a regularly interacting or interdependent group of organs or tissues that work together to carry out a biological objective." [GOC:mtg_cardio]
+synonym: "organ system process" EXACT []
+is_a: GO:0032501 ! multicellular organismal process
+
+[Term]
+id: GO:0007600
+name: sensory perception
+namespace: biological_process
+def: "The series of events required for an organism to receive a sensory stimulus, convert it to a molecular signal, and recognize and characterize the signal. This is a neurological process." [GOC:ai, GOC:dph]
+xref: Wikipedia:Perception
+is_a: GO:0050877 ! nervous system process
+
+[Term]
+id: GO:0007606
+name: sensory perception of chemical stimulus
+namespace: biological_process
+def: "The series of events required for an organism to receive a sensory chemical stimulus, convert it to a molecular signal, and recognize and characterize the signal. This is a neurological process." [GOC:ai]
+synonym: "chemosensory perception" EXACT []
+is_a: GO:0007600 ! sensory perception
+
+[Term]
+id: GO:0007608
+name: sensory perception of smell
+namespace: biological_process
+def: "The series of events required for an organism to receive an olfactory stimulus, convert it to a molecular signal, and recognize and characterize the signal. Olfaction involves the detection of chemical composition of an organism's ambient medium by chemoreceptors. This is a neurological process." [GOC:ai, http://www.onelook.com/]
+synonym: "olfaction" EXACT []
+synonym: "scent perception" EXACT []
+synonym: "sense of smell" EXACT []
+synonym: "smell perception" EXACT []
+xref: Wikipedia:Olfaction
+is_a: GO:0007606 ! sensory perception of chemical stimulus
+
+[Term]
+id: GO:0008150
+name: biological_process
+namespace: biological_process
+alt_id: GO:0000004
+alt_id: GO:0007582
+alt_id: GO:0044699
+def: "Any process specifically pertinent to the functioning of integrated living units: cells, tissues, organs, and organisms. A process is a collection of molecular events with a defined beginning and end." [GOC:go_curators, GOC:isa_complete]
+comment: Note that, in addition to forming the root of the biological process ontology, this term is recommended for use for the annotation of gene products whose biological process is unknown. Note that when this term is used for annotation, it indicates that no information was available about the biological process of the gene product annotated as of the date the annotation was made; the evidence code ND, no data, is used to indicate this.
+subset: goslim_aspergillus
+subset: goslim_candida
+subset: goslim_chembl
+subset: goslim_generic
+subset: goslim_metagenomics
+subset: goslim_pir
+subset: goslim_plant
+subset: goslim_pombe
+subset: goslim_yeast
+subset: gosubset_prok
+synonym: "biological process" EXACT []
+synonym: "physiological process" EXACT []
+synonym: "single organism process" RELATED []
+synonym: "single-organism process" RELATED []
+xref: Wikipedia:Biological_process
+
+[Term]
+id: GO:0009593
+name: detection of chemical stimulus
+namespace: biological_process
+def: "The series of events in which a chemical stimulus is received by a cell and converted into a molecular signal." [GOC:jl]
+synonym: "chemoperception" EXACT []
+synonym: "chemoreception" RELATED []
+synonym: "detection of chemical substance" EXACT []
+synonym: "perception of chemical stimulus" RELATED []
+synonym: "perception of chemical substance" RELATED []
+is_a: GO:0051606 ! detection of stimulus
+relationship: part_of GO:0042221 ! response to chemical
+
+[Term]
+id: GO:0032501
+name: multicellular organismal process
+namespace: biological_process
+alt_id: GO:0044707
+alt_id: GO:0050874
+def: "Any biological process, occurring at the level of a multicellular organism, pertinent to its function." [GOC:curators, GOC:dph, GOC:isa_complete, GOC:tb]
+subset: goslim_pir
+synonym: "organismal physiological process" EXACT []
+synonym: "single-multicellular organism process" RELATED []
+is_a: GO:0008150 ! biological_process
+
+[Term]
+id: GO:0042221
+name: response to chemical
+namespace: biological_process
+def: "Any process that results in a change in state or activity of a cell or an organism (in terms of movement, secretion, enzyme production, gene expression, etc.) as a result of a chemical stimulus." [GOC:jl]
+comment: Note that this term is in the subset of terms that should not be used for direct gene product annotation. Instead, select a child term or, if no appropriate child term exists, please request a new term. Direct annotations to this term may be amended during annotation QC.
+subset: gocheck_do_not_manually_annotate
+subset: goslim_aspergillus
+subset: goslim_candida
+subset: goslim_metagenomics
+subset: goslim_yeast
+subset: gosubset_prok
+synonym: "response to chemical stimulus" EXACT [GOC:dos]
+synonym: "response to chemical substance" EXACT []
+is_a: GO:0050896 ! response to stimulus
+
+[Term]
+id: GO:0050877
+name: nervous system process
+namespace: biological_process
+def: "A organ system process carried out by any of the organs or tissues of neurological system." [GOC:ai, GOC:mtg_cardio]
+comment: Discussion of class label and synonyms: https://github.com/geneontology/go-ontology/issues/13824
+subset: goslim_agr
+subset: goslim_chembl
+subset: goslim_generic
+subset: goslim_pir
+synonym: "neurological system process" EXACT []
+synonym: "neurophysiological process" EXACT []
+synonym: "pan-neural process" RELATED []
+is_a: GO:0003008 ! system process
+
+[Term]
+id: GO:0050896
+name: response to stimulus
+namespace: biological_process
+alt_id: GO:0051869
+def: "Any process that results in a change in state or activity of a cell or an organism (in terms of movement, secretion, enzyme production, gene expression, etc.) as a result of a stimulus. The process begins with detection of the stimulus and ends with a change in state or activity or the cell or organism." [GOC:ai, GOC:bf]
+comment: Note that this term is in the subset of terms that should not be used for direct gene product annotation. Instead, select a child term or, if no appropriate child term exists, please request a new term. Direct annotations to this term may be amended during annotation QC.
+subset: gocheck_do_not_manually_annotate
+subset: goslim_agr
+subset: goslim_mouse
+subset: goslim_pir
+subset: gosubset_prok
+synonym: "physiological response to stimulus" EXACT []
+is_a: GO:0008150 ! biological_process
+
+[Term]
+id: GO:0050906
+name: detection of stimulus involved in sensory perception
+namespace: biological_process
+def: "The series of events involved in sensory perception in which a sensory stimulus is received and converted into a molecular signal." [GOC:ai, GOC:dos, GOC:dph]
+synonym: "sensory detection of stimulus" EXACT []
+synonym: "sensory perception, sensory transduction of stimulus" EXACT []
+synonym: "sensory perception, stimulus detection" EXACT []
+synonym: "sensory transduction" EXACT []
+xref: Wikipedia:Transduction_(physiology)
+is_a: GO:0051606 ! detection of stimulus
+relationship: part_of GO:0007600 ! sensory perception
+
+[Term]
+id: GO:0050907
+name: detection of chemical stimulus involved in sensory perception
+namespace: biological_process
+def: "The series of events in which a chemical stimulus is received and converted into a molecular signal as part of sensory perception." [GOC:ai, GOC:dos]
+synonym: "sensory detection of chemical stimulus" EXACT []
+synonym: "sensory detection of chemical stimulus during sensory perception" EXACT []
+synonym: "sensory perception, sensory detection of chemical stimulus" EXACT []
+synonym: "sensory perception, sensory transduction of chemical stimulus" EXACT []
+synonym: "sensory transduction of chemical stimulus" EXACT []
+synonym: "sensory transduction of chemical stimulus during sensory perception" EXACT []
+is_a: GO:0009593 ! detection of chemical stimulus
+is_a: GO:0050906 ! detection of stimulus involved in sensory perception
+relationship: part_of GO:0007606 ! sensory perception of chemical stimulus
+
+[Term]
+id: GO:0050911
+name: detection of chemical stimulus involved in sensory perception of smell
+namespace: biological_process
+def: "The series of events involved in the perception of smell in which an olfactory chemical stimulus is received and converted into a molecular signal." [GOC:ai]
+synonym: "perception of smell, detection of chemical stimulus" EXACT []
+synonym: "perception of smell, sensory detection of chemical stimulus" EXACT []
+synonym: "perception of smell, sensory transduction of chemical stimulus" EXACT []
+synonym: "sensory detection of chemical stimulus during perception of smell" EXACT []
+synonym: "sensory detection of scent" EXACT []
+synonym: "sensory detection of smell" EXACT []
+synonym: "sensory transduction of chemical stimulus during perception of smell" EXACT []
+synonym: "sensory transduction of scent" EXACT []
+synonym: "sensory transduction of smell" EXACT []
+is_a: GO:0050907 ! detection of chemical stimulus involved in sensory perception
+relationship: part_of GO:0007608 ! sensory perception of smell
+
+[Term]
+id: GO:0051606
+name: detection of stimulus
+namespace: biological_process
+def: "The series of events in which a stimulus is received by a cell or organism and converted into a molecular signal." [GOC:add, GOC:ai, GOC:dph, GOC:mah]
+subset: goslim_pir
+subset: gosubset_prok
+synonym: "perception of stimulus" RELATED []
+synonym: "stimulus detection" EXACT []
+synonym: "stimulus sensing" RELATED []
+is_a: GO:0050896 ! response to stimulus
+
