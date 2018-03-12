@@ -39,6 +39,7 @@ class GafReader(object):
         hdrobj = GafHdr()
         datobj = None
         lnum = line = -1
+        ignored = []
         try:
             with open(fin_gaf) as ifstrm:
                 for lnum, line in enumerate(ifstrm, 1):
@@ -59,17 +60,36 @@ class GafReader(object):
                         if ntgaf is not None:
                             nts.append(ntgaf)
                         else:
-                            self.prt_ignore_line(fin_gaf, line, lnum)
+                            ignored.append((lnum, line))
         except Exception as inst:
             import traceback
             traceback.print_exc()
             sys.stderr.write("\n  **FATAL in read_gaf: {MSG}\n\n".format(MSG=str(inst)))
             sys.stderr.write("**FATAL: {FIN}[{LNUM}]:\n{L}".format(FIN=fin_gaf, L=line, LNUM=lnum))
+            if datobj is not None:
+                datobj.prt_line_detail(prt, line)
             sys.exit(1)
         # GAF file has been read
-        if prt is not None:
-            prt.write("  READ {N:,} associations: {FIN}\n".format(N=len(nts), FIN=fin_gaf))
+        self._prt_read_summary(prt, fin_gaf, nts, datobj, ignored)
         return self.evobj.sort_nts(nts, 'Evidence_Code')
+
+    def _prt_read_summary(self, prt, fin_gaf, nts, datobj, ignored):
+        """Print a summary about the GAF file that was read."""
+        fout_log = self._prt_ignored_lines(ignored, datobj, fin_gaf) if ignored else None
+        if prt is not None:
+            prt.write("  READ    {N:9,} associations: {FIN}\n".format(N=len(nts), FIN=fin_gaf))
+            if ignored:
+                prt.write("  IGNORED {N:9,} associations: {FIN}\n".format(N=len(ignored), FIN=fout_log))
+
+    def _prt_ignored_lines(self, ignored, datobj, fin_gaf):
+        """Print ignored lines to a log file."""
+        fout_log = "{}.log".format(fin_gaf)
+        with open(fout_log, 'w') as prt:
+            for lnum, line in ignored:
+                self.prt_ignore_line(prt, fin_gaf, line, lnum)
+                datobj.prt_line_detail(prt, line)
+                prt.write("\n")
+        return fout_log
 
     def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print annotation/evidence code summary."""
@@ -85,15 +105,18 @@ class GafReader(object):
         self.evobj.prt_ev_cnts(ctr, prt)
 
     @staticmethod
-    def prt_ignore_line(fin_gaf, line, lnum):
+    def prt_ignore_line(prt, fin_gaf, line, lnum):
         """Print a message saying that we are ignoring an association line."""
-        sys.stderr.write("**WARNING: IGNORED {FIN}[{LNUM}]:\n{L}\n\n".format(
+        prt.write("**WARNING: BADLY FORMATTED LINE. IGNORED {FIN}[{LNUM}]:\n{L}\n".format(
             FIN=os.path.basename(fin_gaf), L=line, LNUM=lnum))
 
 class GafData(object):
     """Extracts GAF fields from a GAF line."""
 
     spec_req1 = [0, 1, 2, 4, 6, 8, 11, 13, 14]
+
+    req_str = ["REQ", "REQ", "REQ", "", "REQ", "REQ", "REQ", "", "REQ", "", "",
+               "REQ", "REQ", "REQ", "REQ", "", ""]
 
     gafhdr = [ #           Col Req?     Cardinality    Example
         #                  --- -------- -------------- -----------------
@@ -137,23 +160,25 @@ class GafData(object):
     def __init__(self, ver, allow_missing_symbol=False):
         self.ver = ver
         self.ntgafobj = cx.namedtuple("ntgafobj", " ".join(self.gaf_columns[ver]))
-        self.exp_ncol = self.gaf_numcol[ver]
         self.req1 = self.spec_req1 if not allow_missing_symbol else [i for i in self.spec_req1 if i != 2]
+        self.exp_mincol = 15  # Last required field is at the 15th column
 
     def get_ntgaf(self, line):
         """Return namedtuple filled with data."""
-        flds = self._split_line(line)
-        return self._get_ntgaf(flds)
+        flds = self.split_line(line)
+        num_flds = len(flds)
+        if num_flds >= self.exp_mincol:
+            return self._get_ntgaf(flds, num_flds)
 
-    def _split_line(self, line):
+    @staticmethod
+    def split_line(line):
         """Split line into field values."""
-        line = line.rstrip('\r\n')
-        flds = re.split('\t', line)
-        assert len(flds) == self.exp_ncol, "EXP {E} COLUMNS, SAW {A}".format(
-            A=len(flds), E=self.exp_ncol)
-        return flds
+        # line = line.rstrip('\r\n')
+        line = re.split('\t', line)
+        line[-1] = line[-1].rstrip('\r\n')
+        return line
 
-    def _get_ntgaf(self, flds):
+    def _get_ntgaf(self, flds, num_flds):
         """Convert fields from string to preferred format for GAF ver 2.1 and 2.0."""
         # Cardinality
         is_set = False
@@ -188,9 +213,17 @@ class GafData(object):
             flds[13]]     # 14 Assigned_By
         # Version 2.x has these additional fields not found in v1.0
         if self.ver[0] == '2':
-            gafvals += [
-                self._rd_fld_vals("Annotation_Extension", flds[15], is_set),
-                self._rd_fld_vals("Gene_Product_Form_ID", flds[16], is_set)]
+            # i=15) Annotation_Extension: optional 0 or greater; Ex: part_of(CL:0000576)
+            if num_flds > 15:
+                gafvals.append(self._rd_fld_vals("Annotation_Extension", flds[15], is_set))
+            else:
+                gafvals.append(None)
+            # i=16) Gene_Product_Form_ID: optional 0 or 1;       Ex: UniProtKB:P12345-2
+            if num_flds > 16:
+                self._prt_line_detail(sys.stdout, flds)
+                gafvals.append(self._rd_fld_vals("Gene_Product_Form_ID", flds[16], is_set))
+            else:
+                gafvals.append(None)
         return self.ntgafobj._make(gafvals)
 
     @staticmethod
@@ -213,14 +246,25 @@ class GafData(object):
         for qual in qualifiers:
             assert qual in self.exp_qualifiers, "UNEXPECTED QUALIFIER({Q})".format(Q=qual)
 
+    def prt_line_detail(self, prt, line):
+        """Print line header and values in a readable format."""
+        values = self.split_line(line)
+        self._prt_line_detail(prt, values)
+
+    def _prt_line_detail(self, prt, values):
+        """Print header and field values in a readable format."""
+        data = zip(self.req_str, self.ntgafobj._fields, values)
+        txt = ["{:2}) {:3} {:13} {}".format(i, req, hdr, val) for i, (req, hdr, val) in enumerate(data)]
+        prt.write("{TXT}\n".format(TXT="\n".join(txt)))
+
     def _chk_qty_eq_1(self, flds):
         """Check that these fields have only one value: required 1."""
         for col in self.req1:
             if not flds[col]:
-                sys.stderr.write("**ERROR: UNEXPECTED REQUIRED VAL({V}) FOR COL({R}):{H}: ".format(
-                    V=flds[col], H=self.gafhdr[col], R=col))
-                sys.stderr.write("{H0}({DB}) {H1}({ID})\n".format(
-                    H0=self.gafhdr[0], DB=flds[0], H1=self.gafhdr[1], ID=flds[1]))
+                # sys.stderr.write("**ERROR: UNEXPECTED REQUIRED VAL({V}) FOR COL({R}):{H}: ".format(
+                #     V=flds[col], H=self.gafhdr[col], R=col))
+                # sys.stderr.write("{H0}({DB}) {H1}({ID})\n".format(
+                #     H0=self.gafhdr[0], DB=flds[0], H1=self.gafhdr[1], ID=flds[1]))
                 return False  # Check failed
         return True  # Check passed
 
