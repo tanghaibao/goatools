@@ -14,6 +14,14 @@ Figures showing a subset of GO terms related to 'secretory.'
 
 ## 'Secretory' GO terms with relationships loaded
 % go_plot --obo=tests/data/secretory.obo -o tests/data/images/secretory_r1.png -r
+
+| Color   | relationship         |
+|---------|----------------------|
+|magenta  | part_of              |
+|purple   | regulates            |
+|red      | positively regulates |
+|blue     | negatively regulates |
+
 ![secretory with relationships](secretory_r1.png)
 
 Copyright (C) 2010-2018. Haibao Tang et al. All rights reserved.
