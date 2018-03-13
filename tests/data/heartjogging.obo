@@ -1,0 +1,371 @@
+! Contains 42 GO IDs. Created using 2 GO sources:
+!    GO:0003304	level-06	depth-06	myocardial epithelial involution involved in heart jogging [biological_process]
+!    GO:0003146	level-05	depth-07	heart jogging [biological_process]
+
+format-version: 1.2
+data-version: releases/2018-03-02
+subsetdef: goantislim_grouping "Grouping classes that can be excluded"
+subsetdef: gocheck_do_not_annotate "Term not to be used for direct annotation"
+subsetdef: gocheck_do_not_manually_annotate "Term not to be used for direct manual annotation"
+subsetdef: goslim_agr "AGR slim"
+subsetdef: goslim_aspergillus "Aspergillus GO slim"
+subsetdef: goslim_candida "Candida GO slim"
+subsetdef: goslim_chembl "ChEMBL protein targets summary"
+subsetdef: goslim_generic "Generic GO slim"
+subsetdef: goslim_goa "GOA and proteome slim"
+subsetdef: goslim_metagenomics "Metagenomics GO slim"
+subsetdef: goslim_mouse "Mouse GO slim"
+subsetdef: goslim_pir "PIR GO slim"
+subsetdef: goslim_plant "Plant GO slim"
+subsetdef: goslim_pombe "Fission yeast GO slim"
+subsetdef: goslim_synapse "synapse GO slim"
+subsetdef: goslim_virus "Viral GO slim"
+subsetdef: goslim_yeast "Yeast GO slim"
+subsetdef: gosubset_prok "Prokaryotic GO subset"
+subsetdef: mf_needs_review "Catalytic activity terms in need of attention"
+subsetdef: termgenie_unvetted "Terms created by TermGenie that do not follow a template and require additional vetting by editors"
+subsetdef: virus_checked "Viral overhaul terms"
+synonymtypedef: syngo_official_label "label approved by the SynGO project"
+synonymtypedef: systematic_synonym "Systematic synonym" EXACT
+default-namespace: gene_ontology
+remark: cvs version: use data-version
+remark: Includes Ontology(OntologyID(Anonymous-35)) [Axioms: 228 Logical Axioms: 226]
+remark: Includes Ontology(OntologyID(OntologyIRI(<http://purl.obolibrary.org/obo/go/never_in_taxon.owl>))) [Axioms: 18 Logical Axioms: 0]
+ontology: go
+
+[Term]
+id: GO:0002009
+name: morphogenesis of an epithelium
+namespace: biological_process
+def: "The process in which the anatomical structures of epithelia are generated and organized. An epithelium consists of closely packed cells arranged in one or more layers, that covers the outer surfaces of the body or lines any internal cavity or tube." [GOC:dph, GOC:jl, GOC:tb, ISBN:0198506732]
+synonym: "epithelium morphogenesis" EXACT []
+is_a: GO:0048729 ! tissue morphogenesis
+relationship: part_of GO:0060429 ! epithelium development
+
+[Term]
+id: GO:0003007
+name: heart morphogenesis
+namespace: biological_process
+def: "The developmental process in which the heart is generated and organized. The heart is a hollow, muscular organ, which, by contracting rhythmically, keeps up the circulation of the blood." [GOC:dph, GOC:isa_complete]
+synonym: "cardiac morphogenesis" RELATED []
+is_a: GO:0009887 ! animal organ morphogenesis
+relationship: part_of GO:0007507 ! heart development
+
+[Term]
+id: GO:0003143
+name: embryonic heart tube morphogenesis
+namespace: biological_process
+def: "The process in which the anatomical structures of the embryonic heart tube are generated and organized. The embryonic heart tube is an epithelial tube that will give rise to the mature heart." [GOC:mtg_heart]
+is_a: GO:0048598 ! embryonic morphogenesis
+is_a: GO:0060562 ! epithelial tube morphogenesis
+relationship: part_of GO:0003007 ! heart morphogenesis
+relationship: part_of GO:0035050 ! embryonic heart tube development
+relationship: part_of GO:0048562 ! embryonic organ morphogenesis
+
+[Term]
+id: GO:0003146
+name: heart jogging
+namespace: biological_process
+def: "The morphogenetic process in which the heart cone is displaced to the left with respect to the vector of the anterior-posterior axis." [GOC:mtg_heart, PMID:9334285]
+synonym: "cardiac jogging" EXACT [GOC:mtg_heart]
+is_a: GO:0003143 ! embryonic heart tube morphogenesis
+relationship: part_of GO:0061371 ! determination of heart left/right asymmetry
+
+[Term]
+id: GO:0003304
+name: myocardial epithelial involution involved in heart jogging
+namespace: biological_process
+def: "The morphogenetic process in which the myocardium bends along a linear axis and contributes to the process of heart jogging." [GOC:mtg_heart]
+is_a: GO:0060571 ! morphogenesis of an epithelial fold
+relationship: part_of GO:0003146 ! heart jogging
+
+[Term]
+id: GO:0007275
+name: multicellular organism development
+namespace: biological_process
+def: "The biological process whose specific outcome is the progression of a multicellular organism over time from an initial condition (e.g. a zygote or a young adult) to a later condition (e.g. a multicellular animal or an aged adult)." [GOC:dph, GOC:ems, GOC:isa_complete, GOC:tb]
+comment: Note that this term was 'developmental process'.
+subset: goslim_chembl
+subset: goslim_plant
+is_a: GO:0032501 ! multicellular organismal process
+is_a: GO:0048856 ! anatomical structure development
+
+[Term]
+id: GO:0007368
+name: determination of left/right symmetry
+namespace: biological_process
+def: "The establishment of an organism's body plan or part of an organism with respect to the left and right halves. The pattern can either be symmetric, such that the halves are mirror images, or asymmetric where the pattern deviates from this symmetry." [GOC:dph, GOC:jid]
+synonym: "determination of left/right asymmetry" EXACT [GOC:dph]
+is_a: GO:0009855 ! determination of bilateral symmetry
+
+[Term]
+id: GO:0007389
+name: pattern specification process
+namespace: biological_process
+def: "Any developmental process that results in the creation of defined areas or spaces within an organism to which cells respond and eventually are instructed to differentiate." [GOC:go_curators, GOC:isa_complete, ISBN:0521436125]
+synonym: "pattern biosynthesis" RELATED []
+synonym: "pattern formation" RELATED []
+is_a: GO:0032501 ! multicellular organismal process
+relationship: part_of GO:0007275 ! multicellular organism development
+
+[Term]
+id: GO:0007507
+name: heart development
+namespace: biological_process
+alt_id: GO:0007511
+def: "The process whose specific outcome is the progression of the heart over time, from its formation to the mature structure. The heart is a hollow, muscular organ, which, by contracting rhythmically, keeps up the circulation of the blood." [GOC:jid, UBERON:0000948]
+synonym: "cardiac development" RELATED []
+synonym: "dorsal vessel development" NARROW []
+xref: Wikipedia:Heart_development
+is_a: GO:0048513 ! animal organ development
+relationship: part_of GO:0072359 ! circulatory system development
+
+[Term]
+id: GO:0008150
+name: biological_process
+namespace: biological_process
+alt_id: GO:0000004
+alt_id: GO:0007582
+alt_id: GO:0044699
+def: "Any process specifically pertinent to the functioning of integrated living units: cells, tissues, organs, and organisms. A process is a collection of molecular events with a defined beginning and end." [GOC:go_curators, GOC:isa_complete]
+comment: Note that, in addition to forming the root of the biological process ontology, this term is recommended for use for the annotation of gene products whose biological process is unknown. Note that when this term is used for annotation, it indicates that no information was available about the biological process of the gene product annotated as of the date the annotation was made; the evidence code ND, no data, is used to indicate this.
+subset: goslim_aspergillus
+subset: goslim_candida
+subset: goslim_chembl
+subset: goslim_generic
+subset: goslim_metagenomics
+subset: goslim_pir
+subset: goslim_plant
+subset: goslim_pombe
+subset: goslim_yeast
+subset: gosubset_prok
+synonym: "biological process" EXACT []
+synonym: "physiological process" EXACT []
+synonym: "single organism process" RELATED []
+synonym: "single-organism process" RELATED []
+xref: Wikipedia:Biological_process
+
+[Term]
+id: GO:0009653
+name: anatomical structure morphogenesis
+namespace: biological_process
+def: "The process in which anatomical structures are generated and organized. Morphogenesis pertains to the creation of form." [GOC:go_curators, ISBN:0521436125]
+subset: goslim_plant
+subset: gosubset_prok
+synonym: "anatomical structure organization" EXACT []
+synonym: "embryogenesis and morphogenesis" BROAD []
+synonym: "morphogenesis" EXACT []
+xref: Wikipedia:Morphogenesis
+is_a: GO:0032502 ! developmental process
+relationship: part_of GO:0048856 ! anatomical structure development
+
+[Term]
+id: GO:0009790
+name: embryo development
+namespace: biological_process
+alt_id: GO:0009795
+def: "The process whose specific outcome is the progression of an embryo from its formation until the end of its embryonic life stage. The end of the embryonic stage is organism-specific. For example, for mammals, the process would begin with zygote formation and end with birth. For insects, the process would begin at zygote formation and end with larval hatching. For plant zygotic embryos, this would be from zygote formation to the end of seed dormancy. For plant vegetative embryos, this would be from the initial determination of the cell or group of cells to form an embryo until the point when the embryo becomes independent of the parent plant." [GOC:go_curators, GOC:isa_complete, GOC:mtg_sensu]
+subset: gocheck_do_not_manually_annotate
+subset: goslim_chembl
+subset: goslim_generic
+subset: goslim_plant
+synonym: "embryogenesis" EXACT []
+synonym: "embryogenesis and morphogenesis" BROAD []
+synonym: "embryonal development" EXACT []
+xref: Wikipedia:Embryogenesis
+is_a: GO:0007275 ! multicellular organism development
+
+[Term]
+id: GO:0009799
+name: specification of symmetry
+namespace: biological_process
+def: "The establishment of an organism's body plan or part of an organism such that a similar arrangement in form and relationship of parts around a common axis, or around each side of a plane is created." [GOC:go_curators]
+synonym: "determination of symmetry" EXACT [GOC:dph]
+is_a: GO:0007389 ! pattern specification process
+
+[Term]
+id: GO:0009855
+name: determination of bilateral symmetry
+namespace: biological_process
+def: "The establishment of an organism's body plan or part of an organism with respect to a single longitudinal plane. The pattern can either be symmetric, such that the halves are mirror images, or asymmetric where the pattern deviates from this symmetry." [GOC:go_curators]
+synonym: "determination of bilateral asymmetry" EXACT [GOC:dph]
+is_a: GO:0009799 ! specification of symmetry
+
+[Term]
+id: GO:0009887
+name: animal organ morphogenesis
+namespace: biological_process
+def: "Morphogenesis of an animal organ. An organ is defined as a tissue or set of tissues that work together to perform a specific function or functions. Morphogenesis is the process in which anatomical structures are generated and organized. Organs are commonly observed as visibly distinct structures, but may also exist as loosely associated clusters of cells that work together to perform a specific function or functions." [GOC:dgh, GOC:go_curators, ISBN:0471245208, ISBN:0721662544]
+synonym: "histogenesis and organogenesis" BROAD []
+is_a: GO:0009653 ! anatomical structure morphogenesis
+relationship: part_of GO:0048513 ! animal organ development
+
+[Term]
+id: GO:0009888
+name: tissue development
+namespace: biological_process
+def: "The process whose specific outcome is the progression of a tissue over time, from its formation to the mature structure." [ISBN:0471245208]
+synonym: "histogenesis" EXACT []
+synonym: "histogenesis and organogenesis" BROAD []
+xref: Wikipedia:Histogenesis
+is_a: GO:0048856 ! anatomical structure development
+
+[Term]
+id: GO:0032501
+name: multicellular organismal process
+namespace: biological_process
+alt_id: GO:0044707
+alt_id: GO:0050874
+def: "Any biological process, occurring at the level of a multicellular organism, pertinent to its function." [GOC:curators, GOC:dph, GOC:isa_complete, GOC:tb]
+subset: goslim_pir
+synonym: "organismal physiological process" EXACT []
+synonym: "single-multicellular organism process" RELATED []
+is_a: GO:0008150 ! biological_process
+
+[Term]
+id: GO:0032502
+name: developmental process
+namespace: biological_process
+alt_id: GO:0044767
+def: "A biological process whose specific outcome is the progression of an integrated living unit: an anatomical structure (which may be a subcellular structure, cell, tissue, or organ), or organism over time from an initial condition to a later condition." [GOC:isa_complete]
+subset: goslim_agr
+subset: goslim_aspergillus
+subset: goslim_pir
+subset: gosubset_prok
+synonym: "development" NARROW []
+synonym: "single-organism developmental process" RELATED []
+is_a: GO:0008150 ! biological_process
+
+[Term]
+id: GO:0035050
+name: embryonic heart tube development
+namespace: biological_process
+def: "The process whose specific outcome is the progression of the embryonic heart tube over time, from its formation to the mature structure. The heart tube forms as the heart rudiment from the heart field." [GOC:go_curators]
+is_a: GO:0035295 ! tube development
+is_a: GO:0060429 ! epithelium development
+relationship: part_of GO:0007507 ! heart development
+relationship: part_of GO:0048568 ! embryonic organ development
+
+[Term]
+id: GO:0035239
+name: tube morphogenesis
+namespace: biological_process
+def: "The process in which the anatomical structures of a tube are generated and organized. Epithelial and endothelial tubes transport gases, liquids and cells from one site to another and form the basic structure of many organs and tissues, with tube shape and organization varying from the single-celled excretory organ in Caenorhabditis elegans to the branching trees of the mammalian kidney and insect tracheal system." [GOC:bf, PMID:14624839]
+is_a: GO:0009653 ! anatomical structure morphogenesis
+relationship: part_of GO:0035295 ! tube development
+
+[Term]
+id: GO:0035295
+name: tube development
+namespace: biological_process
+def: "The process whose specific outcome is the progression of a tube over time, from its initial formation to a mature structure. Epithelial and endothelial tubes transport gases, liquids and cells from one site to another and form the basic structure of many organs and tissues including lung and trachea, kidney, the mammary gland, the vascular system and the gastrointestinal and urinary-genital tracts." [PMID:12526790]
+is_a: GO:0048856 ! anatomical structure development
+relationship: part_of GO:0007275 ! multicellular organism development
+
+[Term]
+id: GO:0048513
+name: animal organ development
+namespace: biological_process
+def: "Development of a tissue or tissues that work together to perform a specific function or functions. Development pertains to the process whose specific outcome is the progression of a structure over time, from its formation to the mature structure. Organs are commonly observed as visibly distinct structures, but may also exist as loosely associated clusters of cells that work together to perform a specific function or functions." [GOC:dph, GOC:jid]
+synonym: "development of an organ" EXACT []
+synonym: "organogenesis" EXACT []
+xref: Wikipedia:Organogenesis
+is_a: GO:0048856 ! anatomical structure development
+relationship: part_of GO:0048731 ! system development
+
+[Term]
+id: GO:0048562
+name: embryonic organ morphogenesis
+namespace: biological_process
+def: "Morphogenesis, during the embryonic phase, of a tissue or tissues that work together to perform a specific function or functions. Morphogenesis is the process in which anatomical structures are generated and organized. Organs are commonly observed as visibly distinct structures, but may also exist as loosely associated clusters of cells that work together to perform a specific function or functions." [GOC:jid]
+is_a: GO:0009887 ! animal organ morphogenesis
+is_a: GO:0048598 ! embryonic morphogenesis
+relationship: part_of GO:0048568 ! embryonic organ development
+
+[Term]
+id: GO:0048568
+name: embryonic organ development
+namespace: biological_process
+def: "Development, taking place during the embryonic phase, of a tissue or tissues that work together to perform a specific function or functions. Development pertains to the process whose specific outcome is the progression of a structure over time, from its formation to the mature structure. Organs are commonly observed as visibly distinct structures, but may also exist as loosely associated clusters of cells that work together to perform a specific function or functions." [GOC:jid]
+synonym: "embryonic organogenesis" EXACT []
+is_a: GO:0048513 ! animal organ development
+relationship: part_of GO:0009790 ! embryo development
+
+[Term]
+id: GO:0048598
+name: embryonic morphogenesis
+namespace: biological_process
+alt_id: GO:0048828
+def: "The process in which anatomical structures are generated and organized during the embryonic phase. The embryonic phase begins with zygote formation. The end of the embryonic phase is organism-specific. For example, it would be at birth for mammals, larval hatching for insects and seed dormancy in plants." [GOC:jid, GOC:mtg_sensu]
+synonym: "embryonic anatomical structure morphogenesis" EXACT [GOC:dph, GOC:tb]
+is_a: GO:0009653 ! anatomical structure morphogenesis
+relationship: part_of GO:0009790 ! embryo development
+
+[Term]
+id: GO:0048729
+name: tissue morphogenesis
+namespace: biological_process
+def: "The process in which the anatomical structures of a tissue are generated and organized." [GOC:dph, GOC:jid]
+is_a: GO:0009653 ! anatomical structure morphogenesis
+relationship: part_of GO:0009888 ! tissue development
+
+[Term]
+id: GO:0048731
+name: system development
+namespace: biological_process
+def: "The process whose specific outcome is the progression of an organismal system over time, from its formation to the mature structure. A system is a regularly interacting or interdependent group of organs or tissues that work together to carry out a given biological process." [GOC:dph, GOC:jid]
+subset: goslim_mouse
+is_a: GO:0048856 ! anatomical structure development
+relationship: part_of GO:0007275 ! multicellular organism development
+
+[Term]
+id: GO:0048856
+name: anatomical structure development
+namespace: biological_process
+def: "The biological process whose specific outcome is the progression of an anatomical structure from an initial condition to its mature state. This process begins with the formation of the structure and ends with the mature structure, whatever form that may be including its natural destruction. An anatomical structure is any biological entity that occupies space and is distinguished from its surroundings. Anatomical structures can be macroscopic such as a carpel, or microscopic such as an acrosome." [GO_REF:0000021, GOC:mtg_15jun06]
+comment: This term was added by GO_REF:0000021.
+subset: goslim_chembl
+subset: goslim_generic
+synonym: "development of an anatomical structure" EXACT []
+is_a: GO:0032502 ! developmental process
+
+[Term]
+id: GO:0060429
+name: epithelium development
+namespace: biological_process
+def: "The process whose specific outcome is the progression of an epithelium over time, from its formation to the mature structure. An epithelium is a tissue that covers the internal or external surfaces of an anatomical structure." [GOC:dph, GOC:mtg_lung]
+is_a: GO:0009888 ! tissue development
+
+[Term]
+id: GO:0060562
+name: epithelial tube morphogenesis
+namespace: biological_process
+def: "The process in which the anatomical structures of a tube are generated and organized from an epithelium. Epithelial tubes transport gases, liquids and cells from one site to another and form the basic structure of many organs and tissues, with tube shape and organization varying from the single-celled excretory organ in Caenorhabditis elegans to the branching trees of the mammalian kidney and insect tracheal system." [GOC:dph]
+is_a: GO:0002009 ! morphogenesis of an epithelium
+is_a: GO:0035239 ! tube morphogenesis
+
+[Term]
+id: GO:0060571
+name: morphogenesis of an epithelial fold
+namespace: biological_process
+def: "The morphogenetic process in which an epithelial sheet bends along a linear axis." [GOC:dph]
+synonym: "epithelial folding" EXACT [GOC:dph]
+synonym: "folding of an epithelial sheet" RELATED [GOC:dph]
+is_a: GO:0002009 ! morphogenesis of an epithelium
+
+[Term]
+id: GO:0061371
+name: determination of heart left/right asymmetry
+namespace: biological_process
+def: "Determination of the asymmetric location of the heart with respect to the left and right halves of the organism." [GOC:dph, GOC:mtg_heart]
+synonym: "determination of cardiac left/right asymmetry" EXACT [GOC:dph]
+is_a: GO:0007368 ! determination of left/right symmetry
+relationship: part_of GO:0007507 ! heart development
+
+[Term]
+id: GO:0072359
+name: circulatory system development
+namespace: biological_process
+def: "The process whose specific outcome is the progression of the circulatory system over time, from its formation to the mature structure. The circulatory system is the organ system that passes nutrients (such as amino acids and electrolytes), gases, hormones, blood cells, etc. to and from cells in the body to help fight diseases and help stabilize body temperature and pH to maintain homeostasis." [GOC:mah, UBERON:0001009]
+is_a: GO:0048731 ! system development
+
