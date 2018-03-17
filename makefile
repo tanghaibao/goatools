@@ -184,6 +184,7 @@ clobber:
 #    tests/test_gpad_dnld.py \
 
 NOSETESTS := \
+    tests/test_david_nts.py \
     tests/test_get_parents.py \
     tests/test_get_children.py \
     tests/test_optional_attributes.py \
