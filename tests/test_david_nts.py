@@ -6,7 +6,9 @@ __author__ = "DV Klopfenstein"
 
 import os
 import collections as cx
+import timeit
 from goatools.parsers.david_chart import DavidChartReader
+from goatools.test_data.godag_timed import prt_hms
 
 
 def test_david_chart():
@@ -23,7 +25,9 @@ def test_david_chart():
         "gjoneska2015_chart6p8_Late_Decrease.txt":       ntobj._make([  595, 110, 106, 215, 462]),
         "gjoneska2015_chart6p8_Late_Increase.txt":       ntobj._make([  804,  81,  81, 168, 613]),
     }
+    tic = timeit.default_timer()
     fin2obj = {f:DavidChartReader(os.path.join(david_dir, f)) for f in fin2exp.keys()}
+    prt_hms(tic, "Created DavidChartReader objects")
     for fin, obj in fin2obj.items():
         ntexp = fin2exp[fin]
         assert ntexp.TOTAL == len(obj.nts)

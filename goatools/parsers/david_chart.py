@@ -146,31 +146,33 @@ class _Init(object):
 
     def _init_nt(self, flds):
         """Given string fields from a DAVID chart file, return namedtuple."""
-        vals = []
-        # floats: %, PValue, Fold_Enrichment, Bonferroni, Benjamini, FDR
-        floats = set([3, 4, 9, 10, 11, 12])
-        # ints: Count, List_Total, Pop_Hits, Pop_Total
-        ints = set([2, 6, 7, 8])
-        for idx, valstr in enumerate(flds):
-            if idx in floats:
-                vals.append(float(valstr))
-            elif idx in ints:
-                vals.append(int(valstr))
-            elif idx == 5:  # Genes
-                vals.append(valstr)
-                gene_set = valstr.split(', ')
-                if gene_set and gene_set[0].isdigit():
-                    gene_set = set(int(g) for g in gene_set)
-                vals.append(gene_set)
-            # Split 'Term' into GO and name
-            elif idx == 1:
-                goid, go_name = valstr.split('~')
-                assert goid[:3] == "GO:" and len(goid) == 10
-                vals.append(goid)
-                vals.append(go_name)
-            else:
-                vals.append(valstr)
-        return self.ntobj._make(vals)
+        term = flds[1]
+        genes_str = flds[5]
+        # pylint: disable=bad-whitespace
+        return self.ntobj(
+            Category   =       flds[0],
+            GO         =       term[:10], #  1  GO:0045202~synapse
+            name       =       term[10:], #  1  GO:0045202~synapse
+            Count      =   int(flds[2]),  #  2  94
+            Perc       = float(flds[3]),  #  3  9.456740442655935
+            PValue     = float(flds[4]),  #  4  6.102654380458156E-20
+            Genes      =      genes_str, # 5 ['ENSMUSG00000052613', ...]
+            Genes_set  = self.get_genes(genes_str), # 5 ['ENSMUSG00000052613', ...]
+            List_Total =   int(flds[6]),  #  6  920
+            Pop_Hits   =   int(flds[7]),  #  7  444
+            Pop_Total  =   int(flds[8]),  #  8  12002
+            Fold_Enrichment = float(flds[9]), # 9 2.7619173521347435
+            Bonferroni = float(flds[10]), # 10  3.3930758355347344E-17
+            Benjamini  = float(flds[11]), # 11  3.3930758355347344E-17
+            FDR        = float(flds[12])) # 12  8.919182045519026E-17
+
+    @staticmethod
+    def get_genes(genes_str):
+        """Given a string containng genes, return a list."""
+        gene_set = genes_str.split(', ')
+        if gene_set and gene_set[0].isdigit():
+            gene_set = set(int(g) for g in gene_set)
+        return gene_set
 
 
 # Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.
