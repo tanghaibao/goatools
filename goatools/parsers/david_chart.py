@@ -71,7 +71,7 @@ class DavidChartReader(object):
         """Write specified namedtuples into an Excel spreadsheet."""
         wr_xlsx(fout_xlsx, nts, prt_flds=self.prt_flds, fld2col_widths=self.fld2col_widths)
 
-    def prt_mdtbl(self, nts, prt_flds, prt=sys.stdout):
+    def prt_mdtbl(self, nts, prt_flds=None, prt=sys.stdout):
         """Write specified namedtuples into an Excel spreadsheet."""
         if prt_flds is None:
             prt_flds = self.prt_flds
