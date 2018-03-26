@@ -57,7 +57,7 @@ class RptLevDepth(object):
         """Write counts of GO terms at all levels and depths."""
         from goatools.wr_tbl import wr_xlsx
         kws = {
-            'title' : self.title(),
+            'title' : self.title,
             'hdrs' :["Dep/Lev",
                      "BP Depth", "MF Depth", "CC Depth",
                      "BP Level", "MF Level", "CC Level"]}
