@@ -14,7 +14,7 @@ from goatools.test_data.godag_timed import prt_hms
 def test_david_chart():
     """Read in a small obo, print list of GO terms and plot."""
     repo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-    david_dir = "{REPO}/data/david".format(REPO=repo)
+    david_dir = "{REPO}/data/gjoneska".format(REPO=repo)
     ntobj = cx.namedtuple("david6p8", "TOTAL FDR Bonferroni Benjamini PValue")
     # pylint: disable=bad-whitespace
     fin2exp = {
