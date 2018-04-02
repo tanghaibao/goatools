@@ -21,9 +21,9 @@ from goatools.godag.go_tasks import CurNHigher
 class WrSubObo(object):
     """Read a large GO-DAG from an obo file. Write a subset GO-DAG into a small obo file."""
 
-    def __init__(self, fin_obo, optional_attrs=None, load_obsolete=None):
+    def __init__(self, fin_obo=None, optional_attrs=None, load_obsolete=None):
         self.fin_obo = fin_obo
-        self.godag = GODag(fin_obo, optional_attrs, load_obsolete)
+        self.godag = GODag(fin_obo, optional_attrs, load_obsolete) if fin_obo is not None else None
         self.relationships = optional_attrs is not None and 'relationship' in optional_attrs
 
     def wrobo(self, fout_obo, goid_sources):
@@ -36,7 +36,7 @@ class WrSubObo(object):
 
     @staticmethod
     def prt_goterms(fin_obo, goids, prt, b_prt=True):
-        """Print the specficied GO terms for GO IDs in arg."""
+        """Print the specified GO terms for GO IDs in arg."""
         b_trm = False
         with open(fin_obo) as ifstrm:
             for line in ifstrm:
@@ -54,6 +54,26 @@ class WrSubObo(object):
                             prt.write("[Term]\n")
                 if b_prt:
                     prt.write(line)
+
+    @staticmethod
+    def get_goids(fin_obo, name):
+        """Get GO IDs whose name matches given name."""
+        goids = set()
+        # pylint: disable=unsubscriptable-object
+        goterm = None
+        with open(fin_obo) as ifstrm:
+            for line in ifstrm:
+                if goterm is not None:
+                    semi = line.find(':')
+                    if semi != -1:
+                        goterm[line[:semi]] = line[semi+2:].rstrip()
+                    else:
+                        if name in goterm['name']:
+                            goids.add(goterm['id'])
+                        goterm = None
+                elif line[:6] == "[Term]":
+                    goterm = {}
+        return goids
 
     def _get_goids_all(self, go_sources):
         """Given GO ID sources and optionally the relationship attribute, return all GO IDs."""
