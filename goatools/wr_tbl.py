@@ -32,21 +32,29 @@ from goatools.wr_tbl_class import get_hdrs
 
 def prt_txt(prt, data_nts, prtfmt=None, nt_fields=None, **kws):
     """Print list of namedtuples into a table using prtfmt."""
-    # optional keyword args: prt_if sort_by
-    if data_nts:
-        if prtfmt is None:
-            prtfmt = mk_fmtfld(data_nts[0])
-        # if nt_fields arg is None, use fields from prtfmt string.
-        if nt_fields is not None:
-            _chk_flds_fmt(nt_fields, prtfmt)
-        if 'sort_by' in kws:
-            data_nts = sorted(data_nts, key=kws['sort_by'])
-        prt_if = kws.get('prt_if', None)
-        for data_nt in data_nts:
-            if prt_if is None or prt_if(data_nt):
-                prt.write(prtfmt.format(**data_nt._asdict()))
+    lines = get_lines(data_nts, prtfmt, nt_fields, **kws)
+    if lines:
+        for line in lines:
+            prt.write(line)
     else:
-        sys.stdout.write("      0 items. NOT WRITING w/format_string({F})\n".format(F=prtfmt))
+        sys.stdout.write("      0 items. NOT WRITING\n")
+
+def get_lines(data_nts, prtfmt=None, nt_fields=None, **kws):
+    """Print list of namedtuples into a table using prtfmt."""
+    lines = []
+    # optional keyword args: prt_if sort_by
+    if prtfmt is None:
+        prtfmt = mk_fmtfld(data_nts[0], kws.get('joinchr', ' '), kws.get('eol', '\n'))
+    # if nt_fields arg is None, use fields from prtfmt string.
+    if nt_fields is not None:
+        _chk_flds_fmt(nt_fields, prtfmt)
+    if 'sort_by' in kws:
+        data_nts = sorted(data_nts, key=kws['sort_by'])
+    prt_if = kws.get('prt_if', None)
+    for data_nt in data_nts:
+        if prt_if is None or prt_if(data_nt):
+            lines.append(prtfmt.format(**data_nt._asdict()))
+    return lines
 
 def prt_nts(data_nts, prtfmt=None, prt=sys.stdout, nt_fields=None, **kws):
     """Print list of namedtuples into a table using prtfmt."""
@@ -189,7 +197,7 @@ def _prt_txt_hdr(prt, prtfmt):
     hdrfmt = re.sub(r':(0+)(\d+)}', r':\2}', hdrfmt)
     prt.write("#{}".format(hdrfmt.format(**tblhdrs)))
 
-def mk_fmtfld(nt_item):
+def mk_fmtfld(nt_item, joinchr=" ", eol="\n"):
     """Given a namedtuple, return a format_field string."""
     fldstrs = []
     # Default formats based on fieldname
@@ -205,7 +213,6 @@ def mk_fmtfld(nt_item):
         else:
             val = "{{{FLD}}}".format(FLD=fld)
         fldstrs.append(val)
-    fldstrs.append("\n")
-    return " ".join(fldstrs)
+    return "{LINE}{EOL}".format(LINE=joinchr.join(fldstrs), EOL=eol)
 
 # Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.
