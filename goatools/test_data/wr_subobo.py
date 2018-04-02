@@ -9,15 +9,15 @@
 
 """
 
+from __future__ import print_function
+
 __copyright__ = "Copyright (C) 2010-2018, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
-import sys
 from goatools.obo_parser import GODag
 from goatools.godag.go_tasks import CurNHigher
 
 
-# pylint: disable=too-few-public-methods
 class WrSubObo(object):
     """Read a large GO-DAG from an obo file. Write a subset GO-DAG into a small obo file."""
 
@@ -29,27 +29,31 @@ class WrSubObo(object):
     def wrobo(self, fout_obo, goid_sources):
         """Write a subset obo file containing GO ID sources and their parents."""
         goids_all = self._get_goids_all(goid_sources)
-        b_trm = False
-        b_prt = True
         with open(fout_obo, 'w') as prt:
             self._prt_info(prt, goid_sources, goids_all)
-            with open(self.fin_obo) as ifstrm:
-                for line in ifstrm:
-                    if not b_trm:
-                        if line[:6] == "[Term]":
-                            b_trm = True
-                            b_prt = False
-                        elif line[:6] == "[Typedef]":
-                            b_prt = True
-                    else:
-                        if line[:6] == 'id: GO':
-                            b_trm = False
-                            b_prt = line[4:14] in goids_all
-                            if b_prt:
-                                prt.write("[Term]\n")
-                    if b_prt:
-                        prt.write(line)
-            sys.stdout.write("  WROTE {N} GO TERMS: {OBO}\n".format(N=len(goids_all), OBO=fout_obo))
+            self.prt_goterms(prt, self.fin_obo, goids_all)
+            print("  WROTE {N} GO TERMS: {OBO}\n".format(N=len(goids_all), OBO=fout_obo))
+
+    @staticmethod
+    def prt_goterms(fin_obo, goids, prt, b_prt=True):
+        """Print the specficied GO terms for GO IDs in arg."""
+        b_trm = False
+        with open(fin_obo) as ifstrm:
+            for line in ifstrm:
+                if not b_trm:
+                    if line[:6] == "[Term]":
+                        b_trm = True
+                        b_prt = False
+                    elif line[:6] == "[Typedef]":
+                        b_prt = True
+                else:
+                    if line[:6] == 'id: GO':
+                        b_trm = False
+                        b_prt = line[4:14] in goids
+                        if b_prt:
+                            prt.write("[Term]\n")
+                if b_prt:
+                    prt.write(line)
 
     def _get_goids_all(self, go_sources):
         """Given GO ID sources and optionally the relationship attribute, return all GO IDs."""
