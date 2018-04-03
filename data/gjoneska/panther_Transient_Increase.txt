@@ -1,0 +1,421 @@
+
+
+
+
+
+Analysis Type:	PANTHER Overrepresentation Test (Released 20171205)
+Annotation Version and Release Date:	GO Ontology database  Released 2018-02-02
+Analyzed List:	TraInc (Mus musculus )
+Reference List:	pop (Mus musculus )
+Test Type:	FISHER
+GO biological process complete	pop - REFLIST (11651)	TraInc (520)	TraInc (expected)	TraInc (over/under)	TraInc (fold Enrichment)	TraInc (raw P-value)	TraInc (FDR)
+replicative senescence (GO:0090399)	3	3	.13	+	22.41	1.41E-03	4.80E-02
+mitotic telomere maintenance via semi-conservative replication (GO:1902990)	3	3	.13	+	22.41	1.41E-03	4.79E-02
+mitotic DNA replication (GO:1902969)	6	5	.27	+	18.67	5.21E-05	2.86E-03
+nuclear DNA replication (GO:0033260)	16	12	.71	+	16.80	5.31E-10	8.54E-08
+DNA replication-dependent nucleosome assembly (GO:0006335)	11	8	.49	+	16.30	5.24E-07	4.86E-05
+DNA replication-dependent nucleosome organization (GO:0034723)	11	8	.49	+	16.30	5.24E-07	4.83E-05
+DNA unwinding involved in DNA replication (GO:0006268)	7	5	.31	+	16.00	8.61E-05	4.28E-03
+cell cycle DNA replication (GO:0044786)	17	12	.76	+	15.82	8.71E-10	1.34E-07
+meiotic sister chromatid segregation (GO:0045144)	6	4	.27	+	14.94	5.63E-04	2.18E-02
+centrosome separation (GO:0051299)	6	4	.27	+	14.94	5.63E-04	2.17E-02
+replication fork protection (GO:0048478)	6	4	.27	+	14.94	5.63E-04	2.17E-02
+female meiosis chromosome segregation (GO:0016321)	6	4	.27	+	14.94	5.63E-04	2.16E-02
+DNA replication initiation (GO:0006270)	23	15	1.03	+	14.61	1.47E-11	3.40E-09
+meiosis II (GO:0007135)	8	5	.36	+	14.00	1.35E-04	6.35E-03
+kinetochore organization (GO:0051383)	13	8	.58	+	13.79	1.31E-06	1.10E-04
+regulation of attachment of spindle microtubules to kinetochore (GO:0051988)	10	6	.45	+	13.44	3.28E-05	1.91E-03
+signal transduction involved in mitotic cell cycle checkpoint (GO:0072413)	12	7	.54	+	13.07	8.03E-06	5.64E-04
+signal transduction involved in mitotic DNA integrity checkpoint (GO:1902403)	12	7	.54	+	13.07	8.03E-06	5.61E-04
+signal transduction involved in mitotic DNA damage checkpoint (GO:1902402)	12	7	.54	+	13.07	8.03E-06	5.58E-04
+mitotic spindle midzone assembly (GO:0051256)	7	4	.31	+	12.80	8.55E-04	3.09E-02
+mitotic spindle elongation (GO:0000022)	7	4	.31	+	12.80	8.55E-04	3.09E-02
+DNA damage response, signal transduction by p53 class mediator resulting in cell cycle arrest (GO:0006977)	9	5	.40	+	12.45	2.03E-04	9.04E-03
+mitotic chromosome condensation (GO:0007076)	9	5	.40	+	12.45	2.03E-04	9.01E-03
+DNA strand elongation involved in DNA replication (GO:0006271)	9	5	.40	+	12.45	2.03E-04	8.98E-03
+protein localization to kinetochore (GO:0034501)	13	7	.58	+	12.06	1.19E-05	7.91E-04
+attachment of spindle microtubules to kinetochore (GO:0008608)	17	9	.76	+	11.86	7.21E-07	6.52E-05
+chromosome condensation (GO:0030261)	17	9	.76	+	11.86	7.21E-07	6.47E-05
+DNA duplex unwinding (GO:0032508)	19	10	.85	+	11.79	1.79E-07	1.82E-05
+DNA-dependent DNA replication (GO:0006261)	81	41	3.62	+	11.34	3.20E-26	2.60E-23
+signal transduction involved in mitotic G1 DNA damage checkpoint (GO:0072431)	10	5	.45	+	11.20	2.94E-04	1.24E-02
+intracellular signal transduction involved in G1 DNA damage checkpoint (GO:1902400)	10	5	.45	+	11.20	2.94E-04	1.24E-02
+regulation of DNA endoreduplication (GO:0032875)	8	4	.36	+	11.20	1.24E-03	4.34E-02
+negative regulation of DNA-dependent DNA replication (GO:2000104)	14	7	.62	+	11.20	1.72E-05	1.09E-03
+spindle midzone assembly (GO:0051255)	8	4	.36	+	11.20	1.24E-03	4.33E-02
+spindle elongation (GO:0051231)	8	4	.36	+	11.20	1.24E-03	4.31E-02
+deoxyribonucleotide biosynthetic process (GO:0009263)	10	5	.45	+	11.20	2.94E-04	1.23E-02
+cellular response to hydroxyurea (GO:0072711)	8	4	.36	+	11.20	1.24E-03	4.30E-02
+positive regulation of double-strand break repair (GO:2000781)	12	6	.54	+	11.20	7.07E-05	3.70E-03
+DNA geometric change (GO:0032392)	24	12	1.07	+	11.20	1.60E-08	1.94E-06
+DNA replication checkpoint (GO:0000076)	12	6	.54	+	11.20	7.07E-05	3.69E-03
+DNA strand elongation (GO:0022616)	12	6	.54	+	11.20	7.07E-05	3.67E-03
+DNA-dependent DNA replication maintenance of fidelity (GO:0045005)	29	14	1.29	+	10.82	1.42E-09	2.09E-07
+spindle checkpoint (GO:0031577)	21	10	.94	+	10.67	3.66E-07	3.52E-05
+protein localization to chromosome, centromeric region (GO:0071459)	17	8	.76	+	10.54	5.98E-06	4.37E-04
+positive regulation of defense response to virus by host (GO:0002230)	13	6	.58	+	10.34	9.96E-05	4.93E-03
+centriole replication (GO:0007099)	13	6	.58	+	10.34	9.96E-05	4.92E-03
+signal transduction involved in DNA damage checkpoint (GO:0072422)	24	11	1.07	+	10.27	1.28E-07	1.37E-05
+signal transduction involved in DNA integrity checkpoint (GO:0072401)	24	11	1.07	+	10.27	1.28E-07	1.36E-05
+signal transduction involved in cell cycle checkpoint (GO:0072395)	24	11	1.07	+	10.27	1.28E-07	1.35E-05
+signal transduction involved in G2 DNA damage checkpoint (GO:0072425)	11	5	.49	+	10.18	4.12E-04	1.65E-02
+regulation of mitotic cell cycle spindle assembly checkpoint (GO:0090266)	11	5	.49	+	10.18	4.12E-04	1.64E-02
+response to antimetabolite (GO:0097329)	11	5	.49	+	10.18	4.12E-04	1.64E-02
+regulation of mitotic spindle checkpoint (GO:1903504)	11	5	.49	+	10.18	4.12E-04	1.63E-02
+mitotic G2 DNA damage checkpoint (GO:0007095)	20	9	.89	+	10.08	2.06E-06	1.63E-04
+chromosome organization involved in meiotic cell cycle (GO:0070192)	38	17	1.70	+	10.02	6.14E-11	1.20E-08
+G2 DNA damage checkpoint (GO:0031572)	32	14	1.43	+	9.80	3.86E-09	5.39E-07
+regulation of DNA-dependent DNA replication (GO:0090329)	39	17	1.74	+	9.77	8.48E-11	1.58E-08
+centriole assembly (GO:0098534)	14	6	.62	+	9.60	1.37E-04	6.43E-03
+determination of adult lifespan (GO:0008340)	14	6	.62	+	9.60	1.37E-04	6.40E-03
+DNA replication (GO:0006260)	136	58	6.07	+	9.56	1.33E-33	1.68E-30
+mitotic G2/M transition checkpoint (GO:0044818)	26	11	1.16	+	9.48	2.42E-07	2.41E-05
+histone phosphorylation (GO:0016572)	19	8	.85	+	9.43	1.14E-05	7.63E-04
+inner cell mass cell proliferation (GO:0001833)	12	5	.54	+	9.34	5.63E-04	2.16E-02
+mitotic spindle assembly (GO:0090307)	36	15	1.61	+	9.34	1.82E-09	2.64E-07
+centrosome duplication (GO:0051298)	24	10	1.07	+	9.34	9.65E-07	8.44E-05
+replication fork processing (GO:0031297)	24	10	1.07	+	9.34	9.65E-07	8.39E-05
+intrinsic apoptotic signaling pathway in response to DNA damage by p53 class mediator (GO:0042771)	29	12	1.29	+	9.27	8.29E-08	9.31E-06
+mitotic spindle assembly checkpoint (GO:0007094)	17	7	.76	+	9.23	4.58E-05	2.55E-03
+spindle assembly checkpoint (GO:0071173)	17	7	.76	+	9.23	4.58E-05	2.54E-03
+male meiotic nuclear division (GO:0007140)	22	9	.98	+	9.17	3.84E-06	2.92E-04
+mitotic sister chromatid segregation (GO:0000070)	76	31	3.39	+	9.14	5.68E-18	2.91E-15
+female meiotic nuclear division (GO:0007143)	27	11	1.21	+	9.13	3.28E-07	3.19E-05
+meiotic chromosome segregation (GO:0045132)	57	23	2.54	+	9.04	1.39E-13	4.70E-11
+mitotic recombination (GO:0006312)	15	6	.67	+	8.96	1.85E-04	8.39E-03
+regulation of spindle checkpoint (GO:0090231)	15	6	.67	+	8.96	1.85E-04	8.36E-03
+negative regulation of DNA recombination (GO:0045910)	20	8	.89	+	8.96	1.53E-05	9.90E-04
+homologous chromosome segregation (GO:0045143)	33	13	1.47	+	8.83	3.79E-08	4.48E-06
+sister chromatid segregation (GO:0000819)	94	37	4.20	+	8.82	8.40E-21	5.05E-18
+mitotic spindle checkpoint (GO:0071174)	18	7	.80	+	8.71	6.13E-05	3.27E-03
+mitotic nuclear division (GO:0140014)	108	42	4.82	+	8.71	2.63E-23	1.82E-20
+positive regulation of DNA-dependent DNA replication (GO:2000105)	13	5	.58	+	8.62	7.53E-04	2.78E-02
+nuclear chromosome segregation (GO:0098813)	139	53	6.20	+	8.54	7.61E-29	7.01E-26
+synapsis (GO:0007129)	21	8	.94	+	8.54	2.04E-05	1.26E-03
+regulation of double-strand break repair via homologous recombination (GO:0010569)	21	8	.94	+	8.54	2.04E-05	1.25E-03
+G2/M transition of mitotic cell cycle (GO:0000086)	24	9	1.07	+	8.40	6.81E-06	4.88E-04
+DNA damage response, signal transduction by p53 class mediator (GO:0030330)	24	9	1.07	+	8.40	6.81E-06	4.85E-04
+centromere complex assembly (GO:0034508)	16	6	.71	+	8.40	2.45E-04	1.07E-02
+meiotic nuclear division (GO:0140013)	92	34	4.11	+	8.28	1.61E-18	8.88E-16
+regulation of double-strand break repair (GO:2000779)	38	14	1.70	+	8.25	2.25E-08	2.68E-06
+negative regulation of metaphase/anaphase transition of cell cycle (GO:1902100)	19	7	.85	+	8.25	8.08E-05	4.14E-03
+DNA synthesis involved in DNA repair (GO:0000731)	19	7	.85	+	8.25	8.08E-05	4.12E-03
+negative regulation of mitotic metaphase/anaphase transition (GO:0045841)	19	7	.85	+	8.25	8.08E-05	4.10E-03
+nuclear division (GO:0000280)	185	67	8.26	+	8.11	3.15E-35	4.83E-32
+mitotic spindle organization (GO:0007052)	58	21	2.59	+	8.11	8.69E-12	2.07E-09
+spindle assembly (GO:0051225)	58	21	2.59	+	8.11	8.69E-12	2.04E-09
+cell cycle G2/M phase transition (GO:0044839)	25	9	1.12	+	8.07	8.92E-06	6.13E-04
+chromosome segregation (GO:0007059)	189	67	8.44	+	7.94	9.17E-35	1.27E-31
+meiotic cell cycle (GO:0051321)	127	45	5.67	+	7.94	1.49E-23	1.08E-20
+DNA conformation change (GO:0071103)	119	42	5.31	+	7.91	5.38E-22	3.54E-19
+negative regulation of G2/M transition of mitotic cell cycle (GO:0010972)	34	12	1.52	+	7.91	3.36E-07	3.24E-05
+negative regulation of mitotic sister chromatid separation (GO:2000816)	20	7	.89	+	7.84	1.05E-04	5.17E-03
+release of cytochrome c from mitochondria (GO:0001836)	20	7	.89	+	7.84	1.05E-04	5.15E-03
+blastocyst growth (GO:0001832)	20	7	.89	+	7.84	1.05E-04	5.13E-03
+postreplication repair (GO:0006301)	20	7	.89	+	7.84	1.05E-04	5.11E-03
+negative regulation of chromosome separation (GO:1905819)	20	7	.89	+	7.84	1.05E-04	5.10E-03
+metaphase plate congression (GO:0051310)	40	14	1.79	+	7.84	3.81E-08	4.46E-06
+meiotic cell cycle process (GO:1903046)	98	34	4.37	+	7.77	7.87E-18	3.88E-15
+DNA packaging (GO:0006323)	93	32	4.15	+	7.71	9.10E-17	4.06E-14
+meiosis I (GO:0007127)	64	22	2.86	+	7.70	6.40E-12	1.55E-09
+regulation of metaphase/anaphase transition of cell cycle (GO:1902099)	38	13	1.70	+	7.67	1.46E-07	1.52E-05
+regulation of mitotic metaphase/anaphase transition (GO:0030071)	38	13	1.70	+	7.67	1.46E-07	1.50E-05
+intrinsic apoptotic signaling pathway by p53 class mediator (GO:0072332)	47	16	2.10	+	7.63	5.58E-09	7.56E-07
+signal transduction in response to DNA damage (GO:0042770)	47	16	2.10	+	7.63	5.58E-09	7.49E-07
+mitotic DNA integrity checkpoint (GO:0044774)	53	18	2.37	+	7.61	6.35E-10	1.01E-07
+intrinsic apoptotic signaling pathway in response to DNA damage (GO:0008630)	59	20	2.63	+	7.60	7.23E-11	1.39E-08
+mitotic metaphase plate congression (GO:0007080)	33	11	1.47	+	7.47	1.66E-06	1.35E-04
+positive regulation of chromosome segregation (GO:0051984)	21	7	.94	+	7.47	1.35E-04	6.37E-03
+regulation of chromatin silencing (GO:0031935)	15	5	.67	+	7.47	1.27E-03	4.39E-02
+regulation of ubiquitin protein ligase activity (GO:1904666)	15	5	.67	+	7.47	1.27E-03	4.37E-02
+mitotic DNA damage checkpoint (GO:0044773)	48	16	2.14	+	7.47	7.15E-09	9.15E-07
+regulation of defense response to virus by host (GO:0050691)	18	6	.80	+	7.47	4.12E-04	1.65E-02
+negative regulation of DNA replication (GO:0008156)	27	9	1.21	+	7.47	1.48E-05	9.62E-04
+regulation of G2/M transition of mitotic cell cycle (GO:0010389)	64	21	2.86	+	7.35	3.99E-11	7.99E-09
+nucleosome assembly (GO:0006334)	61	20	2.72	+	7.35	1.18E-10	2.15E-08
+regulation of mitotic sister chromatid separation (GO:0010965)	40	13	1.79	+	7.28	2.38E-07	2.39E-05
+regulation of chromosome segregation (GO:0051983)	74	24	3.30	+	7.27	1.94E-12	5.07E-10
+signal transduction by p53 class mediator (GO:0072331)	62	20	2.77	+	7.23	1.50E-10	2.66E-08
+organelle fission (GO:0048285)	208	67	9.28	+	7.22	1.11E-32	1.27E-29
+cellular response to interferon-beta (GO:0035458)	28	9	1.25	+	7.20	1.89E-05	1.18E-03
+DNA integrity checkpoint (GO:0031570)	81	26	3.62	+	7.19	2.80E-13	8.22E-11
+microtubule cytoskeleton organization involved in mitosis (GO:1902850)	78	25	3.48	+	7.18	8.30E-13	2.30E-10
+negative regulation of cell cycle G2/M phase transition (GO:1902750)	44	14	1.96	+	7.13	1.02E-07	1.12E-05
+positive regulation of cytokinesis (GO:0032467)	22	7	.98	+	7.13	1.71E-04	7.87E-03
+biological phase (GO:0044848)	19	6	.85	+	7.08	5.22E-04	2.03E-02
+mitotic cytokinesis (GO:0000281)	38	12	1.70	+	7.08	8.96E-07	7.89E-05
+establishment of chromosome localization (GO:0051303)	54	17	2.41	+	7.05	4.93E-09	6.82E-07
+chromosome localization (GO:0050000)	54	17	2.41	+	7.05	4.93E-09	6.75E-07
+chromatin assembly (GO:0031497)	70	22	3.12	+	7.04	2.74E-11	5.91E-09
+response to interferon-beta (GO:0035456)	35	11	1.56	+	7.04	2.67E-06	2.09E-04
+recombinational repair (GO:0000725)	64	20	2.86	+	7.00	2.40E-10	4.04E-08
+double-strand break repair via homologous recombination (GO:0000724)	64	20	2.86	+	7.00	2.40E-10	4.00E-08
+sister chromatid cohesion (GO:0007062)	29	9	1.29	+	6.95	2.38E-05	1.44E-03
+negative regulation of viral genome replication (GO:0045071)	29	9	1.29	+	6.95	2.38E-05	1.44E-03
+regulation of cell cycle G2/M phase transition (GO:1902749)	78	24	3.48	+	6.89	4.93E-12	1.24E-09
+mitotic cell cycle checkpoint (GO:0007093)	88	27	3.93	+	6.87	2.38E-13	7.30E-11
+mitotic cell cycle process (GO:1903047)	331	101	14.77	+	6.84	8.92E-48	3.08E-44
+negative regulation of mitotic sister chromatid segregation (GO:0033048)	23	7	1.03	+	6.82	2.15E-04	9.48E-03
+regulation of DNA recombination (GO:0000018)	46	14	2.05	+	6.82	1.61E-07	1.64E-05
+regulation of chromosome separation (GO:1905818)	43	13	1.92	+	6.77	4.75E-07	4.53E-05
+regulation of cell cycle checkpoint (GO:1901976)	30	9	1.34	+	6.72	2.98E-05	1.77E-03
+cell cycle checkpoint (GO:0000075)	118	35	5.27	+	6.65	1.47E-16	6.36E-14
+mitotic cell cycle (GO:0000278)	375	111	16.74	+	6.63	1.30E-51	5.98E-48
+DNA damage checkpoint (GO:0000077)	75	22	3.35	+	6.57	8.37E-11	1.58E-08
+regulation of DNA replication (GO:0006275)	89	26	3.97	+	6.55	1.70E-12	4.52E-10
+negative regulation of chromosome segregation (GO:0051985)	24	7	1.07	+	6.54	2.68E-04	1.15E-02
+negative regulation of sister chromatid segregation (GO:0033046)	24	7	1.07	+	6.54	2.68E-04	1.15E-02
+spindle organization (GO:0007051)	100	29	4.46	+	6.50	1.01E-13	3.49E-11
+regulation of telomere capping (GO:1904353)	21	6	.94	+	6.40	8.12E-04	2.98E-02
+cell cycle phase transition (GO:0044770)	102	29	4.55	+	6.37	1.54E-13	5.07E-11
+protein-DNA complex assembly (GO:0065004)	99	28	4.42	+	6.34	4.55E-13	1.28E-10
+chromatin assembly or disassembly (GO:0006333)	85	24	3.79	+	6.33	2.25E-11	5.10E-09
+negative regulation of nuclear division (GO:0051784)	36	10	1.61	+	6.22	1.89E-05	1.18E-03
+centrosome cycle (GO:0007098)	65	18	2.90	+	6.20	9.48E-09	1.18E-06
+cytoskeleton-dependent cytokinesis (GO:0061640)	47	13	2.10	+	6.20	1.11E-06	9.48E-05
+cellular response to gamma radiation (GO:0071480)	22	6	.98	+	6.11	9.96E-04	3.59E-02
+reciprocal meiotic recombination (GO:0007131)	26	7	1.16	+	6.03	4.05E-04	1.63E-02
+homologous recombination (GO:0035825)	26	7	1.16	+	6.03	4.05E-04	1.63E-02
+response to gamma radiation (GO:0010332)	41	11	1.83	+	6.01	9.57E-06	6.55E-04
+regulation of centrosome duplication (GO:0010824)	30	8	1.34	+	5.97	1.65E-04	7.65E-03
+double-strand break repair (GO:0006302)	113	30	5.04	+	5.95	2.63E-13	7.91E-11
+regulation of mitotic sister chromatid segregation (GO:0033047)	49	13	2.19	+	5.94	1.65E-06	1.35E-04
+microtubule organizing center organization (GO:0031023)	68	18	3.03	+	5.93	1.72E-08	2.06E-06
+regulation of DNA repair (GO:0006282)	72	19	3.21	+	5.91	7.17E-09	9.09E-07
+mitotic cell cycle phase transition (GO:0044772)	95	25	4.24	+	5.90	3.11E-11	6.52E-09
+regulation of sister chromatid segregation (GO:0033045)	57	15	2.54	+	5.90	2.87E-07	2.83E-05
+negative regulation of viral life cycle (GO:1903901)	42	11	1.87	+	5.87	1.16E-05	7.75E-04
+establishment of mitotic spindle localization (GO:0040001)	23	6	1.03	+	5.84	1.21E-03	4.27E-02
+establishment of spindle orientation (GO:0051294)	23	6	1.03	+	5.84	1.21E-03	4.26E-02
+protein heterotetramerization (GO:0051290)	23	6	1.03	+	5.84	1.21E-03	4.25E-02
+protein localization to chromosome (GO:0034502)	50	13	2.23	+	5.83	2.00E-06	1.61E-04
+negative regulation of mitotic cell cycle phase transition (GO:1901991)	93	24	4.15	+	5.78	1.09E-10	2.02E-08
+negative regulation of mitotic nuclear division (GO:0045839)	31	8	1.38	+	5.78	2.00E-04	8.97E-03
+DNA recombination (GO:0006310)	128	33	5.71	+	5.78	3.33E-14	1.18E-11
+negative regulation of DNA metabolic process (GO:0051053)	95	24	4.24	+	5.66	1.59E-10	2.78E-08
+cell cycle process (GO:0022402)	540	135	24.10	+	5.60	4.98E-56	3.44E-52
+positive regulation of DNA repair (GO:0045739)	40	10	1.79	+	5.60	4.08E-05	2.28E-03
+positive regulation of response to cytokine stimulus (GO:0060760)	32	8	1.43	+	5.60	2.41E-04	1.06E-02
+multicellular organism aging (GO:0010259)	24	6	1.07	+	5.60	1.46E-03	4.94E-02
+cell division (GO:0051301)	384	96	17.14	+	5.60	4.22E-39	8.33E-36
+telomere maintenance (GO:0000723)	57	14	2.54	+	5.50	1.45E-06	1.19E-04
+negative regulation of viral process (GO:0048525)	53	13	2.37	+	5.50	3.48E-06	2.67E-04
+regulation of cytokinesis (GO:0032465)	49	12	2.19	+	5.49	8.37E-06	5.79E-04
+regulation of centrosome cycle (GO:0046605)	45	11	2.01	+	5.48	2.02E-05	1.25E-03
+positive regulation of DNA replication (GO:0045740)	41	10	1.83	+	5.46	4.88E-05	2.69E-03
+cytokinesis (GO:0000910)	70	17	3.12	+	5.44	1.25E-07	1.35E-05
+regulation of spindle organization (GO:0090224)	33	8	1.47	+	5.43	2.89E-04	1.23E-02
+cell cycle G1/S phase transition (GO:0044843)	62	15	2.77	+	5.42	7.19E-07	6.58E-05
+negative regulation of telomere maintenance (GO:0032205)	29	7	1.29	+	5.41	7.08E-04	2.62E-02
+telomere organization (GO:0032200)	58	14	2.59	+	5.41	1.73E-06	1.39E-04
+nucleosome organization (GO:0034728)	83	20	3.70	+	5.40	1.08E-08	1.33E-06
+DNA repair (GO:0006281)	316	76	14.10	+	5.39	6.83E-30	7.26E-27
+negative regulation of cell cycle phase transition (GO:1901988)	104	25	4.64	+	5.39	1.62E-10	2.80E-08
+DNA metabolic process (GO:0006259)	480	115	21.42	+	5.37	1.30E-45	3.58E-42
+chromatin silencing (GO:0006342)	42	10	1.87	+	5.33	5.82E-05	3.13E-03
+negative regulation of cell cycle process (GO:0010948)	152	36	6.78	+	5.31	2.03E-14	7.40E-12
+regulation of mitotic cell cycle phase transition (GO:1901990)	191	45	8.52	+	5.28	1.15E-17	5.46E-15
+spindle localization (GO:0051653)	34	8	1.52	+	5.27	3.44E-04	1.41E-02
+regulation of mitotic nuclear division (GO:0007088)	107	25	4.78	+	5.23	2.71E-10	4.41E-08
+regulation of mitotic spindle organization (GO:0060236)	30	7	1.34	+	5.23	8.41E-04	3.08E-02
+regulation of meiotic cell cycle (GO:0051445)	30	7	1.34	+	5.23	8.41E-04	3.07E-02
+establishment of spindle localization (GO:0051293)	30	7	1.34	+	5.23	8.41E-04	3.06E-02
+intrinsic apoptotic signaling pathway in response to endoplasmic reticulum stress (GO:0070059)	30	7	1.34	+	5.23	8.41E-04	3.05E-02
+defense response to virus (GO:0051607)	103	24	4.60	+	5.22	6.50E-10	1.02E-07
+positive regulation of type I interferon production (GO:0032481)	39	9	1.74	+	5.17	1.67E-04	7.70E-03
+positive regulation of cell cycle process (GO:0090068)	165	38	7.36	+	5.16	8.10E-15	3.11E-12
+G1/S transition of mitotic cell cycle (GO:0000082)	61	14	2.72	+	5.14	2.88E-06	2.25E-04
+cellular response to DNA damage stimulus (GO:0006974)	489	112	21.82	+	5.13	1.00E-42	2.30E-39
+cellular response to UV (GO:0034644)	57	13	2.54	+	5.11	6.90E-06	4.89E-04
+female gamete generation (GO:0007292)	79	18	3.53	+	5.11	1.22E-07	1.34E-05
+protein-DNA complex subunit organization (GO:0071824)	123	28	5.49	+	5.10	3.83E-11	7.79E-09
+positive regulation of mitotic cell cycle phase transition (GO:1901992)	49	11	2.19	+	5.03	3.98E-05	2.26E-03
+cellular response to ionizing radiation (GO:0071479)	49	11	2.19	+	5.03	3.98E-05	2.25E-03
+regulation of nuclear division (GO:0051783)	125	28	5.58	+	5.02	5.31E-11	1.05E-08
+regulation of cell cycle phase transition (GO:1901987)	211	47	9.42	+	4.99	1.41E-17	6.51E-15
+positive regulation of response to DNA damage stimulus (GO:2001022)	63	14	2.81	+	4.98	3.99E-06	2.99E-04
+cell cycle (GO:0007049)	840	185	37.49	+	4.93	1.06E-71	1.47E-67
+negative regulation of gene expression, epigenetic (GO:0045814)	46	10	2.05	+	4.87	1.12E-04	5.41E-03
+cell aging (GO:0007569)	46	10	2.05	+	4.87	1.12E-04	5.39E-03
+cellular response to light stimulus (GO:0071482)	60	13	2.68	+	4.85	1.12E-05	7.59E-04
+response to ionizing radiation (GO:0010212)	107	23	4.78	+	4.82	5.64E-09	7.49E-07
+response to UV (GO:0009411)	108	23	4.82	+	4.77	6.57E-09	8.49E-07
+cellular response to radiation (GO:0071478)	104	22	4.64	+	4.74	1.56E-08	1.91E-06
+DNA biosynthetic process (GO:0071897)	38	8	1.70	+	4.72	6.54E-04	2.44E-02
+positive regulation of cell cycle phase transition (GO:1901989)	57	12	2.54	+	4.72	3.10E-05	1.83E-03
+regulation of response to DNA damage stimulus (GO:2001020)	134	28	5.98	+	4.68	2.14E-10	3.66E-08
+intrinsic apoptotic signaling pathway (GO:0097193)	120	25	5.36	+	4.67	2.13E-09	3.03E-07
+response to virus (GO:0009615)	132	27	5.89	+	4.58	6.82E-10	1.06E-07
+regulation of DNA metabolic process (GO:0051052)	293	59	13.08	+	4.51	5.58E-20	3.21E-17
+positive regulation of DNA metabolic process (GO:0051054)	169	34	7.54	+	4.51	5.94E-12	1.47E-09
+regulation of cell cycle process (GO:0010564)	414	82	18.48	+	4.44	3.27E-27	2.82E-24
+regulation of fibroblast proliferation (GO:0048145)	71	14	3.17	+	4.42	1.32E-05	8.71E-04
+negative regulation of chromosome organization (GO:2001251)	88	17	3.93	+	4.33	2.03E-06	1.61E-04
+regulation of defense response to virus (GO:0050688)	42	8	1.87	+	4.27	1.16E-03	4.14E-02
+activation of cysteine-type endopeptidase activity involved in apoptotic process (GO:0006919)	48	9	2.14	+	4.20	6.38E-04	2.38E-02
+blastocyst development (GO:0001824)	64	12	2.86	+	4.20	8.32E-05	4.20E-03
+negative regulation of mitotic cell cycle (GO:0045930)	155	29	6.92	+	4.19	9.77E-10	1.48E-07
+positive regulation of cell cycle (GO:0045787)	246	46	10.98	+	4.19	9.98E-15	3.73E-12
+regulation of viral genome replication (GO:0045069)	54	10	2.41	+	4.15	3.52E-04	1.44E-02
+chromosome organization (GO:0051276)	661	121	29.50	+	4.10	1.09E-37	1.89E-34
+regulation of cyclin-dependent protein kinase activity (GO:1904029)	55	10	2.45	+	4.07	4.00E-04	1.62E-02
+regulation of cyclin-dependent protein serine/threonine kinase activity (GO:0000079)	50	9	2.23	+	4.03	8.26E-04	3.03E-02
+negative regulation of cell cycle (GO:0045786)	288	51	12.85	+	3.97	2.25E-15	8.89E-13
+regulation of type I interferon production (GO:0032479)	57	10	2.54	+	3.93	5.14E-04	2.01E-02
+negative regulation of multi-organism process (GO:0043901)	97	17	4.33	+	3.93	6.44E-06	4.66E-04
+positive regulation of innate immune response (GO:0045089)	103	18	4.60	+	3.92	3.58E-06	2.73E-04
+positive regulation of mitotic cell cycle (GO:0045931)	105	18	4.69	+	3.84	4.54E-06	3.39E-04
+regulation of cell division (GO:0051302)	88	15	3.93	+	3.82	2.99E-05	1.76E-03
+activation of innate immune response (GO:0002218)	53	9	2.37	+	3.80	1.19E-03	4.22E-02
+defense response to other organism (GO:0098542)	189	32	8.44	+	3.79	1.19E-09	1.79E-07
+regulation of mitotic cell cycle (GO:0007346)	387	65	17.27	+	3.76	2.47E-18	1.31E-15
+positive regulation of chromatin organization (GO:1905269)	75	12	3.35	+	3.58	3.11E-04	1.29E-02
+microtubule cytoskeleton organization (GO:0000226)	315	50	14.06	+	3.56	1.85E-13	5.96E-11
+regulation of DNA biosynthetic process (GO:2000278)	82	13	3.66	+	3.55	1.91E-04	8.58E-03
+aging (GO:0007568)	101	16	4.51	+	3.55	3.63E-05	2.10E-03
+regulation of cell cycle (GO:0051726)	712	112	31.78	+	3.52	1.75E-29	1.73E-26
+regulation of chromosome organization (GO:0033044)	243	38	10.85	+	3.50	2.47E-10	4.06E-08
+regulation of microtubule cytoskeleton organization (GO:0070507)	150	23	6.69	+	3.44	1.24E-06	1.05E-04
+regulation of viral life cycle (GO:1903900)	85	13	3.79	+	3.43	2.62E-04	1.13E-02
+cellular response to abiotic stimulus (GO:0071214)	160	24	7.14	+	3.36	1.04E-06	8.94E-05
+cellular response to environmental stimulus (GO:0104004)	160	24	7.14	+	3.36	1.04E-06	8.89E-05
+regulation of G1/S transition of mitotic cell cycle (GO:2000045)	81	12	3.62	+	3.32	5.79E-04	2.20E-02
+apoptotic signaling pathway (GO:0097190)	196	29	8.75	+	3.32	1.01E-07	1.12E-05
+positive regulation of chromosome organization (GO:2001252)	129	19	5.76	+	3.30	1.73E-05	1.09E-03
+regulation of innate immune response (GO:0045088)	160	23	7.14	+	3.22	3.31E-06	2.56E-04
+regulation of viral process (GO:0050792)	113	16	5.04	+	3.17	1.20E-04	5.72E-03
+response to radiation (GO:0009314)	284	40	12.68	+	3.16	1.30E-09	1.93E-07
+gene silencing (GO:0016458)	93	13	4.15	+	3.13	5.69E-04	2.17E-02
+innate immune response (GO:0045087)	277	38	12.36	+	3.07	6.54E-09	8.52E-07
+regulation of microtubule-based process (GO:0032886)	176	24	7.86	+	3.06	4.61E-06	3.41E-04
+microtubule-based process (GO:0007017)	450	61	20.08	+	3.04	1.94E-13	6.08E-11
+regulation of cell cycle G1/S phase transition (GO:1902806)	91	12	4.06	+	2.95	1.44E-03	4.91E-02
+regulation of symbiosis, encompassing mutualism through parasitism (GO:0043903)	130	17	5.80	+	2.93	1.77E-04	8.09E-03
+positive regulation of defense response (GO:0031349)	154	20	6.87	+	2.91	5.31E-05	2.89E-03
+immune effector process (GO:0002252)	239	31	10.67	+	2.91	5.06E-07	4.76E-05
+regulation of multi-organism process (GO:0043900)	225	29	10.04	+	2.89	1.33E-06	1.10E-04
+cellular process involved in reproduction in multicellular organism (GO:0022412)	189	24	8.44	+	2.85	1.36E-05	8.92E-04
+regulation of chromatin organization (GO:1902275)	127	16	5.67	+	2.82	3.96E-04	1.61E-02
+cellular response to stress (GO:0033554)	1002	124	44.72	+	2.77	4.45E-24	3.41E-21
+chromatin organization (GO:0006325)	461	57	20.58	+	2.77	3.59E-11	7.40E-09
+response to other organism (GO:0051707)	354	42	15.80	+	2.66	6.92E-08	7.91E-06
+response to external biotic stimulus (GO:0043207)	355	42	15.84	+	2.65	7.17E-08	8.12E-06
+response to light stimulus (GO:0009416)	196	23	8.75	+	2.63	6.27E-05	3.33E-03
+response to biotic stimulus (GO:0009607)	377	44	16.83	+	2.61	4.11E-08	4.74E-06
+positive regulation of immune response (GO:0050778)	240	26	10.71	+	2.43	8.01E-05	4.12E-03
+gamete generation (GO:0007276)	333	36	14.86	+	2.42	4.57E-06	3.40E-04
+reproduction (GO:0000003)	689	74	30.75	+	2.41	2.61E-11	5.82E-09
+reproductive process (GO:0022414)	689	74	30.75	+	2.41	2.61E-11	5.73E-09
+establishment of organelle localization (GO:0051656)	261	28	11.65	+	2.40	4.78E-05	2.64E-03
+immune response (GO:0006955)	467	49	20.84	+	2.35	1.45E-07	1.52E-05
+negative regulation of organelle organization (GO:0010639)	262	26	11.69	+	2.22	3.04E-04	1.26E-02
+regulation of defense response (GO:0031347)	314	31	14.01	+	2.21	1.08E-04	5.20E-03
+defense response (GO:0006952)	533	52	23.79	+	2.19	4.90E-07	4.64E-05
+regulation of cellular response to stress (GO:0080135)	431	41	19.24	+	2.13	1.34E-05	8.82E-04
+response to stress (GO:0006950)	1768	167	78.91	+	2.12	4.99E-21	3.14E-18
+multi-organism process (GO:0051704)	936	88	41.77	+	2.11	1.37E-10	2.46E-08
+sexual reproduction (GO:0019953)	400	37	17.85	+	2.07	8.58E-05	4.30E-03
+multicellular organismal reproductive process (GO:0048609)	414	38	18.48	+	2.06	6.88E-05	3.61E-03
+positive regulation of immune system process (GO:0002684)	426	39	19.01	+	2.05	5.38E-05	2.92E-03
+multicellular organism reproduction (GO:0032504)	418	38	18.66	+	2.04	7.70E-05	3.97E-03
+multi-organism reproductive process (GO:0044703)	453	41	20.22	+	2.03	5.24E-05	2.87E-03
+cell proliferation (GO:0008283)	371	33	16.56	+	1.99	3.71E-04	1.52E-02
+regulation of immune response (GO:0050776)	362	32	16.16	+	1.98	5.12E-04	2.01E-02
+regulation of response to stress (GO:0080134)	763	66	34.05	+	1.94	7.19E-07	6.54E-05
+organelle localization (GO:0051640)	350	30	15.62	+	1.92	1.12E-03	4.01E-02
+apoptotic process (GO:0006915)	575	48	25.66	+	1.87	6.29E-05	3.33E-03
+regulation of organelle organization (GO:0033043)	923	77	41.19	+	1.87	3.03E-07	2.97E-05
+protein localization to organelle (GO:0033365)	437	36	19.50	+	1.85	7.00E-04	2.60E-02
+negative regulation of nucleobase-containing compound metabolic process (GO:0045934)	904	74	40.35	+	1.83	1.31E-06	1.10E-04
+positive regulation of organelle organization (GO:0010638)	465	38	20.75	+	1.83	6.35E-04	2.38E-02
+organelle organization (GO:0006996)	2155	176	96.18	+	1.83	5.64E-16	2.29E-13
+cytoskeleton organization (GO:0007010)	687	56	30.66	+	1.83	3.11E-05	1.82E-03
+programmed cell death (GO:0012501)	592	48	26.42	+	1.82	1.22E-04	5.81E-03
+nucleic acid metabolic process (GO:0090304)	2266	182	101.13	+	1.80	5.30E-16	2.22E-13
+negative regulation of cellular macromolecule biosynthetic process (GO:2000113)	889	71	39.68	+	1.79	3.97E-06	3.00E-04
+immune system process (GO:0002376)	973	77	43.43	+	1.77	2.02E-06	1.61E-04
+cell death (GO:0008219)	622	49	27.76	+	1.77	2.42E-04	1.06E-02
+negative regulation of macromolecule biosynthetic process (GO:0010558)	916	71	40.88	+	1.74	1.14E-05	7.67E-04
+response to abiotic stimulus (GO:0009628)	602	46	26.87	+	1.71	6.35E-04	2.38E-02
+regulation of immune system process (GO:0002682)	684	52	30.53	+	1.70	3.18E-04	1.31E-02
+regulation of cell proliferation (GO:0042127)	988	75	44.10	+	1.70	1.13E-05	7.62E-04
+negative regulation of cellular biosynthetic process (GO:0031327)	951	71	42.44	+	1.67	3.43E-05	1.99E-03
+nucleobase-containing compound metabolic process (GO:0006139)	2612	192	116.58	+	1.65	3.79E-13	1.09E-10
+negative regulation of biosynthetic process (GO:0009890)	978	71	43.65	+	1.63	8.36E-05	4.20E-03
+heterocycle metabolic process (GO:0046483)	2687	194	119.92	+	1.62	1.02E-12	2.78E-10
+cellular aromatic compound metabolic process (GO:0006725)	2708	194	120.86	+	1.61	2.41E-12	6.17E-10
+negative regulation of macromolecule metabolic process (GO:0010605)	1566	111	69.89	+	1.59	1.31E-06	1.09E-04
+negative regulation of gene expression (GO:0010629)	1032	73	46.06	+	1.58	1.64E-04	7.62E-03
+negative regulation of nitrogen compound metabolic process (GO:0051172)	1467	103	65.47	+	1.57	6.50E-06	4.68E-04
+organic cyclic compound metabolic process (GO:1901360)	2803	195	125.10	+	1.56	2.76E-11	5.87E-09
+negative regulation of cellular metabolic process (GO:0031324)	1588	107	70.87	+	1.51	2.33E-05	1.42E-03
+negative regulation of metabolic process (GO:0009892)	1732	115	77.30	+	1.49	1.96E-05	1.22E-03
+cellular nitrogen compound metabolic process (GO:0034641)	3024	199	134.97	+	1.47	2.21E-09	3.11E-07
+regulation of nucleobase-containing compound metabolic process (GO:0019219)	2514	162	112.20	+	1.44	7.48E-07	6.67E-05
+macromolecule biosynthetic process (GO:0009059)	1996	126	89.08	+	1.41	5.66E-05	3.06E-03
+cellular macromolecule biosynthetic process (GO:0034645)	1974	124	88.10	+	1.41	8.59E-05	4.28E-03
+cellular macromolecule metabolic process (GO:0044260)	3643	227	162.59	+	1.40	8.50E-09	1.07E-06
+cellular component assembly (GO:0022607)	1499	93	66.90	+	1.39	1.38E-03	4.73E-02
+cellular component organization (GO:0016043)	3367	208	150.27	+	1.38	1.24E-07	1.35E-05
+cellular component organization or biogenesis (GO:0071840)	3519	214	157.06	+	1.36	2.33E-07	2.35E-05
+cellular response to stimulus (GO:0051716)	3218	194	143.62	+	1.35	3.19E-06	2.48E-04
+regulation of cellular macromolecule biosynthetic process (GO:2000112)	2441	146	108.95	+	1.34	1.87E-04	8.41E-03
+positive regulation of nitrogen compound metabolic process (GO:0051173)	1924	115	85.87	+	1.34	1.17E-03	4.15E-02
+regulation of macromolecule biosynthetic process (GO:0010556)	2496	148	111.40	+	1.33	2.13E-04	9.41E-03
+negative regulation of biological process (GO:0048519)	3191	189	142.42	+	1.33	1.58E-05	1.01E-03
+negative regulation of cellular process (GO:0048523)	2923	172	130.46	+	1.32	7.08E-05	3.66E-03
+regulation of nitrogen compound metabolic process (GO:0051171)	3559	209	158.84	+	1.32	6.09E-06	4.43E-04
+regulation of macromolecule metabolic process (GO:0060255)	3668	214	163.71	+	1.31	5.82E-06	4.28E-04
+macromolecule metabolic process (GO:0043170)	4289	249	191.42	+	1.30	5.09E-07	4.75E-05
+regulation of cellular biosynthetic process (GO:0031326)	2591	150	115.64	+	1.30	5.83E-04	2.21E-02
+regulation of primary metabolic process (GO:0080090)	3646	211	162.73	+	1.30	1.38E-05	8.97E-04
+regulation of cellular metabolic process (GO:0031323)	3756	216	167.64	+	1.29	1.60E-05	1.02E-03
+regulation of biosynthetic process (GO:0009889)	2634	150	117.56	+	1.28	1.34E-03	4.58E-02
+regulation of metabolic process (GO:0019222)	3964	225	176.92	+	1.27	2.08E-05	1.27E-03
+response to stimulus (GO:0050896)	3977	223	177.50	+	1.26	5.90E-05	3.16E-03
+nitrogen compound metabolic process (GO:0006807)	4755	260	212.22	+	1.23	4.00E-05	2.25E-03
+regulation of cellular process (GO:0050794)	6155	319	274.71	+	1.16	1.33E-04	6.28E-03
+regulation of biological process (GO:0050789)	6485	335	289.43	+	1.16	8.27E-05	4.19E-03
+cellular process (GO:0009987)	8558	436	381.96	+	1.14	4.06E-08	4.71E-06
+biological regulation (GO:0065007)	6807	343	303.81	+	1.13	6.29E-04	2.37E-02
+establishment of localization (GO:0051234)	2358	74	105.24	-	.70	6.12E-04	2.32E-02
+nervous system development (GO:0007399)	1507	41	67.26	-	.61	4.49E-04	1.77E-02
+neurogenesis (GO:0022008)	1128	27	50.34	-	.54	3.08E-04	1.28E-02
+generation of neurons (GO:0048699)	1050	25	46.86	-	.53	4.86E-04	1.91E-02
+small molecule metabolic process (GO:0044281)	1013	23	45.21	-	.51	2.85E-04	1.21E-02
+transport (GO:0006810)	2256	51	100.69	-	.51	6.18E-09	8.14E-07
+organonitrogen compound biosynthetic process (GO:1901566)	817	16	36.46	-	.44	1.78E-04	8.10E-03
+system process (GO:0003008)	765	14	34.14	-	.41	1.52E-04	7.07E-03
+cellular lipid metabolic process (GO:0044255)	523	9	23.34	-	.39	1.33E-03	4.59E-02
+cell projection organization (GO:0030030)	742	12	33.12	-	.36	3.67E-05	2.12E-03
+regulation of neuron differentiation (GO:0045664)	496	8	22.14	-	.36	1.00E-03	3.60E-02
+plasma membrane bounded cell projection organization (GO:0120036)	713	11	31.82	-	.35	3.77E-05	2.16E-03
+lipid metabolic process (GO:0006629)	651	10	29.06	-	.34	6.71E-05	3.54E-03
+transmembrane transport (GO:0055085)	535	8	23.88	-	.34	3.00E-04	1.26E-02
+regulation of plasma membrane bounded cell projection organization (GO:0120035)	503	7	22.45	-	.31	2.93E-04	1.24E-02
+regulation of cell projection organization (GO:0031344)	507	7	22.63	-	.31	3.02E-04	1.26E-02
+regulation of neuron projection development (GO:0010975)	382	5	17.05	-	.29	1.26E-03	4.36E-02
+behavior (GO:0007610)	441	5	19.68	-	.25	1.79E-04	8.16E-03
+peptide metabolic process (GO:0006518)	353	4	15.75	-	.25	1.20E-03	4.25E-02
+ion transport (GO:0006811)	677	7	30.22	-	.23	7.64E-07	6.77E-05
+cell-cell signaling (GO:0007267)	509	5	22.72	-	.22	1.69E-05	1.08E-03
+positive regulation of cell projection organization (GO:0031346)	307	3	13.70	-	.22	1.45E-03	4.92E-02
+metal ion transport (GO:0030001)	337	3	15.04	-	.20	5.30E-04	2.06E-02
+inorganic ion transmembrane transport (GO:0098660)	270	2	12.05	-	.17	1.17E-03	4.16E-02
+peptide biosynthetic process (GO:0043043)	273	2	12.18	-	.16	7.96E-04	2.93E-02
+cation transport (GO:0006812)	443	3	19.77	-	.15	7.04E-06	4.96E-04
+vesicle-mediated transport (GO:0016192)	749	5	33.43	-	.15	2.06E-09	2.97E-07
+secretion (GO:0046903)	306	2	13.66	-	.15	2.75E-04	1.17E-02
+regulation of cell morphogenesis involved in differentiation (GO:0010769)	248	1	11.07	-	.09	3.77E-04	1.54E-02
+anion transport (GO:0006820)	253	1	11.29	-	.09	3.98E-04	1.61E-02
+plasma membrane bounded cell projection assembly (GO:0120031)	255	1	11.38	-	.09	2.57E-04	1.12E-02
+cell projection assembly (GO:0030031)	258	1	11.51	-	.09	2.60E-04	1.13E-02
+endocytosis (GO:0006897)	279	1	12.45	-	.08	1.25E-04	5.94E-03
+import into cell (GO:0098657)	316	1	14.10	-	.07	2.73E-05	1.62E-03
+chemical synaptic transmission (GO:0007268)	248	0	11.07	-	 < 0.01	3.95E-05	2.25E-03
+trans-synaptic signaling (GO:0099537)	255	0	11.38	-	 < 0.01	2.56E-05	1.54E-03
+synaptic signaling (GO:0099536)	257	0	11.47	-	 < 0.01	2.64E-05	1.58E-03
+anterograde trans-synaptic signaling (GO:0098916)	248	0	11.07	-	 < 0.01	3.95E-05	2.24E-03
+Golgi vesicle transport (GO:0048193)	180	0	8.03	-	 < 0.01	6.15E-04	2.32E-02
+organic anion transport (GO:0015711)	191	0	8.52	-	 < 0.01	4.17E-04	1.65E-02
+locomotory behavior (GO:0007626)	168	0	7.50	-	 < 0.01	1.47E-03	4.95E-02

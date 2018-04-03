@@ -21,12 +21,20 @@ is used to perform Gene Ontology Enrichment Analyses (GOEAs)
 The genes used in the DAVID GOEA runs were obtained from the 
 supplemental table, nature14252-s1.xlsx:
 
-  * genes_Consistent_Decrease.txt
-  * genes_Consistent_Increase.txt
-  * genes_Late_Decrease.txt
-  * genes_Late_Increase.txt
-  * genes_population.txt
-  * genes_Transient_Decrease.txt
-  * genes_Transient_Increase.txt
+| File | Panther |
+|------|---------|---------------------
+| 1029 |     892 | genes_Consistent_Decrease.txt
+|  794 |     696 | genes_Consistent_Increase.txt
+| 1139 |     998 | genes_Late_Decrease.txt
+| 1397 |    1220 | genes_Late_Increase.txt
+|  142 |     127 | genes_Transient_Decrease.txt
+|  624 |     520 | genes_Transient_Increase.txt
+|13836 |   11651 | genes_population.txt
+
+### Panther versions
+Analysis Type: PANTHER Overrepresentation Test (Release 20171205)
+Annotation Version and Release Data: GO Ontology database Released 2018-02-02
+Annotation Data Set: GO biological process complete
+
 
 Copyright (C) 2016-2018, DV Klopfenstein, Haibao Tang, et al. All rights reserved.

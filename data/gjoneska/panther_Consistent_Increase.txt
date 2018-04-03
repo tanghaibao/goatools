@@ -1,0 +1,198 @@
+
+
+
+
+
+Analysis Type:	PANTHER Overrepresentation Test (Released 20171205)
+Annotation Version and Release Date:	GO Ontology database  Released 2018-02-02
+Analyzed List:	ConInc (Mus musculus )
+Reference List:	pop (Mus musculus )
+Test Type:	FISHER
+GO biological process complete	pop - REFLIST (11651)	ConInc (696)	ConInc (expected)	ConInc (over/under)	ConInc (fold Enrichment)	ConInc (raw P-value)	ConInc (FDR)
+antigen processing and presentation of exogenous peptide antigen via MHC class I (GO:0042590)	4	4	.24	+	16.74	5.84E-04	4.41E-02
+antigen processing and presentation of endogenous peptide antigen (GO:0002483)	7	5	.42	+	11.96	3.19E-04	2.75E-02
+germinal center formation (GO:0002467)	7	5	.42	+	11.96	3.19E-04	2.74E-02
+antigen processing and presentation of exogenous peptide antigen (GO:0002478)	9	6	.54	+	11.16	1.01E-04	1.25E-02
+interleukin-1 production (GO:0032612)	9	6	.54	+	11.16	1.01E-04	1.24E-02
+interleukin-1 beta production (GO:0032611)	9	6	.54	+	11.16	1.01E-04	1.23E-02
+antigen processing and presentation of peptide antigen via MHC class I (GO:0002474)	19	12	1.14	+	10.57	4.90E-08	1.78E-05
+antigen processing and presentation of endogenous antigen (GO:0019883)	8	5	.48	+	10.46	4.94E-04	3.92E-02
+response to protozoan (GO:0001562)	13	8	.78	+	10.30	1.03E-05	1.74E-03
+defense response to protozoan (GO:0042832)	13	8	.78	+	10.30	1.03E-05	1.72E-03
+antigen processing and presentation of exogenous antigen (GO:0019884)	13	8	.78	+	10.30	1.03E-05	1.70E-03
+positive regulation of T cell mediated cytotoxicity (GO:0001916)	10	6	.60	+	10.04	1.54E-04	1.64E-02
+positive regulation of T cell cytokine production (GO:0002726)	10	6	.60	+	10.04	1.54E-04	1.63E-02
+regulation of T cell mediated cytotoxicity (GO:0001914)	11	6	.66	+	9.13	2.27E-04	2.21E-02
+cellular response to interferon-beta (GO:0035458)	28	15	1.67	+	8.97	5.48E-09	2.61E-06
+positive regulation of T cell mediated immunity (GO:0002711)	22	11	1.31	+	8.37	1.04E-06	2.53E-04
+antigen processing and presentation of peptide antigen (GO:0048002)	25	12	1.49	+	8.04	4.71E-07	1.33E-04
+regulation of macrophage differentiation (GO:0045649)	13	6	.78	+	7.73	4.52E-04	3.63E-02
+response to interferon-beta (GO:0035456)	35	16	2.09	+	7.65	9.84E-09	4.25E-06
+positive regulation of interleukin-1 beta secretion (GO:0050718)	16	7	.96	+	7.32	1.94E-04	1.96E-02
+positive regulation of interleukin-1 secretion (GO:0050716)	16	7	.96	+	7.32	1.94E-04	1.95E-02
+production of molecular mediator involved in inflammatory response (GO:0002532)	14	6	.84	+	7.17	6.16E-04	4.60E-02
+regulation of T cell cytokine production (GO:0002724)	14	6	.84	+	7.17	6.16E-04	4.57E-02
+regulation of interleukin-1 beta secretion (GO:0050706)	17	7	1.02	+	6.89	2.61E-04	2.39E-02
+positive regulation of interleukin-1 beta production (GO:0032731)	20	8	1.19	+	6.70	1.11E-04	1.29E-02
+defense response to Gram-positive bacterium (GO:0050830)	36	14	2.15	+	6.51	4.05E-07	1.19E-04
+regulation of interleukin-1 secretion (GO:0050704)	18	7	1.08	+	6.51	3.45E-04	2.91E-02
+positive regulation of leukocyte mediated cytotoxicity (GO:0001912)	19	7	1.14	+	6.17	4.49E-04	3.65E-02
+regulation of CD4-positive, alpha-beta T cell differentiation (GO:0043370)	19	7	1.14	+	6.17	4.49E-04	3.63E-02
+regulation of T cell mediated immunity (GO:0002709)	31	11	1.85	+	5.94	1.45E-05	2.25E-03
+positive regulation of interleukin-8 production (GO:0032757)	20	7	1.19	+	5.86	5.78E-04	4.39E-02
+positive regulation of adaptive immune response based on somatic recombination of immune receptors built from immunoglobulin superfamily domains (GO:0002824)	43	15	2.57	+	5.84	4.87E-07	1.32E-04
+positive regulation of interleukin-1 production (GO:0032732)	23	8	1.37	+	5.82	2.42E-04	2.31E-02
+antigen processing and presentation (GO:0019882)	46	16	2.75	+	5.82	2.09E-07	7.05E-05
+positive regulation of lymphocyte mediated immunity (GO:0002708)	46	16	2.75	+	5.82	2.09E-07	6.89E-05
+positive regulation of cell killing (GO:0031343)	24	8	1.43	+	5.58	3.07E-04	2.71E-02
+positive regulation of adaptive immune response (GO:0002821)	48	16	2.87	+	5.58	3.36E-07	1.06E-04
+regulation of interleukin-8 production (GO:0032677)	28	9	1.67	+	5.38	1.63E-04	1.69E-02
+regulation of CD4-positive, alpha-beta T cell activation (GO:2000514)	25	8	1.49	+	5.36	3.86E-04	3.23E-02
+positive regulation of tumor necrosis factor production (GO:0032760)	48	15	2.87	+	5.23	1.54E-06	3.60E-04
+regulation of mast cell activation (GO:0033003)	29	9	1.73	+	5.20	2.03E-04	2.00E-02
+defense response to bacterium (GO:0042742)	78	24	4.66	+	5.15	1.50E-09	8.31E-07
+positive regulation of tumor necrosis factor superfamily cytokine production (GO:1903557)	49	15	2.93	+	5.12	1.90E-06	4.18E-04
+regulation of cytokine production involved in immune response (GO:0002718)	37	11	2.21	+	4.98	5.61E-05	7.52E-03
+positive regulation of interferon-gamma production (GO:0032729)	27	8	1.61	+	4.96	5.92E-04	4.45E-02
+positive regulation of leukocyte mediated immunity (GO:0002705)	58	17	3.46	+	4.91	6.58E-07	1.69E-04
+I-kappaB kinase/NF-kappaB signaling (GO:0007249)	33	9	1.97	+	4.57	4.54E-04	3.62E-02
+positive regulation of chemokine production (GO:0032722)	34	9	2.03	+	4.43	5.45E-04	4.21E-02
+regulation of interleukin-6 production (GO:0032675)	70	18	4.18	+	4.30	1.55E-06	3.57E-04
+positive regulation of interleukin-6 production (GO:0032755)	47	12	2.81	+	4.27	9.06E-05	1.17E-02
+positive regulation of production of molecular mediator of immune response (GO:0002702)	47	12	2.81	+	4.27	9.06E-05	1.16E-02
+regulation of adaptive immune response based on somatic recombination of immune receptors built from immunoglobulin superfamily domains (GO:0002822)	72	18	4.30	+	4.18	2.19E-06	4.72E-04
+inflammatory response (GO:0006954)	192	47	11.47	+	4.10	2.93E-14	4.06E-11
+regulation of adaptive immune response (GO:0002819)	82	20	4.90	+	4.08	8.37E-07	2.10E-04
+positive regulation of NF-kappaB transcription factor activity (GO:0051092)	78	19	4.66	+	4.08	1.60E-06	3.56E-04
+regulation of tumor necrosis factor production (GO:0032680)	74	18	4.42	+	4.07	3.05E-06	6.10E-04
+regulation of lymphocyte mediated immunity (GO:0002706)	75	18	4.48	+	4.02	3.58E-06	6.97E-04
+regulation of alpha-beta T cell activation (GO:0046634)	42	10	2.51	+	3.99	5.56E-04	4.25E-02
+regulation of tumor necrosis factor superfamily cytokine production (GO:1903555)	76	18	4.54	+	3.96	4.20E-06	7.85E-04
+regulation of leukocyte mediated immunity (GO:0002703)	103	24	6.15	+	3.90	1.41E-07	4.99E-05
+adaptive immune response based on somatic recombination of immune receptors built from immunoglobulin superfamily domains (GO:0002460)	73	17	4.36	+	3.90	9.37E-06	1.64E-03
+defense response to other organism (GO:0098542)	189	44	11.29	+	3.90	8.78E-13	9.33E-10
+positive regulation of extrinsic apoptotic signaling pathway (GO:2001238)	43	10	2.57	+	3.89	6.52E-04	4.82E-02
+adaptive immune response (GO:0002250)	118	27	7.05	+	3.83	3.25E-08	1.25E-05
+lymphocyte mediated immunity (GO:0002449)	57	13	3.41	+	3.82	1.25E-04	1.41E-02
+activation of innate immune response (GO:0002218)	53	12	3.17	+	3.79	2.39E-04	2.29E-02
+regulation of leukocyte apoptotic process (GO:2000106)	58	13	3.46	+	3.75	1.45E-04	1.57E-02
+response to molecule of bacterial origin (GO:0002237)	157	35	9.38	+	3.73	5.41E-10	3.25E-07
+response to bacterium (GO:0009617)	223	49	13.32	+	3.68	2.77E-13	3.19E-10
+cellular response to molecule of bacterial origin (GO:0071219)	92	20	5.50	+	3.64	3.86E-06	7.40E-04
+immune response-activating signal transduction (GO:0002757)	92	20	5.50	+	3.64	3.86E-06	7.30E-04
+innate immune response (GO:0045087)	277	60	16.55	+	3.63	9.00E-16	1.56E-12
+cellular response to lipopolysaccharide (GO:0071222)	88	19	5.26	+	3.61	7.30E-06	1.29E-03
+myeloid leukocyte activation (GO:0002274)	65	14	3.88	+	3.61	1.17E-04	1.35E-02
+leukocyte mediated immunity (GO:0002443)	79	17	4.72	+	3.60	2.28E-05	3.42E-03
+positive regulation of cytokine production (GO:0001819)	214	46	12.78	+	3.60	2.96E-12	2.72E-09
+positive regulation of immune effector process (GO:0002699)	107	23	6.39	+	3.60	8.71E-07	2.15E-04
+activation of immune response (GO:0002253)	121	26	7.23	+	3.60	1.71E-07	5.90E-05
+regulation of production of molecular mediator of immune response (GO:0002700)	67	14	4.00	+	3.50	1.55E-04	1.62E-02
+phagocytosis (GO:0006909)	72	15	4.30	+	3.49	9.38E-05	1.18E-02
+immune response-regulating signaling pathway (GO:0002764)	96	20	5.73	+	3.49	6.72E-06	1.22E-03
+immune response (GO:0006955)	467	96	27.90	+	3.44	2.16E-23	9.94E-20
+positive regulation of leukocyte differentiation (GO:1902107)	83	17	4.96	+	3.43	3.93E-05	5.49E-03
+leukocyte activation involved in immune response (GO:0002366)	88	18	5.26	+	3.42	2.38E-05	3.54E-03
+positive regulation of immune response (GO:0050778)	240	49	14.34	+	3.42	2.90E-12	2.86E-09
+positive regulation of leukocyte migration (GO:0002687)	64	13	3.82	+	3.40	3.36E-04	2.85E-02
+response to other organism (GO:0051707)	354	71	21.15	+	3.36	6.05E-17	1.67E-13
+response to external biotic stimulus (GO:0043207)	355	71	21.21	+	3.35	6.89E-17	1.59E-13
+cellular response to biotic stimulus (GO:0071216)	105	21	6.27	+	3.35	6.91E-06	1.24E-03
+cell activation involved in immune response (GO:0002263)	91	18	5.44	+	3.31	3.51E-05	5.01E-03
+defense response (GO:0006952)	533	105	31.84	+	3.30	2.59E-24	1.79E-20
+response to interferon-gamma (GO:0034341)	66	13	3.94	+	3.30	4.35E-04	3.56E-02
+response to lipopolysaccharide (GO:0032496)	143	28	8.54	+	3.28	3.08E-07	9.89E-05
+positive regulation of innate immune response (GO:0045089)	103	20	6.15	+	3.25	1.66E-05	2.52E-03
+response to biotic stimulus (GO:0009607)	377	72	22.52	+	3.20	3.45E-16	6.82E-13
+response to virus (GO:0009615)	132	25	7.89	+	3.17	2.23E-06	4.75E-04
+positive regulation of defense response (GO:0031349)	154	29	9.20	+	3.15	3.87E-07	1.16E-04
+defense response to virus (GO:0051607)	103	19	6.15	+	3.09	4.97E-05	6.73E-03
+immune effector process (GO:0002252)	239	44	14.28	+	3.08	6.98E-10	4.02E-07
+positive regulation of endopeptidase activity (GO:0010950)	99	18	5.91	+	3.04	9.17E-05	1.16E-02
+positive regulation of cysteine-type endopeptidase activity (GO:2001056)	89	16	5.32	+	3.01	2.48E-04	2.32E-02
+regulation of leukocyte migration (GO:0002685)	89	16	5.32	+	3.01	2.48E-04	2.30E-02
+positive regulation of hemopoiesis (GO:1903708)	107	19	6.39	+	2.97	7.80E-05	1.02E-02
+T cell activation (GO:0042110)	136	24	8.12	+	2.95	1.02E-05	1.74E-03
+positive regulation of immune system process (GO:0002684)	426	75	25.45	+	2.95	3.68E-15	5.65E-12
+positive regulation of I-kappaB kinase/NF-kappaB signaling (GO:0043123)	103	18	6.15	+	2.93	1.43E-04	1.55E-02
+regulation of cytokine production (GO:0001817)	341	59	20.37	+	2.90	7.33E-12	5.96E-09
+regulation of immune effector process (GO:0002697)	194	33	11.59	+	2.85	4.85E-07	1.34E-04
+positive regulation of response to external stimulus (GO:0032103)	147	25	8.78	+	2.85	1.18E-05	1.92E-03
+positive regulation of peptidase activity (GO:0010952)	106	18	6.33	+	2.84	1.96E-04	1.95E-02
+leukocyte activation (GO:0045321)	260	44	15.53	+	2.83	6.81E-09	3.14E-06
+regulation of immune response (GO:0050776)	362	61	21.62	+	2.82	8.45E-12	6.49E-09
+immune system process (GO:0002376)	973	161	58.12	+	2.77	6.33E-30	8.75E-26
+regulation of leukocyte differentiation (GO:1902105)	158	26	9.44	+	2.75	1.33E-05	2.13E-03
+regulation of innate immune response (GO:0045088)	160	26	9.56	+	2.72	1.61E-05	2.47E-03
+lymphocyte activation (GO:0046649)	211	34	12.60	+	2.70	1.56E-06	3.53E-04
+cell activation (GO:0001775)	324	51	19.35	+	2.63	3.98E-09	1.96E-06
+regulation of I-kappaB kinase/NF-kappaB signaling (GO:0043122)	148	23	8.84	+	2.60	1.36E-04	1.49E-02
+regulation of T cell activation (GO:0050863)	161	25	9.62	+	2.60	6.45E-05	8.57E-03
+regulation of immune system process (GO:0002682)	684	105	40.86	+	2.57	3.68E-17	1.27E-13
+regulation of hemopoiesis (GO:1903706)	224	34	13.38	+	2.54	3.47E-06	6.86E-04
+regulation of cysteine-type endopeptidase activity (GO:2000116)	146	22	8.72	+	2.52	2.43E-04	2.30E-02
+regulation of endopeptidase activity (GO:0052548)	174	26	10.39	+	2.50	6.58E-05	8.66E-03
+regulation of peptidase activity (GO:0052547)	209	31	12.49	+	2.48	1.38E-05	2.20E-03
+regulation of leukocyte cell-cell adhesion (GO:1903037)	170	25	10.16	+	2.46	1.11E-04	1.31E-02
+positive regulation of cell activation (GO:0050867)	170	25	10.16	+	2.46	1.11E-04	1.30E-02
+positive regulation of DNA binding transcription factor activity (GO:0051091)	150	22	8.96	+	2.46	3.08E-04	2.69E-02
+cellular response to cytokine stimulus (GO:0071345)	378	55	22.58	+	2.44	1.37E-08	5.72E-06
+regulation of lymphocyte activation (GO:0051249)	227	33	13.56	+	2.43	1.41E-05	2.21E-03
+regulation of cell activation (GO:0050865)	296	43	17.68	+	2.43	5.16E-07	1.37E-04
+regulation of leukocyte activation (GO:0002694)	272	39	16.25	+	2.40	2.37E-06	4.97E-04
+regulation of defense response (GO:0031347)	314	45	18.76	+	2.40	5.30E-07	1.38E-04
+response to cytokine (GO:0034097)	438	61	26.16	+	2.33	7.93E-09	3.54E-06
+hemopoiesis (GO:0030097)	356	49	21.27	+	2.30	4.37E-07	1.26E-04
+positive regulation of cell adhesion (GO:0045785)	242	33	14.46	+	2.28	4.77E-05	6.53E-03
+leukocyte differentiation (GO:0002521)	187	25	11.17	+	2.24	4.29E-04	3.53E-02
+regulation of multi-organism process (GO:0043900)	225	30	13.44	+	2.23	1.49E-04	1.59E-02
+regulation of actin cytoskeleton organization (GO:0032956)	231	30	13.80	+	2.17	1.92E-04	1.95E-02
+hematopoietic or lymphoid organ development (GO:0048534)	393	51	23.48	+	2.17	1.51E-06	3.61E-04
+immune system development (GO:0002520)	414	52	24.73	+	2.10	2.72E-06	5.52E-04
+regulation of cell-cell adhesion (GO:0022407)	232	29	13.86	+	2.09	5.44E-04	4.23E-02
+response to external stimulus (GO:0009605)	893	110	53.35	+	2.06	5.13E-12	4.43E-09
+positive regulation of cell migration (GO:0030335)	307	37	18.34	+	2.02	1.87E-04	1.91E-02
+regulation of response to external stimulus (GO:0032101)	395	47	23.60	+	1.99	3.21E-05	4.72E-03
+positive regulation of hydrolase activity (GO:0051345)	345	41	20.61	+	1.99	1.08E-04	1.30E-02
+positive regulation of cell motility (GO:2000147)	315	37	18.82	+	1.97	2.35E-04	2.27E-02
+regulation of protein complex assembly (GO:0043254)	292	34	17.44	+	1.95	5.46E-04	4.19E-02
+positive regulation of cellular component movement (GO:0051272)	327	38	19.53	+	1.95	2.90E-04	2.59E-02
+regulation of cell adhesion (GO:0030155)	427	49	25.51	+	1.92	4.06E-05	5.62E-03
+multi-organism process (GO:0051704)	936	105	55.91	+	1.88	2.39E-09	1.22E-06
+response to lipid (GO:0033993)	368	41	21.98	+	1.87	2.91E-04	2.58E-02
+regulation of proteolysis (GO:0030162)	427	46	25.51	+	1.80	3.22E-04	2.75E-02
+cell migration (GO:0016477)	486	52	29.03	+	1.79	1.18E-04	1.35E-02
+positive regulation of response to stimulus (GO:0048584)	1184	125	70.73	+	1.77	1.78E-09	9.46E-07
+positive regulation of cell proliferation (GO:0008284)	554	58	33.09	+	1.75	9.56E-05	1.19E-02
+cellular response to organic substance (GO:0071310)	1109	116	66.25	+	1.75	1.45E-08	5.88E-06
+cellular response to chemical stimulus (GO:0070887)	1373	143	82.02	+	1.74	1.97E-10	1.30E-07
+locomotion (GO:0040011)	673	69	40.20	+	1.72	3.49E-05	5.02E-03
+response to organic substance (GO:0010033)	1450	147	86.62	+	1.70	5.31E-10	3.34E-07
+positive regulation of catalytic activity (GO:0043085)	725	73	43.31	+	1.69	3.27E-05	4.75E-03
+response to stress (GO:0006950)	1768	177	105.62	+	1.68	1.42E-11	1.03E-08
+localization of cell (GO:0051674)	542	54	32.38	+	1.67	5.00E-04	3.95E-02
+cell motility (GO:0048870)	542	54	32.38	+	1.67	5.00E-04	3.92E-02
+regulation of hydrolase activity (GO:0051336)	604	60	36.08	+	1.66	2.56E-04	2.36E-02
+response to oxygen-containing compound (GO:1901700)	730	71	43.61	+	1.63	1.29E-04	1.44E-02
+positive regulation of molecular function (GO:0044093)	961	93	57.41	+	1.62	9.86E-06	1.70E-03
+positive regulation of multicellular organismal process (GO:0051240)	1039	100	62.07	+	1.61	5.55E-06	1.02E-03
+response to chemical (GO:0042221)	1964	188	117.32	+	1.60	9.28E-11	6.41E-08
+regulation of response to stress (GO:0080134)	763	73	45.58	+	1.60	1.75E-04	1.81E-02
+intracellular signal transduction (GO:0035556)	900	86	53.76	+	1.60	3.71E-05	5.24E-03
+positive regulation of signal transduction (GO:0009967)	904	84	54.00	+	1.56	1.27E-04	1.43E-02
+regulation of cell proliferation (GO:0042127)	988	90	59.02	+	1.52	1.33E-04	1.47E-02
+regulation of programmed cell death (GO:0043067)	1030	90	61.53	+	1.46	5.06E-04	3.95E-02
+regulation of catalytic activity (GO:0050790)	1191	103	71.15	+	1.45	2.68E-04	2.42E-02
+regulation of response to stimulus (GO:0048583)	2209	189	131.96	+	1.43	3.39E-07	1.04E-04
+response to stimulus (GO:0050896)	3977	337	237.58	+	1.42	6.56E-14	8.24E-11
+regulation of molecular function (GO:0065009)	1611	132	96.24	+	1.37	2.62E-04	2.38E-02
+regulation of multicellular organismal process (GO:0051239)	1797	147	107.35	+	1.37	1.10E-04	1.31E-02
+cellular response to stimulus (GO:0051716)	3218	262	192.23	+	1.36	2.57E-08	1.02E-05
+positive regulation of biological process (GO:0048518)	3616	287	216.01	+	1.33	4.38E-08	1.64E-05
+signal transduction (GO:0007165)	2164	170	129.27	+	1.32	2.19E-04	2.14E-02
+positive regulation of cellular process (GO:0048522)	3293	256	196.72	+	1.30	2.46E-06	5.08E-04
+multicellular organismal process (GO:0032501)	3586	261	214.22	+	1.22	2.44E-04	2.30E-02
+RNA processing (GO:0006396)	600	16	35.84	-	.45	3.14E-04	2.73E-02
+modulation of chemical synaptic transmission (GO:0050804)	282	4	16.85	-	.24	4.08E-04	3.40E-02
+regulation of trans-synaptic signaling (GO:0099177)	282	4	16.85	-	.24	4.08E-04	3.38E-02
+regulation of synaptic plasticity (GO:0048167)	155	0	9.26	-	 < 0.01	2.79E-04	2.50E-02
