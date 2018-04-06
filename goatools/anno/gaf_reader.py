@@ -56,7 +56,8 @@ class GafReader(object):
                             datobj = GafData(ver, **self.kws)
                     # Read data
                     if datobj is not None and line[0] != '!':
-                        ntgaf = datobj.get_ntgaf(line)
+                        # print(lnum, line)
+                        ntgaf = datobj.get_ntgaf(line, lnum)
                         if ntgaf is not None:
                             nts.append(ntgaf)
                         else:
@@ -163,22 +164,21 @@ class GafData(object):
         self.req1 = self.spec_req1 if not allow_missing_symbol else [i for i in self.spec_req1 if i != 2]
         self.exp_mincol = 15  # Last required field is at the 15th column
 
-    def get_ntgaf(self, line):
+    def get_ntgaf(self, line, lnum):
         """Return namedtuple filled with data."""
         flds = self.split_line(line)
         num_flds = len(flds)
         if num_flds >= self.exp_mincol:
-            return self._get_ntgaf(flds, num_flds)
+            return self._get_ntgaf(flds, num_flds, lnum)
 
     @staticmethod
     def split_line(line):
         """Split line into field values."""
-        # line = line.rstrip('\r\n')
         line = re.split('\t', line)
         line[-1] = line[-1].rstrip('\r\n')
         return line
 
-    def _get_ntgaf(self, flds, num_flds):
+    def _get_ntgaf(self, flds, num_flds, lnum):
         """Convert fields from string to preferred format for GAF ver 2.1 and 2.0."""
         # Cardinality
         is_set = False
@@ -220,7 +220,7 @@ class GafData(object):
                 gafvals.append(None)
             # i=16) Gene_Product_Form_ID: optional 0 or 1;       Ex: UniProtKB:P12345-2
             if num_flds > 16:
-                self._prt_line_detail(sys.stdout, flds)
+                #self._prt_line_detail(sys.stdout, flds, lnum)
                 gafvals.append(self._rd_fld_vals("Gene_Product_Form_ID", flds[16], is_set))
             else:
                 gafvals.append(None)
@@ -251,11 +251,11 @@ class GafData(object):
         values = self.split_line(line)
         self._prt_line_detail(prt, values)
 
-    def _prt_line_detail(self, prt, values):
+    def _prt_line_detail(self, prt, values, lnum=""):
         """Print header and field values in a readable format."""
         data = zip(self.req_str, self.ntgafobj._fields, values)
         txt = ["{:2}) {:3} {:13} {}".format(i, req, hdr, val) for i, (req, hdr, val) in enumerate(data)]
-        prt.write("{TXT}\n".format(TXT="\n".join(txt)))
+        prt.write("{LNUM}\n{TXT}\n".format(LNUM=lnum, TXT="\n".join(txt)))
 
     def _chk_qty_eq_1(self, flds):
         """Check that these fields have only one value: required 1."""
