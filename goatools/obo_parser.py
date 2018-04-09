@@ -10,7 +10,6 @@ from __future__ import print_function
 
 import sys
 import os
-from collections import defaultdict
 from goatools.godag.obo_optional_attributes import OboOptionalAttrs
 from goatools.godag.typedef import TypeDef
 from goatools.godag.typedef import add_to_typedef
@@ -287,13 +286,12 @@ class GOTerm(object):
 class GODag(dict):
     """Holds the GO DAG as a dict."""
 
-    def __init__(self, obo_file="go-basic.obo", optional_attrs=None, load_obsolete=False):
+    def __init__(self, obo_file="go-basic.obo", optional_attrs=None, load_obsolete=False, prt=sys.stdout):
         super(GODag, self).__init__()
-        self.version = self.load_obo_file(obo_file, optional_attrs, load_obsolete)
+        self.version = self.load_obo_file(obo_file, optional_attrs, load_obsolete, prt)
 
-    def load_obo_file(self, obo_file, optional_attrs, load_obsolete):
+    def load_obo_file(self, obo_file, optional_attrs, load_obsolete, prt):
         """Read obo file. Store results."""
-        sys.stdout.write("load obo file {OBO}\n".format(OBO=obo_file))
         reader = OBOReader(obo_file, optional_attrs)
 
         # Save alt_ids and their corresponding main GO ID. Add to GODag after populating GO Terms
@@ -318,7 +316,8 @@ class GODag(dict):
         for goid_alt, rec in alt2rec.items():
             self[goid_alt] = rec
         desc = self._str_desc(reader)
-        sys.stdout.write("{DESC}\n".format(DESC=desc))
+        if prt is not None:
+            prt.write("{DESC}\n".format(DESC=desc))
         return desc
 
     def _str_desc(self, reader):
@@ -330,7 +329,7 @@ class GODag(dict):
             OBO=reader.obo_file, FMT=reader.format_version,
             REL=data_version, N=len(self))
         if reader.optobj:
-            desc = "{D}; optional_attrs({A})\n".format(D=desc, A=" ".join(sorted(reader.optobj.optional_attrs)))
+            desc = "{D}; optional_attrs({A})".format(D=desc, A=" ".join(sorted(reader.optobj.optional_attrs)))
         return desc
 
 
@@ -397,16 +396,16 @@ class GODag(dict):
                     _init_reldepth(rec)
 
                 # print("BBBBBBBBBBB1", rec.id, rec.relationship)
-                for (typedef, terms) in rec.relationship.items():
-                    invert_typedef = self.typedefs[typedef].inverse_of
-                    # print("BBBBBBBBBBB2 {} ({}) ({}) ({})".format(
-                    #    rec.id, rec.relationship, typedef, invert_typedef))
-                    if invert_typedef:
-                        # Add inverted relationship
-                        for term in terms:
-                            if not hasattr(term, 'relationship'):
-                                term.relationship = defaultdict(set)
-                            term.relationship[invert_typedef].add(rec)
+                #for (typedef, terms) in rec.relationship.items():
+                #    invert_typedef = self.typedefs[typedef].inverse_of
+                #    # print("BBBBBBBBBBB2 {} ({}) ({}) ({})".format(
+                #    #    rec.id, rec.relationship, typedef, invert_typedef))
+                #    if invert_typedef:
+                #        # Add inverted relationship
+                #        for term in terms:
+                #            if not hasattr(term, 'relationship'):
+                #                term.relationship = defaultdict(set)
+                #            term.relationship[invert_typedef].add(rec)
                 # print("BBBBBBBBBBB3", rec.id, rec.relationship)
 
             if rec.level is None:

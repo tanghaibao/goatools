@@ -146,7 +146,7 @@ def get_godag(fin_obo="go-basic.obo", prt=sys.stdout, loading_bar=True, optional
     """Return GODag object. Initialize, if necessary."""
     from goatools.obo_parser import GODag
     download_go_basic_obo(fin_obo, prt, loading_bar)
-    return GODag(fin_obo, optional_attrs)
+    return GODag(fin_obo, optional_attrs, load_obsolete=False, prt=prt)
 
 def get_gaf_name(species):
     """Given a species (eg goa_human, mgi, fb), return filename of GAF file."""
