@@ -16,6 +16,12 @@ class Consts(object):
     # https://owlcollab.github.io/oboformat/doc/GO.format.obo-1_4.html
     RELATIONSHIP_LIST = ['part_of', 'regulates', 'negatively_regulates', 'positively_regulates']
 
+    top_terms = set(['GO:0008150', 'GO:0003674', 'GO:0005575']) # BP, MF, CC
+    NS2GO = {'BP':'GO:0008150', 'MF':'GO:0003674', 'CC':'GO:0005575'}
+    NAMESPACE2GO = {'biological_process':'GO:0008150',
+                    'molecular_function':'GO:0003674',
+                    'cellular_component':'GO:0005575'}
+
     def __init__(self):
         self.relationships = set(self.RELATIONSHIP_LIST)
 
