@@ -80,6 +80,7 @@ class RptLevDepth(object):
                 N=len(data), TXT=fout_txt))
 
     def prttex_summary_cnts_all(self, prt=sys.stdout):
+        """Print LaTeX format summary of level and depth counts for all active GO Terms."""
         cnts = self.get_cnts_levels_depths_recs(set(self.obo.values()))
         self._prttex_summary_cnts(prt, cnts)
 
@@ -104,21 +105,32 @@ class RptLevDepth(object):
         # Count level(shortest path to root) and depth(longest path to root)
         # values for all unique GO Terms.
         prt.write("\n\n% LaTeX Table for GO counts at each level and depth in the GO DAG\n")
-        prt.write("\\begin{table}[bt]\n")
-        prt.write(" ".join(["\\caption{\label{tab:godepcnt}", self.title, "}\n"]))
-        prt.write("\\begin{tabular}{r r r r r r r}\n")
-        prt.write("\\toprule\n")
-        prt.write("Depth/Level & "
-                  "BP Depth & MF Depth & CC Depth & "
-                  "BP Level & MF Level & CC Level \\\\\n")
-        prt.write("\midrule\n")
+        prt.write(r"\begin{table}[bt]" "\n")
+        prt.write(r"\begin{tabular}{|r |r |r |r |r |r |r|}" "\n")
+
+        title = self.title.replace('_', r'\_')
+        prt.write(r"\hline" "\n")
+        prt.write(r"\rowcolor{gray!10}" "\n")
+        prt.write(" ".join([r"\multicolumn{7}{|l|}{", title, r"} \\", "\n"]))
+        prt.write(r"\hline" "\n")
+        prt.write(r"\rowcolor{gray!10}" "\n")
+        prt.write(r"Depth &" "\n")
+        prt.write(r"\multicolumn{3}{c|}{Depth} &" "\n")
+        prt.write(r"\multicolumn{3}{c|}{Level} \\" "\n")
+        prt.write(r"\cline{2-7}" "\n")
+        prt.write(r"\rowcolor{gray!10}" "\n")
+        prt.write(r"or Level & BP & MF & CC & BP & MF & CC \\" "\n")
+        prt.write(r"\hline" "\n")
+
         max_val = max(max(dep for dep in cnts['depth']), max(lev for lev in cnts['level']))
         for i in range(max_val+1):
             vals = ['{:>5}'.format(cnts[desc][i][ns]) for desc in cnts for ns in self.nss]
             self.log.write('{:>02} & {} \\\\\n'.format(i, ' & '.join(vals)))
-        prt.write("\\bottomrule\n")
-        prt.write("\\end{tabular}\n")
-        prt.write("\\end{table}\n")
+            if i%2 == 0:
+                prt.write(r"\rowcolor{gray!7}" "\n")
+        prt.write(r"\hline" "\n")
+        prt.write(r"\end{tabular}" "\n")
+        prt.write(r"\end{table}" "\n")
 
     def _write_summary_cnts(self, cnts):
         """Write summary of level and depth counts for active GO Terms."""
