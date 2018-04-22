@@ -153,7 +153,7 @@ class GOEnrichmentRecord(object):
     def get_prtflds_all(self):
         """When converting to a namedtuple, get all possible fields in their original order."""
         flds = []
-        dont_add = set(['_parents', '_methods'])
+        dont_add = set(['_parents', '_methods', 'relationship_rev', 'relationship'])
         # Fields: GO NS enrichment name ratio_in_study ratio_in_pop p_uncorrected
         #         depth study_count p_sm_bonferroni p_fdr_bh study_items
         self._flds_append(flds, self.get_prtflds_default(), dont_add)
