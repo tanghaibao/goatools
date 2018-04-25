@@ -14,150 +14,32 @@ About significance cutoff:
         level to apply after Bonferroni correction
 """
 
-from __future__ import print_function
-
 __copyright__ = "Copyright (C) 2010-2018, H Tang et al. All rights reserved."
 __author__ = "various"
 
 import sys
 import os.path as op
-from goatools.go_enrichment import GOEnrichmentStudy
-from goatools.obo_parser import GODag
-from goatools.associations import read_associations
-from goatools.multiple_testing import Methods
-from goatools.pvalcalc import FisherFactory
+from goatools.cli.find_enrichment import get_arg_parser
+from goatools.cli.find_enrichment import rd_files
+from goatools.cli.find_enrichment import chk_genes
+from goatools.cli.find_enrichment import get_objgoea
+from goatools.cli.find_enrichment import prt_results
 
 sys.path.insert(0, op.join(op.dirname(__file__), ".."))
 
 
-def read_geneset(study_fn, pop_fn, compare=False):
-    """Open files containing genes. Return study genes and population genes."""
-    pop = set(_.strip() for _ in open(pop_fn) if _.strip())
-    study = frozenset(_.strip() for _ in open(study_fn) if _.strip())
-    # some times the pop is a second group to compare, rather than the
-    # population in that case, we need to make sure the overlapping terms
-    # are removed first
-    if compare:
-        common = pop & study
-        pop |= study
-        pop -= common
-        study -= common
-        sys.stderr.write("removed %d overlapping items\n" % (len(common)))
-        sys.stderr.write("Set 1: {0}, Set 2: {1}\n".format(
-            len(study), len(pop)))
-
-    return study, pop
-
-
-def check_input_files(ns, p):
-    """check filename args. otherwise if one of the 3 filenames is bad
-    it's hard to tell which one"""
-    import os
-    if not len(ns.filenames) == 3:
-        p.print_help()
-        msg = """
-  3 Expected files; Expected content: study population association",
-  {} Actual   files: {}""".format(len(ns.filenames), ' '.join(ns.filenames))
-        raise Exception(msg)
-    for fin in ns.filenames:
-        if not os.path.exists(fin):
-            return "*{}* does not exist".format(fin)
-
-    return False
+def main():
+    """Run gene enrichment analysis."""
+    args = get_arg_parser()
+    study, pop, assoc = rd_files(args.filenames, args.compare, prt=sys.stdout)
+    if not args.compare:  # sanity check
+        chk_genes(study, pop, args.min_overlap)
+    objgoea = get_objgoea(pop, assoc, args)
+    results = objgoea.run_study(study)
+    prt_results(results, objgoea, args)
 
 
 if __name__ == "__main__":
-
-    import argparse
-    p = argparse.ArgumentParser(__doc__,
-                                formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-
-    p.add_argument('filenames', type=str, nargs=3,
-                   help='data/study data/population data/association')
-    p.add_argument('--alpha', default=0.05, type=float,
-                   help="Test-wise alpha for multiple testing ")
-    p.add_argument('--pval', default=.05, type=float,
-                   help="Only print out when uncorrected p-value < this value.")
-    p.add_argument('--compare', dest='compare', default=False,
-                   action='store_true',
-                   help="the population file as a comparison group. if this "
-                   "flag is specified, the population is used as the study "
-                   "plus the `population/comparison`")
-    p.add_argument('--ratio', dest='ratio', type=float, default=None,
-                   help="only show values where the difference between study "
-                   "and population ratios is greater than this. useful for "
-                   "excluding GO categories with small differences, but "
-                   "containing large numbers of genes. should be a value "
-                   "between 1 and 2. ")
-    p.add_argument('--indent', dest='indent', default=False,
-                   action='store_true', help="indent GO terms")
-    p.add_argument('--obo', default="go-basic.obo", type=str,
-                   help="Specifies location and name of the obo file")
-    p.add_argument('--no_propagate_counts', default=False, action='store_true',
-                   help="Do not propagate counts to parent terms")
-    p.add_argument('--outfile', default=None, type=str,
-                   help="Write enrichment results into xlsx or tsv file")
-    p.add_argument('--method', default="bonferroni,sidak,holm,fdr_bh", type=str,
-                   help=Methods().getmsg_valid_methods())
-    p.add_argument('--pvalcalc', default="fisher", type=str,
-                   help=str(FisherFactory()))
-
-    if len(sys.argv) == 1:
-        sys.exit(not p.print_help())
-
-    args = p.parse_args()
-    check_input_files(args, p)
-
-    min_ratio = args.ratio
-    if min_ratio is not None:
-        assert 1 <= min_ratio <= 2
-
-    study_fn, pop_fn, assoc_fn = args.filenames
-    study, pop = read_geneset(study_fn, pop_fn, compare=args.compare)
-    sys.stderr.write("Study: {0} vs. Population {1}\n".format(
-        len(study), len(pop)))
-
-    if not args.compare:  # sanity check
-        if len(pop) < len(study):
-            exit("\nERROR: The study file contains more elements than the population file. "
-                 "Please check that the study file is a subset of the population file.\n")
-        # check the fraction of genomic ids that overlap between study
-        # and population
-        overlap = float(len(study & pop)) / len(study)
-        if 0.7 < overlap < 0.95:
-            sys.stderr.write("\nWARNING: only {} fraction of genes/proteins in study are found in "
-                             "the population  background.\n\n".format(overlap))
-        if overlap <= 0.7:
-            exit("\nERROR: only {} of genes/proteins in the study are found in the "
-                 "background population. Please check.\n".format(overlap))
-
-    assoc = read_associations(assoc_fn)
-
-    methods = args.method.split(",")
-
-    obo_dag = GODag(obo_file=args.obo)
-    propagate_counts = not args.no_propagate_counts
-    g = GOEnrichmentStudy(pop, assoc, obo_dag,
-                          propagate_counts=propagate_counts,
-                          alpha=args.alpha,
-                          pvalcalc=args.pvalcalc,
-                          methods=methods)
-    results = g.run_study(study)
-    if args.outfile is None:
-        g.print_summary(results, min_ratio=min_ratio, indent=args.indent, pval=args.pval)
-    else:
-        # Users can print to both tab-separated file and xlsx file in one run.
-        outfiles = args.outfile.split(",")
-        if args.pval is not None:
-            # Only print results when uncorrected p-value < this value.A
-            num_orig = len(results)
-            results = [r for r in results if r.p_uncorrected <= args.pval]
-            sys.stdout.write("{N:7,} of {M:,} results have uncorrected P-values <= {PVAL}=pval\n".format(
-                N=len(results), M=num_orig, PVAL=args.pval))
-        for outfile in outfiles:
-            if outfile.endswith(".xlsx"):
-                g.wr_xlsx(outfile, results, indent=args.indent)
-            else:
-                g.wr_tsv(outfile, results, indent=args.indent)
+    main()
 
 # Copyright (C) 2010-2018, H Tang et al. All rights reserved.
