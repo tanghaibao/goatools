@@ -9,7 +9,9 @@ from __future__ import print_function
 __copyright__ = "Copyright (C) 2010-2018, DV Klopfenstein, H Tang. All rights reserved."
 
 import os
+import sys
 import collections as cx
+from goatools.base import download_go_basic_obo
 from goatools.cli.find_enrichment import rd_files
 from goatools.cli.find_enrichment import get_objgoea
 
@@ -26,9 +28,11 @@ def test_find_enrichment():
     filenames = ['data/study', 'data/population', 'data/association']
     methods = ['bonferroni', 'sidak', 'holm', 'fdr_bh']
     alpha = 0.05
+    fin_obo = os.path.join(REPO, 'go-basic.obo')
+    download_go_basic_obo(fin_obo, prt=sys.stdout, loading_bar=None)
     args = ntobj(
         filenames=[os.path.join(REPO, f) for f in filenames],
-        obo='go-basic.obo',
+        obo=fin_obo,
         pval=0.05,
         alpha=alpha,
         pvalcalc='fisher',
