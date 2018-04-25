@@ -37,6 +37,7 @@ setup(
         name,
         name + ".godag",
         name + ".test_data",
+        name + ".cli",
         name + ".anno",
         name + ".anno.extensions",
         name + ".parsers"],
