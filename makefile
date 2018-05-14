@@ -184,6 +184,7 @@ clobber:
 #    tests/test_gpad_dnld.py \
 
 NOSETESTS := \
+    tests/test_i96_goea_ncbi.py \
     tests/test_gosearch_emptydict.py \
     tests/test_find_enrichment_overlap.py \
     tests/test_find_enrichment_run.py \
