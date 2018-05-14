@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Test to re-produce issue#96: Passes currently."""
 
 import os
 from goatools.base import get_godag
@@ -8,7 +9,8 @@ from goatools.test_data.genes_NCBI_9606_All import GeneID2nt
 
 
 def test_i96():
-    """Test to re-produce issue#96."""
+    """Test to re-produce issue#96: Passes currently."""
+    # Trying to duplicate: ValueError("All values in table must be nonnegative.
     # Get genes
     study_ids = _get_geneids()
     population_ids = GeneID2nt.keys()
