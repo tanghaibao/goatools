@@ -207,6 +207,14 @@ class GOTerm(object):
             all_parents |= parent.get_all_parents()
         return all_parents
 
+    def get_all_upper(self):
+        """Return all parent GO IDs through both 'is_a' and all relationships."""
+        all_upper = set()
+        for upper in self.get_goterms_upper():
+            all_upper.add(upper.id)
+            all_upper |= upper.get_all_upper()
+        return all_upper
+
     def get_all_children(self):
         """Return all children GO IDs."""
         all_children = set()
@@ -214,6 +222,14 @@ class GOTerm(object):
             all_children.add(parent.id)
             all_children |= parent.get_all_children()
         return all_children
+
+    def get_all_lower(self):
+        """Return all parent GO IDs through both reverse 'is_a' and all relationships."""
+        all_lower = set()
+        for lower in self.get_goterms_lower():
+            all_lower.add(lower.id)
+            all_lower |= lower.get_all_lower()
+        return all_lower
 
     def get_all_parent_edges(self):
         """Return tuples for all parent GO IDs, containing current GO ID and parent GO ID."""
