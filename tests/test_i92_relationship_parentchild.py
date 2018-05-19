@@ -66,5 +66,34 @@ def _chk_parents(godag, exp_par, exp_upper):
             if rels:
                 print(goterm.namespace, goterm.depth, goterm.id, goterm.name)
 
+# To create a plot to visually conform the test was set up correctly:
+#
+# $ go_plot -i test_gos.txt --obo=../goatools/tests/data/heartjogging.obo -r -o heartjogging_test.png
+
+# FILE: test+gos.txt
+# Contents
+# #-------------------------------------------
+# # Source for tests up GO hierachy
+# GO:0007389#fffdda # Yellow
+# 
+# # Ancestors up hierarchy through is_a attribute
+# GO:0008150#e0ffdc # Green
+# GO:0032501#e0ffdc # Green
+# 
+# # Ancestors up hierarchy through relationship attributes
+# GO:0007275#deddff # Purple 
+# GO:0048856#deddff # Purple 
+# GO:0032502#deddff # Purple
+# 
+# #-------------------------------------------
+# # Source for tests down GO hierarchy
+# GO:0003143#fffdda # Yellow  embryonic heart tube morphogenesis
+# 
+# # Ancestors up hierarchy through is_a attribute
+# GO:0003146#e0ffdc # Green
+# 
+# # Ancestors up hierarchy through relationship attributes
+# GO:0003304#deddff # Purple
+
 if __name__ == '__main__':
     test_i92()
