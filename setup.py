@@ -38,6 +38,7 @@ setup(
         name + ".godag",
         name + ".test_data",
         name + ".cli",
+        name + ".goea",
         name + ".anno",
         name + ".anno.extensions",
         name + ".parsers"],

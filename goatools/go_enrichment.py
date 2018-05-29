@@ -30,6 +30,7 @@ from goatools.ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
 from goatools.pvalcalc import FisherFactory
 
+from goatools.goea.goea_nt_xfrm import MgrNtGOEAs
 
 class GOEnrichmentRecord(object):
     """Represents one result (from a single GOTerm) in the GOEnrichmentStudy
@@ -300,7 +301,7 @@ class GOEnrichmentStudy(object):
     def run_study_nts(self, study, **kws):
         """Run GOEA on study ids. Return results as a list of namedtuples."""
         goea_results = self.run_study(study, **kws)
-        return get_goea_nts_all(goea_results)
+        return MgrNtGOEAs(goea_results).get_goea_nts_all()
 
     def get_results_msg(self, results, study):
         """Return summary for GOEA results."""
@@ -362,7 +363,8 @@ class GOEnrichmentStudy(object):
         ntm = ntmt.nt_method
         attr_mult = "p_{M}".format(M=self.methods.get_fieldname(ntm.source, ntm.method))
         sig_cnt = sum(1 for r in results if getattr(r, attr_mult) < alpha)
-        log.write("{N:8,} GO terms found significant (< {A}=alpha) after ".format(N=sig_cnt, A=alpha))
+        log.write("{N:8,} GO terms found significant (< {A}=alpha) after ".format(
+            N=sig_cnt, A=alpha))
         log.write("multitest correction: ")
         log.write("{MSRC} {METHOD}\n".format(MSRC=ntm.source, METHOD=ntm.method))
 
@@ -419,7 +421,7 @@ class GOEnrichmentStudy(object):
             log = self.log if self.log is not None else sys.stdout
             log.write("  {N:>5} GOEA results for {CUR:5} study items. WROTE: {F}\n".format(
                 N=len(data_nts),
-                CUR=len(get_study_items(goea_results)),
+                CUR=len(MgrNtGOEAs(goea_results).get_study_items()),
                 F=fout_txt))
 
     def prt_txt(self, prt, goea_results, prtfmt=None, **kws):
@@ -429,7 +431,7 @@ class GOEnrichmentStudy(object):
                       "{depth:02} {name:40} {study_items}\n")
         prtfmt = self.adjust_prtfmt(prtfmt)
         prt_flds = RPT.get_fmtflds(prtfmt)
-        data_nts = get_goea_nts_prt(goea_results, prt_flds, **kws)
+        data_nts = MgrNtGOEAs(goea_results).get_goea_nts_prt(prt_flds, **kws)
         RPT.prt_txt(prt, data_nts, prtfmt, prt_flds, **kws)
         return data_nts
 
@@ -437,7 +439,7 @@ class GOEnrichmentStudy(object):
         """Write a xlsx file."""
         # kws: prt_if indent itemid2name(study_items)
         prt_flds = kws.get('prt_flds', self.get_prtflds_default(goea_results))
-        xlsx_data = get_goea_nts_prt(goea_results, prt_flds, **kws)
+        xlsx_data = MgrNtGOEAs(goea_results).get_goea_nts_prt(prt_flds, **kws)
         if 'fld2col_widths' not in kws:
             kws['fld2col_widths'] = {f:self.default_fld2col_widths.get(f, 8) for f in prt_flds}
         RPT.wr_xlsx(fout_xlsx, xlsx_data, **kws)
@@ -445,13 +447,13 @@ class GOEnrichmentStudy(object):
     def wr_tsv(self, fout_tsv, goea_results, **kws):
         """Write tab-separated table data to file"""
         prt_flds = kws.get('prt_flds', self.get_prtflds_default(goea_results))
-        tsv_data = get_goea_nts_prt(goea_results, prt_flds, **kws)
+        tsv_data = MgrNtGOEAs(goea_results).get_goea_nts_prt(prt_flds, **kws)
         RPT.wr_tsv(fout_tsv, tsv_data, **kws)
 
     def prt_tsv(self, prt, goea_results, **kws):
         """Write tab-separated table data"""
         prt_flds = kws.get('prt_flds', self.get_prtflds_default(goea_results))
-        tsv_data = get_goea_nts_prt(goea_results, prt_flds, **kws)
+        tsv_data = MgrNtGOEAs(goea_results).get_goea_nts_prt(prt_flds, **kws)
         RPT.prt_tsv(prt, tsv_data, prt_flds, **kws)
 
     @staticmethod
@@ -465,7 +467,7 @@ class GOEnrichmentStudy(object):
     def get_ns2nts(results, fldnames=None, **kws):
         """Get namedtuples of GOEA results, split into BP, MF, CC."""
         ns2nts = cx.defaultdict(list)
-        nts = get_goea_nts_all(results, fldnames, **kws)
+        nts = MgrNtGOEAs(results).get_goea_nts_all(fldnames, **kws)
         for ntgoea in nts:
             ns2nts[ntgoea.NS].append(ntgoea)
         return ns2nts
@@ -532,7 +534,7 @@ class GOEnrichmentStudy(object):
             if hasattr(goea_results[0], "_fldsdefprt") or hasattr(goea_results[0], 'goterm'):
                 # Exclude some attributes from the namedtuple when saving results
                 # to a Python file because the information is redundant or verbose.
-                nts_goea = get_goea_nts_prt(goea_results, **kws)
+                nts_goea = MgrNtGOEAs(goea_results).get_goea_nts_prt(**kws)
             docstring = "\n".join([docstring, "# {VER}\n\n".format(VER=self.obo_dag.version)])
             assert hasattr(nts_goea[0], '_fields')
             if sortby is None:
@@ -541,67 +543,5 @@ class GOEnrichmentStudy(object):
                                      getattr(nt, 'GO')]
             nts_goea = sorted(nts_goea, key=sortby)
             wr_py_nts(fout_py, nts_goea, docstring, var_name)
-
-def get_study_items(goea_results):
-    """Get all study items (e.g., geneids)."""
-    study_items = set()
-    for rec in goea_results:
-        study_items |= rec.study_items
-    return study_items
-
-def get_goea_nts_prt(goea_results, fldnames=None, **usr_kws):
-    """Return list of namedtuples removing fields which are redundant or verbose."""
-    kws = usr_kws.copy()
-    if 'not_fldnames' not in kws:
-        kws['not_fldnames'] = ['goterm', 'parents', 'children', 'id']
-    if 'rpt_fmt' not in kws:
-        kws['rpt_fmt'] = True
-    return get_goea_nts_all(goea_results, fldnames, **kws)
-
-def get_goea_nts_all(goea_results, fldnames=None, **kws):
-    """Get namedtuples containing user-specified (or default) data from GOEA results.
-
-        Reformats data from GOEnrichmentRecord objects into lists of
-        namedtuples so the generic table writers may be used.
-    """
-    # kws: prt_if indent itemid2name(study_items)
-    data_nts = [] # A list of namedtuples containing GOEA results
-    if not goea_results:
-        return data_nts
-    keep_if = kws.get('keep_if', None)
-    rpt_fmt = kws.get('rpt_fmt', False)
-    indent = kws.get('indent', False)
-    # I. FIELD (column) NAMES
-    not_fldnames = kws.get('not_fldnames', None)
-    if fldnames is None:
-        fldnames = get_fieldnames(goea_results[0])
-    # Ia. Explicitly exclude specific fields from named tuple
-    if not_fldnames is not None:
-        fldnames = [f for f in fldnames if f not in not_fldnames]
-    nttyp = cx.namedtuple("NtGoeaResults", " ".join(fldnames))
-    goid_idx = fldnames.index("GO") if 'GO' in fldnames else None
-    # II. Loop through GOEA results stored in a GOEnrichmentRecord object
-    for goerec in goea_results:
-        vals = get_field_values(goerec, fldnames, rpt_fmt, kws.get('itemid2name', None))
-        if indent:
-            vals[goid_idx] = "".join([goerec.get_indent_dots(), vals[goid_idx]])
-        ntobj = nttyp._make(vals)
-        if keep_if is None or keep_if(goerec):
-            data_nts.append(ntobj)
-    return data_nts
-
-def get_field_values(item, fldnames, rpt_fmt=None, itemid2name=None):
-    """Return fieldnames and values of either a namedtuple or GOEnrichmentRecord."""
-    if hasattr(item, "_fldsdefprt"): # Is a GOEnrichmentRecord
-        return item.get_field_values(fldnames, rpt_fmt, itemid2name)
-    if hasattr(item, "_fields"): # Is a namedtuple
-        return [getattr(item, f) for f in fldnames]
-
-def get_fieldnames(item):
-    """Return fieldnames of either a namedtuple or GOEnrichmentRecord."""
-    if hasattr(item, "_fldsdefprt"): # Is a GOEnrichmentRecord
-        return item.get_prtflds_all()
-    if hasattr(item, "_fields"): # Is a namedtuple
-        return item._fields
 
 # Copyright (C) 2010-2018, H Tang et al., All rights reserved.
