@@ -217,7 +217,7 @@ NOSETESTS := \
 
 # Run all tests. If you are submitting a pull request, all tests must pass.
 test:
-	py.test tests/
+	py.test tests/ --log-file=pytest.log
 
 # This Representative test subset is automatically run for all push requests using Travis-CI.
 # Running a subset of tests prevents Travis-CI from timeing out.
