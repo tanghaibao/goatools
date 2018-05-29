@@ -1,5 +1,7 @@
 """Options for calculating uncorrected p-values."""
 
+from __future__ import print_function
+
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang et al., All rights reserved."
 __author__ = "DV Klopfenstein"
 
@@ -40,6 +42,8 @@ class FisherClass(PvalCalcBase):
 class FisherScipyStats(PvalCalcBase):
     """From the scipy stats package, use function, fisher_exact."""
 
+    fmterr = "STUDY={A}/{B} POP={C}/{D} scnt({scnt}) stot({stot}) pcnt({pcnt}) ptot({ptot})"
+
     def __init__(self, name, log):
         from scipy import stats
         super(FisherScipyStats, self).__init__(name, stats.fisher_exact, log)
@@ -59,12 +63,14 @@ class FisherScipyStats(PvalCalcBase):
         # >>> import scipy.stats as stats
         # >>> oddsratio, pvalue = stats.fisher_exact([[8, 2], [1, 5]])
         #                                              a  b    c  d
-        a = study_count
-        b = study_n - study_count
-        c = pop_count - study_count
-        d = pop_n - pop_count - b
+        avar = study_count
+        bvar = study_n - study_count
+        cvar = pop_count - study_count
+        dvar = pop_n - pop_count - bvar
+        assert cvar >= 0, self.fmterr.format(
+            A=avar, B=bvar, C=cvar, D=dvar, scnt=study_count, stot=study_n, pcnt=pop_count, ptot=pop_n)
         # stats.fisher_exact returns oddsratio, pval_uncorrected
-        _, p_uncorrected = self.pval_fnc( [[a, b], [c, d]])
+        _, p_uncorrected = self.pval_fnc([[avar, bvar], [cvar, dvar]])
         return p_uncorrected
 
 

@@ -322,8 +322,6 @@ class GOEnrichmentStudy(object):
         results = []
         go2studyitems = get_terms("study", study, self.assoc, self.obo_dag, log)
         pop_n, study_n = self.pop_n, len(study)
-        assert study_n > 0, "NO STUDY GENES"
-        assert pop_n > 0, "NO POPULATION GENES"
         allterms = set(go2studyitems).union(set(self.go2popitems))
         if log is not None:
             log.write("Calculating {N:,} uncorrected p-values using {PFNC}\n".format(
@@ -336,8 +334,6 @@ class GOEnrichmentStudy(object):
             pop_items = self.go2popitems.get(goid, set())
             pop_count = len(pop_items)
 
-            assert study_count >= 0, "BAD STUDY GENES: {G}\n{T}".format(G=study_items, T=goid)
-            assert pop_count >= 0, "BAD POPULATION GENES: {G}\n{T}".format(G=pop_items, T=goid)
             one_record = GOEnrichmentRecord(
                 GO=goid,
                 p_uncorrected=calc_pvalue(study_count, study_n, pop_count, pop_n),
