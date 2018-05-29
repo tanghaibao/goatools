@@ -251,7 +251,7 @@ class GOEnrichmentStudy(object):
         self._run_multitest = {
             'local':lambda iargs: self._run_multitest_local(iargs),
             'statsmodels':lambda iargs: self._run_multitest_statsmodels(iargs)}
-        self.pop = pop
+        self.pop = set(pop)
         self.pop_n = len(pop)
         self.assoc = assoc
         self.obo_dag = obo_dag
@@ -320,10 +320,15 @@ class GOEnrichmentStudy(object):
     def get_pval_uncorr(self, study, log=sys.stdout):
         """Calculate the uncorrected pvalues for study items."""
         results = []
-        go2studyitems = get_terms("study", study, self.assoc, self.obo_dag, log)
-        pop_n, study_n = self.pop_n, len(study)
+        study_in_pop = self.pop.intersection(study)
+        # " 99%    378 of    382 study items found in population"
+        go2studyitems = get_terms("study", study_in_pop, self.assoc, self.obo_dag, log)
+        pop_n, study_n = self.pop_n, len(study_in_pop)
         allterms = set(go2studyitems).union(set(self.go2popitems))
         if log is not None:
+            study_n_orig = len(study)
+            log.write("{R:3.0f}% {N:>6,} of {M:>6,} study items found in population({P})\n".format(
+                N=study_n, M=study_n_orig, P=pop_n, R=100.0*study_n/study_n_orig))
             log.write("Calculating {N:,} uncorrected p-values using {PFNC}\n".format(
                 N=len(allterms), PFNC=self.pval_obj.name))
         calc_pvalue = self.pval_obj.calc_pvalue
