@@ -30,7 +30,7 @@ from goatools.ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
 from goatools.pvalcalc import FisherFactory
 
-from goatools.goea.goea_nt_xfrm import MgrNtGOEAs
+from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
 
 class GOEnrichmentRecord(object):
     """Represents one result (from a single GOTerm) in the GOEnrichmentStudy

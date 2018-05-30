@@ -69,39 +69,6 @@ class MgrNtGOEAs(object):
                 data_nts.append(ntobj)
         return data_nts
 
-    def mknts(self, add_dct):
-        """Add information from add_dct to a new copy of namedtuples."""
-        nts = []
-        assert len(add_dct) == len(self.goea_results)
-        flds = vars(next(iter(self.goea_results))).keys() + next(iter(add_dct)).keys()
-        ntobj = cx.namedtuple("ntgoea", " ".join(flds))
-        for dct_new, ntgoea in zip(add_dct, self.goea_results):
-            dct_curr = ntgoea._asdict()
-            for key, val in dct_new.items():
-                dct_curr[key] = val
-            nts.append(ntobj(**dct_curr))
-        return nts
-
-    def add_f2str(self, dcts, srcfld, dstfld, dstfmt):
-        """Add a namedtuple field of type string generated from an existing namedtuple field."""
-        # Example: f2str = objntmgr.add_f2str(dcts, "p_fdr_bh", "s_fdr_bh", "{:8.2e}")
-        # ntobj = self.get_ntobj()
-        # print(ntobj)
-        assert len(dcts) == len(self.goea_results)
-        for dct, ntgoea in zip(dcts, self.goea_results):
-            valorig = getattr(ntgoea, srcfld)
-            valstr = dstfmt.format(valorig)
-            dct[dstfld] = valstr
-
-    def get_ntobj(self):
-        """Create namedtuple object with GOEA fields."""
-        if self.goea_results:
-            return cx.namedtuple("ntgoea", " ".join(vars(next(iter(self.goea_results))).keys()))
-
-    def init_dicts(self):
-        """Return a list of empty dicts to be filled with new data for revised namedtuples."""
-        return [{} for _ in self.goea_results]
-
     @staticmethod
     def _get_field_values(item, fldnames, rpt_fmt=None, itemid2name=None):
         """Return fieldnames and values of either a namedtuple or GOEnrichmentRecord."""

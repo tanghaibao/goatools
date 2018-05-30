@@ -4,7 +4,7 @@ import os
 import importlib
 from goatools.test_data.nature3102_goea import get_goea_results
 from goatools.nt_utils import wr_py_nts
-from goatools.goea.goea_nt_xfrm import get_goea_nts_prt
+from goatools.rpt.goea_nt_xfrm import get_goea_nts_prt
 
 def test_wrpy():
     """Test writing GOATOOLS GOEA results to a Python module as a list of nts."""

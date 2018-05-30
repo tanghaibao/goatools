@@ -6,7 +6,7 @@ from goatools.nt_utils import combine_nt_lists
 from goatools.obo_parser import GODag
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.associations import read_associations
-from goatools.goea.goea_nt_xfrm import get_goea_nts_prt
+from goatools.rpt.goea_nt_xfrm import get_goea_nts_prt
 
 def test_combine_nt_lists():
     """Test combining lists whose elements are namedtuples or class objects."""

@@ -6,6 +6,7 @@ import sys
 import filecmp
 from goatools.wr_tbl import get_fmtflds, wr_xlsx, wr_tsv
 from goatools.test_data.nature3102_goea import get_goea_results
+from goatools.rpt.goea_nt_xfrm import get_goea_nts_prt
 
 
 def test_wr_methods(log=sys.stdout):
@@ -56,7 +57,6 @@ def _wr_3fmt_goeaobj(tsv_obj, goea_results, goeaobj, wr_params, log):
 
 def _wr_3fmt_wrtbl(tsv_nts, goea_results, wr_params, log):
     """Using functions in the wr_tbl pkg, demonstrate printing a subset of namedtuple fields."""
-    from goatools.goea.goea_nt_xfrm import get_goea_nts_prt
     goea_nts = get_goea_nts_prt(goea_results)
     # List of all fields, printable or not, in namedtuple (nt):
     log.write("\nnamedtuple FIELDS: {F}\n".format(F=" ".join(goea_nts[0]._fields)))

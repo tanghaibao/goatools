@@ -34,7 +34,7 @@ import pytest
 
 from goatools.test_data.genes_NCBI_10090_ProteinCoding import GeneID2nt as GeneID2nt_mus
 from goatools.test_data.nature3102_goea import get_geneid2symbol, get_goeaobj
-from goatools.goea.goea_nt_xfrm import get_study_items
+from goatools.rpt.goea_nt_xfrm import get_study_items
 from goatools.godag_plot import plot_gos, plot_goid2goobj
 
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
