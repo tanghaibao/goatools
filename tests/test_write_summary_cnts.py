@@ -9,7 +9,7 @@ import sys
 from collections import defaultdict
 
 from goatools.base import get_godag
-from goatools.rpt_lev_depth import RptLevDepth
+from goatools.rpt.rpt_lev_depth import RptLevDepth
 from goatools.associations import get_assoc_ncbi_taxids
 
 def test_write_summary_cnts(log=sys.stdout):
