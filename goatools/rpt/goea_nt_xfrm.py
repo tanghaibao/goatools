@@ -4,6 +4,7 @@ __copyright__ = "Copyright (C) 2010-2018, H Tang et al., All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import collections as cx
+from goatools.rpt.nts_xfrm import MgrNts
 
 
 def get_study_items(goea_results):
@@ -27,6 +28,16 @@ class MgrNtGOEAs(object):
         for rec in self.goea_results:
             study_items |= rec.study_items
         return study_items
+
+    def get_nts_strpval(self, fmt="{:8.2e}"):
+        """Given GOEA namedtuples, return nts w/P-value in string format."""
+        objntmgr = MgrNts(self.goea_results)
+        dcts = objntmgr.init_dicts()
+        pval_flds = set(k for k in self._get_fieldnames(next(iter(self.goea_results))) if k[:2] == 'p_')
+        for fld_float in pval_flds:
+            fld_str = "s_" + fld_float[2:]
+            objntmgr.add_f2str(dcts, fld_float, fld_str, fmt)
+        return objntmgr.mknts(dcts)
 
     def get_goea_nts_prt(self, fldnames=None, **usr_kws):
         """Return list of namedtuples removing fields which are redundant or verbose."""

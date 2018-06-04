@@ -131,6 +131,11 @@ $(GOSLIM_OBO_FILE):
 	@echo "downloading GOslim file: $(GOSLIM_OBO_FILE)"
 	wget -O $(GOSLIM_OBO_FILE) $(GOSLIM_OBO_DOWNLOAD)
 
+pylint:
+	@git status -uno | perl -ne 'if (/(\S+.py)/) {printf "echo $$1\npylint -r no %s\n", $$1}' | tee tmp_pylint
+	chmod 755 tmp_pylint
+	tmp_pylint
+
 clean:
 	make clean_pyc
 	rm -f goea*.xlsx goea.tsv GO_lineage.png

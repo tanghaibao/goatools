@@ -59,7 +59,7 @@ class GOEnrichmentRecord(object):
 
     def __init__(self, **kwargs):
         # Methods seen in current enrichment result
-        self._methods = []
+        self.method_flds = []
         for key, val in kwargs.items():
             setattr(self, key, val)
             if key == 'ratio_in_study':
@@ -72,27 +72,27 @@ class GOEnrichmentRecord(object):
         self.goterm = None  # the reference to the GOTerm
 
     def get_method_name(self):
-        """Return name of first method in the _methods list."""
-        return self._methods[0].fieldname
+        """Return name of first method in the method_flds list."""
+        return self.method_flds[0].fieldname
 
     def get_pvalue(self):
         """Returns pval for 1st method, if it exists. Else returns uncorrected pval."""
-        if self._methods:
+        if self.method_flds:
             return getattr(self, "p_{m}".format(m=self.get_method_name()))
         return getattr(self, "p_uncorrected")
 
     def set_corrected_pval(self, nt_method, pvalue):
         """Add object attribute based on method name."""
-        self._methods.append(nt_method)
+        self.method_flds.append(nt_method)
         fieldname = "".join(["p_", nt_method.fieldname])
         setattr(self, fieldname, pvalue)
 
     def __str__(self, indent=False):
         field_data = [getattr(self, f, "n.a.") for f in self._fldsdefprt[:-1]] + \
-                     [getattr(self, "p_{}".format(m.fieldname)) for m in self._methods] + \
+                     [getattr(self, "p_{}".format(m.fieldname)) for m in self.method_flds] + \
                      [", ".join(sorted(getattr(self, self._fldsdefprt[-1], set())))]
         fldsdeffmt = self._fldsdeffmt
-        field_formatter = fldsdeffmt[:-1] + ["%.3g"]*len(self._methods) + [fldsdeffmt[-1]]
+        field_formatter = fldsdeffmt[:-1] + ["%.3g"]*len(self.method_flds) + [fldsdeffmt[-1]]
         self._chk_fields(field_data, field_formatter)
 
         # default formatting only works for non-"n.a" data
@@ -148,20 +148,20 @@ class GOEnrichmentRecord(object):
     def get_prtflds_default(self):
         """Get default fields."""
         return self._fldsdefprt[:-1] + \
-               ["p_{M}".format(M=m.fieldname) for m in self._methods] + \
+               ["p_{M}".format(M=m.fieldname) for m in self.method_flds] + \
                [self._fldsdefprt[-1]]
 
     def get_prtflds_all(self):
         """When converting to a namedtuple, get all possible fields in their original order."""
         flds = []
-        dont_add = set(['_parents', '_methods', 'relationship_rev', 'relationship'])
+        dont_add = set(['_parents', 'method_flds', 'relationship_rev', 'relationship'])
         # Fields: GO NS enrichment name ratio_in_study ratio_in_pop p_uncorrected
         #         depth study_count p_sm_bonferroni p_fdr_bh study_items
         self._flds_append(flds, self.get_prtflds_default(), dont_add)
         # Fields: GO NS goterm
         #         ratio_in_pop pop_n pop_count pop_items name
         #         ratio_in_study study_n study_count study_items
-        #         _methods enrichment p_uncorrected p_sm_bonferroni p_fdr_bh
+        #         method_flds enrichment p_uncorrected p_sm_bonferroni p_fdr_bh
         self._flds_append(flds, vars(self).keys(), dont_add)
         # Fields: name level is_obsolete namespace id depth parents children _parents alt_ids
         self._flds_append(flds, vars(self.goterm).keys(), dont_add)
@@ -351,13 +351,13 @@ class GOEnrichmentStudy(object):
 
         return results
 
-    def _run_multitest_corr(self, results, usr_methods, alpha, study, log):
+    def _run_multitest_corr(self, results, usrmethod_flds, alpha, study, log):
         """Do multiple-test corrections on uncorrected pvalues."""
         assert 0 < alpha < 1, "Test-wise alpha must fall between (0, 1)"
         pvals = [r.p_uncorrected for r in results]
         ntobj = cx.namedtuple("ntobj", "results pvals alpha nt_method study")
 
-        for nt_method in usr_methods:
+        for nt_method in usrmethod_flds:
             ntmt = ntobj(results, pvals, alpha, nt_method, study)
             self._run_multitest[nt_method.source](ntmt)
             if log is not None:

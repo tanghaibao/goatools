@@ -128,7 +128,7 @@ class GODagSmallPlot(object):
         if 'goea_results' in kws:
             goea = kws['goea_results']
             if goea:
-                return "p_{M}".format(M=goea[0]._methods[0].fieldname)
+                return "p_{M}".format(M=goea[0].method_flds[0].fieldname)
 
     def _init_goid2color(self):
         """Set colors of GO terms."""
@@ -258,20 +258,21 @@ class GODagSmallPlot(object):
               2. Ptprc, Mif, Cd81, Bcl2, Sash3, Tnfrsf4, Cdkn1a
               3. 7: Ptprc, Mif, Cd81, Bcl2, Sash3...
         """
-        N = self.pltvars.items_p_line
+        npl = self.pltvars.items_p_line  # Number of items Per Line
         prt_items = sorted([self.__get_genestr(itemid) for itemid in res.study_items])
-        prt_multiline = [prt_items[i:i+N] for i in range(0, len(prt_items), N)]
+        prt_multiline = [prt_items[i:i+npl] for i in range(0, len(prt_items), npl)]
         num_items = len(prt_items)
         if self.study_items_max is None:
             genestr = "\n".join([", ".join(str(e) for e in sublist) for sublist in prt_multiline])
             return "{N}) {GENES}".format(N=num_items, GENES=genestr)
         else:
             if num_items <= self.study_items_max:
+                strs = [", ".join(str(e) for e in sublist) for sublist in prt_multiline]
                 genestr = "\n".join([", ".join(str(e) for e in sublist) for sublist in prt_multiline])
                 return genestr
             else:
                 short_list = prt_items[:self.study_items_max]
-                short_mult = [short_list[i:i+N] for i in range(0, len(short_list), N)]
+                short_mult = [short_list[i:i+npl] for i in range(0, len(short_list), npl)]
                 short_str = "\n".join([", ".join(str(e) for e in sublist) for sublist in short_mult])
                 return "".join(["{N} genes; ".format(N=num_items), short_str, "..."])
 

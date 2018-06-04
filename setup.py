@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
+"""Setup for PyPI usage."""
 
 import os.path as op
 
@@ -8,8 +9,8 @@ from setuptools import setup
 from setup_helper import SetupHelper
 
 
-name = "goatools"
-classifiers = [
+NAME = "goatools"
+CLASSIFIERS = [
     'Development Status :: 4 - Beta',
     'Intended Audience :: Science/Research',
     'License :: OSI Approved :: BSD License',
@@ -20,33 +21,35 @@ classifiers = [
     ]
 
 # Use the helper
-h = SetupHelper(initfile="goatools/__init__.py", readmefile="README.md")
+HLPR = SetupHelper(initfile="goatools/__init__.py", readmefile="README.md")
 
-setup_dir = op.abspath(op.dirname(__file__))
-requirements = ['wget'] + [x.strip() for x in
-                           open(op.join(setup_dir, 'requirements.txt')).readlines()]
+SETUP_DIR = op.abspath(op.dirname(__file__))
+REQUIREMENTS = ['wget'] + [x.strip() for x in
+                           open(op.join(SETUP_DIR, 'requirements.txt')).readlines()]
 
 setup(
-    name=name,
-    version=h.version,
-    author=h.author,
-    author_email=h.email,
-    license=h.license,
-    long_description=h.long_description,
+    NAME=NAME,
+    version=HLPR.version,
+    author=HLPR.author,
+    author_email=HLPR.email,
+    license=HLPR.license,
+    long_description=HLPR.long_description,
     packages=[
-        name,
-        name + ".godag",
-        name + ".test_data",
-        name + ".cli",
-        name + ".rpt",
-        name + ".anno",
-        name + ".anno.extensions",
-        name + ".parsers"],
+        NAME,
+        NAME + ".godag",
+        NAME + ".test_data",
+        NAME + ".cli",
+        NAME + ".rpt",
+        NAME + ".anno",
+        NAME + ".anno.extensions",
+        NAME + ".grouper",
+        NAME + ".grouper.clu",
+        NAME + ".parsers"],
     include_package_data=True,
     package_data={"goatools.test_data.nbt_3102": ["*.*"]},
     scripts=glob('scripts/*.py'),
-    classifiers=classifiers,
+    classifiers=CLASSIFIERS,
     url='http://github.com/tanghaibao/goatools',
     description="Python scripts to find enrichment of GO terms",
-    install_requires=requirements
+    install_requires=REQUIREMENTS
 )

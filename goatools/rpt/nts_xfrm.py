@@ -23,7 +23,7 @@ class MgrNts(object):
         """Add information from add_dct to a new copy of namedtuples stored in nts."""
         nts = []
         assert len(add_dct) == len(self.nts)
-        flds = vars(next(iter(self.nts))).keys() + next(iter(add_dct)).keys()
+        flds = list(next(iter(self.nts))._fields) + list(next(iter(add_dct)).keys())
         ntobj = cx.namedtuple("ntgoea", " ".join(flds))
         for dct_new, ntgoea in zip(add_dct, self.nts):
             dct_curr = ntgoea._asdict()

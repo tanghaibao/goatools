@@ -61,7 +61,7 @@ def test_semantic_similarity(usr_assc=None):
         'goa_pig_complex.gaf',
         'goa_pig_isoform.gaf',
         'goa_pig_rna.gaf',
-        'goa_uniprot_all.gaf',
+        #'goa_uniprot_all.gaf',
         #'goa_uniprot_all_noiea.gaf',
     ]
     if usr_assc is not None:
