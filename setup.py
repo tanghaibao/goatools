@@ -43,7 +43,6 @@ setup(
         NAME + ".anno",
         NAME + ".anno.extensions",
         NAME + ".grouper",
-        NAME + ".grouper.clu",
         NAME + ".parsers"],
     include_package_data=True,
     package_data={"goatools.test_data.nbt_3102": ["*.*"]},
