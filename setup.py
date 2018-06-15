@@ -37,6 +37,9 @@ setup(
     packages=[
         NAME,
         NAME + ".godag",
+        NAME + ".gosubdag",
+        NAME + ".gosubdag.plot",
+        NAME + ".gosubdag.rpt",
         NAME + ".test_data",
         NAME + ".cli",
         NAME + ".rpt",

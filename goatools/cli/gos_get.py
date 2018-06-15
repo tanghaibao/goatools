@@ -55,7 +55,7 @@ class GetGOs(object):
         goids = set()
         if not os.path.exists(go_file):
             raise RuntimeError("CAN NOT READ GO FILE: {FILE}\n".format(FILE=go_file))
-        re_go = re.compile(ur"(GO:\d{7})+?")
+        re_go = re.compile(r"(GO:\d{7})+?")
         with open(go_file) as ifstrm:
             for line in ifstrm:
                 goids_found = re_go.findall(line)
