@@ -2,6 +2,7 @@ PYTHON := python
 
 
 run:
+	$(PYTHON) test_go_depth1
 	$(PYTHON) test_get_unique_fields.py
 	$(PYTHON) test_wr_py_goea_results.py
 	$(PYTHON) test_altid_godag.py

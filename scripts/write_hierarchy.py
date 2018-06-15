@@ -1,4 +1,4 @@
-"""Script for printing GO hierarchy."""
+"""TODO DEPRECATED (REPLACED BY wr_hier): Script for printing GO hierarchy."""
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
 
