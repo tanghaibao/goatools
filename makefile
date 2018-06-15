@@ -187,16 +187,17 @@ clobber:
 #    tests/test_dnlds.py \
 #    tests/test_get_godag.py \
 #    tests/test_gpad_dnld.py \
+#
+#    tests/test_plot_get_parents.py \
+#    tests/test_plot_objgoearesults.py \
+#    tests/plt_i86obo.py \
+#    tests/test_gosubdag_rcntobj.py \
+#    tests/test_go_draw_basic.py \
 
 NOSETESTS := \
-    tests/test_plot_objgoearesults.py \
     tests/test_gosubdag_relationships.py \
     tests/test_gosubdag_mk.py \
-    tests/test_gosubdag_rcntobj.py \
     tests/test_gosubdag_children.py \
-    tests/test_go_draw_basic.py \
-    tests/test_get_parents.py \
-    tests/plt_i86obo.py \
     tests/test_go_depth1.py \
     tests/test_i92_relationship_parentchild.py \
     tests/test_i96_goea_ncbi.py \
