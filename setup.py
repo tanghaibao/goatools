@@ -24,8 +24,8 @@ CLASSIFIERS = [
 HLPR = SetupHelper(initfile="goatools/__init__.py", readmefile="README.md")
 
 SETUP_DIR = op.abspath(op.dirname(__file__))
-REQUIREMENTS = ['wget'] + [x.strip() for x in
-                           open(op.join(SETUP_DIR, 'requirements.txt')).readlines()]
+REQUIREMENTS = ['wget', 'pydot'] + \
+               [x.strip() for x in open(op.join(SETUP_DIR, 'requirements.txt')).readlines()]
 
 setup(
     NAME=NAME,
