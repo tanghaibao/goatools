@@ -194,10 +194,11 @@ clobber:
 #    tests/test_gosubdag_rcntobj.py \
 #    tests/test_go_draw_basic.py \
 
+#    tests/test_gosubdag_children.py \
+
 NOSETESTS := \
     tests/test_gosubdag_relationships.py \
     tests/test_gosubdag_mk.py \
-    tests/test_gosubdag_children.py \
     tests/test_go_depth1.py \
     tests/test_i92_relationship_parentchild.py \
     tests/test_i96_goea_ncbi.py \
