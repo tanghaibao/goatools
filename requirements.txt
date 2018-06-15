@@ -6,5 +6,4 @@ nose
 xlsxwriter
 statsmodels
 xlrd
-pydot
 docopt
