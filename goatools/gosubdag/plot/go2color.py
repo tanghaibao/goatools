@@ -24,6 +24,7 @@ class Go2Color(object):
     key2col = {
         'level_01': '#f1fbfd', # Very light blue
         'go_sources': '#ffffe4', # xkcd off white
+        'go_leafchild': '#eae8e8', # 'Grey palette' http://www.color-hex.com/color-palette/45491
     }
 
 

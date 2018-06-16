@@ -99,13 +99,14 @@ class GetGOs(object):
 
     def get_go_color(self, **kws):
         """Return source GO IDs ."""
+        # kws: GO go_file draw-children
         ret = {'GOs':set(), 'go2color':{}}
         if 'GO' in kws:
             self._goargs(ret, kws['GO'])
         if 'go_file' in kws:
             self._rdtxt_gos(ret, kws['go_file'])
         if 'draw-children' in kws:
-            ret['GOs'].update(get_leaf_children(ret['GOs'], self.go2obj))
+            self._add_gochildleaf(ret)
         # If there have been no GO IDs explicitly specified by the user
         if not ret['GOs']:
             # If the GO-DAG is sufficiently small, print all GO IDs
@@ -155,6 +156,17 @@ class GetGOs(object):
                         else:
                             print("IGNORING: {L}".format(L=line),)
         self._update_ret(ret, goids, go2color)
+
+    def _add_gochildleaf(self, ret):
+        """Add leaf-level GO children to GO list colored uniquely."""
+        leaf_gos = get_leaf_children(ret['GOs'], self.go2obj)
+        if leaf_gos:
+            ret['GOs'].update(leaf_gos)
+            leaf_go_color = Go2Color.key2col['go_leafchild']
+            go2color = ret['go2color']
+            for goid in leaf_gos:
+                if goid not in go2color:
+                    go2color[goid] = leaf_go_color
 
     @staticmethod
     def _update_ret(ret, goids, go2color):
