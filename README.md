@@ -156,7 +156,7 @@ the output that are not present in their `association` file. Use
 
 ### Read and plot GO lineage
 
-  * [plot_go.py](doc/md/README_plot_go.md)
+  * [plot_go.py](doc/md/README_plot_go.md): Multiple GOs. User-defined colors. Relationships    
   * [plot_go_term.py](plot_go_term-py)
 
   
