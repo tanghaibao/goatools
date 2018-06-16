@@ -1,12 +1,12 @@
 # Plot the GO hierarchy with go_plot.py
 
-  * Plot one GO term and its ancestors:
+  * Plot **one** GO term and its ancestors:
     * [Using 'is_a' relationship only (default)](#plot-one-go-term-and-its-ancestors)
     * [Using all relationships](#plot-one-go-term-and-its-ancestors-with-relationships)
-  * Plot two GO terms and their ancestors:
+  * Plot **two** GO terms and their ancestors:
     * [Using 'is_a' relationship only (default)](#plot-two-go-terms-and-their-ancestors)
     * [Using all relationships](#plot-two-go-terms-and-their-ancestors-with-relationships)
-  * Plot two GO terms (a different color for each) and their ancestors:
+  * Plot **two** GO terms (a different **color** for each) and their ancestors:
     * [Using 'is_a' relationship only (default)](#plot-two-go-terms-using-different-colors-and-their-ancestors)
     * [Using all relationships](#plot-two-go-terms-using-different-colors-and-their-ancestors-with-relationships)
 
