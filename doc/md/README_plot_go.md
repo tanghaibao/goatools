@@ -6,6 +6,9 @@
   * Plot two GO terms and their ancestors:
     * [Using 'is_a' relationship only (default)](#plot-two-go-terms-and-their-ancestors)
     * [Using all relationships](#plot-two-go-terms-and-their-ancestors-with-relationships)
+  * Plot two GO terms, a different color for each, and their ancestors:
+    * [Using 'is_a' relationship only (default)](#plot-two-go-terms-and-their-ancestors)
+    * [Using all relationships](#plot-two-go-terms-and-their-ancestors-with-relationships)
 
 ## Plot one GO term and its ancestors
 Plot one term and all ancestors using the 'is_a' attribute.    
@@ -38,6 +41,25 @@ Plot two terms and all ancestors using the 'is_a' attribute and all relationship
 
 ```
 scripts/go_plot.py GO:0003304 GO:0003146 --r -o heart_jogging_r1.png
+```
+![heart_jogging_r1](../images/plot_go/heart_jogging_r1.png)
+
+
+## Plot two GO terms using different colors and their ancestors
+Plot two terms and all ancestors using the 'is_a' attribute.        
+The heart jogging GO term is colored in [ice](http://klaash.github.io/xkcdcolorpicker/#ice).    
+```
+scripts/go_plot.py GO:0003304 GO:0003146#d6fffa -o heart_jogging_ice.png
+```
+
+![heart_jogging_r0](../images/plot_go/heart_jogging.png)
+
+
+## Plot two GO terms using different colors and their ancestors (with relationships)
+Plot two terms (heart jogging GO term colored in [ice](http://klaash.github.io/xkcdcolorpicker/#ice)) and all ancestors using the 'is_a' attribute and all relationships (--r).
+
+```
+scripts/go_plot.py GO:0003304 GO:0003146#d6fffa --r -o heart_jogging_ice_r1.png
 ```
 ![heart_jogging_r1](../images/plot_go/heart_jogging_r1.png)
 
