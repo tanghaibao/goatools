@@ -111,9 +111,7 @@ class GetGOs(object):
         if not ret['GOs']:
             # If the GO-DAG is sufficiently small, print all GO IDs
             if len(self.go2obj) < self.max_gos:
-                main_gos = set(o.id for go, o in self.go2obj.items() if go != o.id)
-                go_leafs = set(go for go, o in self.go2obj.items() if not o.children)
-                ret['GOs'] = go_leafs.difference(main_gos)
+                self._add_all_leafs(ret)
             else:
                 raise RuntimeError("GO IDs NEEDED")
         go2obj = {go:self.go2obj[go] for go in ret['GOs']}
@@ -167,6 +165,12 @@ class GetGOs(object):
             for goid in leaf_gos:
                 if goid not in go2color:
                     go2color[goid] = leaf_go_color
+
+    def _add_all_leafs(self, ret):
+        """Print all GO IDs."""
+        main_gos = set(o.id for go, o in self.go2obj.items() if go != o.id)
+        go_leafs = set(go for go, o in self.go2obj.items() if not o.children)
+        ret['GOs'] = go_leafs.difference(main_gos)
 
     @staticmethod
     def _update_ret(ret, goids, go2color):
