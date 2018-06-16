@@ -39,7 +39,7 @@ Plot two terms and all ancestors using the 'is_a' attribute and all relationship
 ```
 scripts/go_plot.py GO:0003304 GO:0003146 --r -o heart_jogging_r1.png
 ```
-![heart_jogging_r1](../images/plot_go/heart_jogging_r1.png
+![heart_jogging_r1](../images/plot_go/heart_jogging_r1.png)
 
 
 Copyright (C) 2010-2018, DV Klopfenstein, Haibao Tang et al. All rights reserved.
