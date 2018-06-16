@@ -10,9 +10,9 @@
     * [GO terms listed in a file](#plot-two-go-terms-listed-in-a-file-using-different-colors-and-their-ancestors)
     * [Using 'is_a' relationship only (default)](#plot-two-go-terms-using-different-colors-and-their-ancestors)
     * [Using all relationships](#plot-two-go-terms-using-different-colors-and-their-ancestors-with-relationships)
-  * Plot **six** GO terms in a file (a different **color** for each) and their ancestors:
-    * [Using 'is_a' relationship only (default)]()
-    * [Using all relationships]()
+  * [Plot **six** GO terms in a file (a different **color** for each) and their ancestors](#plot-six-go-terms-listed-in-a-file-using-different-colors-and-their-ancestors):
+    * [Using 'is_a' relationship only (default)](#six-different-colored-go-terms-without-relationships)
+    * [Using all relationships](#six-different-colored-go-terms-with-relationships)
 
 ## Plot one GO term and its ancestors
 Plot one term and all ancestors using the 'is_a' attribute.    
@@ -55,7 +55,7 @@ scripts/go_plot.py GO:0003304 GO:0003146 --r -o heart_jogging_r1.png
 Plot two terms and all ancestors using the 'is_a' attribute.
 The heart jogging GO term, GO:0003146, is colored in [ice](://klaash.github.io/xkcdcolorpicker/#ice).
 
-The file contains the GO terms and user-defined colors:
+The file, _go_file1.txt_, contains the GO terms and user-defined colors:
 ```
 GO:0003304
 GO:0003146 #d6fffa http://klaash.github.io/xkcdcolorpicker/#ice
@@ -86,8 +86,9 @@ scripts/go_plot.py GO:0003304 GO:0003146#d6fffa --r -o heart_jogging_ice_r1.png
 
 
 ## Plot six GO terms (listed in a file) using different colors and their ancestors
-Plot two terms and all ancestors using the 'is_a' attribute.        
-The heart jogging GO term, GO:0003146, is colored in [ice](://klaash.github.io/xkcdcolorpicker/#ice).    
+The colorized GO terms use the [lightbright](http://www.color-hex.com/color-palette/51895)
+and an orange (#ffe5b4) from the [favorite pink based oranges](http://www.color-hex.com/color-palette/50573)
+Color Palettes.
 
 The file, go_heartjogging6.txt, contains the GO terms and user-defined colors:
 ```

@@ -2,6 +2,7 @@
 http://www.color-hex.com/color-palette/51895
 
 and orange (#ffe5b4) from the "favorite pink based oranges" Color Palette
+http://www.color-hex.com/color-palette/50573
 
 
 #fad2fa GO:0072359  # BP 643 D04 circulatory system development
