@@ -205,7 +205,7 @@ class PlotCli(object):
     def _plt_gogrouped(self, goids, go2color_usr, **kws):
         """Plot grouped GO IDs."""
         print("Plotting with GOATOOLS grouping coming soon...")
-   #      fout_img = self.get_outfile(kws['outfile'], goids)
+   #      fout_img = self.get_outfile(kws['outfile'], goids, 'relationship' in kws)
    #      sections = read_sections(kws['sections'], exclude_ungrouped=True)
    #      # kws_plt = {k:v for k, v in kws.items if k in self.kws_plt}
    #      grprobj_cur = self._get_grprobj(goids, sections)
@@ -234,7 +234,8 @@ class PlotCli(object):
 
     def _plt_gosubdag(self, goids, go2color, **kws):
         """Plot GO IDs."""
-        fout_img = self.get_outfile(kws['outfile'], goids)
+        print("PLOTTING KWS", kws)
+        fout_img = self.get_outfile(kws['outfile'], goids, 'relationship' in kws)
         objcolor = Go2Color(self.gosubdag, objgoea=None, go2color=go2color)
         objplt = GoSubDagPlot(self.gosubdag, Go2Color=objcolor, **kws)
         objplt.prt_goids(sys.stdout)
@@ -294,19 +295,23 @@ class PlotCli(object):
         sys.stdout.write(txt)
         sys.exit(0)
 
-    def get_outfile(self, outfile, goids=None):
+    def get_outfile(self, outfile, goids=None, b_rel=False):
         """Return output file for GO Term plot."""
         # 1. Use the user-specfied output filename for the GO Term plot
         if outfile != self.dflt_outfile:
             return outfile
+        rstr = "_r1" if b_rel else ""
         # 2. If only plotting 1 GO term, use GO is in plot name
         if goids is not None and len(goids) == 1:
             goid = next(iter(goids))
             goobj = self.gosubdag.go2obj[goid]
             fout = "GO_{NN}_{NM}".format(NN=goid.replace("GO:", ""), NM=goobj.name)
-            return ".".join([re.sub(r"[\s#'()+,-./:<=>\[\]_}]", '_', fout), 'png'])
+            return "".join([re.sub(r"[\s#'()+,-./:<=>\[\]_}]", '_', fout), rstr, '.png'])
         # 3. Return default name
-        return self.dflt_outfile
+        if not b_rel:
+            return self.dflt_outfile
+        else:
+            return self.dflt_outfile.replace('.png', '_r1.png')
 
     @staticmethod
     def _get_optional_attrs(kws):

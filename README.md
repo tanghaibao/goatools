@@ -156,6 +156,12 @@ the output that are not present in their `association` file. Use
 
 ### Read and plot GO lineage
 
+  * [plot_go.py](doc/md/README_plot_go.md)
+  * [plot_go_term.py](plot_go_term-py)
+
+  
+#### plot_go_term.py
+
 See `plot_go_term.py` for usage. `plot_go_term.py` can plot the lineage
 of a certain GO term, by:
 
