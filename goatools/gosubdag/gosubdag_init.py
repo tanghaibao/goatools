@@ -44,7 +44,7 @@ class InitGOs(object):
                 return relationships_all
             else:
                 return relationships_all.intersection(relationships_arg)
-        return set([])
+        return set()
 
     def _get_all_relationships(self):
         """Return all relationships seen in GO Dag subset."""
@@ -155,8 +155,10 @@ class InitFields(object):
         if self.relationships:
             prt_flds.append('reldepth')
         prt_flds.extend(['GO', 'alt', 'GO_name'])
-        if 'dcnt' in self.kw_elems: prt_flds.append('dcnt')
-        if 'D1' in self.kw_elems: prt_flds.append('D1')
+        if 'dcnt' in self.kw_elems:
+            prt_flds.append('dcnt')
+        if 'D1' in self.kw_elems:
+            prt_flds.append('D1')
         if 'tcnt' in self.kw_elems:
             prt_flds.append('tcnt')
             prt_flds.append('tfreq')
@@ -180,15 +182,21 @@ class InitFields(object):
         else:
             prt_fmt.append('{GO}')
         prt_fmt.append('# {NS}')
-        if 'dcnt' in self.prt_flds: prt_fmt.append('{dcnt:5}')
-        if 'childcnt' in self.prt_flds: prt_fmt.append('{childcnt:3}')
-        if 'tcnt' in self.prt_flds: prt_fmt.append("{tcnt:7,}")
-        if 'tfreq' in self.prt_flds: prt_fmt.append("{tfreq:8.6f}")
-        if 'tinfo' in self.prt_flds: prt_fmt.append("{tinfo:5.2f}")
+        if 'dcnt' in self.prt_flds:
+            prt_fmt.append('{dcnt:5}')
+        if 'childcnt' in self.prt_flds:
+            prt_fmt.append('{childcnt:3}')
+        if 'tcnt' in self.prt_flds:
+            prt_fmt.append("{tcnt:7,}")
+        if 'tfreq' in self.prt_flds:
+            prt_fmt.append("{tfreq:8.6f}")
+        if 'tinfo' in self.prt_flds:
+            prt_fmt.append("{tinfo:5.2f}")
         prt_fmt.append('L{level:02} D{depth:02}')
         if self.relationships:
             prt_fmt.append('R{reldepth:02}')
-        if 'D1' in self.prt_flds: prt_fmt.append('{D1:5}')
+        if 'D1' in self.prt_flds:
+            prt_fmt.append('{D1:5}')
         if 'REL' in self.prt_flds:
             prt_fmt.append('{REL}')
             prt_fmt.append('{rel}')
@@ -216,8 +224,10 @@ class InitFields(object):
                 'alt' : '' if goid == goobj.id else 'a',
                 'id' : goobj.id,
                 'GO_name' : goobj.name}
-            if 'dcnt' in self.kw_elems: fld2vals['dcnt'] = rcntobj.go2dcnt.get(goid)
-            if 'D1' in self.kw_elems: fld2vals['D1'] = rcntobj.get_d1str(goobj)
+            if 'dcnt' in self.kw_elems:
+                fld2vals['dcnt'] = rcntobj.go2dcnt.get(goid)
+            if 'D1' in self.kw_elems:
+                fld2vals['D1'] = rcntobj.get_d1str(goobj)
             if b_tcnt:
                 tcnt = tcntobj.gocnts[goid]
                 num_ns = float(tcntobj.aspect_counts[goobj.namespace])
