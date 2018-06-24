@@ -21,12 +21,12 @@ and an orange (#ffe5b4) from the [favorite pink based oranges](http://www.color-
 
 The file, go_heartjogging6.txt, contains the GO terms and user-defined colors:
 ```
-#fad2fa GO:0072359  # BP 643 D04 circulatory system development
-#d2fafa GO:0003007  # BP 197 D04 heart morphogenesis
-#fafad2 GO:0035050  # BP  26 D05 embryonic heart tube development
-#ffe5b4 GO:0003304  # BP   0 D06 myocardial epithelial involution involved in heart jogging
-#e6fad2 GO:0061371  # BP  11 D06 determination of heart left/right asymmetry
-#d2d2fa GO:0003146  # BP   6 D07 heart jogging
+#fad2fa GO:0072359  # BP 643 D04 circulatory system development (magenta)
+#d2fafa GO:0003007  # BP 197 D04 heart morphogenesis (blue)
+#fafad2 GO:0035050  # BP  26 D05 embryonic heart tube development (yellow)
+#ffe5b4 GO:0003304  # BP   0 D06 myocardial epithelial involution involved in heart jogging (orange)
+#e6fad2 GO:0061371  # BP  11 D06 determination of heart left/right asymmetry (green)
+#d2d2fa GO:0003146  # BP   6 D07 heart jogging (purple)
 ```
 ### Six different-colored GO terms without relationships
 The six GO IDs listed in _go_heartjogging6.txt_ and their ancestors up to the root GO are plotted.   
