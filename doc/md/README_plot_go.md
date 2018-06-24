@@ -1,5 +1,8 @@
 # Plot the GO hierarchy with go_plot.py
 
+  * [**Plot six GO terms in a file (a different color for each) and their ancestors**](#plot-six-go-terms-listed-in-a-file-using-different-colors-and-their-ancestors):
+    * [Using 'is_a' relationship only (default)](#six-different-colored-go-terms-without-relationships)
+    * [Using all relationships](#six-different-colored-go-terms-with-relationships)
   * Plot **one** GO term and its ancestors:
     * [Using 'is_a' relationship only (default)](#plot-one-go-term-and-its-ancestors)
     * [Using all relationships](#plot-one-go-term-and-its-ancestors-with-relationships)
@@ -10,9 +13,34 @@
     * [GO terms listed in a file](#plot-two-go-terms-listed-in-a-file-using-different-colors-and-their-ancestors)
     * [Using 'is_a' relationship only (default)](#plot-two-go-terms-using-different-colors-and-their-ancestors)
     * [Using all relationships](#plot-two-go-terms-using-different-colors-and-their-ancestors-with-relationships)
-  * [**Plot six GO terms in a file (a different color for each) and their ancestors**](#plot-six-go-terms-listed-in-a-file-using-different-colors-and-their-ancestors):
-    * [Using 'is_a' relationship only (default)](#six-different-colored-go-terms-without-relationships)
-    * [Using all relationships](#six-different-colored-go-terms-with-relationships)
+
+
+## Plot six GO terms (listed in a file) using different colors and their ancestors
+The colorized GO terms use the [lightbright](http://www.color-hex.com/color-palette/51895)
+and an orange (#ffe5b4) from the [favorite pink based oranges](http://www.color-hex.com/color-palette/50573)
+Color Palettes.
+
+The file, go_heartjogging6.txt, contains the GO terms and user-defined colors:
+```
+#fad2fa GO:0072359  # BP 643 D04 circulatory system development
+#d2fafa GO:0003007  # BP 197 D04 heart morphogenesis
+#fafad2 GO:0035050  # BP  26 D05 embryonic heart tube development
+#ffe5b4 GO:0003304  # BP   0 D06 myocardial epithelial involution involved in heart jogging
+#e6fad2 GO:0061371  # BP  11 D06 determination of heart left/right asymmetry
+#d2d2fa GO:0003146  # BP   6 D07 heart jogging
+```
+### Six different-colored GO terms without relationships
+```
+scripts/go_plot.py --go_file=tests/data/go_plot/go_heartjogging6.txt -o heartjogging6_r0.png
+```
+![heart_jogging_r0](../images/plot_go/heartjogging6_r0.png)
+
+### Six different-colored GO terms with relationships
+```
+scripts/go_plot.py --go_file=tests/data/go_plot/go_heartjogging6.txt -r -o heartjogging6_r1.png
+```
+![heart_jogging_r0](../images/plot_go/heartjogging6_r1.png)
+
 
 ## Plot one GO term and its ancestors
 Plot one term and all ancestors using the 'is_a' attribute.    
@@ -84,31 +112,5 @@ scripts/go_plot.py GO:0003304 GO:0003146#d6fffa --r -o heart_jogging_ice_r1.png
 ```
 ![heart_jogging_r1](../images/plot_go/heart_jogging_ice_r1.png)
 
-
-## Plot six GO terms (listed in a file) using different colors and their ancestors
-The colorized GO terms use the [lightbright](http://www.color-hex.com/color-palette/51895)
-and an orange (#ffe5b4) from the [favorite pink based oranges](http://www.color-hex.com/color-palette/50573)
-Color Palettes.
-
-The file, go_heartjogging6.txt, contains the GO terms and user-defined colors:
-```
-#fad2fa GO:0072359  # BP 643 D04 circulatory system development
-#d2fafa GO:0003007  # BP 197 D04 heart morphogenesis
-#fafad2 GO:0035050  # BP  26 D05 embryonic heart tube development
-#ffe5b4 GO:0003304  # BP   0 D06 myocardial epithelial involution involved in heart jogging
-#e6fad2 GO:0061371  # BP  11 D06 determination of heart left/right asymmetry
-#d2d2fa GO:0003146  # BP   6 D07 heart jogging
-```
-### Six different-colored GO terms without relationships
-```
-scripts/go_plot.py --go_file=tests/data/go_plot/go_heartjogging6.txt -o heartjogging6_r0.png
-```
-![heart_jogging_r0](../images/plot_go/heartjogging6_r0.png)
-
-### Six different-colored GO terms with relationships
-```
-scripts/go_plot.py --go_file=tests/data/go_plot/go_heartjogging6.txt -r -o heartjogging6_r1.png
-```
-![heart_jogging_r0](../images/plot_go/heartjogging6_r1.png)
 
 Copyright (C) 2010-2018, DV Klopfenstein, Haibao Tang et al. All rights reserved.
