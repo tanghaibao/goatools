@@ -29,6 +29,7 @@ The file, go_heartjogging6.txt, contains the GO terms and user-defined colors:
 #d2d2fa GO:0003146  # BP   6 D07 heart jogging
 ```
 ### Six different-colored GO terms without relationships
+The six GO IDs listed in _go_heartjogging6.txt_ and their ancestors up to the root GO are plotted.   
 ```
 scripts/go_plot.py --go_file=tests/data/go_plot/go_heartjogging6.txt -o heartjogging6_r0.png
 ```
