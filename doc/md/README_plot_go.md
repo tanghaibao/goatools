@@ -10,7 +10,7 @@
     * [GO terms listed in a file](#plot-two-go-terms-listed-in-a-file-using-different-colors-and-their-ancestors)
     * [Using 'is_a' relationship only (default)](#plot-two-go-terms-using-different-colors-and-their-ancestors)
     * [Using all relationships](#plot-two-go-terms-using-different-colors-and-their-ancestors-with-relationships)
-  * [Plot **six** GO terms in a file (a different **color** for each) and their ancestors](#plot-six-go-terms-listed-in-a-file-using-different-colors-and-their-ancestors):
+  * [**Plot six GO terms in a file (a different color for each) and their ancestors**](#plot-six-go-terms-listed-in-a-file-using-different-colors-and-their-ancestors):
     * [Using 'is_a' relationship only (default)](#six-different-colored-go-terms-without-relationships)
     * [Using all relationships](#six-different-colored-go-terms-with-relationships)
 

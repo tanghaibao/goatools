@@ -154,9 +154,9 @@ to all the parents of a GO term. As a result, users may find terms in
 the output that are not present in their `association` file. Use
 `--no_propagate_counts` to disable this behavior.
 
-### Read and plot GO lineage
+### Plot GO lineage
 
-  * [plot_go.py](doc/md/README_plot_go.md): Multiple GOs. User-defined colors. Relationships    
+  * [plot_go.py](doc/md/README_plot_go.md): Multiple user-specified GOs. User-defined colors. Plot relationships.    
   * [plot_go_term.py](plot_go_term-py)
 
   
