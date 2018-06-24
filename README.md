@@ -156,7 +156,12 @@ the output that are not present in their `association` file. Use
 
 ### Plot GO lineage
 
-  * [plot_go.py](doc/md/README_plot_go.md): Multiple user-specified GOs. User-defined colors. Plot relationships.    
+  * [plot_go.py](doc/md/README_plot_go.md):
+    Plots user-specified GO term(s) up to root.
+    * Multiple user-specified GOs   
+    * User-defined colors    
+    * Plot relationships (-r)    
+    * Optionally plot children of user-specfied GO terms
   * [plot_go_term.py](plot_go_term-py)
 
   
