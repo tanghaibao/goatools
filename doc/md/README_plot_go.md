@@ -16,7 +16,7 @@
 
 
 ## Plot six GO terms (listed in a file) using different colors and their ancestors
-The colorized GO terms use the [lightbright](http://www.color-hex.com/color-palette/51895)
+The colorized GO terms use the colors from the [lightbright](http://www.color-hex.com/color-palette/51895) color palette
 and an orange (#ffe5b4) from the [favorite pink based oranges](http://www.color-hex.com/color-palette/50573)
 Color Palettes.
 
