@@ -36,6 +36,7 @@ scripts/go_plot.py --go_file=tests/data/go_plot/go_heartjogging6.txt -o heartjog
 ![heart_jogging_r0](../images/plot_go/heartjogging6_r0.png)
 
 ### Six different-colored GO terms with relationships
+The **-r** argument causes relationships to be plotted.    
 ```
 scripts/go_plot.py --go_file=tests/data/go_plot/go_heartjogging6.txt -r -o heartjogging6_r1.png
 ```
