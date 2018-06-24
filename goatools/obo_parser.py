@@ -260,43 +260,43 @@ class GOTerm(object):
         return set.union(self.children, *self.relationship_rev.values())
 
 
-    def write_hier_rec(self, gos_printed, out=sys.stdout,
-                       len_dash=1, max_depth=None, num_child=None, short_prt=False,
-                       include_only=None, go_marks=None,
-                       depth=1, depth_dashes="-"):
-        """Write hierarchy for a GO Term record."""
-        # Added by DV Klopfenstein
-        goid = self.id
-        # Shortens hierarchy report by only printing the hierarchy
-        # for the sub-set of user-specified GO terms which are connected.
-        if include_only is not None and goid not in include_only:
-            return
-        nrp = short_prt and goid in gos_printed
-        if go_marks is not None:
-            out.write('{} '.format('>' if goid in go_marks else ' '))
-        if len_dash is not None:
-            # Default character indicating hierarchy level is '-'.
-            # '=' is used to indicate a hierarchical path printed in detail previously.
-            letter = '-' if not nrp or not self.children else '='
-            depth_dashes = ''.join([letter]*depth)
-            out.write('{DASHES:{N}} '.format(DASHES=depth_dashes, N=len_dash))
-        if num_child is not None:
-            out.write('{N:>5} '.format(N=len(self.get_all_children())))
-        out.write('{GO}\tL-{L:>02}\tD-{D:>02}\t{desc}\n'.format(
-            GO=self.id, L=self.level, D=self.depth, desc=self.name))
-        # Track GOs previously printed only if needed
-        if short_prt:
-            gos_printed.add(goid)
-        # Do not print hierarchy below this turn if it has already been printed
-        if nrp:
-            return
-        depth += 1
-        if max_depth is not None and depth > max_depth:
-            return
-        for child in self.children:
-            child.write_hier_rec(gos_printed, out, len_dash, max_depth, num_child, short_prt,
-                                 include_only, go_marks,
-                                 depth, depth_dashes)
+####    def write_hier_rec(self, gos_printed, out=sys.stdout,
+####                       len_dash=1, max_depth=None, num_child=None, short_prt=False,
+####                       include_only=None, go_marks=None,
+####                       depth=1, depth_dashes="-"):
+####        """Write hierarchy for a GO Term record."""
+####        # Added by DV Klopfenstein
+####        goid = self.id
+####        # Shortens hierarchy report by only printing the hierarchy
+####        # for the sub-set of user-specified GO terms which are connected.
+####        if include_only is not None and goid not in include_only:
+####            return
+####        nrp = short_prt and goid in gos_printed
+####        if go_marks is not None:
+####            out.write('{} '.format('>' if goid in go_marks else ' '))
+####        if len_dash is not None:
+####            # Default character indicating hierarchy level is '-'.
+####            # '=' is used to indicate a hierarchical path printed in detail previously.
+####            letter = '-' if not nrp or not self.children else '='
+####            depth_dashes = ''.join([letter]*depth)
+####            out.write('{DASHES:{N}} '.format(DASHES=depth_dashes, N=len_dash))
+####        if num_child is not None:
+####            out.write('{N:>5} '.format(N=len(self.get_all_children())))
+####        out.write('{GO}\tL-{L:>02}\tD-{D:>02}\t{desc}\n'.format(
+####            GO=self.id, L=self.level, D=self.depth, desc=self.name))
+####        # Track GOs previously printed only if needed
+####        if short_prt:
+####            gos_printed.add(goid)
+####        # Do not print hierarchy below this turn if it has already been printed
+####        if nrp:
+####            return
+####        depth += 1
+####        if max_depth is not None and depth > max_depth:
+####            return
+####        for child in self.children:
+####            child.write_hier_rec(gos_printed, out, len_dash, max_depth, num_child, short_prt,
+####                                 include_only, go_marks,
+####                                 depth, depth_dashes)
 
 
 class GODag(dict):
@@ -435,20 +435,20 @@ class GODag(dict):
         for rec in sorted(self.values()):
             print(rec, file=out)
 
-    def write_hier_all(self, out=sys.stdout,
-                       len_dash=1, max_depth=None, num_child=None, short_prt=False):
-        """Write hierarchy for all GO Terms in obo file."""
-        # Print: [biological_process, molecular_function, and cellular_component]
-        for go_id in ['GO:0008150', 'GO:0003674', 'GO:0005575']:
-            self.write_hier(go_id, out, len_dash, max_depth, num_child, short_prt, None)
-
-    def write_hier(self, go_id, out=sys.stdout,
-                   len_dash=1, max_depth=None, num_child=None, short_prt=False,
-                   include_only=None, go_marks=None):
-        """Write hierarchy for a GO Term."""
-        gos_printed = set()
-        self[go_id].write_hier_rec(gos_printed, out, len_dash, max_depth, num_child,
-                                   short_prt, include_only, go_marks)
+####    def write_hier_all(self, out=sys.stdout,
+####                       len_dash=1, max_depth=None, num_child=None, short_prt=False):
+####        """Write hierarchy for all GO Terms in obo file."""
+####        # Print: [biological_process, molecular_function, and cellular_component]
+####        for go_id in ['GO:0008150', 'GO:0003674', 'GO:0005575']:
+####            self.write_hier(go_id, out, len_dash, max_depth, num_child, short_prt, None)
+####
+####    def write_hier(self, go_id, out=sys.stdout,
+####                   len_dash=1, max_depth=None, num_child=None, short_prt=False,
+####                   include_only=None, go_marks=None):
+####        """Write hierarchy for a GO Term."""
+####        gos_printed = set()
+####        self[go_id].write_hier_rec(gos_printed, out, len_dash, max_depth, num_child,
+####                                   short_prt, include_only, go_marks)
 
     @staticmethod
     def id2int(go_id):

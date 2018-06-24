@@ -9,9 +9,9 @@ from goatools.cli.wr_hierarchy import WrHierCli
 
 #  --o               Output file in ASCII text format
 #  --no_indent       Do not indent GO terms
-#  --max_indent       max depth for printing relative to GO Term
+#  --max_indent      max depth for printing relative to GO Term
 #  --num_child       Print count of total number of children for each GO
-#  --short           If a branch has already been printed, do not re-print.
+#  --concise         If a branch has already been printed, do not re-print.
 #                    Print '===' instead of dashes to note the point of compression
 
 def test_cli():
@@ -20,20 +20,19 @@ def test_cli():
     args_exp = [
         # args                   exp_set expected_dict
         # --------               ------- ---------------------
-        ([],                     {'dag':'go-basic.obo'}),
-        (['--dag=go-basic.obo'], {'dag':'go-basic.obo'}),
-        (['--o=rpt.txt'],        {'dag':'go-basic.obo', 'o':'rpt.txt'}),
-        (['--max_indent=7'],     {'dag':'go-basic.obo', 'max_indent':7}),
-        (['--num_child=100'],    {'dag':'go-basic.obo', 'num_child':100}),
-        (['--short'],            {'dag':'go-basic.obo', 'short':True}),
-        (['--no_indent'],        {'dag':'go-basic.obo', 'no_indent':True}),
-        (['--short', '--no_indent'], {'dag':'go-basic.obo', 'short':True, 'no_indent':True}),
+        ([],                     {'dag':'go-basic.obo', 'dash_len':6}),
+        (['--dag=go-basic.obo'], {'dag':'go-basic.obo', 'dash_len':6}),
+        (['--o=rpt.txt'],        {'dag':'go-basic.obo', 'dash_len':6, 'o':'rpt.txt'}),
+        (['--max_indent=7'],     {'dag':'go-basic.obo', 'dash_len':6, 'max_indent':7}),
+        (['--num_child=100'],    {'dag':'go-basic.obo', 'dash_len':6, 'num_child':100}),
+        (['--concise'],          {'dag':'go-basic.obo', 'dash_len':6, 'concise':True}),
+        (['--no_indent'],        {'dag':'go-basic.obo', 'dash_len':6, 'no_indent':True}),
+        (['--concise', '--no_indent'], {'dag':'go-basic.obo', 'concise':True, 'no_indent':True}),
     ]
     for args, exp_dict in args_exp:
         print("ARGS={ARGS}".format(ARGS=args))
         print("EXP={EXP}".format(EXP=exp_dict))
         obj = WrHierCli(args)
-        # obj = DocOptParse(doc, args)
         print("DCT: {DCT}".format(DCT=obj.kws))
         assert obj.kws == exp_dict, "DCT: ACT({}) != EXP({})".format(obj.kws, exp_dict)
         print("")

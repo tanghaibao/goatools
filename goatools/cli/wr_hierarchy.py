@@ -18,9 +18,9 @@ Options:
 
   --no_indent         Do not indent GO terms
   --max_indent=<int>  max indent depth for printing relative to GO Term
-  --num_child=<int>   Print count of total number of children for each GO
-  --short             If a branch has already been printed, do not re-print.
+  --concise           If a branch has already been printed, do not re-print.
                       Print '===' instead of dashes to note the point of compression
+  --dash_len=<int>    Printed width of the dashes column [default: 6]
   -r --relationship   Load and use the 'relationship' field
 """
 
@@ -48,22 +48,21 @@ def cli():
             objcli.wrtxt_hier(fout_txt)
     else:
         objcli.prt_hier(sys.stdout)
-    print(objcli.kws)
+
 
 class WrHierCli(object):
     """Write hierarchy cli."""
 
     kws_set_all = set(['relationship', 'up', 'f'])
-    kws_dct_all = set(['GO', 'dag', 'i', 'o', 'max_indent', 'num_child', 'no_indent', 'short',
-                       'gaf', 'gene2go'])
-    kws_dct_wr = set(['max_indent', 'num_child', 'no_indent', 'short', 'relationship'])
+    kws_dct_all = set(['GO', 'dag', 'i', 'o', 'max_indent', 'no_indent', 'concise',
+                       'gaf', 'gene2go', 'dash_len', 'include_only'])
+    kws_dct_wr = set(['max_indent', 'no_indent', 'concise', 'relationship', 'dash_len'])
 
     def __init__(self, args=None, prt=sys.stdout):
         self.kws = DocOptParse(__doc__, self.kws_dct_all, self.kws_set_all).get_docargs(
-            args, intvals=set(['max_indent', 'num_child']))
+            args, intvals=set(['max_indent', 'dash_len']))
         opt_attrs = OboOptionalAttrs.attributes.intersection(self.kws.keys())
         godag = get_godag(self.kws['dag'], prt, optional_attrs=opt_attrs)
-        # goids_usr = None if 'GO' not in self.kws else self.kws['GO']
         self.gosubdag = GoSubDag(godag.keys(), godag,
                                  relationships='relationship' in opt_attrs,
                                  tcntobj=get_tcntobj(godag, **self.kws),
@@ -97,9 +96,6 @@ class WrHierCli(object):
         """Write hierarchy below specfied GO IDs."""
         objwr = WrHierGO(self.gosubdag, **self.kws)
         assert self.goids, "NO VALID GO IDs WERE PROVIDED"
-        # kws = {k:v for k, v in self.kws.items() if k in self.kws_dct_wr}
-        # objwr.write_hier_all(prt=prt, **kws)
-                       # max_indent=None, num_child=None, short_prt=False):
         if 'up' not in objwr.usrset:
             for goid in self.goids:
                 objwr.prt_hier_down(goid, prt)
