@@ -5,8 +5,8 @@ from __future__ import print_function
 
 import sys
 
+#### from goatools.grouper.grprplt import GrouperPlot
 from goatools.grouper.grprdflts import GrouperDflts
-from goatools.grouper.grprplt import GrouperPlot
 from goatools.grouper.hdrgos import HdrgosSections
 from goatools.grouper.grprobj import Grouper
 from goatools.grouper.sorter import Sorter
@@ -56,8 +56,8 @@ def test_dflthdrs(prt=sys.stdout):
     grprobj1 = Grouper(name, data, hdrobj1, grprdflt.gosubdag, go2nt=None)
     sortobj1, _, nts1_go, act_hdrs1 = run(grprobj1, hdrobj1, exp_hdrs1)
 
-    prt.write("\nPLOT DAG\n")
-    GrouperPlot(grprobj1).plot_grouped_gos()
+    # prt.write("\nPLOT DAG\n")
+    # GrouperPlot(grprobj1).plot_grouped_gos()
 
     # GO:0099536 was a "middle" term (neither usrgo, not hdrgo) in run0, but is a hdrgo in run1
 
