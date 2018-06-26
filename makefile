@@ -197,6 +197,7 @@ clobber:
 #    tests/test_gosubdag_children.py \
 
 NOSETESTS := \
+    src/tests/test_sorter.py \
     tests/test_gosubdag_relationships.py \
     tests/test_gosubdag_mk.py \
     tests/test_go_depth1.py \

@@ -1,1 +1,1 @@
-# Group GO Terms under researcher-defined sections
+# Directory for grouper functions and classes

@@ -74,13 +74,13 @@ from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.gosubdag.go_tasks import get_go2obj_unique
 from goatools.gosubdag.go_tasks import get_leaf_children
 from goatools.gosubdag.rpt.wr_xlsx import read_d1_letter
-# COMING SOON: Plotting using GOATOOLS grouping:
-#   from goatools.gosubdag.rpt.read_goids import read_sections
-#   from goatools.grouper.grprdflts import GrouperDflts
-#   from goatools.grouper.hdrgos import HdrgosSections
-#   from goatools.grouper.grprobj import Grouper
-#   from goatools.grouper.colors import GrouperColors
-#   from goatools.grouper.grprplt import GrouperPlot
+
+from goatools.grouper.read_goids import read_sections
+from goatools.grouper.grprdflts import GrouperDflts
+from goatools.grouper.hdrgos import HdrgosSections
+from goatools.grouper.grprobj import Grouper
+from goatools.grouper.colors import GrouperColors
+from goatools.grouper.grprplt import GrouperPlot
 
 
 # pylint: disable=too-few-public-methods
@@ -94,24 +94,25 @@ class GetGOs(object):
 
     def __init__(self, go2obj):
         self.go2obj = go2obj
-        self.re_goids = re.compile(r"(GO:\d{7})+?")
-        self.re_color = re.compile(r"(#[0-9a-fA-F]{6})+?")
+        self.re_goids = re.compile(ur"(GO:\d{7})+?")
+        self.re_color = re.compile(ur"(#[0-9a-fA-F]{6})+?")
 
     def get_go_color(self, **kws):
         """Return source GO IDs ."""
-        # kws: GO go_file draw-children
         ret = {'GOs':set(), 'go2color':{}}
         if 'GO' in kws:
             self._goargs(ret, kws['GO'])
         if 'go_file' in kws:
             self._rdtxt_gos(ret, kws['go_file'])
         if 'draw-children' in kws:
-            self._add_gochildleaf(ret)
+            ret['GOs'].update(get_leaf_children(ret['GOs'], self.go2obj))
         # If there have been no GO IDs explicitly specified by the user
         if not ret['GOs']:
             # If the GO-DAG is sufficiently small, print all GO IDs
             if len(self.go2obj) < self.max_gos:
-                self._add_all_leafs(ret)
+                main_gos = set(o.id for go, o in self.go2obj.items() if go != o.id)
+                go_leafs = set(go for go, o in self.go2obj.items() if not o.children)
+                ret['GOs'] = go_leafs.difference(main_gos)
             else:
                 raise RuntimeError("GO IDs NEEDED")
         go2obj = {go:self.go2obj[go] for go in ret['GOs']}
@@ -155,23 +156,6 @@ class GetGOs(object):
                             print("IGNORING: {L}".format(L=line),)
         self._update_ret(ret, goids, go2color)
 
-    def _add_gochildleaf(self, ret):
-        """Add leaf-level GO children to GO list colored uniquely."""
-        leaf_gos = get_leaf_children(ret['GOs'], self.go2obj)
-        if leaf_gos:
-            ret['GOs'].update(leaf_gos)
-            leaf_go_color = Go2Color.key2col['go_leafchild']
-            go2color = ret['go2color']
-            for goid in leaf_gos:
-                if goid not in go2color:
-                    go2color[goid] = leaf_go_color
-
-    def _add_all_leafs(self, ret):
-        """Print all GO IDs."""
-        main_gos = set(o.id for go, o in self.go2obj.items() if go != o.id)
-        go_leafs = set(go for go, o in self.go2obj.items() if not o.children)
-        ret['GOs'] = go_leafs.difference(main_gos)
-
     @staticmethod
     def _update_ret(ret, goids, go2color):
         """Update 'GOs' and 'go2color' in dict with goids and go2color."""
@@ -209,6 +193,7 @@ class PlotCli(object):
         # GO kws_all: GO go_file draw-children
         goids, go2color = GetGOs(go2obj).get_go_color(**kws_all)
         relationships = 'relationship' in optional_attrs
+        #### self.gosubdag = GoSubDag(goids, go2obj, relationships, tcntobj=tcntobj)
         kws_dag = self._get_kwsdag(goids, go2obj, **kws_all)
         self.gosubdag = GoSubDag(goids, go2obj, relationships, **kws_dag)
 
@@ -217,41 +202,39 @@ class PlotCli(object):
         else:
             return self._plt_gosubdag(goids, go2color, **kws_all)
 
-    # pylint: disable=unused-argument,no-self-use
     def _plt_gogrouped(self, goids, go2color_usr, **kws):
         """Plot grouped GO IDs."""
-        print("Plotting with GOATOOLS grouping coming soon...")
-   #      fout_img = self.get_outfile(kws['outfile'], goids, 'relationship' in kws)
-   #      sections = read_sections(kws['sections'], exclude_ungrouped=True)
-   #      # kws_plt = {k:v for k, v in kws.items if k in self.kws_plt}
-   #      grprobj_cur = self._get_grprobj(goids, sections)
-   #      # GO: purple=hdr-only, green=hdr&usr, yellow=usr-only
-   #      # BORDER: Black=hdr Blu=hdr&usr
-   #      grpcolor = GrouperColors(grprobj_cur)  # get_bordercolor get_go2color_users
-   #      grp_go2color = grpcolor.get_go2color_users()
-   #      grp_go2bordercolor = grpcolor.get_bordercolor()
-   #      for goid, color in go2color_usr.items():
-   #          grp_go2color[goid] = color
-   #      objcolor = Go2Color(self.gosubdag, objgoea=None,
-   #                          go2color=grp_go2color, go2bordercolor=grp_go2bordercolor)
-   #      go2txt = GrouperPlot.get_go2txt(grprobj_cur, grp_go2color, grp_go2bordercolor)
-   #      objplt = GoSubDagPlot(self.gosubdag, Go2Color=objcolor, go2txt=go2txt, **kws)
-   #      objplt.prt_goids(sys.stdout)
-   #      objplt.plt_dag(fout_img)
-   #      sys.stdout.write("{N:>6} sections read\n".format(
-   #          N="NO" if sections is None else len(sections)))
-   #      return fout_img
+        fout_img = self.get_outfile(kws['outfile'], goids)
+        sections = read_sections(kws['sections'], exclude_ungrouped=True)
+        print ("KWWSSSSSSSS", kws)
+        # kws_plt = {k:v for k, v in kws.items if k in self.kws_plt}
+        grprobj_cur = self._get_grprobj(goids, sections)
+        # GO: purple=hdr-only, green=hdr&usr, yellow=usr-only
+        # BORDER: Black=hdr Blu=hdr&usr
+        grpcolor = GrouperColors(grprobj_cur)  # get_bordercolor get_go2color_users
+        grp_go2color = grpcolor.get_go2color_users()
+        grp_go2bordercolor = grpcolor.get_bordercolor()
+        for goid, color in go2color_usr.items():
+            grp_go2color[goid] = color
+        objcolor = Go2Color(self.gosubdag, objgoea=None,
+                            go2color=grp_go2color, go2bordercolor=grp_go2bordercolor)
+        go2txt = GrouperPlot.get_go2txt(grprobj_cur, grp_go2color, grp_go2bordercolor)
+        objplt = GoSubDagPlot(self.gosubdag, Go2Color=objcolor, go2txt=go2txt, **kws)
+        objplt.prt_goids(sys.stdout)
+        objplt.plt_dag(fout_img)
+        sys.stdout.write("{N:>6} sections read\n".format(
+            N="NO" if sections is None else len(sections)))
+        return fout_img
 
-   #  def _get_grprobj(self, goids, sections):
-   #      """Get Grouper, given GO IDs and sections."""
-   #      grprdflt = GrouperDflts(self.gosubdag, "goslim_generic.obo")
-   #      hdrobj = HdrgosSections(self.gosubdag, grprdflt.hdrgos_dflt, sections)
-   #      return Grouper("sections", goids, hdrobj, self.gosubdag)
+    def _get_grprobj(self, goids, sections):
+        """Get Grouper, given GO IDs and sections."""
+        grprdflt = GrouperDflts(self.gosubdag, "goslim_generic.obo")
+        hdrobj = HdrgosSections(self.gosubdag, grprdflt.hdrgos_dflt, sections)
+        return Grouper("sections", goids, hdrobj, self.gosubdag)
 
     def _plt_gosubdag(self, goids, go2color, **kws):
         """Plot GO IDs."""
-        print("PLOTTING KWS", kws)
-        fout_img = self.get_outfile(kws['outfile'], goids, 'relationship' in kws)
+        fout_img = self.get_outfile(kws['outfile'], goids)
         objcolor = Go2Color(self.gosubdag, objgoea=None, go2color=go2color)
         objplt = GoSubDagPlot(self.gosubdag, Go2Color=objcolor, **kws)
         objplt.prt_goids(sys.stdout)
@@ -261,6 +244,10 @@ class PlotCli(object):
     def _get_kwsdag(self, goids, go2obj, **kws_all):
         """Get keyword args for a GoSubDag."""
         kws_dag = {}
+        # Term Counts for GO Term information score
+        tcntobj = self._get_tcntobj(goids, go2obj, **kws_all)  # TermCounts or None
+        if tcntobj is not None:
+            kws_dag['tcntobj'] = tcntobj
         # GO letters specified by the user
         if 'go_aliases' in kws_all:
             fin_go_aliases = kws_all['go_aliases']
@@ -275,6 +262,9 @@ class PlotCli(object):
         """Get a TermCounts object if the user provides an annotation file, otherwise None."""
         # kws: gaf (gene2go taxid)
         if 'gaf' in kws or 'gene2go' in kws:
+            # Get a reduced go2obj set for TermCounts
+            _gosubdag = GoSubDag(goids, go2obj, rcntobj=False)
+            #return get_tcntobj(_gosubdag.go2obj, **kws)  # TermCounts
             return get_tcntobj(go2obj, **kws)  # TermCounts
 
     def get_docargs(self, args=None, prt=None):
@@ -311,23 +301,19 @@ class PlotCli(object):
         sys.stdout.write(txt)
         sys.exit(0)
 
-    def get_outfile(self, outfile, goids=None, b_rel=False):
+    def get_outfile(self, outfile, goids=None):
         """Return output file for GO Term plot."""
         # 1. Use the user-specfied output filename for the GO Term plot
         if outfile != self.dflt_outfile:
             return outfile
-        rstr = "_r1" if b_rel else ""
         # 2. If only plotting 1 GO term, use GO is in plot name
         if goids is not None and len(goids) == 1:
             goid = next(iter(goids))
             goobj = self.gosubdag.go2obj[goid]
             fout = "GO_{NN}_{NM}".format(NN=goid.replace("GO:", ""), NM=goobj.name)
-            return "".join([re.sub(r"[\s#'()+,-./:<=>\[\]_}]", '_', fout), rstr, '.png'])
+            return ".".join([re.sub(r"[\s#'()+,-./:<=>\[\]_}]", '_', fout), 'png'])
         # 3. Return default name
-        if not b_rel:
-            return self.dflt_outfile
-        else:
-            return self.dflt_outfile.replace('.png', '_r1.png')
+        return self.dflt_outfile
 
     @staticmethod
     def _get_optional_attrs(kws):
