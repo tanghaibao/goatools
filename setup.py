@@ -41,6 +41,7 @@ setup(
         NAME + ".gosubdag.plot",
         NAME + ".gosubdag.rpt",
         NAME + ".test_data",
+        NAME + ".test_data.sections",
         NAME + ".cli",
         NAME + ".rpt",
         NAME + ".anno",
