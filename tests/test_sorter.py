@@ -5,7 +5,6 @@ from __future__ import print_function
 
 import sys
 
-#### from goatools.grouper.grprplt import GrouperPlot
 from goatools.grouper.grprdflts import GrouperDflts
 from goatools.grouper.hdrgos import HdrgosSections
 from goatools.grouper.grprobj import Grouper
@@ -13,7 +12,7 @@ from goatools.grouper.sorter import Sorter
 
 
 # pylint: disable=too-many-locals
-def test_dflthdrs(prt=sys.stdout):
+def test_dflthdrs(prt=sys.stdout, do_plt=False):
     """Group depth-02 GO terms under their most specific depth-01 GO parent(s)."""
     # Initialize GoSubDag for grouping use once, since it takes a few seconds to initialize
     grprdflt = GrouperDflts()
@@ -56,8 +55,10 @@ def test_dflthdrs(prt=sys.stdout):
     grprobj1 = Grouper(name, data, hdrobj1, grprdflt.gosubdag, go2nt=None)
     sortobj1, _, nts1_go, act_hdrs1 = run(grprobj1, hdrobj1, exp_hdrs1)
 
-    # prt.write("\nPLOT DAG\n")
-    # GrouperPlot(grprobj1).plot_grouped_gos()
+    if do_plt:
+        from goatools.grouper.grprplt import GrouperPlot
+        prt.write("\nPLOT DAG\n")
+        GrouperPlot(grprobj1).plot_grouped_gos()
 
     # GO:0099536 was a "middle" term (neither usrgo, not hdrgo) in run0, but is a hdrgo in run1
 
@@ -170,9 +171,6 @@ def get_data0():
         "GO:0007612", # BP 0    14 L04 D06 DKO learning
         "GO:0007611"])# BP 0    22 L03 D05 DKO learning or memory
 
-def run_all():
-    """Run all tests."""
-    test_dflthdrs()
 
 if __name__ == '__main__':
-    run_all()
+    test_dflthdrs(do_plt=True)
