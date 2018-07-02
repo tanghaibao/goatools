@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """Ancestors/Descendants."""
 
+from __future__ import print_function
+
 import os
 import sys
 import timeit
@@ -18,6 +20,7 @@ def test_go_pools():
     """Print a comparison of GO terms from different species in two different comparisons."""
     objr = _Run()
     # Check that subset GoSubDags have the same ancestors/descendants as Full GoSubDag
+    # pylint: disable=no-member
     for qty in np.random.randint(10, 100, size=10):
         print("")
         goids = objr.get_goids_rand(qty)
@@ -54,8 +57,8 @@ class _Run(object):
 
     def __init__(self):
         download_go_basic_obo(self.obo, sys.stdout, loading_bar=None)
-        self.godag_r0 = GODag("go-basic.obo")
-        self.godag_r1 = GODag("go-basic.obo", optional_attrs=set(['relationship']))
+        self.godag_r0 = GODag(self.obo)
+        self.godag_r1 = GODag(self.obo, optional_attrs=set(['relationship']))
         self.goids = list(set(o.id for o in self.godag_r0.values()))
         # GoSubDag (plain)
         tic = timeit.default_timer()
