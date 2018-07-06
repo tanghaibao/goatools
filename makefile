@@ -197,6 +197,7 @@ clobber:
 #    tests/test_gosubdag_children.py \
 
 NOSETESTS := \
+    tests/test_wr_sections_txt.py \
     tests/test_altid_gosubdag.py \
     tests/test_dcnt_r01.py \
     tests/test_grprobj.py \
