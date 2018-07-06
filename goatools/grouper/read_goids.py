@@ -49,19 +49,20 @@ class ReadGoids(object):
         return sections
 
     def read_py(self, fin_txt, get_goids_only, exclude_ungrouped, prt=sys.stdout):
-        """Get user list of GO IDs either from a list or from GO IDs on the command-line"""
+        """Read GO IDs or sections data from a Python file."""
         goids_fin = self._read_txt(fin_txt, get_goids_only, exclude_ungrouped)
-        self._read_finish(goids_fin, prt)
+        sections = self._read_finish(goids_fin, prt)
         # Print summary of GO IDs read
         if prt is not None:
             self._prt_read_msg(prt, fin_txt, exclude_ungrouped)
+        return sections
 
     def read_sections(self, sections_file, get_goids_only, exclude_ungrouped):
         """Read sections variable from a text file of from a Python file."""
         ext = os.path.splitext(sections_file)
         file_contents = None
         if ext and ext == ".py":
-            file_contents = self.read_txt(sections_file, get_goids_only, exclude_ungrouped)
+            file_contents = self.read_py(sections_file, get_goids_only, exclude_ungrouped)
         else:
             file_contents = self.read_txt(sections_file, get_goids_only, exclude_ungrouped)
         if file_contents:

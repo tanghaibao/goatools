@@ -30,7 +30,14 @@ def test_wr_sections_txt():
     # ------------------------------------------------------------------
     sec1 = _read_sections("./data/gjoneska/sections_in.txt")
     # Print usrgos in sections, showing how they were grouped under hdrgos
-    _wr_sections_txt("sec0_hdr1.txt", usrgos, sec1, grprdflt=grprdflt)
+    _wr_sections_txt("a_ec0_hdr1.txt", usrgos, sec1, grprdflt=grprdflt)
+
+    # ------------------------------------------------------------------
+    # Print usrgos in txt using sections containing hdrgos
+    # ------------------------------------------------------------------
+    # sec2 = _read_sections("goatools/test_data/sections/gjoneska_pfenning.py")
+    # # Print usrgos in sections, showing how they were grouped under hdrgos
+    # _wr_sections_txt("b_sec0_hdr1.txt", usrgos, sec2, grprdflt=grprdflt)
 
 
 def _read_sections(fin):
