@@ -28,10 +28,10 @@ def test_wr_sections_txt():
     # ------------------------------------------------------------------
     # Print usrgos in txt using sections containing hdrgos
     # ------------------------------------------------------------------
-    sections_file = os.path.join(REPO, "./data/gjoneska/sections_in.txt")
-    assert read_sections(sections_file), "EMPTY SECTIONS FILE({})".format(sections_file)
+    sec1 = os.path.join(REPO, "./data/gjoneska/sections_in.txt")
+    assert read_sections(sec1), "EMPTY SECTIONS FILE({})".format(sec1)
     # Print usrgos in sections, showing how they were grouped under hdrgos
-    _wr_sections_txt("sec0_hdr1.txt", usrgos, sections_file, grprdflt=grprdflt)
+    _wr_sections_txt("sec0_hdr1.txt", usrgos, sec1, grprdflt=grprdflt)
 
 
 def _wr_sections_txt(fout_txt, usrgos, sections_file, grprdflt):

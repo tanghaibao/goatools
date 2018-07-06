@@ -19,10 +19,10 @@ def read_sections(sections_file, exclude_ungrouped=False, prt=sys.stdout):
     if sections_file is None:
         return None
     if os.path.exists(sections_file):
-        file_contents = read_goids(sections_file, False, exclude_ungrouped)
-        return file_contents.get('sections', None)
+        return ReadGoids().read_sections(sections_file, False, exclude_ungrouped) 
     if prt:
         prt.write("CANNOT READ: {SEC}\n".format(SEC=sections_file))
+
 
 def read_goids(fin_txt, get_goids_only=False, exclude_ungrouped=False, prt=sys.stdout):
     """Get user list of GO IDs either from a list or from GO IDs on the command-line"""
@@ -42,18 +42,41 @@ class ReadGoids(object):
     def read_txt(self, fin_txt, get_goids_only, exclude_ungrouped, prt=sys.stdout):
         """Get user list of GO IDs either from a list or from GO IDs on the command-line"""
         goids_fin = self._read_txt(fin_txt, get_goids_only, exclude_ungrouped)
+        sections = self._read_finish(goids_fin, prt)
+        # Print summary of GO IDs read
+        if prt is not None:
+            self._prt_read_msg(prt, fin_txt, exclude_ungrouped)
+        return sections
+
+    def read_py(self, fin_txt, get_goids_only, exclude_ungrouped, prt=sys.stdout):
+        """Get user list of GO IDs either from a list or from GO IDs on the command-line"""
+        goids_fin = self._read_txt(fin_txt, get_goids_only, exclude_ungrouped)
+        self._read_finish(goids_fin, prt)
+        # Print summary of GO IDs read
+        if prt is not None:
+            self._prt_read_msg(prt, fin_txt, exclude_ungrouped)
+
+    def read_sections(self, sections_file, False, exclude_ungrouped):
+        ext = os.path.splitext(sections_file)
+        file_contents = None
+        if ext and ext == ".py":
+            file_contents = self.read_txt(sections_file, False, exclude_ungrouped)
+        else:
+            file_contents = self.read_txt(sections_file, False, exclude_ungrouped)
+        if file_contents:
+            return file_contents.get('sections', None)
+
+    def _read_finish(self, goids_fin, prt):
+        """Get one of: {'goids':...} or {'sections':...} from reading a file."""
         # Report unused sections, if any
         if len(self.section2goids) != len(self.sections_seen):
             self._rpt_unused_sections(prt)
         # If there are no sections, then goids_fin holds all GO IDs in file
         if not self.sections_seen:
             self.goids_fin = goids_fin
-        # Print summary of GO IDs read
-        if prt is not None:
-            self._prt_read_msg(prt, fin_txt, exclude_ungrouped)
 
         if goids_fin:
-            return self.internal_get_goids_or_sections()
+            return self.internal_get_goids_or_sections()  # {'goids':...} or {'sections':...}
         else:
             sys.stdout.write(
                 "\n**WARNING: GO IDs MUST BE THE FIRST 10 CHARACTERS OF EACH LINE\n\n")
