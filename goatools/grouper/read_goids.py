@@ -19,7 +19,7 @@ def read_sections(sections_file, exclude_ungrouped=False, prt=sys.stdout):
     if sections_file is None:
         return None
     if os.path.exists(sections_file):
-        return ReadGoids().read_sections(sections_file, False, exclude_ungrouped) 
+        return ReadGoids().read_sections(sections_file, False, exclude_ungrouped)
     if prt:
         prt.write("CANNOT READ: {SEC}\n".format(SEC=sections_file))
 
@@ -56,13 +56,14 @@ class ReadGoids(object):
         if prt is not None:
             self._prt_read_msg(prt, fin_txt, exclude_ungrouped)
 
-    def read_sections(self, sections_file, False, exclude_ungrouped):
+    def read_sections(self, sections_file, get_goids_only, exclude_ungrouped):
+        """Read sections variable from a text file of from a Python file."""
         ext = os.path.splitext(sections_file)
         file_contents = None
         if ext and ext == ".py":
-            file_contents = self.read_txt(sections_file, False, exclude_ungrouped)
+            file_contents = self.read_txt(sections_file, get_goids_only, exclude_ungrouped)
         else:
-            file_contents = self.read_txt(sections_file, False, exclude_ungrouped)
+            file_contents = self.read_txt(sections_file, get_goids_only, exclude_ungrouped)
         if file_contents:
             return file_contents.get('sections', None)
 
