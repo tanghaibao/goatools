@@ -171,7 +171,6 @@ def read_gaf(fin_gaf, prt=sys.stdout, **kws):
     for ntgaf in gafobj.associations:
         if eval_nd(ntgaf) and eval_not(ntgaf):
             if evs is None or ntgaf.Evidence_Code in evs:
-                taxid = ntgaf.Taxon[0]
                 geneid = ntgaf.DB_ID
                 go_id = ntgaf.GO_ID
                 if b_geneid2gos:
@@ -179,8 +178,10 @@ def read_gaf(fin_gaf, prt=sys.stdout, **kws):
                 else:
                     id2gos[go_id].add(geneid)
                 if taxid2asscs is not None:
-                    taxid2asscs[taxid]['ID2GOs'][geneid].add(go_id)
-                    taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
+                    if ntgaf.Taxon:
+                        taxid = ntgaf.Taxon[0]
+                        taxid2asscs[taxid]['ID2GOs'][geneid].add(go_id)
+                        taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
     return id2gos # return simple associations
 
 def get_nd(keep_nd):
