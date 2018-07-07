@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Code as found in notebooks/semantic_similarity.ipynb."""
 
 from __future__ import print_function
@@ -19,6 +20,8 @@ from goatools.semantic import TermCounts
 from goatools.semantic import get_info_content
 from goatools.semantic import resnik_sim
 from goatools.semantic import lin_sim
+
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def test_semantic_similarity():
     """Computing basic semantic similarities between GO terms."""

@@ -101,7 +101,7 @@ class GafReader(object):
                     # Read data
                     if datobj is not None and line[0] != '!':
                         # print(lnum, line)
-                        ntgaf, b_err = datobj.get_ntgaf(line, lnum)
+                        ntgaf = datobj.get_ntgaf(line, lnum)
                         if ntgaf is not None:
                             nts.append(ntgaf)
                         else:
@@ -115,7 +115,8 @@ class GafReader(object):
                 datobj.prt_line_detail(prt, line)
             sys.exit(1)
         # GAF file has been read
-        datobj.prt_read_summary(prt, fin_gaf, nts)
+        if prt:
+            datobj.prt_read_summary(prt, fin_gaf, nts)
         self.datobj = datobj
         return self.evobj.sort_nts(nts, 'Evidence_Code')
 
@@ -215,9 +216,9 @@ class GafData(object):
         db_synonym = self._rd_fld_vals("DB_Synonym", flds[10], is_set)
         taxons = self._rd_fld_vals("Taxon", flds[12], is_list, 1, 2)
         if not self._chk_qty_eq_1(flds):
-            return None, "IGNORED ILLEGAL GAF LINE"
+            return None
         # Additional Formatting
-        taxons = self._do_taxons(taxons)
+        taxons = self._do_taxons(taxons, flds, lnum)
         self._chk_qualifier(qualifiers)
         # Create list of values
         gafvals = [
@@ -249,7 +250,7 @@ class GafData(object):
                 gafvals.append(self._rd_fld_vals("Gene_Product_Form_ID", flds[16], is_set))
             else:
                 gafvals.append(None)
-        return self.ntgafobj._make(gafvals), None
+        return self.ntgafobj._make(gafvals)
 
     @staticmethod
     def _rd_fld_vals(name, val, set_list_ft=True, qty_min=0, qty_max=None):
@@ -293,8 +294,7 @@ class GafData(object):
                 return False  # Check failed
         return True  # Check passed
 
-    @staticmethod
-    def _do_taxons(taxons):
+    def _do_taxons(self, taxons, flds, lnum):
         """Taxon"""
         taxons_str = [v.split(':')[1] for v in taxons] # strip "taxon:"
         taxons_int = [int(s) for s in taxons_str if s]
@@ -302,31 +302,49 @@ class GafData(object):
         num_taxons = len(taxons_int)
         if taxons_int:
             assert num_taxons == 1 or num_taxons == 2
+        else:
+            self.illegal_lines['ILLEGAL TAXON'].append((lnum, "\t".join(flds)))
         return taxons_int
 
     def prt_read_summary(self, prt, fin_gaf, nts):
         """Print a summary about the GAF file that was read."""
-        fout_log = self._prt_details_illegal_gaf(fin_gaf) if self.ignored else None
-        if prt is not None:
-            prt.write("  READ    {N:9,} associations: {FIN}\n".format(N=len(nts), FIN=fin_gaf))
+        prt.write("  READ    {N:9,} associations: {FIN}\n".format(N=len(nts), FIN=fin_gaf))
+        # If there are illegal GAF lines ...
+        if self.ignored or self.illegal_lines:
+            # Get summary of error types and their counts
+            errcnts = []
             if self.ignored:
-                prt.write("  IGNORED {N:9,} associations: {FIN}\n".format(N=len(self.ignored), FIN=fout_log))
+                errcnts.append("  {N:9,} IGNORED associations\n".format(N=len(self.ignored)))
+            if self.illegal_lines:
+                for err_name, errors in self.illegal_lines.items():
+                    errcnts.append("  {N:9,} {ERROR}\n".format(N=len(errors), ERROR=err_name))
+            # Save error details into a log file
+            fout_log = self._wrlog_details_illegal_gaf(fin_gaf, errcnts)
+            prt.write("  WROTE GAF ERROR LOG: {LOG}:\n".format(LOG=fout_log))
+            for err_cnt in errcnts:
+                sys.stdout.write(err_cnt)
 
-    def _prt_details_illegal_gaf(self, fin_gaf):
+    def _wrlog_details_illegal_gaf(self, fin_gaf, err_cnts):
         """Print details regarding illegal GAF lines seen to a log file."""
         fout_log = "{}.log".format(fin_gaf)
+        gaf_base = os.path.basename(fin_gaf)
         with open(fout_log, 'w') as prt:
+            prt.write("ILLEGAL GAF ERROR SUMMARY:\n\n")
+            for err_cnt in err_cnts:
+                prt.write(err_cnt)
+            prt.write("\n\nILLEGAL GAF ERROR DETAILS:\n\n")
             for lnum, line in self.ignored:
-                self.prt_ignore_line(prt, fin_gaf, line, lnum)
+                prt.write("**WARNING: GAF LINE IGNORED: {FIN}[{LNUM}]:\n{L}\n".format(
+                    FIN=gaf_base, L=line, LNUM=lnum))
                 self.prt_line_detail(prt, line)
-                prt.write("\n")
+                prt.write("\n\n")
+            for error, lines in self.illegal_lines.items():
+                for lnum, line in lines:
+                    prt.write("**WARNING: GAF LINE ILLEGAL({ERR}): {FIN}[{LNUM}]:\n{L}\n".format(
+                        ERR=error, FIN=gaf_base, L=line, LNUM=lnum))
+                    self.prt_line_detail(prt, line)
+                    prt.write("\n\n")
         return fout_log
-
-    @staticmethod
-    def prt_ignore_line(prt, fin_gaf, line, lnum):
-        """Print a message saying that we are ignoring an association line."""
-        prt.write("**WARNING: BADLY FORMATTED LINE. IGNORED {FIN}[{LNUM}]:\n{L}\n".format(
-            FIN=os.path.basename(fin_gaf), L=line, LNUM=lnum))
 
 
 class GafHdr(object):
