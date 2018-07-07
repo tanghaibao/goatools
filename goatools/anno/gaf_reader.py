@@ -79,6 +79,18 @@ class GafReader(object):
 
     def _init_assn(self, fin_gaf, hdr_only, prt):
         """Read GAF file. Store annotation data in a list of namedtuples."""
+        nts = self._read_gaf_nts(fin_gaf, hdr_only)
+        # GAF file has been read
+        if prt:
+            prt.write("  READ    {N:9,} associations: {FIN}\n".format(N=len(nts), FIN=fin_gaf))
+        # If there are illegal GAF lines ...
+        if self.datobj:
+            if self.datobj.ignored or self.datobj.illegal_lines:
+                self.datobj.prt_error_summary(fin_gaf)
+        return self.evobj.sort_nts(nts, 'Evidence_Code')
+
+    def _read_gaf_nts(self, fin_gaf, hdr_only):
+        """Read GAF file. Store annotation data in a list of namedtuples."""
         nts = []
         ver = None
         hdrobj = GafHdr()
@@ -112,13 +124,10 @@ class GafReader(object):
             sys.stderr.write("\n  **FATAL: {MSG}\n\n".format(MSG=str(inst)))
             sys.stderr.write("**FATAL: {FIN}[{LNUM}]:\n{L}".format(FIN=fin_gaf, L=line, LNUM=lnum))
             if datobj is not None:
-                datobj.prt_line_detail(prt, line)
+                datobj.prt_line_detail(sys.stdout, line)
             sys.exit(1)
-        # GAF file has been read
-        if prt:
-            datobj.prt_read_summary(prt, fin_gaf, nts)
         self.datobj = datobj
-        return self.evobj.sort_nts(nts, 'Evidence_Code')
+        return nts
 
     def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print annotation/evidence code summary."""
@@ -179,7 +188,9 @@ class GafData(object):
         "1.0" : 15}
 
     # Expected values for a Qualifier
+    # enables seen Jul 2018 in goa_chicken_complex.gaf ...
     exp_qualifiers = set(['not', 'contributes_to', 'colocalizes_with'])
+    # exp_qualifiers = set(['not', 'contributes_to', 'colocalizes_with', 'enables'])
 
     def __init__(self, ver, allow_missing_symbol=False):
         self.ver = ver
@@ -219,7 +230,7 @@ class GafData(object):
             return None
         # Additional Formatting
         taxons = self._do_taxons(taxons, flds, lnum)
-        self._chk_qualifier(qualifiers)
+        self._chk_qualifier(qualifiers, flds, lnum)
         # Create list of values
         gafvals = [
             flds[0],      # 0  DB
@@ -266,11 +277,13 @@ class GafData(object):
                 "FIELD({F}): MAX QUANTITY({Q}) EXCEEDED: {V}".format(F=name, Q=qty_max, V=vals)
         return vals if set_list_ft else set(vals)
 
-    def _chk_qualifier(self, qualifiers):
+    def _chk_qualifier(self, qualifiers, flds, lnum):
         """Check that qualifiers are expected values."""
         # http://geneontology.org/page/go-annotation-conventions#qual
         for qual in qualifiers:
-            assert qual in self.exp_qualifiers, "UNEXPECTED QUALIFIER({Q})".format(Q=qual)
+            if qual not in self.exp_qualifiers:
+                errname = 'UNEXPECTED QUALIFIER({QUAL})'.format(QUAL=qual)
+                self.illegal_lines[errname].append((lnum, "\t".join(flds)))
 
     def prt_line_detail(self, prt, line):
         """Print line header and values in a readable format."""
@@ -306,23 +319,20 @@ class GafData(object):
             self.illegal_lines['ILLEGAL TAXON'].append((lnum, "\t".join(flds)))
         return taxons_int
 
-    def prt_read_summary(self, prt, fin_gaf, nts):
+    def prt_error_summary(self, fin_gaf):
         """Print a summary about the GAF file that was read."""
-        prt.write("  READ    {N:9,} associations: {FIN}\n".format(N=len(nts), FIN=fin_gaf))
-        # If there are illegal GAF lines ...
-        if self.ignored or self.illegal_lines:
-            # Get summary of error types and their counts
-            errcnts = []
-            if self.ignored:
-                errcnts.append("  {N:9,} IGNORED associations\n".format(N=len(self.ignored)))
-            if self.illegal_lines:
-                for err_name, errors in self.illegal_lines.items():
-                    errcnts.append("  {N:9,} {ERROR}\n".format(N=len(errors), ERROR=err_name))
-            # Save error details into a log file
-            fout_log = self._wrlog_details_illegal_gaf(fin_gaf, errcnts)
-            prt.write("  WROTE GAF ERROR LOG: {LOG}:\n".format(LOG=fout_log))
-            for err_cnt in errcnts:
-                sys.stdout.write(err_cnt)
+        # Get summary of error types and their counts
+        errcnts = []
+        if self.ignored:
+            errcnts.append("  {N:9,} IGNORED associations\n".format(N=len(self.ignored)))
+        if self.illegal_lines:
+            for err_name, errors in self.illegal_lines.items():
+                errcnts.append("  {N:9,} {ERROR}\n".format(N=len(errors), ERROR=err_name))
+        # Save error details into a log file
+        fout_log = self._wrlog_details_illegal_gaf(fin_gaf, errcnts)
+        sys.stdout.write("  WROTE GAF ERROR LOG: {LOG}:\n".format(LOG=fout_log))
+        for err_cnt in errcnts:
+            sys.stdout.write(err_cnt)
 
     def _wrlog_details_illegal_gaf(self, fin_gaf, err_cnts):
         """Print details regarding illegal GAF lines seen to a log file."""

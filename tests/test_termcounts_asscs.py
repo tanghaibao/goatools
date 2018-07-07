@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Test TermCounts object used in Resnik and Lin similarity calculations."""
 
 from __future__ import print_function
@@ -69,7 +70,7 @@ def test_semantic_similarity(usr_assc=None):
     cwd = os.getcwd()
     for assc_name in associations:  # Limit test numbers for speed
         # Get all the annotations from arabidopsis.
-        assc_gene2gos = dnld_assc(os.path.join(cwd, assc_name), go2obj, prt=None)
+        assc_gene2gos = dnld_assc(os.path.join(cwd, assc_name), go2obj, prt=sys.stdout)
 
         # Calculate the information content of the single term, GO:0048364
         #       "Information content (GO:0048364) = 7.75481392334
