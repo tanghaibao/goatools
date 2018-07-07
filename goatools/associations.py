@@ -152,49 +152,11 @@ def get_gaf_hdr(fin_gaf):
 
 def read_gaf(fin_gaf, prt=sys.stdout, **kws):
     """Read Gene Association File (GAF). Return data."""
-    # keyword arguments for choosing which GO IDs to keep
-    taxid2asscs = kws.get('taxid2asscs', None)
-    b_geneid2gos = not kws.get('go2geneids', False)
-    evs = kws.get('evidence_set', None)
-    eval_nd = get_nd(kws.get('keep_ND', False))
-    eval_not = get_not(kws.get('keep_NOT', False))
     # keyword arguments what is read from GAF.
     hdr_only = kws.get('hdr_only', None) # Read all data from GAF by default
     # Read GAF file
-    # Simple associations
-    id2gos = defaultdict(set)
-    # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
     gafobj = GafReader(fin_gaf, hdr_only, prt, **kws)
-    # Optionally specify a subset of GOs based on their evidence.
-    # By default, return id2gos. User can cause go2geneids to be returned by:
-    #   >>> read_ncbi_gene2go(..., go2geneids=True
-    for ntgaf in gafobj.associations:
-        if eval_nd(ntgaf) and eval_not(ntgaf):
-            if evs is None or ntgaf.Evidence_Code in evs:
-                geneid = ntgaf.DB_ID
-                go_id = ntgaf.GO_ID
-                if b_geneid2gos:
-                    id2gos[geneid].add(go_id)
-                else:
-                    id2gos[go_id].add(geneid)
-                if taxid2asscs is not None:
-                    if ntgaf.Taxon:
-                        taxid = ntgaf.Taxon[0]
-                        taxid2asscs[taxid]['ID2GOs'][geneid].add(go_id)
-                        taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
-    return id2gos # return simple associations
-
-def get_nd(keep_nd):
-    """Allow GAF values always or never."""
-    if keep_nd:
-        return lambda nt: True
-    return lambda nt: nt.Evidence_Code != 'ND'
-
-def get_not(keep_not):
-    """Allow GAF values always or never."""
-    if keep_not:
-        return lambda nt: True
-    return lambda nt: 'NOT' not in nt.Qualifier
+    return gafobj.read_gaf(**kws)
 
 def get_b2aset(a2bset):
     """Given gene2gos, return go2genes. Given go2genes, return gene2gos."""

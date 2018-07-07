@@ -30,16 +30,60 @@ class GafReader(object):
         self.evobj = EvidenceCodes()
         # Initialize associations and header information
         self.hdr = None
-        self.associations = self.read_gaf(filename, hdr_only, prt) if filename is not None else []
+        self.datobj = None
+        self.associations = self._init_assn(filename, hdr_only, prt) if filename is not None else []
 
-    def read_gaf(self, fin_gaf, hdr_only, prt):
+    def read_gaf(self, **kws):
+        """Read Gene Association File (GAF). Return data."""
+        # Simple associations
+        id2gos = cx.defaultdict(set)
+        # keyword arguments for choosing which GO IDs to keep
+        # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
+        taxid2asscs = kws.get('taxid2asscs', None)
+        b_geneid2gos = not kws.get('go2geneids', False)
+        evs = kws.get('evidence_set', None)
+        eval_nd = self._get_nd(kws.get('keep_ND', False))
+        eval_not = self._get_not(kws.get('keep_NOT', False))
+        # Optionally specify a subset of GOs based on their evidence.
+        # By default, return id2gos. User can cause go2geneids to be returned by:
+        #   >>> read_ncbi_gene2go(..., go2geneids=True
+        for ntgaf in self.associations:
+            if eval_nd(ntgaf) and eval_not(ntgaf):
+                if evs is None or ntgaf.Evidence_Code in evs:
+                    geneid = ntgaf.DB_ID
+                    go_id = ntgaf.GO_ID
+                    if b_geneid2gos:
+                        id2gos[geneid].add(go_id)
+                    else:
+                        id2gos[go_id].add(geneid)
+                    if taxid2asscs is not None:
+                        if ntgaf.Taxon:
+                            taxid = ntgaf.Taxon[0]
+                            taxid2asscs[taxid]['ID2GOs'][geneid].add(go_id)
+                            taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
+        return id2gos # return simple associations
+
+    @staticmethod
+    def _get_nd(keep_nd):
+        """Allow GAF values always or never."""
+        if keep_nd:
+            return lambda nt: True
+        return lambda nt: nt.Evidence_Code != 'ND'
+
+    @staticmethod
+    def _get_not(keep_not):
+        """Allow GAF values always or never."""
+        if keep_not:
+            return lambda nt: True
+        return lambda nt: 'NOT' not in nt.Qualifier
+
+    def _init_assn(self, fin_gaf, hdr_only, prt):
         """Read GAF file. Store annotation data in a list of namedtuples."""
         nts = []
         ver = None
         hdrobj = GafHdr()
         datobj = None
         lnum = line = -1
-        ignored = []
         try:
             with open(fin_gaf) as ifstrm:
                 for lnum, line in enumerate(ifstrm, 1):
@@ -57,40 +101,23 @@ class GafReader(object):
                     # Read data
                     if datobj is not None and line[0] != '!':
                         # print(lnum, line)
-                        ntgaf = datobj.get_ntgaf(line, lnum)
+                        ntgaf, b_err = datobj.get_ntgaf(line, lnum)
                         if ntgaf is not None:
                             nts.append(ntgaf)
                         else:
-                            ignored.append((lnum, line))
+                            datobj.ignored.append((lnum, line))
         except Exception as inst:
             import traceback
             traceback.print_exc()
-            sys.stderr.write("\n  **FATAL in read_gaf: {MSG}\n\n".format(MSG=str(inst)))
+            sys.stderr.write("\n  **FATAL: {MSG}\n\n".format(MSG=str(inst)))
             sys.stderr.write("**FATAL: {FIN}[{LNUM}]:\n{L}".format(FIN=fin_gaf, L=line, LNUM=lnum))
             if datobj is not None:
                 datobj.prt_line_detail(prt, line)
             sys.exit(1)
         # GAF file has been read
-        self._prt_read_summary(prt, fin_gaf, nts, datobj, ignored)
+        datobj.prt_read_summary(prt, fin_gaf, nts)
+        self.datobj = datobj
         return self.evobj.sort_nts(nts, 'Evidence_Code')
-
-    def _prt_read_summary(self, prt, fin_gaf, nts, datobj, ignored):
-        """Print a summary about the GAF file that was read."""
-        fout_log = self._prt_ignored_lines(ignored, datobj, fin_gaf) if ignored else None
-        if prt is not None:
-            prt.write("  READ    {N:9,} associations: {FIN}\n".format(N=len(nts), FIN=fin_gaf))
-            if ignored:
-                prt.write("  IGNORED {N:9,} associations: {FIN}\n".format(N=len(ignored), FIN=fout_log))
-
-    def _prt_ignored_lines(self, ignored, datobj, fin_gaf):
-        """Print ignored lines to a log file."""
-        fout_log = "{}.log".format(fin_gaf)
-        with open(fout_log, 'w') as prt:
-            for lnum, line in ignored:
-                self.prt_ignore_line(prt, fin_gaf, line, lnum)
-                datobj.prt_line_detail(prt, line)
-                prt.write("\n")
-        return fout_log
 
     def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print annotation/evidence code summary."""
@@ -105,11 +132,6 @@ class GafReader(object):
                 raise Exception("UNEXPECTED INFO")
         self.evobj.prt_ev_cnts(ctr, prt)
 
-    @staticmethod
-    def prt_ignore_line(prt, fin_gaf, line, lnum):
-        """Print a message saying that we are ignoring an association line."""
-        prt.write("**WARNING: BADLY FORMATTED LINE. IGNORED {FIN}[{LNUM}]:\n{L}\n".format(
-            FIN=os.path.basename(fin_gaf), L=line, LNUM=lnum))
 
 class GafData(object):
     """Extracts GAF fields from a GAF line."""
@@ -163,6 +185,9 @@ class GafData(object):
         self.ntgafobj = cx.namedtuple("ntgafobj", " ".join(self.gaf_columns[ver]))
         self.req1 = self.spec_req1 if not allow_missing_symbol else [i for i in self.spec_req1 if i != 2]
         self.exp_mincol = 15  # Last required field is at the 15th column
+        # Store information about illegal lines seen in a GAF file from the field
+        self.ignored = []  # Illegal GAF lines that are ignored (e.g., missing an ID)
+        self.illegal_lines = cx.defaultdict(list)  # GAF lines that are missing information (missing taxon)
 
     def get_ntgaf(self, line, lnum):
         """Return namedtuple filled with data."""
@@ -190,7 +215,7 @@ class GafData(object):
         db_synonym = self._rd_fld_vals("DB_Synonym", flds[10], is_set)
         taxons = self._rd_fld_vals("Taxon", flds[12], is_list, 1, 2)
         if not self._chk_qty_eq_1(flds):
-            return None
+            return None, "IGNORED ILLEGAL GAF LINE"
         # Additional Formatting
         taxons = self._do_taxons(taxons)
         self._chk_qualifier(qualifiers)
@@ -224,7 +249,7 @@ class GafData(object):
                 gafvals.append(self._rd_fld_vals("Gene_Product_Form_ID", flds[16], is_set))
             else:
                 gafvals.append(None)
-        return self.ntgafobj._make(gafvals)
+        return self.ntgafobj._make(gafvals), None
 
     @staticmethod
     def _rd_fld_vals(name, val, set_list_ft=True, qty_min=0, qty_max=None):
@@ -271,10 +296,37 @@ class GafData(object):
     @staticmethod
     def _do_taxons(taxons):
         """Taxon"""
-        taxons = [int(v[6:]) for v in taxons] # strip "taxon:"
-        num_taxons = len(taxons)
-        assert num_taxons == 1 or num_taxons == 2
-        return taxons
+        taxons_str = [v.split(':')[1] for v in taxons] # strip "taxon:"
+        taxons_int = [int(s) for s in taxons_str if s]
+        # taxons = [int(v[6:]) for v in taxons] # strip "taxon:"
+        num_taxons = len(taxons_int)
+        if taxons_int:
+            assert num_taxons == 1 or num_taxons == 2
+        return taxons_int
+
+    def prt_read_summary(self, prt, fin_gaf, nts):
+        """Print a summary about the GAF file that was read."""
+        fout_log = self._prt_details_illegal_gaf(fin_gaf) if self.ignored else None
+        if prt is not None:
+            prt.write("  READ    {N:9,} associations: {FIN}\n".format(N=len(nts), FIN=fin_gaf))
+            if self.ignored:
+                prt.write("  IGNORED {N:9,} associations: {FIN}\n".format(N=len(self.ignored), FIN=fout_log))
+
+    def _prt_details_illegal_gaf(self, fin_gaf):
+        """Print details regarding illegal GAF lines seen to a log file."""
+        fout_log = "{}.log".format(fin_gaf)
+        with open(fout_log, 'w') as prt:
+            for lnum, line in self.ignored:
+                self.prt_ignore_line(prt, fin_gaf, line, lnum)
+                self.prt_line_detail(prt, line)
+                prt.write("\n")
+        return fout_log
+
+    @staticmethod
+    def prt_ignore_line(prt, fin_gaf, line, lnum):
+        """Print a message saying that we are ignoring an association line."""
+        prt.write("**WARNING: BADLY FORMATTED LINE. IGNORED {FIN}[{LNUM}]:\n{L}\n".format(
+            FIN=os.path.basename(fin_gaf), L=line, LNUM=lnum))
 
 
 class GafHdr(object):
