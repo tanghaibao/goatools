@@ -80,11 +80,11 @@ class WrSectionsBase(object):
             N=len(data['sections']), M=len(data['grouped']), U=len(data['ungrouped']))
 
 
-class WrPySections(WrSectionsBase):
+class WrSectionsPy(WrSectionsBase):
     """Holds formatting information for printing sections into a Python file."""
 
     def __init__(self, grprobj, ver_list=None):
-        super(WrPySections, self).__init__(grprobj, ver_list)
+        super(WrSectionsPy, self).__init__(grprobj, ver_list)
         self.prtfmt = self.prtfmt.replace('{GO}', '        "{GO}", ')
 
     def wr_py_sections_new(self, fout_py, doc=None):
@@ -127,11 +127,11 @@ class WrPySections(WrSectionsBase):
         prt.write("    ]),\n")
 
 
-class WrSections(WrSectionsBase):
+class WrSectionsTxt(WrSectionsBase):
     """Manages GO group headers and optionally sections containing GO group headers."""
 
     def __init__(self, grprobj, ver_list=None):
-        super(WrSections, self).__init__(grprobj, ver_list)
+        super(WrSectionsTxt, self).__init__(grprobj, ver_list)
 
     @staticmethod
     def prt_sections(prt, sections, prtfmt):

@@ -5,7 +5,7 @@ import sys
 from goatools.grouper.grprdflts import GrouperDflts
 from goatools.grouper.hdrgos import HdrgosSections
 from goatools.grouper.grprobj import Grouper
-from goatools.grouper.wr_sections import WrSections
+from goatools.grouper.wr_sections import WrSectionsTxt
 
 def test_grouper_d2(do_plot=False):
     """Group depth-02 GO terms under their most specific depth-01 GO parent(s)."""
@@ -14,7 +14,7 @@ def test_grouper_d2(do_plot=False):
     grprdflt = GrouperDflts()
     hdrobj = HdrgosSections(grprdflt.gosubdag, grprdflt.hdrgos_dflt, sections=None, hdrgos=None)
     grprobj = Grouper("Transient Increase", get_data0(), hdrobj, grprdflt.gosubdag, go2nt=None)
-    objwr = WrSections(grprobj)
+    objwr = WrSectionsTxt(grprobj)
     objwr.wr_txt_section_hdrgos("transient_increase_hdrgos.txt")
     objwr.wr_txt_grouping_gos()
     if do_plot:

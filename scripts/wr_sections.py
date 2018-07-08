@@ -4,12 +4,12 @@
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
-from goatools.cli.wr_sections import SectionsWr
+from goatools.cli.wr_sections import WrSectionsCli
 
 
 def run():
     """Create/edit sections files and view GO grouping results."""
-    SectionsWr().cli()
+    WrSectionsCli().cli()
 
 
 if __name__ == '__main__':

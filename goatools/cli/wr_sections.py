@@ -43,14 +43,14 @@ from goatools.grouper.read_goids import read_sections
 from goatools.grouper.grprdflts import GrouperDflts
 from goatools.grouper.hdrgos import HdrgosSections
 from goatools.grouper.grprobj import Grouper
-from goatools.grouper.wr_sections import WrSections
-from goatools.grouper.wr_sections import WrPySections
+from goatools.grouper.wr_sections import WrSectionsTxt
+from goatools.grouper.wr_sections import WrSectionsPy
 from goatools.grouper.sorter import Sorter
 from goatools.grouper.wrxlsx import WrXlsxSortedGos
 
 
 # pylint: disable=too-few-public-methods
-class SectionsWr(object):
+class WrSectionsCli(object):
     """Class for command-line interface for creating GO term diagrams"""
 
     kws_dict = set(['GO_FILE', 'obo', 'slims',
@@ -78,11 +78,11 @@ class SectionsWr(object):
         hdrobj = HdrgosSections(self.gosubdag, grprdflt.hdrgos_dflt, sections)
         grprobj = Grouper("init", usrgos, hdrobj, self.gosubdag)
         # Write sections
-        objsecwr = WrSections(grprobj, ver_list)
+        objsecwr = WrSectionsTxt(grprobj, ver_list)
         if not os.path.exists(kws['ifile']):
             objsecwr.wr_txt_section_hdrgos(kws['ifile'])
         objsecwr.wr_txt_section_hdrgos(kws['ofile'])
-        objsecpy = WrPySections(grprobj, ver_list)
+        objsecpy = WrSectionsPy(grprobj, ver_list)
         if 'py' in kws:
             objsecpy.wr_py_sections(kws['py'], sections, doc=godag.version)
         # Write user GO IDs in sections

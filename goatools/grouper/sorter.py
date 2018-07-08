@@ -9,7 +9,7 @@ from goatools.wr_tbl import prt_txt
 from goatools.grouper.wrxlsx import WrXlsxSortedGos
 from goatools.grouper.sorter_nts import SorterNts
 from goatools.grouper.sorter_gos import SorterGoIds
-from goatools.grouper.wr_sections import WrSections
+from goatools.grouper.wr_sections import WrSectionsTxt
 
 
 class Sorter(object):
@@ -86,7 +86,7 @@ class Sorter(object):
             prt_txt(prt, desc2nts['flat'], prtfmt=prtfmt)
         # 2-D: data to print is a list of [(section, nts), ...
         else:
-            WrSections.prt_sections(prt, desc2nts['sections'], prtfmt)
+            WrSectionsTxt.prt_sections(prt, desc2nts['sections'], prtfmt)
 
     def get_desc2nts(self, **kws_usr):
         """Return grouped, sorted namedtuples in either format: flat, sections."""
