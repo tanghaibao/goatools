@@ -8,6 +8,7 @@ from goatools.grouper.hdrgos import HdrgosSections
 from goatools.grouper.grprobj import Grouper
 from goatools.grouper.read_goids import read_sections
 from goatools.grouper.wr_sections import WrSections
+from goatools.cli.wr_sections import 
 from goatools.test_data.gjoneska_goea_consistent_increase import goea_results
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -28,7 +29,7 @@ def test_wr_sections_txt():
     # ------------------------------------------------------------------
     # Print usrgos in txt using sections containing hdrgos
     # ------------------------------------------------------------------
-    sec1 = _read_sections("./data/gjoneska/sections_in.txt")
+    sec1 = _read_sections("./data/gjoneska_pfenning/sections_in.txt")
     _wr_sections_txt("a_ec0_hdr1.txt", usrgos, sec1, grprdflt=grprdflt)
 
     # ------------------------------------------------------------------
