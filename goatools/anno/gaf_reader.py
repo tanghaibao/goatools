@@ -188,9 +188,13 @@ class GafData(object):
         "1.0" : 15}
 
     # Expected values for a Qualifier
-    # enables seen Jul 2018 in goa_chicken_complex.gaf ...
-    exp_qualifiers = set(['not', 'contributes_to', 'colocalizes_with'])
-    # exp_qualifiers = set(['not', 'contributes_to', 'colocalizes_with', 'enables'])
+    exp_qualifiers = set([
+        'not', 'contributes_to', 'colocalizes_with',
+        # Although thee go not appear in:
+        #     http://geneontology.org/page/go-annotation-conventions#qual
+        # they do appear in more than one July 2018 GAFs:
+        #     'enables', 'involved_in', 'part_of', 
+    ])
 
     def __init__(self, ver, allow_missing_symbol=False):
         self.ver = ver
