@@ -73,7 +73,7 @@ class WrSectionsCli(object):
         grprdflt = GrouperDflts(self.gosubdag, kws['slims'])
         ver_list = [godag.version, grprdflt.ver_goslims]
         prt.write("{VER}\n".format(VER="\n".join(ver_list)))
-        sections = read_sections(kws['ifile'], exclude_ungrouped=True, prt=None)
+        sections = self._read_sections(kws['ifile'])
         # print("SECSECSEC", sections)
         hdrobj = HdrgosSections(self.gosubdag, grprdflt.hdrgos_dflt, sections)
         grprobj = Grouper("init", usrgos, hdrobj, self.gosubdag)
@@ -91,6 +91,12 @@ class WrSectionsCli(object):
         objgowr.wr_txt_gos(kws['txt'], sortby=objsecpy.fncsortnt)
         #objwr.wr_txt_section_hdrgos(kws['ofile'], sortby=objwr.fncsortnt)
         self._prt_cnt_usrgos(usrgos, sys.stdout)
+
+    @staticmethod
+    def _read_sections(ifile):
+        """Read sections_in.txt file, if it exists."""
+        if os.path.exists(ifile):
+            return read_sections(ifile, exclude_ungrouped=True, prt=None)
 
     def _prt_cnt_usrgos(self, usrgos_read, prt):
         num_usrgos = len(self.gosubdag.go_sources)
