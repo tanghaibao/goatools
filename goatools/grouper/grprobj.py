@@ -60,10 +60,11 @@ class Grouper(object):
     def get_sections_2d(self):
         """Get 2-D list of sections and hdrgos sets actually used in grouping."""
         sections_hdrgos_act = []
-        hdrgos_act_all = self.get_hdrgos()
+        hdrgos_act_all = self.get_hdrgos()  # Header GOs actually used to group
         hdrgos_act_secs = set()
         if self.hdrobj.sections:
             for section_name, hdrgos_all_lst in self.hdrobj.sections:
+                # print("GGGGGGGGGGGGGGGGG {N:3} {NAME}".format(N=len(hdrgos_all_lst), NAME=section_name))
                 hdrgos_all_set = set(hdrgos_all_lst)
                 hdrgos_act_set = hdrgos_all_set.intersection(hdrgos_act_all)
                 if hdrgos_act_set:
@@ -76,8 +77,11 @@ class Grouper(object):
                             hdrgos_act_lst.append(hdrgo_p)
                         hdrgos_act_ctr[hdrgo_p] += 1
                     sections_hdrgos_act.append((section_name, hdrgos_act_lst))
+            # print(">>>>>>>>>>>>>>> hdrgos_act_all {N:3}".format(N=len(hdrgos_act_all)))
+            # print(">>>>>>>>>>>>>>> hdrgos_act_secs {N:3}".format(N=len(hdrgos_act_secs)))
             hdrgos_act_rem = hdrgos_act_all.difference(hdrgos_act_secs)
             if hdrgos_act_rem:
+                # print("RRRRRRRRRRR {N:3}".format(N=len(hdrgos_act_rem)))
                 sections_hdrgos_act.append((self.hdrobj.secdflt, hdrgos_act_rem))
         else:
             sections_hdrgos_act.append((self.hdrobj.secdflt, hdrgos_act_all))
