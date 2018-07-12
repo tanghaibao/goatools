@@ -23,7 +23,9 @@ from goatools.cli.find_enrichment import get_arg_parser
 from goatools.cli.find_enrichment import rd_files
 from goatools.cli.find_enrichment import chk_genes
 from goatools.cli.find_enrichment import get_objgoea
+from goatools.cli.find_enrichment import get_results_sig
 from goatools.cli.find_enrichment import prt_results
+from goatools.cli.find_enrichment import prt_grouped
 
 sys.path.insert(0, op.join(op.dirname(__file__), ".."))
 
@@ -36,7 +38,14 @@ def main():
         chk_genes(study, pop, args.min_overlap)
     objgoea = get_objgoea(pop, assoc, args)
     results = objgoea.run_study(study)
+    # Reduce results to significant results (pval<value)
+    if args.pval is not None:
+        results = get_results_sig(results, args)
+    # Print results
     prt_results(results, objgoea, args)
+    if args.sections is not None:
+        prt_grouped(results, objgoea, args)
+    print("AAAAAAAAAAAAAAAAAAAAAAAAA", args)
 
 
 if __name__ == "__main__":

@@ -76,6 +76,14 @@ def get_arg_parser():
                    help="Test-wise alpha for multiple testing ")
     p.add_argument('--pval', default=.05, type=float,
                    help="Only print out when uncorrected p-value < this value.")
+    p.add_argument('--pval_field', default='uncorrected', type=str,
+                   help="Only print out when user-specified p-value < 'pval'.")
+    p.add_argument('--outfile', default=None, type=str,
+                   help="Write enrichment results into xlsx or tsv file")
+    p.add_argument('--sections', default=None, type=str,
+                   help="Use sections file for printing grouped GOEA results")
+    p.add_argument('--outfile_grouped', default="goea_grouped.txt", type=str,
+                   help="Write enrichment results into xlsx or tsv file")
     p.add_argument('--compare', dest='compare', default=False,
                    action='store_true',
                    help="the population file as a comparison group. if this "
@@ -93,8 +101,6 @@ def get_arg_parser():
                    help="Specifies location and name of the obo file")
     p.add_argument('--no_propagate_counts', default=False, action='store_true',
                    help="Do not propagate counts to parent terms")
-    p.add_argument('--outfile', default=None, type=str,
-                   help="Write enrichment results into xlsx or tsv file")
     p.add_argument('--method', default="bonferroni,sidak,holm,fdr_bh", type=str,
                    help=Methods().getmsg_valid_methods())
     p.add_argument('--pvalcalc', default="fisher", type=str,
@@ -159,16 +165,35 @@ def prt_results(results, objgoea, args):
     else:
         # Users can print to both tab-separated file and xlsx file in one run.
         outfiles = args.outfile.split(",")
-        if args.pval is not None:
-            # Only print results when uncorrected p-value < this value.A
-            num_orig = len(results)
-            results = [r for r in results if r.p_uncorrected <= args.pval]
-            print("{N:7,} of {M:,} results have uncorrected P-values <= {PVAL}=pval\n".format(
-                N=len(results), M=num_orig, PVAL=args.pval))
         for outfile in outfiles:
             if outfile.endswith(".xlsx"):
                 objgoea.wr_xlsx(outfile, results, indent=args.indent)
             else:
                 objgoea.wr_tsv(outfile, results, indent=args.indent)
+
+def get_results_sig(results, args):
+    """Get significant results."""
+    # Only print results when uncorrected p-value < this value.
+    num_orig = len(results)
+    pval_fld = _get_pval_field(args.pval_field, results)
+    results = [r for r in results if getattr(r, pval_fld) <= args.pval]
+    print("{N:7,} of {M:,} results have uncorrected P-values <= {PVAL}=pval\n".format(
+        N=len(results), M=num_orig, PVAL=args.pval))
+    return results
+
+def _get_pval_field(pval_field, results):
+    """Get 'p_uncorrected' or the user-specified field for determining significant results."""
+    pval_fld = pval_field
+    if pval_fld[:2] != 'p_':
+        pval_fld = 'p_' + pval_fld
+    if results:
+        assert hasattr(next(iter(results)), pval_fld), 'NO PVAL({P}). EXPECTED ONE OF: {E}'.format(
+            P=args.pval_field,
+            E=" ".join([k for k in dir(next(iter(results))) if k[:2] == 'p_']))
+    return pval_fld
+
+def prt_grouped(results, objgoea, args):
+    """Print GOEA results grouped using a sections file."""
+    pass
 
 # Copyright (C) 2010-2018, H Tang et al. All rights reserved.
