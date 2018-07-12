@@ -57,20 +57,20 @@ def test_wr_sections_txt():
     # Print usrgos in txt (Do not use sections containing hdrgos)
     # ------------------------------------------------------------------
     # Show GO grouping hdrgos and usrgos to show how usrgos are grouped
-    _wr_sections_txt("a0_hdr1.txt", usrgos, sections=None, grprdflt=grprdflt)
+    _wr_sections_txt("a_sec0_hdr1.txt", usrgos, sections=None, grprdflt=grprdflt)
 
     # ------------------------------------------------------------------
     # Print usrgos in txt using sections containing hdrgos
     # ------------------------------------------------------------------
     sec1 = _read_sections("./data/gjoneska_pfenning/sections_in.txt")
-    _wr_sections_txt("a_ec0_hdr1.txt", usrgos, sec1, grprdflt=grprdflt)
+    _wr_sections_txt("a_sec1_hdr1.txt", usrgos, sec1, grprdflt=grprdflt)
 
     # ------------------------------------------------------------------
     sec2a = _read_sections("goatools/test_data/sections/gjoneska_pfenning.py")
-    _wr_sections_txt("b_sec0_hdr1.txt", usrgos, sec2a, grprdflt=grprdflt)
+    _wr_sections_txt("b_sec1_hdr1.txt", usrgos, sec2a, grprdflt=grprdflt)
 
     sec2b = _read_sections("goatools.test_data.sections.gjoneska_pfenning")
-    _wr_sections_txt("c_sec0_hdr1.txt", usrgos, sec2b, grprdflt=grprdflt)
+    _wr_sections_txt("c_sec1_hdr1.txt", usrgos, sec2b, grprdflt=grprdflt)
     _chk_sections(sec2a, sec2b)
 
 
@@ -110,4 +110,4 @@ def _wr_sections_txt(fout_txt, usrgos, sections, grprdflt):
 
 if __name__ == '__main__':
     test_wr_sections_all()
-    # test_wr_sections_txt()
+    test_wr_sections_txt()
