@@ -75,9 +75,9 @@ def get_arg_parser():
     p.add_argument('--alpha', default=0.05, type=float,
                    help="Test-wise alpha for multiple testing ")
     p.add_argument('--pval', default=.05, type=float,
-                   help="Only print out when uncorrected p-value < this value.")
+                   help="Only print results with uncorrected p-value < PVAL.")
     p.add_argument('--pval_field', default='uncorrected', type=str,
-                   help="Only print out when user-specified p-value < 'pval'.")
+                   help="Only print results when PVAL_FIELD < PVAL.")
     p.add_argument('--outfile', default=None, type=str,
                    help="Write enrichment results into xlsx or tsv file")
     p.add_argument('--sections', default=None, type=str,
