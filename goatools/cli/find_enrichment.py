@@ -81,7 +81,11 @@ def get_arg_parser():
     p.add_argument('--outfile', default=None, type=str,
                    help="Write enrichment results into xlsx or tsv file")
     p.add_argument('--sections', default=None, type=str,
-                   help="Use sections file for printing grouped GOEA results")
+                   help=("Use sections file for printing grouped GOEA results. "
+                         "Example SECTIONS values:\n"
+                         "goatools.test_data.sections.gjoneska_pfenning \n"
+                         "goatools/test_data/sections/gjoneska_pfenning.py \n"
+                         "data/gjoneska_pfenning/sections_in.txt\n"))
     p.add_argument('--outfile_grouped', default="goea_grouped.txt", type=str,
                    help="Write enrichment results into xlsx or tsv file")
     p.add_argument('--compare', dest='compare', default=False,

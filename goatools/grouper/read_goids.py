@@ -30,6 +30,10 @@ def read_sections(sections_file, exclude_ungrouped=False, prt=sys.stdout):
         mod = importlib.import_module(sections_file)
         var = getattr(mod, 'SECTIONS', None)
         if var is not None:
+            dat = SummarySec2dHdrGos().summarize_sec2hdrgos(var)
+            print(Grouper.fmtsum.format(
+                GO_DESC='hdr', SECs=len(dat['S']), GOs=len(dat['G']),
+                UNGRP="N/A", undesc="unused", ACTION="IMPORTED: ", FILE=sections_file))
             return var
         raise RuntimeError("NO 'SECTIONS' VARIABLE FOUND IN MODULE({M})".format(M=sections_file))
     if prt:

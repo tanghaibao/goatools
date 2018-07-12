@@ -26,6 +26,7 @@ from goatools.cli.find_enrichment import get_objgoea
 from goatools.cli.find_enrichment import get_results_sig
 from goatools.cli.find_enrichment import prt_results
 from goatools.cli.find_enrichment import prt_grouped
+from goatools.grouper.read_goids import read_sections
 
 sys.path.insert(0, op.join(op.dirname(__file__), ".."))
 
@@ -41,11 +42,11 @@ def main():
     # Reduce results to significant results (pval<value)
     if args.pval is not None:
         results = get_results_sig(results, args)
-    # Print results
+    # Print results in a flat list
     prt_results(results, objgoea, args)
-    if args.sections is not None:
-        prt_grouped(results, objgoea, args)
-    print("AAAAAAAAAAAAAAAAAAAAAAAAA", args)
+    sections = read_sections(args.sections) if args.sections is not None else None
+    prt_grouped(results, objgoea, args)
+    # print("AAAAAAAAAAAAAAAAAAAAAAAAA", args)
 
 
 if __name__ == "__main__":
