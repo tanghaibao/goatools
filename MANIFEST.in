@@ -1,1 +1,2 @@
 include README* LICENSE requirements.txt goatools/test_data/nbt_3102/* requirements.txt setup_helper.py
+include data/association data/population data/study
