@@ -94,8 +94,8 @@ class GetGOs(object):
 
     def __init__(self, go2obj):
         self.go2obj = go2obj
-        self.re_goids = re.compile(ur"(GO:\d{7})+?")
-        self.re_color = re.compile(ur"(#[0-9a-fA-F]{6})+?")
+        self.re_goids = re.compile(r"(GO:\d{7})+?")
+        self.re_color = re.compile(r"(#[0-9a-fA-F]{6})+?")
 
     def get_go_color(self, **kws):
         """Return source GO IDs ."""
