@@ -19,34 +19,26 @@ __author__ = "various"
 
 import sys
 import os.path as op
-from goatools.cli.find_enrichment import get_arg_parser
-from goatools.cli.find_enrichment import rd_files
-from goatools.cli.find_enrichment import chk_genes
-from goatools.cli.find_enrichment import get_objgoea
-from goatools.cli.find_enrichment import get_results_sig
-from goatools.cli.find_enrichment import prt_results
-from goatools.cli.find_enrichment import prt_grouped
-from goatools.grouper.read_goids import read_sections
+from goatools.cli.find_enrichment import GoeaCliArgs
+from goatools.cli.find_enrichment import GoeaCliFnc
 
 sys.path.insert(0, op.join(op.dirname(__file__), ".."))
 
 
 def main():
     """Run gene enrichment analysis."""
-    args = get_arg_parser()
-    study, pop, assoc = rd_files(args.filenames, args.compare, prt=sys.stdout)
-    if not args.compare:  # sanity check
-        chk_genes(study, pop, args.min_overlap)
-    objgoea = get_objgoea(pop, assoc, args)
-    results = objgoea.run_study(study)
+    # Load study, population, associations, and GoDag. Run GOEA.
+    obj = GoeaCliFnc(GoeaCliArgs().args)
     # Reduce results to significant results (pval<value)
-    if args.pval is not None:
-        results = get_results_sig(results, args)
+    results = obj.get_results()
     # Print results in a flat list
-    prt_results(results, objgoea, args)
-    sections = read_sections(args.sections) if args.sections is not None else None
-    prt_grouped(results, objgoea, args)
-    # print("AAAAAAAAAAAAAAAAAAAAAAAAA", args)
+    obj.prt_results(results)
+    if obj.sections or obj.args.outfile_detail:
+        #fout_detail = obj.args.outfile_detail if obj.args.outfile_detail else "goea_details.txt"
+        objaart = obj.get_objaart()
+        objaart.run("GOEA", results, sys.stdout)
+    #### #### prt_grouped(results, objgoea, args)
+    #### print("AAAAAAAAAAAAAAAAAAAAAAAAA", obj.args)
 
 
 if __name__ == "__main__":
