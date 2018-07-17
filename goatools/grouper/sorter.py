@@ -6,7 +6,6 @@ __author__ = "DV Klopfenstein"
 import sys
 import collections as cx
 from goatools.wr_tbl import prt_txt
-from goatools.grouper.wrxlsx import WrXlsxSortedGos
 from goatools.grouper.sorter_nts import SorterNts
 from goatools.grouper.sorter_gos import SorterGoIds
 from goatools.grouper.wr_sections import WrSectionsTxt
@@ -58,13 +57,6 @@ class Sorter(object):
         self.grprobj = grprobj
         self.sortobj = SorterGoIds(grprobj, sortby, hdrgo_sortby)
         self.sectobj = self._init_sectobj(section_sortby)  # SorterNts
-
-    def wr_xlsx_nts(self, fout_xlsx, desc2nts, **kws):
-        """Write grouped and sorted user GO IDs into an xlsx file."""
-        # kws (content): hdrgo_prt section_prt use_sections
-        # kws (prt fmt): title fld2col_widths ...
-        xlsxobj = WrXlsxSortedGos("sortname", self)
-        xlsxobj.wr_xlsx_nts(fout_xlsx, desc2nts, **kws)
 
     def prt_gos(self, prt=sys.stdout, **kws_usr):
         """Sort user GO ids, grouped under broader GO terms or sections. Print to screen."""
