@@ -8,57 +8,34 @@ from __future__ import print_function
 
 __copyright__ = "Copyright (C) 2010-2018, DV Klopfenstein, H Tang. All rights reserved."
 
-import os
-import sys
 import collections as cx
-from goatools.base import download_go_basic_obo
-from goatools.cli.find_enrichment import rd_files
-from goatools.cli.find_enrichment import get_objgoea
+from goatools.base import get_godag
+from goatools.cli.find_enrichment import GoeaCliFnc
+from goatools.test_data.cli.find_enrichment_dflts import ArgsDict
 
-
-REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def test_find_enrichment():
     """Recreate run in run.sh."""
     # Set params
-    ntobj = cx.namedtuple("args_namespc", ("filenames obo "
-                                           "pval alpha pvalcalc method no_propagate_counts "
-                                           "compare ratio "
-                                           "outfile indent min_overlap "))
-    filenames = ['data/study', 'data/population', 'data/association']
-    methods = ['bonferroni', 'sidak', 'holm', 'fdr_bh']
-    alpha = 0.05
-    fin_obo = os.path.join(REPO, 'go-basic.obo')
-    download_go_basic_obo(fin_obo, prt=sys.stdout, loading_bar=None)
-    args = ntobj(
-        filenames=[os.path.join(REPO, f) for f in filenames],
-        obo=fin_obo,
-        pval=0.05,
-        alpha=alpha,
-        pvalcalc='fisher',
-        method=",".join(methods),
-        no_propagate_counts=False,
-        compare=False,
-        ratio=None,
-        outfile=None,
-        indent=True,
-        min_overlap=0.7)
-
+    objtest = ArgsDict()
+    get_godag(objtest.namespace['obo'], loading_bar=None)
+    objtest.namespace['indent'] = True
+    args = objtest.ntobj(**objtest.namespace)
     # Run test
-    study, pop, assoc = rd_files(args.filenames, args.compare)
-    objgoea = get_objgoea(pop, assoc, args)
-    results = objgoea.run_study(study)
+    objcli = GoeaCliFnc(args)
+
     # Check results
     expected_cnts = {'fdr_bh': 17, 'sidak': 5, 'holm': 5, 'bonferroni': 5}
-    _chk_results(results, expected_cnts, methods, alpha)
+    _chk_results(objcli.results_all, expected_cnts, objcli)
     print("TEST PASSED")
 
 
-def _chk_results(results, expected_cnts, methods, alpha):
+def _chk_results(results, expected_cnts, objcli):
     """Check results."""
     ctr = cx.Counter()
+    alpha = objcli.args.alpha
     for ntres in results:
-        for method in methods:
+        for method in objcli.methods:
             ctr[method] += getattr(ntres, "p_{METHOD}".format(METHOD=method)) < alpha
     for method, num_sig in ctr.most_common():
         assert num_sig == expected_cnts[method]
