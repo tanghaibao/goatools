@@ -68,7 +68,15 @@ class WrHierCli(object):
                                  tcntobj=get_tcntobj(godag, **self.kws),
                                  children=True,
                                  prt=prt)
-        self.goids = GetGOs().get_goids(self.kws.get('GO'), self.kws.get('i'), sys.stdout)
+        self.goids = self._init_goids()
+
+    def _init_goids(self):
+        goids = GetGOs().get_goids(self.kws.get('GO'), self.kws.get('i'), sys.stdout)
+        if goids:
+            return goids
+        # If GO DAG is small, print hierarchy for the entire DAG
+        if len(self.gosubdag.go2nt) < 100:
+            return set(self.gosubdag.go2nt.keys())
 
     def get_fouts(self):
         """Get output filename."""
