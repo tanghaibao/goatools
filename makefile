@@ -142,7 +142,8 @@ clean:
 	cd tests; make --no-print-directory clean
 	rm -f *.xlsx *.tsv *.log
 	rm -f nbt3102_*
-	rm data/gaf/goa_human_illegal.gaf.log
+	rm -f data/gaf/goa_human_illegal.gaf.log
+	rm -f gogrp_*.txt
 
 clean_pyc:
 	find . -name \*.pyc | xargs rm -f
