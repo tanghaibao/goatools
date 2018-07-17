@@ -7,6 +7,8 @@ import datetime
 import pytest
 
 from goatools.obo_parser import GODag
+from goatools.gosubdag.gosubdag import GoSubDag
+from goatools.gosubdag.rpt.write_hierarchy import WrHierGO
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
@@ -14,16 +16,17 @@ REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 # Sub-routines to tests
 #################################################################
 @pytest.mark.skip
-def test_write_hier_all(name, go_id, dag, out):
+def test_write_hier_all(name, go_id, gosubdag, out):
     """test_optional_fields.py: Prints the entire mini GO hierarchy, with counts of children."""
     out.write('\nTEST {NAME} {GO}: Print all hierarchies:\n'.format(
         NAME=name, GO=go_id))
-    dag.write_hier(go_id, out, num_child=True)
-    out.write("GOTerm: {}\n".format(dag[go_id].__repr__()))
+    #### dag.write_hier(go_id, out, num_child=True)
+    WrHierGO(gosubdag).prt_hier_down(go_id, out)
+    out.write("GOTerm: {}\n".format(gosubdag.go2obj[go_id].__repr__()))
 
 
 @pytest.mark.skip
-def test_write_hier_norep(name, go_id, dag, out):
+def test_write_hier_norep(name, go_id, gosubdag, out):
     """Shortens hierarchy REPOrt by only printing branches once.
 
          Prints the 'entire hierarchy' of GO:0000005 the 1st time seen:
@@ -40,24 +43,29 @@ def test_write_hier_norep(name, go_id, dag, out):
     """
     out.write('\nTEST {NAME} {GO}: Print branches just once:\n'.format(
         NAME=name, GO=go_id))
-    dag.write_hier(go_id, out, num_child=True, short_prt=True)
-    out.write("GOTerm: {}\n".format(dag[go_id]))
+    #### dag.write_hier(go_id, out, num_child=True, short_prt=True)
+    WrHierGO(gosubdag, concise=True).prt_hier_down(go_id, out)
+    out.write("GOTerm: {}\n".format(gosubdag.go2obj[go_id]))
 
 @pytest.mark.skip
-def test_write_hier_lim(dag, out):
+def test_write_hier_lim(gosubdag, out):
     """Limits hierarchy list to GO Terms specified by user."""
     go_omit = ['GO:0000005', 'GO:0000010']
-    go_ids = [go_id for go_id in dag if go_id not in go_omit]
+    go_ids = [go_id for go_id in gosubdag.go2nt.keys() if go_id not in go_omit]
     out.write('\nTEST {NAME} OMIT: 05->10:\n'.format(NAME="MINI"))
-    dag.write_hier("GO:0000001", out, include_only=go_ids)
+    # TBD: Add include_only fnc to wr_hier
+    #### dag.write_hier("GO:0000001", out, include_only=go_ids)
+    WrHierGO(gosubdag).prt_hier_down("GO:0000001", out)
       #go_marks=[oGO.id for oGO in oGOs_in_cluster])
 
 @pytest.mark.skip
-def test_write_hier_mrk(dag, out):
+def test_write_hier_mrk(gosubdag, out):
     """Print all paths, but mark GO Terms of interest. """
     mark_lst = ['GO:0000001', 'GO:0000003', 'GO:0000006', 'GO:0000008', 'GO:0000009']
     out.write('\nTEST {NAME} MARK: 01->03->06->08->09:\n'.format(NAME="MINI"))
-    dag.write_hier("GO:0000001", out, go_marks=mark_lst)
+    # TBD: Add go_marks fnc to wr_hier
+    #### dag.write_hier("GO:0000001", out, go_marks=mark_lst)
+    WrHierGO(gosubdag).prt_hier_down("GO:0000001", out)
       #go_marks=[oGO.id for oGO in oGOs_in_cluster])
 
 def _load_dag(dag_fin, opt_fields=None, out=None):
@@ -108,17 +116,21 @@ def test_full(out=sys.stdout, opt_fields=None):
     """Use OBOReader in default operation."""
     dag_fin = "./go-basic.obo"
     dag = _load_dag(dag_fin, opt_fields, out)
-    test_write_hier_all("FULL", "GO:0000009", dag, out)
-    test_write_hier_norep("FULL", "GO:0000010", dag, out)
+    goleafs = set(o.id for o in dag.values() if not o.children)
+    gosubdag = GoSubDag(goleafs, dag)
+    test_write_hier_all("FULL", "GO:0000009", gosubdag, out)
+    test_write_hier_norep("FULL", "GO:0000010", gosubdag, out)
 
 @pytest.mark.skip
 def test_mini(out, opt_fields=None):
     """Run numerous tests for various REPOrts."""
     dag = _load_dag("tests/data/mini_obo.obo", opt_fields, out)
-    test_write_hier_lim(dag, out)
-    test_write_hier_mrk(dag, out)
-    test_write_hier_all("MINI", "GO:0000009", dag, out)
-    test_write_hier_norep("MINI", "GO:0000010", dag, out)
+    goleafs = set(o.id for o in dag.values() if not o.children)
+    gosubdag = GoSubDag(goleafs, dag)
+    test_write_hier_lim(gosubdag, out)
+    test_write_hier_mrk(gosubdag, out)
+    test_write_hier_all("MINI", "GO:0000009", gosubdag, out)
+    test_write_hier_norep("MINI", "GO:0000010", gosubdag, out)
 
 @pytest.mark.skip
 def test_mini_contents(out, opt_fields):
