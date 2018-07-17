@@ -24,16 +24,17 @@ def test_cli():
         (['--dag=go-basic.obo'], {'dag':'go-basic.obo', 'dash_len':6}),
         (['--o=rpt.txt'],        {'dag':'go-basic.obo', 'dash_len':6, 'o':'rpt.txt'}),
         (['--max_indent=7'],     {'dag':'go-basic.obo', 'dash_len':6, 'max_indent':7}),
-        (['--num_child=100'],    {'dag':'go-basic.obo', 'dash_len':6, 'num_child':100}),
         (['--concise'],          {'dag':'go-basic.obo', 'dash_len':6, 'concise':True}),
         (['--no_indent'],        {'dag':'go-basic.obo', 'dash_len':6, 'no_indent':True}),
-        (['--concise', '--no_indent'], {'dag':'go-basic.obo', 'concise':True, 'no_indent':True}),
+        (['--concise', '--no_indent'], {'dag':'go-basic.obo', 'dash_len':6,
+                                        'concise':True, 'no_indent':True}),
     ]
     for args, exp_dict in args_exp:
         print("ARGS={ARGS}".format(ARGS=args))
         print("EXP={EXP}".format(EXP=exp_dict))
         obj = WrHierCli(args)
         print("DCT: {DCT}".format(DCT=obj.kws))
+        #### print("WWWWWWWWWWWWWWWWWWW WrHierCli", obj.kws)
         assert obj.kws == exp_dict, "DCT: ACT({}) != EXP({})".format(obj.kws, exp_dict)
         print("")
 
