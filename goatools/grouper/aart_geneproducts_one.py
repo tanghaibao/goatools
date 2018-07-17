@@ -31,13 +31,31 @@ class AArtGeneProductSetsOne(object):
         self.gene2section2gos = _ini.get_gene2section2gos(self.gene2gos, self.sec2gos)
         self.gene2aart = _ini.get_gene2aart(self.gene2section2gos, self.sec2chr)
 
-    def prt_report(self, prt=sys.stdout, **kws_grp):
-        """Print full GO/gene report."""
+    def prt_report_grp0(self, prt=sys.stdout):
+        """Print full GO/gene report without grouping."""
+        summaryline = self.str_summaryline()
+        kws_grp = {'use_sections':False,
+                   'hdrgo_prt':False,
+                   'sortby':lambda nt: [-1*nt.dcnt, nt.depth]}
+        # Print grouped GO IDs
+        prt.write("{SUMMARY}\n".format(SUMMARY=summaryline))
+        self.prt_gos_grouped(sys.stdout, **kws_grp)
+        # genes
+        genes = sorted(self.gene2gos.keys())
+        prt.write("\n\n{SUMMARY}\n\n".format(SUMMARY=summaryline))
+        self.prt_gene_aart(genes, prt)
+        # Sort genes
+        prt.write("\n\n{SUMMARY}\n\n".format(SUMMARY=summaryline))
+        self.prt_gene_aart_details(genes, prt)
+        return (self.name, self.get_section_marks())
+
+    def prt_report_grp1(self, prt=sys.stdout, **kws_grp):
+        """Print full GO/gene report with grouping."""
         summaryline = self.str_summaryline()
         # Print grouped GO IDs
         prt.write("{SUMMARY}\n".format(SUMMARY=summaryline))
         self.prt_gos_grouped(prt, **kws_grp)
-        # Clustered genes
+        # genes
         genes = sorted(self.gene2gos.keys())
         prt.write("\n\n{SUMMARY}\n\n".format(SUMMARY=summaryline))
         self.prt_section_key(prt)

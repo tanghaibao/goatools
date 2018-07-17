@@ -40,7 +40,11 @@ class AArtGeneProductSetsAll(object):
     def run(self, name, goea_nts, log):
         """Run gene product ASCII art."""
         objaart = AArtGeneProductSetsOne(name, goea_nts, self)
-        return objaart.prt_report(log)
+        if self.hdrobj.sections:
+            return objaart.prt_report_grp1(log)
+        else:
+            return objaart.prt_report_grp0(log)
+
 
     def prt_mrks(self, name_marks_list, prt=sys.stdout):
         """Print summary of all GOEAs.
