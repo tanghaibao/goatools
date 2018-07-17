@@ -13,6 +13,8 @@ from goatools.test_data.cli.find_enrichment_dflts import ArgsDict
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
+# This test is not on Travis because non-code file, data/study, is not found by Travis-CI
+# This test can and should be run before any pull requests using 'make test'
 def test_find_enrichment():
     """Recreate run in run.sh."""
     fin_genes = os.path.join(REPO, "data/study")

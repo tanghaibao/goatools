@@ -14,6 +14,8 @@ from goatools.cli.find_enrichment import GoeaCliFnc
 from goatools.test_data.cli.find_enrichment_dflts import ArgsDict
 
 
+# This test is not on Travis because non-code file, data/study, is not found by Travis-CI
+# This test can and should be run before any pull requests using 'make test'
 def test_find_enrichment():
     """Recreate run in run.sh."""
     # Set params

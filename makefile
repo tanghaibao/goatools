@@ -197,6 +197,8 @@ clobber:
 #    tests/test_go_draw_basic.py \
 
 #    tests/test_gosubdag_children.py \
+#    tests/test_find_enrichment_overlap.py \
+#    tests/test_find_enrichment_run.py \
 
 NOSETESTS := \
     tests/test_wr_sections_txt.py \
@@ -211,8 +213,6 @@ NOSETESTS := \
     tests/test_i92_relationship_parentchild.py \
     tests/test_i96_goea_ncbi.py \
     tests/test_gosearch_emptydict.py \
-    tests/test_find_enrichment_overlap.py \
-    tests/test_find_enrichment_run.py \
     tests/test_david_nts.py \
     tests/test_get_parents.py \
     tests/test_get_children.py \
