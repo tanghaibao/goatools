@@ -42,6 +42,7 @@ setup(
         NAME + ".gosubdag.rpt",
         NAME + ".test_data",
         NAME + ".test_data.sections",
+        NAME + ".test_data.cli",
         NAME + ".cli",
         NAME + ".rpt",
         NAME + ".anno",
