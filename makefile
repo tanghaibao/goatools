@@ -248,5 +248,4 @@ test:
 test_travis_subset:
 	py.test $(NOSETESTS)
 
-
 # Copyright (C) 2010-2017. Haibao Tang et al. All rights reserved.
