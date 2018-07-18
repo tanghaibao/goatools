@@ -8,6 +8,7 @@ __author__ = "DV Klopfenstein"
 import os
 import re
 from goatools.gosubdag.go_tasks import get_go2obj_unique
+from goatools.godag.consts import Consts
 
 
 class GetGOs(object):
@@ -16,6 +17,7 @@ class GetGOs(object):
     def __init__(self, go2obj=None, max_gos=None):
         self.go2obj = go2obj
         self.max_gos = max_gos
+        self.godagconsts = Consts()
 
     def get_goids(self, go_args, fin_goids, prt):
         """Return source GO IDs ."""
@@ -65,8 +67,7 @@ class GetGOs(object):
                 prt.write("  {N} GO IDs READ: {TXT}\n".format(N=len(goids), TXT=go_file))
         return goids
 
-    @staticmethod
-    def get_goargs(go_args, prt):
+    def get_goargs(self, go_args, prt):
         """Get GO IDs and colors for GO IDs from the GO ID runtime arguments."""
         goids = set()
         go2color = {}
@@ -79,8 +80,10 @@ class GetGOs(object):
                 goids.add(goid)
                 if color:
                     go2color[goid] = color
+            elif go_arg in self.godagconsts.NS2GO:
+                goids.add(self.godagconsts.NS2GO[go_arg])
             elif prt:
-                prt.write("WARNING: UNRECOGNIZED ARG({})".format(go_arg))
+                prt.write("WARNING: UNRECOGNIZED ARG({})\n".format(go_arg))
         return goids
 
 # Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.
