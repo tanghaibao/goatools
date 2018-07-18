@@ -51,6 +51,8 @@ This package contains a Python library to
   GO terms) to GOslim terms (analog to the map2slim.pl script supplied
   by geneontology.org)
 
+## To Cite
+
 _Please cite the following if you use GOATOOLS in your research_:
 
 Klopfenstein, D.V. et al. [GOATOOLS: A Python library for Gene Ontology analyses](https://www.nature.com/articles/s41598-018-28948-z)    
