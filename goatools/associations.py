@@ -204,6 +204,7 @@ def read_annotations(**kws):
     if 'gaf' in kws:
         gene2gos = read_gaf(kws['gaf'], prt=sys.stdout)
     elif 'gene2go' in kws:
+        assert 'taxid' in kws, 'taxid IS REQUIRED WHEN READING gene2go'
         gene2gos = read_ncbi_gene2go(kws['gene2go'], taxids=[kws['taxid']])
     if not gene2gos:
         raise RuntimeError("NO ASSOCIATIONS LOADED")
