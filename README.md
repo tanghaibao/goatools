@@ -51,6 +51,14 @@ This package contains a Python library to
   GO terms) to GOslim terms (analog to the map2slim.pl script supplied
   by geneontology.org)
 
+_Please cite the following if you use GOATOOLS in your research_:
+
+Klopfenstein, D.V. et al. [GOATOOLS: A Python library for Gene Ontology analyses](https://www.nature.com/articles/s41598-018-28948-z)    
+_Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
+
+The code for the stochastic GOEA simulations described in the paper is found here:    
+https://github.com/dvklopfenstein/goatools_simulation
+
 ## Installation
 
 Make sure your Python version >= 2.7, install the latest stable
