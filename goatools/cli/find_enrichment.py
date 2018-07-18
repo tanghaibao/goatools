@@ -157,7 +157,7 @@ class GoeaCliFnc(object):
 
     def get_results(self):
         """Given all GOEA results, return the significant results (< pval)."""
-        return self.get_results_sig() if self.args.pval is not None else self.results_all
+        return self.get_results_sig() if self.args.pval != -1.0 else self.results_all
 
     def _init_objgoea(self, pop, assoc):
         """Run gene ontology enrichment analysis (GOEA)."""
