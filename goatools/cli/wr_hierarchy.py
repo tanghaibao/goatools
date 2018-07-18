@@ -15,12 +15,14 @@ Options:
 
   --gaf=<file.gaf>    Annotations from a gaf file
   --gene2go=<gene2go> Annotations from a gene2go file downloaded from NCBI
+  --taxid=<Taxonomy_number> Taxid is required is using gene2go
 
   --no_indent         Do not indent GO terms
   --max_indent=<int>  max indent depth for printing relative to GO Term
   --concise           If a branch has already been printed, do not re-print.
                       Print '===' instead of dashes to note the point of compression
   --dash_len=<int>    Printed width of the dashes column [default: 6]
+  --go_marks=<GOs>    GO IDs to be marked
   -r --relationship   Load and use the 'relationship' field
 """
 
@@ -29,6 +31,7 @@ from __future__ import print_function
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
+import os
 import sys
 from goatools.base import get_godag
 from goatools.associations import get_tcntobj
@@ -55,12 +58,14 @@ class WrHierCli(object):
 
     kws_set_all = set(['relationship', 'up', 'f'])
     kws_dct_all = set(['GO', 'dag', 'i', 'o', 'max_indent', 'no_indent', 'concise',
-                       'gaf', 'gene2go', 'dash_len', 'include_only'])
+                       'gaf', 'gene2go', 'taxid', 'dash_len', 'include_only',
+                       'go_marks'])
     kws_dct_wr = set(['max_indent', 'no_indent', 'concise', 'relationship', 'dash_len'])
 
     def __init__(self, args=None, prt=sys.stdout):
         self.kws = DocOptParse(__doc__, self.kws_dct_all, self.kws_set_all).get_docargs(
             args, intvals=set(['max_indent', 'dash_len']))
+        self._init_kws()
         opt_attrs = OboOptionalAttrs.attributes.intersection(self.kws.keys())
         godag = get_godag(self.kws['dag'], prt, optional_attrs=opt_attrs)
         self.gosubdag = GoSubDag(godag.keys(), godag,
@@ -89,7 +94,7 @@ class WrHierCli(object):
 
     def _get_fout_go(self):
         """Get the name of an output file based on the top GO term."""
-        assert self.goids, "NO VALID GO IDs WERE PROVIDED"
+        assert self.goids, "NO VALID GO IDs WERE PROVIDED AS STARTING POINTS FOR HIERARCHY REPORT"
         base = next(iter(self.goids)).replace(':', '')
         upstr = '_up' if 'up' in self.kws else ''
         return "hier_{BASE}{UP}.{EXT}".format(BASE=base, UP=upstr, EXT='txt')
@@ -109,6 +114,27 @@ class WrHierCli(object):
                 objwr.prt_hier_down(goid, prt)
         else:
             objwr.prt_hier_up(self.goids, prt)
+
+    def _init_kws(self):
+        """Adjust keywords, if needed."""
+        if 'go_marks' in self.kws:
+            # Process GO IDs specified in go_marks
+            goids = self._get_goids(self.kws['go_marks'])
+            # go_marks can take a list of GO IDs on cmdline or in a file.
+            #     --go_marks=GO:0043473,GO:0009987
+            #     --go_marks=go_marks.txt
+            if goids:
+                self.kws['go_marks'] = goids
+            else:
+                raise Exception("NO GO IDs FOUND IN go_marks")
+
+    @staticmethod
+    def _get_goids(gostr):
+        """Return GO IDs from a GO str (e.g., GO:0043473,GO:0009987) or a file."""
+        if 'GO:' in gostr:
+            return gostr.split(',')
+        elif os.path.exists(gostr):
+            return GetGOs().get_goids(None, gostr, sys.stdout)
 
 
 # Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.
