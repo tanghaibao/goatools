@@ -33,12 +33,11 @@ def main():
     results = obj.get_results()
     # Print results in a flat list
     obj.prt_results(results)
-    if obj.sections or obj.args.outfile_detail:
-        #fout_detail = obj.args.outfile_detail if obj.args.outfile_detail else "goea_details.txt"
-        objaart = obj.get_objaart()
-        objaart.run("GOEA", results, sys.stdout)
-    #### #### prt_grouped(results, objgoea, args)
-    #### print("AAAAAAAAAAAAAAAAAAAAAAAAA", obj.args)
+    # if obj.sections and obj.args.outfile_detail:
+    #     #fout_detail = obj.args.outfile_detail if obj.args.outfile_detail else "goea_details.txt"
+    #     objaart = obj.get_objaart()
+    #     objaart.run("GOEA", results, sys.stdout)
+    #### prt_grouped(results, objgoea, args)
 
 
 if __name__ == "__main__":

@@ -28,6 +28,7 @@ from goatools.associations import read_associations
 from goatools.multiple_testing import Methods
 from goatools.pvalcalc import FisherFactory
 
+from goatools.semantic import TermCounts
 from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.grouper.grprdflts import GrouperDflts
 from goatools.grouper.hdrgos import HdrgosSections
@@ -135,6 +136,8 @@ class GoeaCliFnc(object):
             self.chk_genes(_study, _pop)
         self.methods = self.args.method.split(",")
         self.objgoea = self._init_objgoea(_pop, _assoc)
+        # Prepare for grouping, if user-specified
+        self.prepgrp = self._init_grp(_assoc)
         # Run GOEA
         self.results_all = self.objgoea.run_study(_study)
 
@@ -167,6 +170,11 @@ class GoeaCliFnc(object):
                                  alpha=self.args.alpha,
                                  pvalcalc=self.args.pvalcalc,
                                  methods=self.methods)
+
+    def _init_grp(self, assoc):
+        """Prepare for grouping, if user-specified."""
+        if self.sections:
+            return GroupItems(self.sections, assoc, self.godag, self.args.goslim)
 
     def chk_genes(self, study, pop):
         """Check gene sets."""
@@ -237,12 +245,6 @@ class GoeaCliFnc(object):
     def get_objaart(self):
         """Get background database info for making ASCII art."""
         print("AAAAAAAAAAAAAAAAAAAAAaa")
-        goids = set(o.id for o in self.godag.values() if not o.children)
-        # gosubanno = _init_gosubanno(10090)
-        # _tobj = TermCounts(godag, gosubanno.gene2gos)
-        gosubdag = GoSubDag(goids, self.godag, relationships=True) # , tcntobj=_tobj, prt=log)
-        grprdflt = GrouperDflts(gosubdag, self.args.goslim)
-        hdrobj = HdrgosSections(gosubdag, grprdflt.hdrgos_dflt, self.sections)
         kws = {
             'sortgo':lambda nt: [nt.NS, nt.dcnt],
             # fmtgo=('{p_fdr_bh:8.2e} {GO} '
@@ -256,8 +258,17 @@ class GoeaCliFnc(object):
                       '{GO_name} ({study_count} study genes)\n'),
             # itemid2name=ensmusg2symbol}
             }
-        return AArtGeneProductSetsAll(grprdflt, hdrobj, **kws)
+        return AArtGeneProductSetsAll(self.prepgrp.grprdflt, self.prepgrp.hdrobj, **kws)
 
+class GroupItems(object):
+    """Prepare for grouping, if specified by the user."""
+
+    def __init__(self, sections, gene2gos, godag, goslim):
+        _goids = set(o.id for o in godag.values() if not o.children)
+        _tobj = TermCounts(godag, gene2gos)
+        self.gosubdag = GoSubDag(_goids, godag, relationships=True, tcntobj=_tobj, prt=sys.stdout)
+        self.grprdflt = GrouperDflts(self.gosubdag, goslim)
+        self.hdrobj = HdrgosSections(self.gosubdag, self.grprdflt.hdrgos_dflt, sections)
 
 
 
