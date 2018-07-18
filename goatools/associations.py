@@ -203,11 +203,14 @@ def read_annotations(**kws):
     gene2gos = None
     if 'gaf' in kws:
         gene2gos = read_gaf(kws['gaf'], prt=sys.stdout)
+        if not gene2gos:
+            raise RuntimeError("NO ASSOCIATIONS LOADED FROM {F}".format(F=kws['gaf']))
     elif 'gene2go' in kws:
         assert 'taxid' in kws, 'taxid IS REQUIRED WHEN READING gene2go'
         gene2gos = read_ncbi_gene2go(kws['gene2go'], taxids=[kws['taxid']])
-    if not gene2gos:
-        raise RuntimeError("NO ASSOCIATIONS LOADED")
+        if not gene2gos:
+            raise RuntimeError("NO ASSOCIATIONS LOADED FROM {F} FOR TAXID({T})".format(
+                F=kws['gene2go'], T=kws['taxid']))
     return gene2gos
 
 def get_tcntobj(go2obj, **kws):
