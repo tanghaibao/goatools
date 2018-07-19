@@ -164,15 +164,18 @@ to all the parents of a GO term. As a result, users may find terms in
 the output that are not present in their `association` file. Use
 `--no_propagate_counts` to disable this behavior.
 
+### Write GO hierarchy
+  * [scripts/wr_hier.py](doc/md/README_wr_hier.md):    
+
 ### Plot GO lineage
 
-  * [plot_go.py](doc/md/README_plot_go.md):    
+  * [scripts/go_plot.py](doc/md/README_go_plot.md):    
     * Plots user-specified GO term(s) up to root
     * Multiple user-specified GOs   
     * User-defined colors    
     * Plot relationships (-r)    
     * Optionally plot children of user-specfied GO terms
-  * [plot_go_term.py](plot_go_term-py)
+  * [scripts/plot_go_term.py](plot_go_term-py)
 
   
 #### plot_go_term.py
