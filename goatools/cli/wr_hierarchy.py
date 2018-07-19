@@ -43,6 +43,7 @@ from goatools.cli.docopt_parse import DocOptParse
 from goatools.cli.gos_get import GetGOs
 from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.gosubdag.rpt.write_hierarchy import WrHierGO
+from goatools.godag.consts import Consts
 
 
 def cli():
@@ -82,9 +83,20 @@ class WrHierCli(object):
         self._adj_for_assc()
 
     def _init_goids(self):
-        goids = GetGOs().get_goids(self.kws.get('GO'), self.kws.get('i'), sys.stdout)
-        if goids:
-            return goids
+        goids_ret = []
+        godagconsts = Consts()
+        for goid in self.kws['GO']:
+            if goid[:3] == "GO:":
+                assert len(goid) == 10, "BAD GO ID({GO})".format(GO=goid)
+                goids_ret.append(goid)
+            elif goid in godagconsts.NS2GO:
+                goids_ret.append(godagconsts.NS2GO[goid])
+        if 'i' in self.kws:
+            goids_fin = GetGOs().rdtxt_gos(self.kws['i'], sys.stdout)
+            if goids_fin:
+                goids_ret.extend(list(goids_fin))
+        if goids_ret:
+            return goids_ret
         # If GO DAG is small, print hierarchy for the entire DAG
         if len(self.gosubdag.go2nt) < 100:
             return set(self.gosubdag.go2nt.keys())
