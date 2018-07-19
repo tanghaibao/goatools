@@ -23,6 +23,7 @@ Options:
                       Print '===' instead of dashes to note the point of compression
   --dash_len=<int>    Printed width of the dashes column [default: 6]
   --go_marks=<GOs>    GO IDs to be marked
+  --include_only=<GOs>  GO IDs to be included with all others omitted
   -r --relationship   Load and use the 'relationship' field
 """
 
@@ -60,8 +61,7 @@ class WrHierCli(object):
 
     kws_set_all = set(['relationship', 'up', 'f'])
     kws_dct_all = set(['GO', 'dag', 'i', 'o', 'max_indent', 'no_indent', 'concise',
-                       'gaf', 'gene2go', 'taxid', 'dash_len', 'include_only',
-                       'go_marks'])
+                       'gaf', 'gene2go', 'taxid', 'dash_len', 'include_only', 'go_marks'])
     kws_dct_wr = set(['max_indent', 'no_indent', 'concise', 'relationship', 'dash_len'])
 
     def __init__(self, args=None, prt=sys.stdout):
@@ -71,13 +71,15 @@ class WrHierCli(object):
         godag = get_godag(self.kws['dag'], prt, optional_attrs=opt_attrs)
         self.gene2gos = read_annotations(**self.kws)
         self.tcntobj = TermCounts(godag, self.gene2gos) if self.gene2gos is not None else None
-        self._adj_go_marks()
         self.gosubdag = GoSubDag(godag.keys(), godag,
                                  relationships='relationship' in opt_attrs,
                                  tcntobj=self.tcntobj,
                                  children=True,
                                  prt=prt)
         self.goids = self._init_goids()
+        self._adj_go_marks()
+        self._adj_include_only()
+        self._adj_for_assc()
 
     def _init_goids(self):
         goids = GetGOs().get_goids(self.kws.get('GO'), self.kws.get('i'), sys.stdout)
@@ -132,8 +134,29 @@ class WrHierCli(object):
             else:
                 raise Exception("NO GO IDs FOUND IN go_marks")
 
-        elif self.gene2gos:
-            self.kws['go_marks'] = set(get_b2aset(self.gene2gos).keys())
+    def _adj_include_only(self):
+        """Adjust keywords, if needed."""
+        if 'include_only' in self.kws:
+            # Process GO IDs specified in include_only
+            goids = self._get_goids(self.kws['include_only'])
+            # include_only can take a list of GO IDs on cmdline or in a file.
+            #     --include_only=GO:0043473,GO:0009987
+            #     --include_only=include_only.txt
+            if goids:
+                self.kws['include_only'] = goids
+            else:
+                raise Exception("NO GO IDs FOUND IN include_only")
+
+    def _adj_for_assc(self):
+        """Print only GO IDs from associations and their ancestors."""
+        if self.gene2gos:
+            gos_assoc = set(get_b2aset(self.gene2gos).keys())
+            if 'go_marks' not in self.kws:
+                self.kws['go_marks'] = set(gos_assoc)
+            if 'include_only' not in self.kws:
+                gosubdag = GoSubDag(gos_assoc, self.gosubdag.go2obj,
+                                    self.gosubdag.relationships)
+                self.kws['include_only'] = gosubdag.go2obj
 
     @staticmethod
     def _get_goids(gostr):
