@@ -7,7 +7,7 @@ Options:
   -h --help      show this help message and exit
 
   -i <gofile.txt>  Read a file name containing a list of GO IDs
-  --o=<outfile>    Output file in ASCII text format
+  -o <outfile>     Output file in ASCII text format
   -f               Writes results to an ASCII file named after the GO term. e.g. hier_GO0002376.txt
   --up             Write report from GO term up to root
 
@@ -34,7 +34,9 @@ __author__ = "DV Klopfenstein"
 import os
 import sys
 from goatools.base import get_godag
-from goatools.associations import get_tcntobj
+from goatools.associations import read_annotations
+from goatools.associations import get_b2aset
+from goatools.semantic import TermCounts
 from goatools.godag.obo_optional_attributes import OboOptionalAttrs
 from goatools.cli.docopt_parse import DocOptParse
 from goatools.cli.gos_get import GetGOs
@@ -65,12 +67,14 @@ class WrHierCli(object):
     def __init__(self, args=None, prt=sys.stdout):
         self.kws = DocOptParse(__doc__, self.kws_dct_all, self.kws_set_all).get_docargs(
             args, intvals=set(['max_indent', 'dash_len']))
-        self._init_kws()
         opt_attrs = OboOptionalAttrs.attributes.intersection(self.kws.keys())
         godag = get_godag(self.kws['dag'], prt, optional_attrs=opt_attrs)
+        self.gene2gos = read_annotations(**self.kws)
+        self.tcntobj = TermCounts(godag, self.gene2gos) if self.gene2gos is not None else None
+        self._adj_go_marks()
         self.gosubdag = GoSubDag(godag.keys(), godag,
                                  relationships='relationship' in opt_attrs,
-                                 tcntobj=get_tcntobj(godag, **self.kws),
+                                 tcntobj=self.tcntobj,
                                  children=True,
                                  prt=prt)
         self.goids = self._init_goids()
@@ -115,7 +119,7 @@ class WrHierCli(object):
         else:
             objwr.prt_hier_up(self.goids, prt)
 
-    def _init_kws(self):
+    def _adj_go_marks(self):
         """Adjust keywords, if needed."""
         if 'go_marks' in self.kws:
             # Process GO IDs specified in go_marks
@@ -127,6 +131,9 @@ class WrHierCli(object):
                 self.kws['go_marks'] = goids
             else:
                 raise Exception("NO GO IDs FOUND IN go_marks")
+
+        elif self.gene2gos:
+            self.kws['go_marks'] = set(get_b2aset(self.gene2gos).keys())
 
     @staticmethod
     def _get_goids(gostr):
