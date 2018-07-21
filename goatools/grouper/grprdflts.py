@@ -15,6 +15,7 @@
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
+import sys
 from goatools.base import get_godag
 from goatools.gosubdag.gosubdag import GoSubDag
 
@@ -31,7 +32,7 @@ class GrouperDflts(object):
 
     def __init__(self, gosubdag=None, goslim_filename="goslim_generic.obo", hdrgos=None):
         self.gosubdag = self.get_gosubdag(gosubdag)
-        _dagslim = get_godag(goslim_filename, prt=None, loading_bar=False)
+        _dagslim = get_godag(goslim_filename, prt=sys.stdout, loading_bar=False)
         self.ver_goslims = _dagslim.version
         self.goslims = self._init_goslims(_dagslim)
         self.hdrgos_dflt = self._init_hdrgos() if hdrgos is None else hdrgos  # goid set
