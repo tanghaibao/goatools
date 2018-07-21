@@ -30,9 +30,9 @@ def main():
     # Load study, population, associations, and GoDag. Run GOEA.
     obj = GoeaCliFnc(GoeaCliArgs().args)
     # Reduce results to significant results (pval<value)
-    results = obj.get_results()
+    results_specified = obj.get_results()
     # Print results in a flat list
-    obj.prt_results(results)
+    obj.prt_results(results_specified)
     # if obj.sections and obj.args.outfile_detail:
     #     #fout_detail = obj.args.outfile_detail if obj.args.outfile_detail else "goea_details.txt"
     #     objaart = obj.get_objaart()

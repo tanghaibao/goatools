@@ -140,21 +140,14 @@ class GoeaCliFnc(object):
         self.objgoea = self._init_objgoea(_pop, _assoc)
         # Run GOEA
         self.results_all = self.objgoea.run_study(_study)
-        # Prepare for grouping, if user-specified
-        self.prepgrp = self._init_grp(_assoc)
+        # Prepare for grouping, if user-specified. Create GroupItems
+        self.prepgrp = GroupItems(_assoc, self) if self.sections else None
 
     def prt_results(self, goea_results):
-        """Print GOEA results."""
-        objaart = self.prepgrp.get_objaart(goea_results) if self.prepgrp is not None else None
+        """Print GOEA results to the screen or to a file."""
+        # objaart = self.prepgrp.get_objaart(goea_results) if self.prepgrp is not None else None
         if self.args.outfile is None:
-            min_ratio = self.args.ratio
-            if min_ratio is not None:
-                assert 1 <= min_ratio <= 2
-            self.objgoea.print_summary(min_ratio=min_ratio, pval=self.args.pval)
-            self.objgoea.print_results(
-                goea_results, min_ratio=min_ratio, indent=self.args.indent, pval=self.args.pval)
-            if objaart is not None:
-                pass
+            self._prt_results(goea_results)
         else:
             # Users can print to both tab-separated file and xlsx file in one run.
             outfiles = self.args.outfile.split(",")
@@ -163,6 +156,15 @@ class GoeaCliFnc(object):
                     self.objgoea.wr_xlsx(outfile, goea_results, indent=self.args.indent)
                 else:
                     self.objgoea.wr_tsv(outfile, goea_results, indent=self.args.indent)
+
+    def _prt_results(self, goea_results):
+        """Print GOEA results to the screen."""
+        min_ratio = self.args.ratio
+        if min_ratio is not None:
+            assert 1 <= min_ratio <= 2
+        self.objgoea.print_summary(min_ratio=min_ratio, pval=self.args.pval)
+        results_adj = self.objgoea.get_adj_records(goea_results, min_ratio, self.args.pval)
+        self.objgoea.print_results_adj(results_adj, self.args.indent)
 
     def get_results(self):
         """Given all GOEA results, return the significant results (< pval)."""
@@ -176,12 +178,6 @@ class GoeaCliFnc(object):
                                  alpha=self.args.alpha,
                                  pvalcalc=self.args.pvalcalc,
                                  methods=self.methods)
-
-    def _init_grp(self, assoc):
-        """Prepare for grouping, if user-specified."""
-        if self.sections:
-            #### return GroupItems(self.sections, assoc, self.godag, self.args.goslim)
-            return GroupItems(assoc, self)
 
     def chk_genes(self, study, pop):
         """Check gene sets."""
