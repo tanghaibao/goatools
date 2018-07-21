@@ -27,11 +27,13 @@ from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.associations import read_associations
 from goatools.multiple_testing import Methods
 from goatools.pvalcalc import FisherFactory
+from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
 
 from goatools.semantic import TermCounts
 from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.grouper.grprdflts import GrouperDflts
 from goatools.grouper.hdrgos import HdrgosSections
+# from goatools.grouper.grprobj import Grouper
 from goatools.grouper.aart_geneproducts_all import AArtGeneProductSetsAll
 from goatools.grouper.read_goids import read_sections
 
@@ -136,27 +138,31 @@ class GoeaCliFnc(object):
             self.chk_genes(_study, _pop)
         self.methods = self.args.method.split(",")
         self.objgoea = self._init_objgoea(_pop, _assoc)
-        # Prepare for grouping, if user-specified
-        self.prepgrp = self._init_grp(_assoc)
         # Run GOEA
         self.results_all = self.objgoea.run_study(_study)
+        # Prepare for grouping, if user-specified
+        self.prepgrp = self._init_grp(_assoc)
 
-    def prt_results(self, results):
+    def prt_results(self, goea_results):
         """Print GOEA results."""
+        objaart = self.prepgrp.get_objaart(goea_results) if self.prepgrp is not None else None
         if self.args.outfile is None:
             min_ratio = self.args.ratio
             if min_ratio is not None:
                 assert 1 <= min_ratio <= 2
-            self.objgoea.print_summary(
-                results, min_ratio=min_ratio, indent=self.args.indent, pval=self.args.pval)
+            self.objgoea.print_summary(min_ratio=min_ratio, pval=self.args.pval)
+            self.objgoea.print_results(
+                goea_results, min_ratio=min_ratio, indent=self.args.indent, pval=self.args.pval)
+            if objaart is not None:
+                pass
         else:
             # Users can print to both tab-separated file and xlsx file in one run.
             outfiles = self.args.outfile.split(",")
             for outfile in outfiles:
                 if outfile.endswith(".xlsx"):
-                    self.objgoea.wr_xlsx(outfile, results, indent=self.args.indent)
+                    self.objgoea.wr_xlsx(outfile, goea_results, indent=self.args.indent)
                 else:
-                    self.objgoea.wr_tsv(outfile, results, indent=self.args.indent)
+                    self.objgoea.wr_tsv(outfile, goea_results, indent=self.args.indent)
 
     def get_results(self):
         """Given all GOEA results, return the significant results (< pval)."""
@@ -174,7 +180,8 @@ class GoeaCliFnc(object):
     def _init_grp(self, assoc):
         """Prepare for grouping, if user-specified."""
         if self.sections:
-            return GroupItems(self.sections, assoc, self.godag, self.args.goslim)
+            #### return GroupItems(self.sections, assoc, self.godag, self.args.goslim)
+            return GroupItems(assoc, self)
 
     def chk_genes(self, study, pop):
         """Check gene sets."""
@@ -242,9 +249,28 @@ class GoeaCliFnc(object):
                 len(study), len(pop)))
         return study, pop
 
-    def get_objaart(self):
+class GroupItems(object):
+    """Prepare for grouping, if specified by the user."""
+
+    #### def __init__(self, sections, gene2gos, godag, goslim):
+    def __init__(self, gene2gos, objcli):
+        # _goids = set(o.id for o in godag.values() if not o.children)
+        _goids = set(r.GO for r in objcli.results_all)
+        _tobj = TermCounts(objcli.godag, gene2gos)
+        # pylint: disable=line-too-long
+        self.gosubdag = GoSubDag(_goids, objcli.godag, relationships=True, tcntobj=_tobj, prt=sys.stdout)
+        self.grprdflt = GrouperDflts(self.gosubdag, objcli.args.goslim)
+        self.hdrobj = HdrgosSections(self.grprdflt.gosubdag, self.grprdflt.hdrgos_dflt, objcli.sections)
+        # self.grprobj = Grouper("GOEA", data, self.hdrobj, self.grprdflt.gosubdag, go2nt=None)
+        # self.objaartall = self._init_objaartall()
+
+    def get_objaart(self, goea_results, **kws):
+        """Return a AArtGeneProductSetsOne object."""
+        nts_goea = MgrNtGOEAs(goea_results).get_goea_nts_prt(**kws)
+        # objaart = AArtGeneProductSetsOne(name, goea_nts, self)
+
+    def _init_objaartall(self):
         """Get background database info for making ASCII art."""
-        print("AAAAAAAAAAAAAAAAAAAAAaa")
         kws = {
             'sortgo':lambda nt: [nt.NS, nt.dcnt],
             # fmtgo=('{p_fdr_bh:8.2e} {GO} '
@@ -258,17 +284,7 @@ class GoeaCliFnc(object):
                       '{GO_name} ({study_count} study genes)\n'),
             # itemid2name=ensmusg2symbol}
             }
-        return AArtGeneProductSetsAll(self.prepgrp.grprdflt, self.prepgrp.hdrobj, **kws)
-
-class GroupItems(object):
-    """Prepare for grouping, if specified by the user."""
-
-    def __init__(self, sections, gene2gos, godag, goslim):
-        _goids = set(o.id for o in godag.values() if not o.children)
-        _tobj = TermCounts(godag, gene2gos)
-        self.gosubdag = GoSubDag(_goids, godag, relationships=True, tcntobj=_tobj, prt=sys.stdout)
-        self.grprdflt = GrouperDflts(self.gosubdag, goslim)
-        self.hdrobj = HdrgosSections(self.gosubdag, self.grprdflt.hdrgos_dflt, sections)
+        return AArtGeneProductSetsAll(self.grprdflt, self.hdrobj, **kws)
 
 
 
