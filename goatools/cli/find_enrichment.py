@@ -184,8 +184,8 @@ class GoeaCliFnc(object):
     def _get_flds(self, sortobj):
         """Choose fields to print from a multitude of available fields."""
         flds = []
-        # ('GO', 'NS', 'enrichment', 'name', 'ratio_in_study', 'ratio_in_pop', 'depth', 
-        # 'p_uncorrected', 'p_bonferroni', 'p_sidak', 'p_holm', 'p_fdr_bh', 
+        # ('GO', 'NS', 'enrichment', 'name', 'ratio_in_study', 'ratio_in_pop', 'depth',
+        # 'p_uncorrected', 'p_bonferroni', 'p_sidak', 'p_holm', 'p_fdr_bh',
         # 'pop_n', 'pop_count', 'pop_items'
         # 'study_n', 'study_count', 'study_items',
         # 'is_ratio_different', 'level', 'is_obsolete',
@@ -193,7 +193,7 @@ class GoeaCliFnc(object):
         # 'is_hdrgo', 'is_usrgo', 'num_usrgos', 'hdr1usr01', 'alt', 'GO_name',
         # 'dcnt', 'D1', 'tcnt', 'tfreq', 'tinfo', 'childcnt', 'REL',
         # 'REL_short', 'rel', 'id')
-        pval_fld = self._get_pval_field()  # primary pvalue of interest
+        pval_fld = self.prepgrp.pval_fld  # primary pvalue of interest
         flds0 = ['GO', 'NS', 'enrichment', pval_fld, 'dcnt', 'tinfo', 'depth',
                  'ratio_in_study', 'ratio_in_pop', 'name']
         flds_all = next(iter(sortobj.grprobj.go2nt.values()))._fields
@@ -205,7 +205,7 @@ class GoeaCliFnc(object):
         flds.append('study_items')
         # print("nnnnnnnnnnnnnnnnnnnnnttttttttttttttttt", flds_all)
         return flds
-        
+
 
     def get_results(self):
         """Given all GOEA results, return the significant results (< pval)."""
@@ -242,7 +242,7 @@ class GoeaCliFnc(object):
             N=sum(1 for r in self.results_all if r.p_uncorrected < self.args.pval),
             M=len(self.results_all),
             PVAL=self.args.pval))
-        pval_fld = self._get_pval_field()
+        pval_fld = self.prepgrp.pval_fld
         results = [r for r in self.results_all if getattr(r, pval_fld) <= self.args.pval]
         return results
 
@@ -251,7 +251,7 @@ class GoeaCliFnc(object):
         """Get he ratio of study genes which are in the population."""
         return float(len(study & pop)) / len(study)
 
-    def _get_pval_field(self):
+    def get_pval_field(self):
         """Get 'p_uncorrected' or the user-specified field for determining significant results."""
         pval_fld = self.args.pval_field
         # print("FFFFFFFFFFFF", pval_fld)
@@ -311,6 +311,8 @@ class GroupItems(object):
         self.gosubdag = GoSubDag(_goids, objcli.godag, relationships=True, tcntobj=_tobj, prt=sys.stdout)
         self.grprdflt = GrouperDflts(self.gosubdag, objcli.args.goslim)
         self.hdrobj = HdrgosSections(self.grprdflt.gosubdag, self.grprdflt.hdrgos_dflt, objcli.sections)
+        self.pval_fld = objcli.get_pval_field()  # primary pvalue of interest
+
         # self.objaartall = self._init_objaartall()
 
     def get_sortobj(self, goea_results, **kws):
@@ -321,7 +323,7 @@ class GroupItems(object):
         grprobj = Grouper("GOEA", goids, self.hdrobj, self.grprdflt.gosubdag, go2nt=go2nt)
         grprobj.prt_summary(sys.stdout)
         # hdrgo_prt", "section_prt", "top_n", "use_sections"
-        sortobj = Sorter(grprobj)
+        sortobj = Sorter(grprobj, section_sortby=lambda nt: getattr(nt, self.pval_fld))
         return sortobj
 
     def get_objaart(self, goea_results, **kws):
