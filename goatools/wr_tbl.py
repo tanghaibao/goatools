@@ -20,7 +20,7 @@
 
            For adding color or other formatting to a row based on value in a row:
                'ntfld_wbfmt': namedtuple field containing a value used as a key for a xlsx format
-               'ntval2wbfmtdict': namedtuple value and corresponding xlsx format dict. Examples:
+               'ntval2wbfmtdict': namedtuple value and corresponding xlsx format dict.
 """
 
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."

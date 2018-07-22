@@ -65,7 +65,7 @@ class WrXlsx(object):
         try:
             for data_nt in xlsx_data:
                 if prt_if is None or prt_if(data_nt):
-                    wbfmt = get_wbfmt(data_nt)
+                    wbfmt = get_wbfmt(data_nt)  # xlsxwriter.format.Format created w/add_format
                     # Print an xlsx row by printing each column in order.
                     for col_i, fld in enumerate(prt_flds):
                         try:
@@ -176,15 +176,18 @@ class WbFmt(object):
             if wbfmt is not None:
                 return wbfmt
         # 'ntfld_wbfmt': namedtuple field which contains a value used as a key for a xlsx format
-        # 'ntval2wbfmtdict': namedtuple value and corresponding xlsx format dict. Examples:
+        # 'ntval2wbfmtdict': namedtuple value and corresponding xlsx format dict.
         return self.fmtname2wbfmtobj.get('plain')
 
     def __get_wbfmt_usrfld(self, data_nt):
         """Return format for text cell from namedtuple field specified by 'ntfld_wbfmt'"""
         if self.ntfld_wbfmt is not None:
-            ntval = getattr(data_nt, self.ntfld_wbfmt, None) # Ex: 'section'
-            if ntval is not None:
-                return self.fmtname2wbfmtobj.get(ntval, None)
+            if isinstance(self.ntfld_wbfmt, str):
+                ntval = getattr(data_nt, self.ntfld_wbfmt, None) # Ex: 'section'
+                if ntval is not None:
+                    return self.fmtname2wbfmtobj.get(ntval, None)
+            #### elif isinstance(self.ntfld_wbfmt, dict):
+            ####     print("DDDDDDDDDDDD IIIIIIIII CCCCCCCCCC TTTTTTTTTTTTTTTT")
 
     def __get_wbfmt_format_txt(self, data_nt):
         """Return format for text cell from namedtuple field, 'format_txt'."""
