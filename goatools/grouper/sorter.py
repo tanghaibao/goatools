@@ -85,6 +85,7 @@ class Sorter(object):
     def get_desc2nts(self, **kws_usr):
         """Return grouped, sorted namedtuples in either format: flat, sections."""
         # desc2nts contains: (sections hdrgo_prt sortobj) or (flat hdrgo_prt sortobj)
+        # kw_keys_nts: hdrgo_prt section_prt top_n use_sections
         kws_nts = {k:v for k, v in kws_usr.items() if k in self.kw_keys_nts}
         return self.get_desc2nts_fnc(**kws_nts)
 

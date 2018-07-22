@@ -154,11 +154,15 @@ class GoeaCliFnc(object):
         else:
             # Users can print to both tab-separated file and xlsx file in one run.
             outfiles = self.args.outfile.split(",")
-            for outfile in outfiles:
-                if outfile.endswith(".xlsx"):
-                    self.objgoea.wr_xlsx(outfile, goea_results, indent=self.args.indent)
-                else:
-                    self.objgoea.wr_tsv(outfile, goea_results, indent=self.args.indent)
+            self.prt_outfiles(goea_results, outfiles)
+
+    def prt_outfiles(self, goea_results, outfiles):
+        """Write to outfiles."""
+        for outfile in outfiles:
+            if outfile.endswith(".xlsx"):
+                self.objgoea.wr_xlsx(outfile, goea_results, indent=self.args.indent)
+            else:
+                self.objgoea.wr_tsv(outfile, goea_results, indent=self.args.indent)
 
     def _prt_results(self, goea_results):
         """Print GOEA results to the screen."""
@@ -171,41 +175,8 @@ class GoeaCliFnc(object):
             if not self.prepgrp:
                 self.objgoea.print_results_adj(results_adj, self.args.indent)
             else:
-                # self.objgoea.print_results_adj(results_adj, self.args.indent)  # ungrouped
-                sortobj = self.prepgrp.get_sortobj(results_adj)
-                flds = self._get_flds(sortobj)
-                objprt = PrtFmt()
-                prtfmt = objprt.get_prtfmt(self._get_flds(sortobj))
-                desc2nts = sortobj.get_desc2nts(hdrgo_prt=False)
-                sys.stdout.write("{FLDS}\n".format(FLDS=" ".join(flds)))
-                #### sortobj.prt_nts(desc2nts, prt=sys.stdout, prtfmt=prtfmt)
-                WrSectionsTxt.prt_sections(sys.stdout, desc2nts['sections'], prtfmt, secspc=True)
-
-    def _get_flds(self, sortobj):
-        """Choose fields to print from a multitude of available fields."""
-        flds = []
-        # ('GO', 'NS', 'enrichment', 'name', 'ratio_in_study', 'ratio_in_pop', 'depth',
-        # 'p_uncorrected', 'p_bonferroni', 'p_sidak', 'p_holm', 'p_fdr_bh',
-        # 'pop_n', 'pop_count', 'pop_items'
-        # 'study_n', 'study_count', 'study_items',
-        # 'is_ratio_different', 'level', 'is_obsolete',
-        # 'namespace', 'reldepth', 'alt_ids', 'format_txt', 'hdr_idx',
-        # 'is_hdrgo', 'is_usrgo', 'num_usrgos', 'hdr1usr01', 'alt', 'GO_name',
-        # 'dcnt', 'D1', 'tcnt', 'tfreq', 'tinfo', 'childcnt', 'REL',
-        # 'REL_short', 'rel', 'id')
-        pval_fld = self.prepgrp.pval_fld  # primary pvalue of interest
-        flds0 = ['GO', 'NS', 'enrichment', pval_fld, 'dcnt', 'tinfo', 'depth',
-                 'ratio_in_study', 'ratio_in_pop', 'name']
-        flds_all = next(iter(sortobj.grprobj.go2nt.values()))._fields
-        flds_p = [f for f in flds_all if f[:2] == 'p_' and f != pval_fld]
-        flds.extend(flds0)
-        if flds_p:
-            flds.extend(flds_p)
-        flds.append('study_count')
-        flds.append('study_items')
-        # print("nnnnnnnnnnnnnnnnnnnnnttttttttttttttttt", flds_all)
-        return flds
-
+                grpwr = self.prepgrp.get_objgrpwr(results_adj)
+                grpwr.prt_txt(sys.stdout)
 
     def get_results(self):
         """Given all GOEA results, return the significant results (< pval)."""
@@ -242,7 +213,7 @@ class GoeaCliFnc(object):
             N=sum(1 for r in self.results_all if r.p_uncorrected < self.args.pval),
             M=len(self.results_all),
             PVAL=self.args.pval))
-        pval_fld = self.prepgrp.pval_fld
+        pval_fld = self.get_pval_field()
         results = [r for r in self.results_all if getattr(r, pval_fld) <= self.args.pval]
         return results
 
@@ -302,7 +273,6 @@ class GoeaCliFnc(object):
 class GroupItems(object):
     """Prepare for grouping, if specified by the user."""
 
-    #### def __init__(self, sections, gene2gos, godag, goslim):
     def __init__(self, gene2gos, objcli):
         # _goids = set(o.id for o in godag.values() if not o.children)
         _goids = set(r.GO for r in objcli.results_all)
@@ -312,8 +282,12 @@ class GroupItems(object):
         self.grprdflt = GrouperDflts(self.gosubdag, objcli.args.goslim)
         self.hdrobj = HdrgosSections(self.grprdflt.gosubdag, self.grprdflt.hdrgos_dflt, objcli.sections)
         self.pval_fld = objcli.get_pval_field()  # primary pvalue of interest
-
         # self.objaartall = self._init_objaartall()
+
+    def get_objgrpwr(self, goea_results):
+        """Get a GrpWr object to write grouped GOEA results."""
+        sortobj = self.get_sortobj(goea_results)
+        return GrpWr(sortobj, self.pval_fld)
 
     def get_sortobj(self, goea_results, **kws):
         """Return a Grouper object, given a list of GOEnrichmentRecord."""
@@ -347,6 +321,46 @@ class GroupItems(object):
             # itemid2name=ensmusg2symbol}
             }
         return AArtGeneProductSetsAll(self.grprdflt, self.hdrobj, **kws)
+
+class GrpWr(object):
+    """Write GO term GOEA information, grouped."""
+
+    def __init__(self, sortobj, pval_fld):
+        self.sortobj = sortobj
+        self.pval_fld = pval_fld
+        self.objprt = PrtFmt()
+        self.flds = self._get_flds()
+
+    def prt_txt(self, prt=sys.stdout, hdrgo_prt=False):
+        """Print an ASCII text format."""
+        prtfmt = self.objprt.get_prtfmt(self._get_flds())
+        desc2nts = self.sortobj.get_desc2nts(hdrgo_prt=hdrgo_prt)
+        prt.write("{FLDS}\n".format(FLDS=" ".join(self.flds)))
+        WrSectionsTxt.prt_sections(prt, desc2nts['sections'], prtfmt, secspc=True)
+
+    def _get_flds(self):
+        """Choose fields to print from a multitude of available fields."""
+        flds = []
+        # ('GO', 'NS', 'enrichment', 'name', 'ratio_in_study', 'ratio_in_pop', 'depth',
+        # 'p_uncorrected', 'p_bonferroni', 'p_sidak', 'p_holm', 'p_fdr_bh',
+        # 'pop_n', 'pop_count', 'pop_items'
+        # 'study_n', 'study_count', 'study_items',
+        # 'is_ratio_different', 'level', 'is_obsolete',
+        # 'namespace', 'reldepth', 'alt_ids', 'format_txt', 'hdr_idx',
+        # 'is_hdrgo', 'is_usrgo', 'num_usrgos', 'hdr1usr01', 'alt', 'GO_name',
+        # 'dcnt', 'D1', 'tcnt', 'tfreq', 'tinfo', 'childcnt', 'REL',
+        # 'REL_short', 'rel', 'id')
+        flds0 = ['GO', 'NS', 'enrichment', self.pval_fld, 'dcnt', 'tinfo', 'depth',
+                 'ratio_in_study', 'ratio_in_pop', 'name']
+        flds_all = next(iter(self.sortobj.grprobj.go2nt.values()))._fields
+        flds_p = [f for f in flds_all if f[:2] == 'p_' and f != self.pval_fld]
+        flds.extend(flds0)
+        if flds_p:
+            flds.extend(flds_p)
+        flds.append('study_count')
+        flds.append('study_items')
+        # print("nnnnnnnnnnnnnnnnnnnnnttttttttttttttttt", flds_all)
+        return flds
 
 
 
