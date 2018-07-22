@@ -133,6 +133,7 @@ class GoeaCliFnc(object):
 
     def __init__(self, args):
         self.args = args
+        print("SSSSSSSSSSSSSSSSS", self.args.sections)
         self.sections = read_sections(self.args.sections) if self.args.sections else None
         _optional_attrs = ['relationship'] if self.sections else None
         self.godag = GODag(obo_file=self.args.obo, optional_attrs=_optional_attrs)
@@ -291,7 +292,9 @@ class GroupItems(object):
         self.grprdflt = GrouperDflts(self.gosubdag, objcli.args.goslim)
         self.hdrobj = HdrgosSections(self.grprdflt.gosubdag, self.grprdflt.hdrgos_dflt, objcli.sections)
         self.pval_fld = objcli.get_pval_field()  # primary pvalue of interest
-        self.ver_list = [godag_version, self.grprdflt.ver_goslims]
+        self.ver_list = [godag_version,
+                         self.grprdflt.ver_goslims,
+                         "Sections: {S}".format(S=objcli.args.sections)]
         # self.objaartall = self._init_objaartall()
 
     def get_objgrpwr(self, goea_results):
@@ -355,7 +358,7 @@ class GrpWr(object):
         #     'ratio_in_study': {'align':'right'},
         #     'ratio_in_pop':{'align':'right'}}
         kws_xlsx = {
-            'title': "; ".join(self.ver_list),
+            'title': self.ver_list,
             'fld2fmt': {f:'{:8.2e}' for f in self.flds_cur if f[:2] == 'p_'},
             #'ntfld_wbfmt': ntfld_wbfmt,
             #### 'ntval2wbfmtdict': ntval2wbfmtdict,

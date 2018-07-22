@@ -35,8 +35,15 @@ class WrXlsx(object):
     def wr_title(self, worksheet, row_idx=0):
         """Write title (optional)."""
         if self.vars.title is not None:
-            return self.wr_row_mergeall(worksheet, self.vars.title, self.fmt_hdr, row_idx)
-        return row_idx
+            # Title is one line
+            if isinstance(self.vars.title, str):
+                return self.wr_row_mergeall(worksheet, self.vars.title, self.fmt_hdr, row_idx)
+            # Title is multi-line
+            else:
+                ridx = row_idx
+                for title_line in self.vars.title:
+                    ridx = self.wr_row_mergeall(worksheet, title_line, self.fmt_hdr, ridx)
+                return ridx
 
     def wr_row_mergeall(self, worksheet, txtstr, fmt, row_idx):
         """Merge all columns and place text string in widened cell."""
