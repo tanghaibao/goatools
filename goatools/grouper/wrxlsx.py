@@ -14,7 +14,7 @@
 from __future__ import print_function
 
 # import sys
-from goatools.go_enrichment import GOEnrichmentStudy
+from goatools.rpt.prtfmt import PrtFmt
 from goatools.wr_tbl import prt_txt
 from goatools.wr_tbl import wr_xlsx
 from goatools.wr_tbl import wr_xlsx_sections
@@ -36,6 +36,7 @@ class WrXlsxSortedGos(object):
         self.ver_list = ver_list
         self.sortname = sortname
         self.sortobj = sortobj
+        self.oprtfmt = PrtFmt()
 
     def wr_xlsx_gos(self, fout_xlsx, **kws_usr):
         """Write an Excel spreadsheet with user GO ids, grouped under broader GO terms."""
@@ -142,13 +143,12 @@ class WrXlsxSortedGos(object):
             fld2col_widths[fld] = val
         return fld2col_widths
 
-    @staticmethod
-    def _init_fld2col_widths():
+    def _init_fld2col_widths(self):
         """Return default column widths for writing an Excel Spreadsheet."""
         # GO info namedtuple fields: NS dcnt level depth GO D1 name
         # GO header namedtuple fields: format_txt hdr_idx
         fld2col_widths = GoSubDagWr.fld2col_widths.copy()
-        for fld, wid in GOEnrichmentStudy.default_fld2col_widths.items():
+        for fld, wid in self.oprtfmt.default_fld2col_widths.items():
             fld2col_widths[fld] = wid
         for fld in get_hdridx_flds():
             fld2col_widths[fld] = 2

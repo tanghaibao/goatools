@@ -134,10 +134,13 @@ class WrSectionsTxt(WrSectionsBase):
         super(WrSectionsTxt, self).__init__(grprobj, ver_list)
 
     @staticmethod
-    def prt_sections(prt, sections, prtfmt):
+    def prt_sections(prt, sections, prtfmt, secspc=False):
         """Print GO namedtuples in their sections."""
         num_goids = 0
         for section, nts_flat in sections:
+            # Add an empty line between sections, if desired
+            if secspc:
+                prt.write("\n")
             prt.write("{SECTION}\n".format(SECTION=section))
             num_nts = len(nts_flat)
             num_goids += num_nts

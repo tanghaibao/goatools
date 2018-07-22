@@ -33,6 +33,8 @@ def get_kwargs(args, exp_keys, exp_elems):
     arg_dict = {}    # For arguments that have values
     for key, val in args.items():
         if exp_keys is not None and key in exp_keys and val:
+            if isinstance(val, str):
+                val = val.strip()
             arg_dict[key] = val
         elif exp_elems is not None and key in exp_elems and val:
             arg_dict[key] = True

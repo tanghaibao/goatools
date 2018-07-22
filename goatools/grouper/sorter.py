@@ -60,6 +60,7 @@ class Sorter(object):
 
     def prt_gos(self, prt=sys.stdout, **kws_usr):
         """Sort user GO ids, grouped under broader GO terms or sections. Print to screen."""
+        # deprecated
         # Keyword arguments (control content): hdrgo_prt section_prt use_sections
         # desc2nts contains: (sections hdrgo_prt sortobj) or (flat hdrgo_prt sortobj)
         desc2nts = self.get_desc2nts(**kws_usr)
@@ -70,6 +71,7 @@ class Sorter(object):
 
     def prt_nts(self, desc2nts, prt=sys.stdout, prtfmt=None):
         """Print grouped and sorted GO IDs."""
+        # deprecated
         # Set print format string
         if prtfmt is None:
             prtfmt = "{{hdr1usr01:2}} {FMT}\n".format(FMT=self.grprobj.gosubdag.prt_attr['fmt'])

@@ -15,6 +15,37 @@ GO = GO:0008135
 goea: $(GO_OBO_FILE)
 	python scripts/find_enrichment.py --pval=0.05 --indent $(GOEA_FILES) --outfile results.txt
 
+# ---------------------------------------------------------------------------------------
+# ---- Grouping -------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
+USR := usr
+DATE := 2018_0720
+SEC    := $(USR)$(DATE)_goea
+SECGO  := goea.tsv
+SECIN  := $(SEC)_sections_in.txt
+SECOUT := $(SEC)_sections.txt
+SECTXT := $(SEC)_grouped_gos.txt
+SECPY := $(SEC)_sections.py
+GO_PLOT := scripts/go_plot.py
+
+grpsec:
+	echo $(SEC)
+	wr_sections $(SECGO) -i $(SECIN) -o $(SECOUT) --txt=$(SECTXT) --py=$(SECPY)
+
+grpvim:
+	vim -p $(SECGO) $(SEC)_sections_in.txt $(SEC)_sections.txt $(SEC)_grouped_gos.txt
+
+grpmisc:
+	perl -ne 'if (/(Misc|$(TXT))/) {print}' grouped_gos.txt
+
+grpre:
+	perl -ne 'if (/(SECTION|$(TXT))/) {print}' $(SECTXT) | tee gos_$(TXT)
+
+grpplt:
+	wr_sections $(SECGO) -i $(SECIN) -o $(SECOUT) --txt=$(SECTXT) --py=$(SECPY)
+	perl -ne 'if (/(SECTION|$(TXT))/) {print}' $(SECTXT) | tee gos_$(TXT)
+	$(GO_PLOT) -s $(SECOUT) -i gos_$(TXT) -o aa_$(TXT).png
+
 
 # -------------------------------------------------------------------------------
 # ---- Sphinx-Generated Documentation -------------------------------------------
@@ -241,7 +272,8 @@ NOSETESTS := \
 
 # Run all tests. If you are submitting a pull request, all tests must pass.
 test:
-	py.test tests/ --log-file=pytest.log
+	py.test tests/
+	# py.test tests/ --log-file=pytest.log
 
 # This Representative test subset is automatically run for all push requests using Travis-CI.
 # Running a subset of tests prevents Travis-CI from timeing out.

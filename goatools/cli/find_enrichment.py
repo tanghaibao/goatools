@@ -28,14 +28,17 @@ from goatools.associations import read_associations
 from goatools.multiple_testing import Methods
 from goatools.pvalcalc import FisherFactory
 from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
-
+from goatools.rpt.prtfmt import PrtFmt
 from goatools.semantic import TermCounts
+
 from goatools.gosubdag.gosubdag import GoSubDag
+from goatools.grouper.read_goids import read_sections
 from goatools.grouper.grprdflts import GrouperDflts
 from goatools.grouper.hdrgos import HdrgosSections
-# from goatools.grouper.grprobj import Grouper
+from goatools.grouper.grprobj import Grouper
+from goatools.grouper.sorter import Sorter
 from goatools.grouper.aart_geneproducts_all import AArtGeneProductSetsAll
-from goatools.grouper.read_goids import read_sections
+from goatools.grouper.wr_sections import WrSectionsTxt
 
 
 # pylint: disable=too-few-public-methods
@@ -58,7 +61,7 @@ class GoeaCliArgs(object):
                        help='Test-wise alpha for multiple testing')
         p.add_argument('--pval', default=.05, type=float,
                        help='Only print results with uncorrected p-value < PVAL.')
-        p.add_argument('--pval_field', default='uncorrected', type=str,
+        p.add_argument('--pval_field', type=str,
                        help='Only print results when PVAL_FIELD < PVAL.')
         p.add_argument('--outfile', default=None, type=str,
                        help='Write enrichment results into xlsx or tsv file')
@@ -164,7 +167,45 @@ class GoeaCliFnc(object):
             assert 1 <= min_ratio <= 2
         self.objgoea.print_summary(min_ratio=min_ratio, pval=self.args.pval)
         results_adj = self.objgoea.get_adj_records(goea_results, min_ratio, self.args.pval)
-        self.objgoea.print_results_adj(results_adj, self.args.indent)
+        if results_adj:
+            if not self.prepgrp:
+                self.objgoea.print_results_adj(results_adj, self.args.indent)
+            else:
+                # self.objgoea.print_results_adj(results_adj, self.args.indent)  # ungrouped
+                sortobj = self.prepgrp.get_sortobj(results_adj)
+                flds = self._get_flds(sortobj)
+                objprt = PrtFmt()
+                prtfmt = objprt.get_prtfmt(self._get_flds(sortobj))
+                desc2nts = sortobj.get_desc2nts(hdrgo_prt=False)
+                sys.stdout.write("{FLDS}\n".format(FLDS=" ".join(flds)))
+                #### sortobj.prt_nts(desc2nts, prt=sys.stdout, prtfmt=prtfmt)
+                WrSectionsTxt.prt_sections(sys.stdout, desc2nts['sections'], prtfmt, secspc=True)
+
+    def _get_flds(self, sortobj):
+        """Choose fields to print from a multitude of available fields."""
+        flds = []
+        # ('GO', 'NS', 'enrichment', 'name', 'ratio_in_study', 'ratio_in_pop', 'depth', 
+        # 'p_uncorrected', 'p_bonferroni', 'p_sidak', 'p_holm', 'p_fdr_bh', 
+        # 'pop_n', 'pop_count', 'pop_items'
+        # 'study_n', 'study_count', 'study_items',
+        # 'is_ratio_different', 'level', 'is_obsolete',
+        # 'namespace', 'reldepth', 'alt_ids', 'format_txt', 'hdr_idx',
+        # 'is_hdrgo', 'is_usrgo', 'num_usrgos', 'hdr1usr01', 'alt', 'GO_name',
+        # 'dcnt', 'D1', 'tcnt', 'tfreq', 'tinfo', 'childcnt', 'REL',
+        # 'REL_short', 'rel', 'id')
+        pval_fld = self._get_pval_field()  # primary pvalue of interest
+        flds0 = ['GO', 'NS', 'enrichment', pval_fld, 'dcnt', 'tinfo', 'depth',
+                 'ratio_in_study', 'ratio_in_pop', 'name']
+        flds_all = next(iter(sortobj.grprobj.go2nt.values()))._fields
+        flds_p = [f for f in flds_all if f[:2] == 'p_' and f != pval_fld]
+        flds.extend(flds0)
+        if flds_p:
+            flds.extend(flds_p)
+        flds.append('study_count')
+        flds.append('study_items')
+        # print("nnnnnnnnnnnnnnnnnnnnnttttttttttttttttt", flds_all)
+        return flds
+        
 
     def get_results(self):
         """Given all GOEA results, return the significant results (< pval)."""
@@ -197,10 +238,12 @@ class GoeaCliFnc(object):
     def get_results_sig(self):
         """Get significant results."""
         # Only print results when uncorrected p-value < this value.
+        print("{N:7,} of {M:,} results have uncorrected P-values <= {PVAL}=pval\n".format(
+            N=sum(1 for r in self.results_all if r.p_uncorrected < self.args.pval),
+            M=len(self.results_all),
+            PVAL=self.args.pval))
         pval_fld = self._get_pval_field()
         results = [r for r in self.results_all if getattr(r, pval_fld) <= self.args.pval]
-        print("{N:7,} of {M:,} results have uncorrected P-values <= {PVAL}=pval\n".format(
-            N=len(results), M=len(self.results_all), PVAL=self.args.pval))
         return results
 
     @staticmethod
@@ -211,8 +254,19 @@ class GoeaCliFnc(object):
     def _get_pval_field(self):
         """Get 'p_uncorrected' or the user-specified field for determining significant results."""
         pval_fld = self.args.pval_field
-        if pval_fld[:2] != 'p_':
-            pval_fld = 'p_' + pval_fld
+        # print("FFFFFFFFFFFF", pval_fld)
+        # print("FFFFFFFFFFFF", self.args)
+        # print("FFFFFFFFFFFF", self.methods)
+        # If --pval_field [VAL] was specified
+        if pval_fld is not None:
+            if pval_fld[:2] != 'p_':
+                pval_fld = 'p_' + pval_fld
+        # If only one method was used, use that instead of the uncorrected pvalue
+        elif len(self.methods) == 1:
+            pval_fld = 'p_' + self.methods[0]
+        # Use 'uncorrected pvalue' if there are many methods & none chosen using --pval_field
+        else:
+            pval_fld = 'p_uncorrected'
         if self.results_all:
             assert hasattr(next(iter(self.results_all)), pval_fld), \
                 'NO PVAL({P}). EXPECTED ONE OF: {E}'.format(
@@ -257,8 +311,18 @@ class GroupItems(object):
         self.gosubdag = GoSubDag(_goids, objcli.godag, relationships=True, tcntobj=_tobj, prt=sys.stdout)
         self.grprdflt = GrouperDflts(self.gosubdag, objcli.args.goslim)
         self.hdrobj = HdrgosSections(self.grprdflt.gosubdag, self.grprdflt.hdrgos_dflt, objcli.sections)
-        # self.grprobj = Grouper("GOEA", data, self.hdrobj, self.grprdflt.gosubdag, go2nt=None)
         # self.objaartall = self._init_objaartall()
+
+    def get_sortobj(self, goea_results, **kws):
+        """Return a Grouper object, given a list of GOEnrichmentRecord."""
+        nts_goea = MgrNtGOEAs(goea_results).get_goea_nts_prt(**kws)
+        goids = set(nt.GO for nt in nts_goea)
+        go2nt = {nt.GO:nt for nt in nts_goea}
+        grprobj = Grouper("GOEA", goids, self.hdrobj, self.grprdflt.gosubdag, go2nt=go2nt)
+        grprobj.prt_summary(sys.stdout)
+        # hdrgo_prt", "section_prt", "top_n", "use_sections"
+        sortobj = Sorter(grprobj)
+        return sortobj
 
     def get_objaart(self, goea_results, **kws):
         """Return a AArtGeneProductSetsOne object."""

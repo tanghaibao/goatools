@@ -31,6 +31,7 @@ import goatools.wr_tbl as RPT
 from goatools.pvalcalc import FisherFactory
 
 from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
+from goatools.rpt.prtfmt import PrtFmt
 
 class GOEnrichmentRecord(object):
     """Represents one result (from a single GOTerm) in the GOEnrichmentStudy
@@ -232,19 +233,19 @@ class GOEnrichmentRecord(object):
 class GOEnrichmentStudy(object):
     """Runs Fisher's exact test, as well as multiple corrections
     """
-    # Default Excel table column widths for GOEA results
-    default_fld2col_widths = {
-        'NS'        :  3,
-        'GO'        : 12,
-        'alt'       :  2,
-        'level'     :  3,
-        'depth'     :  3,
-        'enrichment':  1,
-        'name'      : 60,
-        'ratio_in_study':  8,
-        'ratio_in_pop'  : 12,
-        'study_items'   : 15,
-    }
+    #### # Default Excel table column widths for GOEA results
+    #### default_fld2col_widths = {
+    ####     'NS'        :  3,
+    ####     'GO'        : 12,
+    ####     'alt'       :  2,
+    ####     'level'     :  3,
+    ####     'depth'     :  3,
+    ####     'enrichment':  1,
+    ####     'name'      : 60,
+    ####     'ratio_in_study':  8,
+    ####     'ratio_in_pop'  : 12,
+    ####     'study_items'   : 15,
+    #### }
 
     def __init__(self, pop, assoc, obo_dag, propagate_counts=True, alpha=.05, methods=None, **kws):
         self.log = kws['log'] if 'log' in kws else sys.stdout
@@ -356,7 +357,6 @@ class GOEnrichmentStudy(object):
         assert 0 < alpha < 1, "Test-wise alpha must fall between (0, 1)"
         pvals = [r.p_uncorrected for r in results]
         ntobj = cx.namedtuple("ntobj", "results pvals alpha nt_method study")
-
         for nt_method in usrmethod_flds:
             ntmt = ntobj(results, pvals, alpha, nt_method, study)
             self._run_multitest[nt_method.source](ntmt)
@@ -431,10 +431,13 @@ class GOEnrichmentStudy(object):
 
     def prt_txt(self, prt, goea_results, prtfmt=None, **kws):
         """Print GOEA results in text format."""
+        objprt = PrtFmt()
         if prtfmt is None:
-            prtfmt = ("{GO} {NS} {p_uncorrected:5.2e} {ratio_in_study:>6} {ratio_in_pop:>9} "
-                      "{depth:02} {name:40} {study_items}\n")
-        prtfmt = self.adjust_prtfmt(prtfmt)
+            flds = ['GO', 'NS', 'p_uncorrected', 'ratio_in_study', 'ratio_in_pop', 'depth', 'name', 'study_items']
+            prtfmt = " ".join([objprt.default_fld2fmt[f] for f in flds])
+            #### prtfmt = ("{GO} {NS} {p_uncorrected:5.2e} {ratio_in_study:>6} {ratio_in_pop:>9} "
+            ####           "{depth:02} {name:40} {study_items}\n")
+        prtfmt = objprt.adjust_prtfmt(prtfmt)
         prt_flds = RPT.get_fmtflds(prtfmt)
         data_nts = MgrNtGOEAs(goea_results).get_goea_nts_prt(prt_flds, **kws)
         RPT.prt_txt(prt, data_nts, prtfmt, prt_flds, **kws)
@@ -443,10 +446,11 @@ class GOEnrichmentStudy(object):
     def wr_xlsx(self, fout_xlsx, goea_results, **kws):
         """Write a xlsx file."""
         # kws: prt_if indent itemid2name(study_items)
+        objprt = PrtFmt()
         prt_flds = kws.get('prt_flds', self.get_prtflds_default(goea_results))
         xlsx_data = MgrNtGOEAs(goea_results).get_goea_nts_prt(prt_flds, **kws)
         if 'fld2col_widths' not in kws:
-            kws['fld2col_widths'] = {f:self.default_fld2col_widths.get(f, 8) for f in prt_flds}
+            kws['fld2col_widths'] = {f:objprt.default_fld2col_widths.get(f, 8) for f in prt_flds}
         RPT.wr_xlsx(fout_xlsx, xlsx_data, **kws)
 
     def wr_tsv(self, fout_tsv, goea_results, **kws):
@@ -460,13 +464,6 @@ class GOEnrichmentStudy(object):
         prt_flds = kws.get('prt_flds', self.get_prtflds_default(goea_results))
         tsv_data = MgrNtGOEAs(goea_results).get_goea_nts_prt(prt_flds, **kws)
         RPT.prt_tsv(prt, tsv_data, prt_flds, **kws)
-
-    @staticmethod
-    def adjust_prtfmt(prtfmt):
-        """Adjust format_strings for legal values."""
-        prtfmt = prtfmt.replace("{p_holm-sidak", "{p_holm_sidak")
-        prtfmt = prtfmt.replace("{p_simes-hochberg", "{p_simes_hochberg")
-        return prtfmt
 
     @staticmethod
     def get_ns2nts(results, fldnames=None, **kws):

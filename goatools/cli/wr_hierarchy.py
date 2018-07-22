@@ -85,12 +85,14 @@ class WrHierCli(object):
     def _init_goids(self):
         goids_ret = []
         godagconsts = Consts()
-        for goid in self.kws['GO']:
-            if goid[:3] == "GO:":
-                assert len(goid) == 10, "BAD GO ID({GO})".format(GO=goid)
-                goids_ret.append(goid)
-            elif goid in godagconsts.NS2GO:
-                goids_ret.append(godagconsts.NS2GO[goid])
+        print("WWWWWWWWWWWWWWWWWWWWWW", self.kws)
+        if 'GO' in self.kws:
+            for goid in self.kws['GO']:
+                if goid[:3] == "GO:":
+                    assert len(goid) == 10, "BAD GO ID({GO})".format(GO=goid)
+                    goids_ret.append(goid)
+                elif goid in godagconsts.NS2GO:
+                    goids_ret.append(godagconsts.NS2GO[goid])
         if 'i' in self.kws:
             goids_fin = GetGOs().rdtxt_gos(self.kws['i'], sys.stdout)
             if goids_fin:

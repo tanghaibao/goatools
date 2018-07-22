@@ -165,7 +165,8 @@ the output that are not present in their `association` file. Use
 `--no_propagate_counts` to disable this behavior.
 
 ### Write GO hierarchy
-  * [scripts/wr_hier.py](doc/md/README_wr_hier.md):    
+  * [scripts/wr_hier.py](doc/md/README_wr_hier.md): Given a GO ID, write the hierarchy below (default)
+    or above (--up) the given GO.         
 
 ### Plot GO lineage
 
@@ -334,7 +335,4 @@ Items that we know we need include:
   make gh-pages
   ```
 
-## Reference
-
-Copyright (C) 2010-2018. Haibao Tang et al. GOATOOLS: Tools for Gene Ontology. Zenodo.
-[10.5281/zenodo.31628](http://dx.doi.org/10.5281/zenodo.31628).
+Copyright (C) 2010-2018, Haibao Tang et al. All rights reserved.
