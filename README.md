@@ -63,7 +63,7 @@ Klopfenstein, D.V. et al. [GOATOOLS: A Python library for Gene Ontology analyses
 _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
 
 To group GO terms, see examples in [find_enrichment examples](/doc/md/README_find_enrichment.md)
-where the optional _-sections_ argument is used.
+where the optional _-sections_ argument is used.    
 A detailed description of GOATOOLS GO grouping is found in the
 [manuscript](https://www.nature.com/articles/s41598-018-28948-z)
 
