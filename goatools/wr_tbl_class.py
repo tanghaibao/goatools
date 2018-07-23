@@ -44,6 +44,7 @@ class WrXlsx(object):
                 for title_line in self.vars.title:
                     ridx = self.wr_row_mergeall(worksheet, title_line, self.fmt_hdr, ridx)
                 return ridx
+        return row_idx
 
     def wr_row_mergeall(self, worksheet, txtstr, fmt, row_idx):
         """Merge all columns and place text string in widened cell."""
@@ -54,6 +55,8 @@ class WrXlsx(object):
     def wr_hdrs(self, worksheet, row_idx):
         """Print row of column headers"""
         for col_idx, hdr in enumerate(self.hdrs):
+            # print("ROW({R}) COL({C}) HDR({H}) FMT({F})\n".format(
+            #     R=row_idx, C=col_idx, H=hdr, F=self.fmt_hdr))
             worksheet.write(row_idx, col_idx, hdr, self.fmt_hdr)
         row_idx += 1
         return row_idx

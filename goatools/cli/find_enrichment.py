@@ -133,7 +133,6 @@ class GoeaCliFnc(object):
 
     def __init__(self, args):
         self.args = args
-        print("SSSSSSSSSSSSSSSSS", self.args.sections)
         self.sections = read_sections(self.args.sections) if self.args.sections else None
         _optional_attrs = ['relationship'] if self.sections else None
         self.godag = GODag(obo_file=self.args.obo, optional_attrs=_optional_attrs)
@@ -183,6 +182,7 @@ class GoeaCliFnc(object):
         min_ratio = self.args.ratio
         if min_ratio is not None:
             assert 1 <= min_ratio <= 2
+        # print("MMMMMMMMMMMMMMMMMMMMMM", min_ratio)
         self.objgoea.print_summary(min_ratio=min_ratio, pval=self.args.pval)
         results_adj = self.objgoea.get_adj_records(goea_results, min_ratio, self.args.pval)
         if results_adj:
