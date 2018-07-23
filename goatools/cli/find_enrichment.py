@@ -30,6 +30,7 @@ from goatools.pvalcalc import FisherFactory
 from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
 from goatools.rpt.prtfmt import PrtFmt
 from goatools.semantic import TermCounts
+from goatools.wr_tbl import prt_tsv_sections
 
 from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.grouper.read_goids import read_sections
@@ -159,7 +160,7 @@ class GoeaCliFnc(object):
             if grpwr is None:
                 self.prt_outfiles_flat(goea_results, outfiles)
             else:
-                self.prt_outfiles_grouped(grpwr, goea_results, outfiles)
+                grpwr.prt_outfiles_grouped(outfiles)
 
     def prt_outfiles_flat(self, goea_results, outfiles):
         """Write to outfiles."""
@@ -170,17 +171,6 @@ class GoeaCliFnc(object):
             #    pass
             else:
                 self.objgoea.wr_tsv(outfile, goea_results, indent=self.args.indent)
-
-    def prt_outfiles_grouped(self, grpwr, goea_results, outfiles):
-        """Write to outfiles."""
-        for outfile in outfiles:
-            if outfile.endswith(".xlsx"):
-                grpwr.wr_xlsx(outfile)
-            elif outfile.endswith(".txt"):
-                grpwr.wr_txt(outfile)
-            else:
-                self.objgoea.wr_tsv(outfile, goea_results, indent=self.args.indent)
-                grpwr.wr_tsv(outfile)
 
     def _prt_results(self, goea_results):
         """Print GOEA results to the screen."""
@@ -353,6 +343,16 @@ class GrpWr(object):
         self.desc2nts = self.sortobj.get_desc2nts(hdrgo_prt=False)
         # print("nnnnnnnnnnnnnnnnnnnnnttttttttttttttttt", self.flds_all)
 
+    def prt_outfiles_grouped(self, outfiles):
+        """Write to outfiles."""
+        for outfile in outfiles:
+            if outfile.endswith(".xlsx"):
+                self.wr_xlsx(outfile)
+            elif outfile.endswith(".txt"):
+                self.wr_txt(outfile)
+            else:
+                self.wr_tsv(outfile)
+
     def wr_xlsx(self, fout_xlsx):
         """Print grouped GOEA results into an xlsx file."""
         objwr = WrXlsxSortedGos("GOEA", self.sortobj)
@@ -373,7 +373,12 @@ class GrpWr(object):
 
     def wr_tsv(self, fout_tsv):
         """Print grouped GOEA results into a tab-separated file."""
-        pass
+        with open(fout_tsv, 'w') as prt:
+            kws_tsv = {
+                'fld2fmt': {f:'{:8.2e}' for f in self.flds_cur if f[:2] == 'p_'},
+                'prt_flds':self.flds_cur}
+            prt_tsv_sections(prt, self.desc2nts['sections'], **kws_tsv)
+            print("  WROTE: {TSV}".format(TSV=fout_tsv))
 
     def wr_txt(self, fout_txt):
         """Write to a file GOEA results in an ASCII text format."""
@@ -382,6 +387,12 @@ class GrpWr(object):
                 prt.write("{LINE}\n".format(LINE=line))
             self.prt_txt(prt)
             print("  WROTE: {TXT}".format(TXT=fout_txt))
+
+    def prt_tsv(self, prt=sys.stdout):
+        """Print an ASCII text format."""
+        prtfmt = self.objprt.get_prtfmt(self.flds_cur)
+        prt.write("{FLDS}\n".format(FLDS=" ".join(self.flds_cur)))
+        WrSectionsTxt.prt_sections(prt, self.desc2nts['sections'], prtfmt, secspc=True)
 
     def prt_txt(self, prt=sys.stdout):
         """Print an ASCII text format."""
