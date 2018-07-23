@@ -47,6 +47,10 @@ This package contains a Python library to
       File](http://geneontology.org/page/go-annotation-file-gaf-format-21)) files.
   - Read NCBI's gene2go GO association file.
 
+- Plot GO hierarchies
+- Print GO hierarchies to an ASCII text file
+- Group GO terms for easier viewing
+
 - Map GO terms (or protein products with multiple associations to
   GO terms) to GOslim terms (analog to the map2slim.pl script supplied
   by geneontology.org)
