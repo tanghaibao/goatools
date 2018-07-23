@@ -166,6 +166,8 @@ class GoeaCliFnc(object):
         for outfile in outfiles:
             if outfile.endswith(".xlsx"):
                 self.objgoea.wr_xlsx(outfile, goea_results, indent=self.args.indent)
+            #elif outfile.endswith(".txt"):  # TBD
+            #    pass
             else:
                 self.objgoea.wr_tsv(outfile, goea_results, indent=self.args.indent)
 
@@ -174,6 +176,8 @@ class GoeaCliFnc(object):
         for outfile in outfiles:
             if outfile.endswith(".xlsx"):
                 grpwr.wr_xlsx(outfile)
+            elif outfile.endswith(".txt"):
+                grpwr.wr_txt(outfile)
             else:
                 self.objgoea.wr_tsv(outfile, goea_results, indent=self.args.indent)
 
@@ -365,6 +369,14 @@ class GrpWr(object):
             #'hdrs': [],
             'prt_flds': self.flds_cur}
         objwr.wr_xlsx_nts(fout_xlsx, self.desc2nts, **kws_xlsx)
+
+    def wr_txt(self, fout_txt):
+        """Write to a file GOEA results in an ASCII text format."""
+        with open(fout_txt, 'w') as prt:
+            for line in self.ver_list:
+                prt.write("{LINE}\n".format(LINE=line))
+            self.prt_txt(prt)
+            print("  WROTE: {TXT}".format(TXT=fout_txt))
 
     def prt_txt(self, prt=sys.stdout):
         """Print an ASCII text format."""
