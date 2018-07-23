@@ -180,6 +180,7 @@ class GoeaCliFnc(object):
                 grpwr.wr_txt(outfile)
             else:
                 self.objgoea.wr_tsv(outfile, goea_results, indent=self.args.indent)
+                grpwr.wr_tsv(outfile)
 
     def _prt_results(self, goea_results):
         """Print GOEA results to the screen."""
@@ -369,6 +370,10 @@ class GrpWr(object):
             #'hdrs': [],
             'prt_flds': self.flds_cur}
         objwr.wr_xlsx_nts(fout_xlsx, self.desc2nts, **kws_xlsx)
+
+    def wr_tsv(self, fout_tsv):
+        """Print grouped GOEA results into a tab-separated file."""
+        pass
 
     def wr_txt(self, fout_txt):
         """Write to a file GOEA results in an ASCII text format."""

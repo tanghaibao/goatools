@@ -130,20 +130,52 @@ def wr_tsv(fout_tsv, tsv_data, **kws):
         sys.stdout.write("      0 {ITEMS}. NOT WRITING {FOUT}\n".format(
             ITEMS=items_str, FOUT=fout_tsv))
 
+# def wr_tsv_sections(fout_tsv, tsv_data, **kws):
+#     """Write tsv file containing section names followed by lines of namedtuple data."""
+#     items_str = "items" if "items" not in kws else kws["items"]
+#     prt_hdr_min = 10
+#     num_items = 0
+#     if tsv_data:
+#         # Basic data checks
+#         assert len(tsv_data[0]) == 2, "wr_tsv_sections EXPECTED: [(section, nts), ..."
+#         assert tsv_data[0][1], \
+#             "wr_tsv_sections EXPECTED SECTION({S}) LIST TO HAVE DATA".format(S=tsv_data[0][0])
+#         # row_idx = xlsxobj.wr_title(worksheet)
+#         hdrs_wrote = False
+#         # Write data
+#         for section_text, data_nts in tsv_data:
+#             num_items += prt_tsv(ifstrm, tsv_data, **kws)
+#             if hdrs_wrote is False or len(data_nts) > prt_hdr_min:
+#                 row_idx = xlsxobj.wr_hdrs(worksheet, row_idx)
+#                 hdrs_wrote = True
+#             row_idx = xlsxobj.wr_data(data_nts, row_idx, worksheet)
+#         sys.stdout.write("  {N:>5} {ITEMS} WROTE: {FOUT} ({S} sections)\n".format(
+#             N=num_items, ITEMS=items_str, FOUT=fout_tsv, S=len(tsv_data)))
+#     else:
+#         sys.stdout.write("      0 {ITEMS}. NOT WRITING {FOUT}\n".format(
+#             ITEMS=items_str, FOUT=fout_tsv))
+
 def prt_tsv(prt, data_nts, **kws):
-    """Print tab-separated table data"""
+    """Print tab-separated table headers and data"""
     # User-controlled printing options
+    prt_tsv_hdr(prt, data_nts, **kws)
+    return prt_tsv_dat(prt, data_nts, **kws)
+
+def prt_tsv_hdr(prt, data_nts, **kws):
+    """Print tab-separated table headers"""
     sep = "\t" if 'sep' not in kws else kws['sep']
     flds_all = data_nts[0]._fields
     hdrs = get_hdrs(flds_all, **kws)
+    prt.write("# {}\n".format(sep.join(hdrs)))
+
+def prt_tsv_dat(prt, data_nts, **kws):
+    """Print tab-separated table data"""
+    sep = "\t" if 'sep' not in kws else kws['sep']
     fld2fmt = None if 'fld2fmt' not in kws else kws['fld2fmt']
     if 'sort_by' in kws:
         data_nts = sorted(data_nts, key=kws['sort_by'])
     prt_if = kws['prt_if'] if 'prt_if' in kws else None
     prt_flds = kws['prt_flds'] if 'prt_flds' in kws else data_nts[0]._fields
-    # Write header
-    prt.write("# {}\n".format(sep.join(hdrs)))
-    # Write data
     items = 0
     for nt_data_row in data_nts:
         if prt_if is None or prt_if(nt_data_row):
