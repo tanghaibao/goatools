@@ -58,6 +58,11 @@ _Please cite the following if you use GOATOOLS in your research_:
 Klopfenstein, D.V. et al. [GOATOOLS: A Python library for Gene Ontology analyses](https://www.nature.com/articles/s41598-018-28948-z)    
 _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
 
+####
+
+To group GO terms, see examples in [find_enrichment examples](/doc/md/README_find_enrichment.md)
+and detailed description of GOATOOLS GO grouping in the [manuscript](https://www.nature.com/articles/s41598-018-28948-z)
+
 The code for the stochastic GOEA simulations described in the paper is found here:    
 https://github.com/dvklopfenstein/goatools_simulation
 
@@ -134,6 +139,7 @@ wget http://www.geneontology.org/ontology/subsets/goslim_generic.obo
 `scripts` folder.
 
 ### Find GO enrichment of genes under study
+See examples in [find_enrichment examples](/doc/md/README_find_enrichment.md)
 
 See `find_enrichment.py` for usage. It takes as arguments files
 containing:
