@@ -8,8 +8,8 @@ Example of printing gene symbols (instead of geneids) from NCBI gene in a GOEA r
 
 ## 1) Download NCBI gene information into gene_result.txt
 
-  * 1a) [Search for a gene set]()    
-  * 1b) [Download gene_result.txt]()    
+  * 1a) [Search for a gene set](#1a-search-for-a-gene-set)    
+  * 1b) [Download gene set into gene_result.txt](#1b-download-gene_resulttxt)    
 
 ### 1a) Search for a gene set
 
@@ -28,9 +28,9 @@ genetype protein coding[Properties] AND "9606"[Taxonomy ID] AND alive[property]
     | alive[property]                     | NOT obsolete
 
 ### 1b) Download gene_result.txt
-  * Click pull-down menu: "Send to:"    
-  * Click "File" radial button    
-  * Click "Create File" button    
+  * Click pull-down menu: "**Send to:**"    
+  * Click "**File**" radial button    
+  * Click "**Create File**" button    
 ![NCBI Gene Download](/doc/images/NCBI_gene_download.png)
 
 
