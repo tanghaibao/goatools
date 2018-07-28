@@ -1,10 +1,10 @@
 # NCBI GeneID and Symbol
 Example of printing gene symbols (instead of geneids) from NCBI gene in a GOEA results table.
 
-1. [Download NCBI gene information into gene_result.txt](#1-download-ncbi-gene-information-into-gene_resulttxt)
-2. [Convert gene_result.txt file into Python](#2-convert-gene_resulttxt-file-into-python)
+1. [Download **NCBI gene** information into **gene_result.txt**](#1-download-ncbi-gene-information-into-gene_resulttxt)
+2. [Convert **gene_result.txt** file into Python](#2-convert-gene_resulttxt-file-into-python)
 3. [Create a geneid2symbol.txt ASCII file](#3-create-a-geneid2symboltxt-ascii-file)
-4. [Run GOEA using --id2name flag](#4-run-goea-using---id2name-flag)
+4. [Run GOEA using **--id2name** flag](#4-run-goea-using---id2name-flag)
 
 ## 1) Download NCBI gene information into gene_result.txt
 
@@ -35,8 +35,11 @@ genetype protein coding[Properties] AND "9606"[Taxonomy ID] AND alive[property]
 
 
 ## 2) Convert gene_result.txt file into Python 
+COMING SOON...
 ## 3) Create a geneid2symbol.txt ASCII file
+COMING SOON...
 ## 4) Run GOEA using --id2name flag
+COMING SOON...
 
 
 Copyright (C) 2016-2018, DV Klopfenstein, Haibao Tang et al. All rights reserved.
