@@ -20,7 +20,7 @@ genetype protein coding[Properties] AND "9606"[Taxonomy ID] AND alive[property]
     | "9606"[Taxonomy ID]                 | human
     | alive[property]                     | NOT obsolete
 
-![NCBI Gene Search](doc/images/NCBI_gene_search.png)
+![NCBI Gene Search](/doc/images/NCBI_gene_search.png)
 
 ## Convert gene_result.txt file into Python 
 ## Create a geneid2symbol.txt ASCII file
