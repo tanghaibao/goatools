@@ -1,6 +1,7 @@
-# Examples of Gene Ontolog Enrichment Analyses (GOEA) from the command-line
+# Gene Ontolog Enrichment Analyses (GOEA) from the command-line
 
-**Run GOEA and print GO terms**:
+## Run GOEA and print GO terms
+
   1. [with **uncorrected pvalues < 0.05** to the screen](#1-print-go-terms-with-uncorrected-pvalues--005-to-the-screen-default):
     (default)
   2. [with **uncorrected pvalues < 0.05** to the screen, **grouped**](#2-print-go-terms-with-uncorrected-pvalues--005-to-the-screen-grouped): **--sections=...**
@@ -8,9 +9,9 @@
     **--outfile=goea.xlsx**
   4. [with **Benjamini-Hochberg pvalues < 0.05** (plus bonferroni, sidak, holm)](#4-print-go-terms-with-benjamini-hochberg-pvalues--005) 
     **--pval_field=fdr_bh**    
-  5. [with **Benjamini-Hochberg (only) pvalues < 0.05** to an **xlsx** file](#5-print-go-terms-with-benjamini-hochberg-only-pvalues--005-to-an-xlsx-file)     
+  5. [with **Benjamini-Hochberg pvalues < 0.05** to an **xlsx** file](#5-print-go-terms-with-benjamini-hochberg-only-pvalues--005-to-an-xlsx-file)     
     **--method=fdr_bh --outfile=goea_fdr_bh_flat.xlsx**    
-  6. [with **Benjamini-Hochberg (only) pvalues < 0.05** to an **xlsx** file, **grouped**](#6-print-go-terms-with-benjamini-hochberg-only-pvalues--005-to-an-xlsx-file-grouped)     
+  6. [with **Benjamini-Hochberg pvalues < 0.05** to an **xlsx** file, **grouped**](#6-print-go-terms-with-benjamini-hochberg-only-pvalues--005-to-an-xlsx-file-grouped)     
     **--method=fdr_bh --outfile=goea_fdr_bh_grpd.xlsx --sections...**    
   7. [regardless of pvalue **(ALL GO terms)**](#7-print-all-go-terms-regardless-of-pvalue)
     **--pval=-1**    
