@@ -1,5 +1,7 @@
 # NCBI GeneID and Symbol
-Example of printing gene symbols (instead of geneids) from NCBI gene in a GOEA results table.
+NCBI Gene data changes daily, so download gene lists frequently.    
+
+## Example of printing gene symbols (instead of geneids) from NCBI gene in a GOEA results table.
 
 1. [Download **NCBI gene** information into **gene_result.txt**](#1-download-ncbi-gene-information-into-gene_resulttxt)
 2. [Convert **gene_result.txt** file into Python](#2-convert-gene_resulttxt-file-into-python)
@@ -17,6 +19,7 @@ Example of printing gene symbols (instead of geneids) from NCBI gene in a GOEA r
  * Type a search pattern and hit the "Search" button.    
    For example, to download all human protein-coding genes:
 ```
+Text in 'Search':
 genetype protein coding[Properties] AND "9606"[Taxonomy ID] AND alive[property] 
 ```
 ![NCBI Gene Search](/doc/images/NCBI_gene_search.png)
@@ -35,7 +38,12 @@ genetype protein coding[Properties] AND "9606"[Taxonomy ID] AND alive[property]
 
 
 ## 2) Convert gene_result.txt file into Python 
-COMING SOON...
+```
+$ scripts/ncbi_gene_results_to_python.py -i gene_result.txt -o gene_result.py
+      20380 lines READ:  gene_result.txt
+      20361 geneids WROTE: gene_result.py
+```
+
 ## 3) Create a geneid2symbol.txt ASCII file
 COMING SOON...
 ## 4) Run GOEA using --id2name flag

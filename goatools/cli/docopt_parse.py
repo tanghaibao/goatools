@@ -11,11 +11,12 @@ from docopt import docopt
 from goatools.gosubdag.utils import get_kwargs
 
 
+#pylint: disable=too-few-public-methods
 class DocOptParse(object):
     """Run docopt in GOATOOLS."""
 
     def __init__(self, doc, exp_keys, exp_elems):
-        self.doc = doc
+        self.doc = doc  # doc string
         self.exp_keys = exp_keys if exp_keys else set()     # Expected dictionary keys
         self.exp_elems = exp_elems if exp_elems else set()  # Expected set elements (True/False)
 
