@@ -8,7 +8,7 @@ import collections as cx
 
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.base import get_godag
-from goatools.test_data.genes_NCBI_10090_ProteinCoding import GeneID2nt as GeneID2nt_mus
+from goatools.test_data.genes_NCBI_10090_ProteinCoding import GENEID2NT as GeneID2nt_mus
 from goatools.test_data.nature3102_goea import get_geneid2symbol
 from goatools.associations import get_assoc_ncbi_taxids
 

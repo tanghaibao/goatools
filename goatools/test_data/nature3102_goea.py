@@ -5,7 +5,7 @@ __author__ = "DV Klopfenstein"
 
 import os
 import xlrd
-from goatools.test_data.genes_NCBI_10090_ProteinCoding import GeneID2nt as GeneID2nt_mus
+from goatools.test_data.genes_NCBI_10090_ProteinCoding import GENEID2NT as GeneID2nt_mus
 from goatools.base import get_godag
 from goatools.associations import get_assoc_ncbi_taxids
 from goatools.go_enrichment import GOEnrichmentStudy

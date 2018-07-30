@@ -48,7 +48,11 @@ class PrtFmt(object):
     def __init__(self):
         pass
 
-    def get_prtfmt(self, flds, add_nl=True):
+    def get_prtfmt_str(self, flds, add_nl=True):
+        fmts = self.get_prtfmt_list(flds, add_nl)
+        return " ".join(fmts) 
+
+    def get_prtfmt_list(self, flds, add_nl=True):
         """Get print format, given fields."""
         fmts = []
         for fld in flds:
@@ -60,7 +64,7 @@ class PrtFmt(object):
                 raise Exception("UNKNOWN FORMAT: {FLD}".format(FLD=fld))
         if add_nl:
             fmts.append("\n")
-        return " ".join(fmts)
+        return fmts
 
     @staticmethod
     def adjust_prtfmt(prtfmt):

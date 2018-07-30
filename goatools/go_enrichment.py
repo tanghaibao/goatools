@@ -434,7 +434,8 @@ class GOEnrichmentStudy(object):
         objprt = PrtFmt()
         if prtfmt is None:
             flds = ['GO', 'NS', 'p_uncorrected', 'ratio_in_study', 'ratio_in_pop', 'depth', 'name', 'study_items']
-            prtfmt = " ".join([objprt.default_fld2fmt[f] for f in flds])
+            prtfmt = objprt.get_prtfmt_str(flds)
+            #### prtfmt = " ".join([objprt.default_fld2fmt[f] for f in flds])
             #### prtfmt = ("{GO} {NS} {p_uncorrected:5.2e} {ratio_in_study:>6} {ratio_in_pop:>9} "
             ####           "{depth:02} {name:40} {study_items}\n")
         prtfmt = objprt.adjust_prtfmt(prtfmt)

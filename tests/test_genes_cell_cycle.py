@@ -64,7 +64,7 @@ def prt_genes(fout_genes, geneids, taxid, log):
         import importlib
         module_name = "".join(["goatools.test_data.", fin_symbols[:-3]])
         module = importlib.import_module(module_name)
-        geneid2nt = module.geneid2nt
+        geneid2nt = module.GENEID2NT
         fmtstr = "{GeneID:>9} {Symbol:<16} {description}\n"
         nts = [geneid2nt[geneid] for geneid in sorted(geneids) if geneid in geneid2nt]
         with open(fout_genes, 'w') as prt:

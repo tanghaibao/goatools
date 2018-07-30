@@ -8,7 +8,7 @@
     http://www.nature.com/nbt/journal/v33/n2/full/nbt.3102.html#methods
 """
 
-from goatools.test_data.genes_NCBI_10090_ProteinCoding import GeneID2nt as GeneID2nt_mus
+from goatools.test_data.genes_NCBI_10090_ProteinCoding import GENEID2NT as GeneID2nt_mus
 from goatools.test_data.nature3102_goea import get_geneid2symbol, get_goeaobj
 
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."

@@ -4,7 +4,7 @@
 import os
 import sys
 from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs  # get_goea_nts_all
-from goatools.test_data.genes_NCBI_10090_ProteinCoding import GeneID2nt as GeneID2nt_mus
+from goatools.test_data.genes_NCBI_10090_ProteinCoding import GENEID2NT as GeneID2nt_mus
 from goatools.test_data.nature3102_goea import get_geneid2symbol, get_goeaobj
 from goatools.gosubdag.plot.plot import plot_results
 from goatools.gosubdag.plot.goea_results import GoeaResults

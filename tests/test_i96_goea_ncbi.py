@@ -5,7 +5,7 @@ import os
 from goatools.base import get_godag
 from goatools.associations import get_assoc_ncbi_taxids
 from goatools.go_enrichment import GOEnrichmentStudy
-from goatools.test_data.genes_NCBI_9606_All import GeneID2nt
+from goatools.test_data.genes_NCBI_9606_All import GENEID2NT
 
 
 def test_i96():
@@ -13,7 +13,7 @@ def test_i96():
     # Trying to duplicate: ValueError("All values in table must be nonnegative.
     # Get genes
     study_ids = _get_geneids()
-    population_ids = GeneID2nt.keys()
+    population_ids = GENEID2NT.keys()
     # Get databases
     gene2go = get_assoc_ncbi_taxids([9606], loading_bar=None)
     fin_obo = os.path.join(os.getcwd(), "go-basic.obo")
@@ -25,7 +25,7 @@ def test_i96():
 
 def _get_geneids():
     """Return study gene set."""
-    symbol2geneid = {nt.Symbol:g for g, nt in GeneID2nt.items()}
+    symbol2geneid = {nt.Symbol:g for g, nt in GENEID2NT.items()}
     symbols = ['MICAL2', 'MIR1231', 'ZMIZ1', 'CRIM1', 'SMAD3', 'EFEMP1', 'CRIM1', 'ANXA2', 'VGLL3', 'FHL2', 'FSTL1', 'KIAA1456', 'MIR4316', 'MYH9', 'SIPA1L1', 'C15orf53', 'TRAM2', 'IGFBP7-AS1', 'CALD1',
     'RP5-1120P11.1', 'WNT2B', 'DDAH1', 'MIR1203', 'NRG1', 'SEC24D', 'NHSL2', 'ERGIC1', 'RPL37A', 'PTPN14', 'FEZ2', 'VEGFC', 'C2orf61', 'MIR30A', 'CAPZB', 'SMAD3', 'AAGAB', 'EPS8', 'ITGB5', 'LRP1-AS',
     'NRP1', 'WWTR1-AS1', 'CDK6', 'ENTPD6', 'THBS1', 'AC016735.2', 'ZCCHC24', 'LINC00592', 'HSPG2', 'MIRLET7A2', 'SMAD6', 'STARD13', 'EMP1', 'LINC00656', 'CALD1', 'C10orf142', 'ARID5B', 'MIR6809',

@@ -121,6 +121,7 @@ class NCBIgeneFileReader(object):
                     if nt_obj is not None:
                         flds = re.split(self.sep, line)
                         self.convert_ints_floats(flds)
+                        flds[6] = [s.strip() for s in flds[6].split(',')]
                         ntdata = nt_obj._make(flds)
                         data.append(ntdata)
                     # Obtain the header
@@ -169,6 +170,7 @@ class NCBIgeneFileReader(object):
         # Init indexes which will be converted to int or float
         self.idxs_int = [idx for idx, hdr in enumerate(hdrs) if hdr in self.int_hdrs]
         self.idxs_float = [idx for idx, hdr in enumerate(hdrs) if hdr in self.float_hdrs]
+        assert hdrs[6] == 'Aliases'
         return namedtuple('ntncbi', ' '.join(hdrs))
 
     @staticmethod

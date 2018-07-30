@@ -390,13 +390,13 @@ class GrpWr(object):
 
     def prt_tsv(self, prt=sys.stdout):
         """Print an ASCII text format."""
-        prtfmt = self.objprt.get_prtfmt(self.flds_cur)
+        prtfmt = self.objprt.get_prtfmt_str(self.flds_cur)
         prt.write("{FLDS}\n".format(FLDS=" ".join(self.flds_cur)))
         WrSectionsTxt.prt_sections(prt, self.desc2nts['sections'], prtfmt, secspc=True)
 
     def prt_txt(self, prt=sys.stdout):
         """Print an ASCII text format."""
-        prtfmt = self.objprt.get_prtfmt(self.flds_cur)
+        prtfmt = self.objprt.get_prtfmt_str(self.flds_cur)
         prt.write("{FLDS}\n".format(FLDS=" ".join(self.flds_cur)))
         WrSectionsTxt.prt_sections(prt, self.desc2nts['sections'], prtfmt, secspc=True)
 
