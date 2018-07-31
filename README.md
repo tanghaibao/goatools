@@ -62,15 +62,16 @@ _Please cite the following if you use GOATOOLS in your research_:
 Klopfenstein DV, Zhang L, Pedersen BS, ... Tang H [GOATOOLS: A Python library for Gene Ontology analyses](https://www.nature.com/articles/s41598-018-28948-z)    
 _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
 
-**GO Grouping**: To group GO terms, see examples in
-[find_enrichment examples](/doc/md/README_find_enrichment.md)
-where the optional _--sections_ argument is used.    
-A detailed description of GOATOOLS GO grouping is found in the
-[manuscript](https://www.nature.com/articles/s41598-018-28948-z)
-
-**Stochastic GOEA simulations**: The code for the stochastic GOEA simulations
-described in the paper is found here:    
-https://github.com/dvklopfenstein/goatools_simulation
+  * **GO Grouping**:    
+    To group GO terms, see examples in
+    [find_enrichment examples](/doc/md/README_find_enrichment.md)
+    where the optional _--sections_ argument is used.    
+    A detailed description of GOATOOLS GO grouping is found in the
+    [manuscript](https://www.nature.com/articles/s41598-018-28948-z)
+  * **Stochastic GOEA simulations**:    
+    The code for the stochastic GOEA simulations
+    described in the paper is found here:    
+    https://github.com/dvklopfenstein/goatools_simulation
 
 ## Installation
 
