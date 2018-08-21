@@ -7,7 +7,7 @@ from goatools.test_data.nature3102_goea import get_goea_results
 def test_gosubdag():
     """Test all ways to make a GoSubDag."""
     # Get data to use for test
-    res = get_goea_results()
+    res = get_goea_results()  #
     godag = res['obo_dag']
     goea_results = res['goea_results']
     goids = [r.GO for r in goea_results]
