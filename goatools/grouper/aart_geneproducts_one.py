@@ -167,10 +167,17 @@ class _Init(object):
     def get_gene2gos(go2nt):
         """Create a gene product to GO set dict."""
         gene2gos = cx.defaultdict(set)
-        #print("NNNNTTTT", next(iter(go2nt.values())))
+        nt0 = next(iter(go2nt.values()))
+        b_str = isinstance(nt0.study_items, str)
+        # print("NNNNTTTT", nt0)
         for goid, ntgo in go2nt.items():
-            for geneid in ntgo.study_items:
+            study_items = ntgo.study_items.split(', ') if b_str else ntgo.study_items
+            for geneid in study_items:
                 gene2gos[geneid].add(goid)
+        if b_str:
+          b_set = set(isinstance(g.isdigit(), int) for g in nt0.study_items.split(', '))
+          if b_set == set([True]):
+            return {int(g):gos for g, gos in gene2gos.items()}
         return {g:gos for g, gos in gene2gos.items()}
 
     @staticmethod
