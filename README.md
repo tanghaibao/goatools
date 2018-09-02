@@ -57,7 +57,7 @@ This package contains a Python library to
 
 ## To Cite
 
-_Please cite the following if you use GOATOOLS in your research_:
+_Please cite the following research paper if you use GOATOOLS in your research_:
 
 Klopfenstein DV, Zhang L, Pedersen BS, ... Tang H [GOATOOLS: A Python library for Gene Ontology analyses](https://www.nature.com/articles/s41598-018-28948-z)    
 _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
