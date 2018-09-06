@@ -32,7 +32,8 @@ class WrHierGO(object):
 
     def prt_hier_down(self, goid, prt=sys.stdout):
         """Write hierarchy for all GO IDs below GO ID in arg, goid."""
-        obj = _WrHierPrt(self, prt)
+        wrhiercfg = self._get_wrhiercfg()
+        obj = WrHierPrt(self.gosubdag.go2obj, self.gosubdag.go2nt, wrhiercfg, prt)
         obj.prt_hier_rec(goid)
         return obj.gos_printed
 
@@ -41,6 +42,7 @@ class WrHierGO(object):
         go2goterm_all = {go:self.gosubdag.go2obj[go] for go in goids}
         objp = GoPaths()
         gos_printed = set()
+        wrhiercfg = self._get_wrhiercfg()
         for namespace, go2term_ns in self._get_namespace2go2term(go2goterm_all).items():
             go_root = self.consts.NAMESPACE2GO[namespace]
             goids_all = set()  # GO IDs from user-specfied GO to root
@@ -56,7 +58,7 @@ class WrHierGO(object):
             if 'go_marks' not in self.usrdct:
                 self.usrdct['go_marks'] = set()
             self.usrdct['go_marks'].update(go2term_ns.keys())
-            obj = _WrHierPrt(self, prt)  # , goids_all, set(go2term_ns.keys()))
+            obj = WrHierPrt(self.gosubdag.go2obj, self.gosubdag.go2nt, wrhiercfg, prt)
             gos_printed.update(obj.gos_printed)
             obj.prt_hier_rec(go_root)
         return gos_printed
@@ -69,42 +71,58 @@ class WrHierGO(object):
             namespace2go2term[goterm.namespace][goid] = goterm
         return namespace2go2term
 
+    def _get_wrhiercfg(self):
+        """Initialize print format."""
+        prtfmt = self.gosubdag.prt_attr['fmt']
+        prtfmt = prtfmt.replace('{GO} # ', '')
+        prtfmt = prtfmt.replace('{D1:5} ', '')
+        return {'name2prtfmt':{'ITEM':prtfmt, 'ID':'{GO}{alt:1}'},
+                'max_indent': self.usrdct.get('max_indent'),
+                'include_only': self.usrdct.get('include_only'),
+                'go_marks': self.usrdct.get('go_marks', set()),
+                'concise_prt': 'concise' in self.usrset,
+                'indent': 'no_indent' not in self.usrset,
+                'dash_len': self.usrdct.get('dash_len', 6)
+               }
 
 # pylint: disable=too-many-instance-attributes,too-few-public-methods
-class _WrHierPrt(object):
+class WrHierPrt(object):
     """Print GO hierarchy."""
 
-    def __init__(self, obj, prt=sys.stdout):
-        self.gosubdag = obj.gosubdag
-        self.max_indent = obj.usrdct.get('max_indent')
-        self.include_only = obj.usrdct['include_only'] if 'include_only' in obj.usrdct else None
-        self.go_marks = obj.usrdct['go_marks'] if 'go_marks' in obj.usrdct else set()
-        self.concise_prt = 'concise' in obj.usrset
-        self.indent = 'no_indent' not in obj.usrset
+    def __init__(self, id2obj, id2nt, cfg, prt=sys.stdout):
+        self.id2obj = id2obj  # Contains children (and parents)
+        self.id2nt = id2nt    # Contains fields for printing
+        self.nm2prtfmt = cfg['name2prtfmt']
+        self.max_indent = cfg['max_indent']
+        self.include_only = cfg['include_only']
+        self.go_marks = cfg['go_marks']
+        self.concise_prt = cfg['concise_prt']
+        self.indent = cfg['indent']
         # vars
         self.prt = prt
         self.gos_printed = set()
-        self.prtfmt = self._init_prtfmt()
-        self.dash_len = obj.usrdct.get('dash_len', 6) + 12
+        self.dash_len = cfg['dash_len'] + 12
 
     def prt_hier_rec(self, goid, depth=1):
         """Write hierarchy for a GO Term record and all GO IDs down to the leaf level."""
-        ntgo = self.gosubdag.go2nt[goid]
-        ntobj = self.gosubdag.go2obj[goid]
+        ntgo = self.id2nt[goid]
+        ntobj = self.id2obj[goid]
         # Shortens hierarchy report by only printing the hierarchy
         # for the sub-set of user-specified GO terms which are connected.
         if self.include_only and goid not in self.include_only:
             return
         nrp = self.concise_prt and goid in self.gos_printed
         if self.go_marks:
-            self.prt.write('{} '.format('>' if goid in self.go_marks else ' '))
+            self.prt.write('{MARK} '.format(MARK='>' if goid in self.go_marks else ' '))
 
         # '-' is default character indicating hierarchy level
         # '=' is used to indicate a hierarchical path printed in detail previously.
-        dashgo = self._str_dashgoid(ntgo, depth, not nrp or not ntobj.children)
-        self.prt.write('{DASHGO:{N}}'.format(DASHGO=dashgo, N=self.dash_len))
+        dct = ntgo._asdict()
+        self.prt.write('{DASHGO:{N}}'.format(
+            DASHGO=self._str_dashgoid(dct, depth, not nrp or not ntobj.children),
+            N=self.dash_len))
 
-        self.prt.write("{GO_INFO}\n".format(GO_INFO=self.prtfmt.format(**ntgo._asdict())))
+        self.prt.write("{INFO}\n".format(INFO=self.nm2prtfmt['ITEM'].format(**dct)))
         self.gos_printed.add(goid)
         # Do not print hierarchy below this turn if it has already been printed
         if nrp:
@@ -123,17 +141,11 @@ class _WrHierPrt(object):
         letter = '-' if single_or_double else '='
         return ''.join([letter]*depth)
 
-    def _str_dashgoid(self, ntgo, depth, single_or_double):
+    def _str_dashgoid(self, dct, depth, single_or_double):
         """Return a string containing dashes (optional) and GO ID."""
-        dashes = self._str_dash(depth, single_or_double) if self.indent else ""
-        return "{DASHES} {GO}{alt:1}".format(DASHES=dashes, GO=ntgo.GO, alt=ntgo.alt)
-
-    def _init_prtfmt(self):
-        """Initialize print format."""
-        prtfmt = self.gosubdag.prt_attr['fmt']
-        prtfmt = prtfmt.replace('{GO} # ', '')
-        prtfmt = prtfmt.replace('{D1:5} ', '')
-        return prtfmt
+        return "{DASHES} {ID}".format(
+            DASHES=self._str_dash(depth, single_or_double) if self.indent else "",
+            ID=self.nm2prtfmt['ID'].format(**dct))
 
 #### Examples:
 ####
