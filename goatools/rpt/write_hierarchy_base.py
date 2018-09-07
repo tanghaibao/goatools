@@ -19,22 +19,23 @@ class WrHierPrt(object):
         self.go_marks = cfg['go_marks']
         self.concise_prt = cfg['concise_prt']
         self.indent = cfg['indent']
+        self.idname = cfg.get('ID', 'id')
         # vars
         self.prt = prt
         self.gos_printed = set()
         self.dash_len = cfg['dash_len'] + 12
 
-    def prt_hier_rec(self, goid, depth=1):
+    def prt_hier_rec(self, item_id, depth=1):
         """Write hierarchy for a GO Term record and all GO IDs down to the leaf level."""
-        ntgo = self.id2nt[goid]
-        ntobj = self.id2obj[goid]
+        ntgo = self.id2nt[item_id]
+        ntobj = self.id2obj[item_id]
         # Shortens hierarchy report by only printing the hierarchy
         # for the sub-set of user-specified GO terms which are connected.
-        if self.include_only and goid not in self.include_only:
+        if self.include_only and item_id not in self.include_only:
             return
-        nrp = self.concise_prt and goid in self.gos_printed
+        nrp = self.concise_prt and item_id in self.gos_printed
         if self.go_marks:
-            self.prt.write('{MARK} '.format(MARK='>' if goid in self.go_marks else ' '))
+            self.prt.write('{MARK} '.format(MARK='>' if item_id in self.go_marks else ' '))
 
         # '-' is default character indicating hierarchy level
         # '=' is used to indicate a hierarchical path printed in detail previously.
@@ -44,7 +45,7 @@ class WrHierPrt(object):
             N=self.dash_len))
 
         self.prt.write("{INFO}\n".format(INFO=self.nm2prtfmt['ITEM'].format(**dct)))
-        self.gos_printed.add(goid)
+        self.gos_printed.add(item_id)
         # Do not print hierarchy below this turn if it has already been printed
         if nrp:
             return
@@ -52,7 +53,7 @@ class WrHierPrt(object):
         if self.max_indent is not None and depth > self.max_indent:
             return
         for child in ntobj.children:
-            self.prt_hier_rec(child.id, depth)
+            self.prt_hier_rec(getattr(child, self.idname), depth)
 
     @staticmethod
     def _str_dash(depth, single_or_double):
