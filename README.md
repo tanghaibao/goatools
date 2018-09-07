@@ -47,8 +47,8 @@ This package contains a Python library to
       File](http://geneontology.org/page/go-annotation-file-gaf-format-21)) files.
   - Read NCBI's gene2go GO association file.
 
-- Plot GO hierarchies
-- Print GO hierarchies to an ASCII text file
+- [Plot GO hierarchies](https://github.com/tanghaibao/goatools#plot-go-lineage)
+- [Write GO hierarchies to an ASCII text file](https://github.com/tanghaibao/goatools#write-go-hierarchy)
 - Group GO terms for easier viewing
 
 - Map GO terms (or protein products with multiple associations to

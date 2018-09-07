@@ -19,7 +19,7 @@
 The colorized GO terms use the colors from the [lightbright](http://www.color-hex.com/color-palette/51895) color palette
 and an orange (#ffe5b4) from the [favorite pink based oranges](http://www.color-hex.com/color-palette/50573) color palette.
 
-The file, go_heartjogging6.txt, contains the GO terms and user-defined colors:
+The file, **go_heartjogging6.txt**, contains the GO terms and user-defined colors:
 ```
 #fad2fa GO:0072359  # BP 643 D04 circulatory system development (magenta)
 #d2fafa GO:0003007  # BP 197 D04 heart morphogenesis (blue)
