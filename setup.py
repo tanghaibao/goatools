@@ -28,7 +28,7 @@ REQUIREMENTS = ['wget'] + \
                [x.strip() for x in open(op.join(SETUP_DIR, 'requirements.txt')).readlines()]
 
 setup(
-    NAME=NAME,
+    name=NAME,
     version=HLPR.version,
     author=HLPR.author,
     author_email=HLPR.email,
