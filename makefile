@@ -275,6 +275,10 @@ test:
 	py.test tests/
 	# py.test tests/ --log-file=pytest.log
 
+# Used to call GOATOOLS developers attention to illegal lines in parsed files
+chk_parsers:
+	tests/test_optional_attributes.py die
+
 # This Representative test subset is automatically run for all push requests using Travis-CI.
 # Running a subset of tests prevents Travis-CI from timeing out.
 test_travis_subset:
