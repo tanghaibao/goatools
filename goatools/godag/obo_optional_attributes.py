@@ -10,7 +10,7 @@ import collections as cx
 class OboOptionalAttrs(object):
     """Manage optional GO-DAG attributes."""
 
-    attributes = set(['def', 'defn', 'synonym', 'relationship', 'xref', 'subset', 'comment']) 
+    attributes = set(['def', 'defn', 'synonym', 'relationship', 'xref', 'subset', 'comment'])
 
     def __init__(self, optional_attrs):
         assert optional_attrs
@@ -60,11 +60,20 @@ class OboOptionalAttrs(object):
             rec.relationship_rev = {}
 
     def _get_synonym(self, line):
-        """Given line, return optional attribute synonym value in a namedtuple."""
-        # Example synonyms:
-        # "peptidase inhibitor complex" EXACT [GOC:bf, GOC:pr]
-        # "regulation of postsynaptic cytosolic calcium levels" EXACT syngo_official_label []
-        # "tocopherol 13-hydroxylase activity" EXACT systematic_synonym []
+        """Given line, return optional attribute synonym value in a namedtuple.
+
+        Example synonym and its storage in a namedtuple:
+        synonym: "The other white meat" EXACT MARKETING_SLOGAN [MEAT:00324, BACONBASE:03021]
+          text:     "The other white meat"
+          scope:    EXACT
+          typename: MARKETING_SLOGAN
+          dbxrefs:  set(["MEAT:00324", "BACONBASE:03021"])
+
+        Example synonyms:
+          "peptidase inhibitor complex" EXACT [GOC:bf, GOC:pr]
+          "regulation of postsynaptic cytosolic calcium levels" EXACT syngo_official_label []
+          "tocopherol 13-hydroxylase activity" EXACT systematic_synonym []
+        """
         mtch = self.attr2cmp['synonym'].match(line)
         text, scope, typename, dbxrefs, _ = mtch.groups()
         typename = typename.strip()
