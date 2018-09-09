@@ -37,8 +37,7 @@ from goatools.test_data.optional_attrs import OptionalAttrs
 
 def test_optional_attrs():
     """Test loading optional GO term field, 'synonym'."""
-    prt = sys.stdout
-    prt = None
+    prt = None if len(sys.argv) == 1 else sys.stdout
     # Summary for all fields in a GO DAG
     opt_attrs = ['def', 'comment', 'subset', 'synonym', 'xref', 'relationship']
     obj = OptionalAttrs("go-basic.obo", opt_attrs)
