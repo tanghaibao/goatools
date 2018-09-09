@@ -84,7 +84,7 @@ def _get_go2upper(go2upper, goid, goterm):
     return upper_goids
 
 def _get_go2lower(go2lower, goid, goterm):
-    """Add the lower GO IDs for one GO term and their lowerren."""
+    """Add the lower GO IDs for one GO term and the objects below them."""
     if goid in go2lower:
         return go2lower[goid]
     lower_goids = set()
