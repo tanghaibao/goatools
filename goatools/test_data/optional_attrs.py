@@ -21,7 +21,6 @@ class OptionalAttrs(object):
     cmpfld = re.compile(r'^(\S+)\s*:\s*(\S.*\S)\s*$')  # Field line pattern
     exp_scopes = set(['EXACT', 'BROAD', 'NARROW', 'RELATED'])
     exp_xrefpat = re.compile(r'^\S+:\S+$')
-    exp_xrefpat = re.compile(r'^\S+:\S+$')
     # Required attributes are always loaded
     exp_req = set(['name', 'id', 'is_obsolete', 'namespace', 'alt_id', 'is_a', 'is_obsolete'])
     # Generated attributes
@@ -231,22 +230,32 @@ class OptionalAttrs(object):
             # print(" ".join(vars(goobj).keys()))
 
     def chk_xref(self, prt=None):
-        """Check synonyms."""
-        # Get GO IDs which are expected to have synonyms
+        """Check xrefs."""
+        # Get GO IDs which are expected to have xrefs
         goids = set(go for go, d in self.go2dct.items() if 'xref' in d)
         for goid in goids:
             goobj = self.go2obj[goid]
             xrefs = getattr(goobj, 'xref', None)
             assert xrefs is not None, "{GO} MISSING XREF".format(GO=goid)
-            # Iterate through list of synonym data stored in named tuples
+            # Iterate through list of xref data stored in named tuples
             for dbxref in xrefs:
                 if prt is not None:
                     prt.write("{GO} {DBXREF}\n".format(GO=goid, DBXREF=dbxref))
-                assert self.exp_xrefpat.match(dbxref), "INVALID XREF FORMAT"
+                assert self.exp_xrefpat.match(dbxref), "INVALID XREF FORMAT({X})".format(
+                    X=dbxref)
 
     def chk_synonyms(self, prt=None):
-        """Check synonyms."""
+        """Check synonyms
+
+        Example synonym and its storage in a namedtuple:
+        synonym: "The other white meat" EXACT MARKETING_SLOGAN [MEAT:00324, BACONBASE:03021]
+          text:     "The other white meat"
+          scope:    EXACT
+          typename: MARKETING_SLOGAN
+          dbxrefs:  set(["MEAT:00324", "BACONBASE:03021"])
+        """
         # Get GO IDs which are expected to have synonyms
+        badnts = []
         for goid, dct_exp in self.go2dct.items():
             goobj = self.go2obj[goid]
             if 'synonym' in dct_exp:
@@ -256,12 +265,17 @@ class OptionalAttrs(object):
                 for ntsyn in ntsyns:
                     if prt is not None:
                         prt.write("{GO} {NT}\n".format(GO=goid, NT=ntsyn))
+                    # Example:
                     assert ntsyn.text, "SYNONYM CANNOT BE EMPTY"
                     assert ntsyn.scope in self.exp_scopes, "INVALID SYNONYM SCOPE"
                     for dbxref in ntsyn.dbxrefs:
-                        assert self.exp_xrefpat.match(dbxref), "INVALID SYNONYM DBXREF"
+                        if not self.exp_xrefpat.match(dbxref):
+                            badnts.append((goid, ntsyn))
+                            print("**WARNING: INVALID FORMAT: DBXREF({D}) ON {GO}".format(
+                                D=dbxref, GO=goid))
             else:
                 assert goobj.synonym == []
+        return badnts
 
     def _get_fldmrk(self, fld):
         """Get a mark for each field indicating if it is required or optional"""
@@ -292,7 +306,6 @@ class OptionalAttrs(object):
         """Get the maximum count of times a specific relationship was seen on a GO."""
         fld2qtys = cx.defaultdict(set)
         flds = self.dcts['flds']
-        # for recdct in self.go2dct.values():
         for recdct in dcts:
             for opt in flds:
                 if opt in recdct:
@@ -303,7 +316,6 @@ class OptionalAttrs(object):
         """Get counts of if a specific relationship was seen on a GO."""
         ctr = cx.Counter()
         flds = self.dcts['flds']
-        # for recdct in self.go2dct.values():
         for recdct in record_dicts:
             for opt in flds:
                 if opt in recdct:

@@ -37,7 +37,9 @@ from goatools.test_data.optional_attrs import OptionalAttrs
 
 def test_optional_attrs():
     """Test loading optional GO term field, 'synonym'."""
-    prt = None if len(sys.argv) == 1 else sys.stdout
+    args = set(sys.argv[1:])
+    prt = sys.stdout if 'prt' in args else None
+    exit_if_warning = 'die' in args
     # Summary for all fields in a GO DAG
     opt_attrs = ['def', 'comment', 'subset', 'synonym', 'xref', 'relationship']
     obj = OptionalAttrs("go-basic.obo", opt_attrs)
@@ -60,12 +62,22 @@ def test_optional_attrs():
     print("PASSED: relationship")
 
     # SYNONYM: Synonyms are stored in a list of namedtuples
-    obj.chk_synonyms(prt)
+    badnts = obj.chk_synonyms(prt)
+    _prt_badnts(badnts, exit_if_warning)
     print("PASSED: synonyms")
 
     # XREF: Stored in a set
     obj.chk_xref(prt)
     print("PASSED: xrefs")
+
+def _prt_badnts(badnts, exit_if_warning):
+    """Print bad namedtuples and potentially die."""
+    if badnts:
+        for goid, badnt in badnts:
+            print("**ERROR: BAD NAMEDTUPLE({GO}, {NT})".format(GO=goid, NT=badnt))
+        # This option is used to call attention to bad lines in the obo
+        if exit_if_warning:
+            assert False, "**FATAL: BAD NAMEDTUPLES"
 
 def test_no_optional_attrs():
     """Test loading DAG with no optional attributes."""
