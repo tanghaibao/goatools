@@ -50,6 +50,10 @@ class GpadReader(object):
     exp_qualifiers = set([
         'NOT', 'contributes_to', 'colocalizes_with', 'enables', 'involved_in',
         'part_of',
+        # Seen 2018_09
+        'acts_upstream_of',
+        'acts_upstream_of_or_within',
+        'acts_upstream_of_or_within_negative_effect'
     ])
 
     def __init__(self, filename=None, hdr_only=False):
