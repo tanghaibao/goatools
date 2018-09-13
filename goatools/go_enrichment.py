@@ -429,11 +429,13 @@ class GOEnrichmentStudy(object):
                 CUR=len(MgrNtGOEAs(goea_results).get_study_items()),
                 F=fout_txt))
 
-    def prt_txt(self, prt, goea_results, prtfmt=None, **kws):
+    @staticmethod
+    def prt_txt(prt, goea_results, prtfmt=None, **kws):
         """Print GOEA results in text format."""
         objprt = PrtFmt()
         if prtfmt is None:
-            flds = ['GO', 'NS', 'p_uncorrected', 'ratio_in_study', 'ratio_in_pop', 'depth', 'name', 'study_items']
+            flds = ['GO', 'NS', 'p_uncorrected',
+                    'ratio_in_study', 'ratio_in_pop', 'depth', 'name', 'study_items']
             prtfmt = objprt.get_prtfmt_str(flds)
             #### prtfmt = " ".join([objprt.default_fld2fmt[f] for f in flds])
             #### prtfmt = ("{GO} {NS} {p_uncorrected:5.2e} {ratio_in_study:>6} {ratio_in_pop:>9} "
@@ -556,9 +558,10 @@ class GOEnrichmentStudy(object):
             docstring = "\n".join([docstring, "# {VER}\n\n".format(VER=self.obo_dag.version)])
             assert hasattr(nts_goea[0], '_fields')
             if sortby is None:
-                sortby = lambda nt: [getattr(nt, 'namespace'), getattr(nt, 'enrichment'),
-                                     getattr(nt, 'p_uncorrected'), getattr(nt, 'depth'),
-                                     getattr(nt, 'GO')]
+                sortby = MgrNtGOEAs.dflt_sortby_objgoea
+                # sortby = lambda nt: [getattr(nt, 'namespace'), getattr(nt, 'enrichment'),
+                #                      getattr(nt, 'p_uncorrected'), getattr(nt, 'depth'),
+                #                      getattr(nt, 'GO')]
             nts_goea = sorted(nts_goea, key=sortby)
             wr_py_nts(fout_py, nts_goea, docstring, var_name)
 

@@ -71,7 +71,7 @@ class InitGOs(object):
         # Fill with source and parent GO IDs and alternate GO IDs
         go2obj_user = {}
         objrel = CurNHigher(relationships_arg, self.go2obj_orig)
-        objrel.get_go2obj_cur_n_high(go2obj_user, go_sources)
+        objrel.get_id2obj_cur_n_high(go2obj_user, go_sources)
         # Add additional GOTerm information, if needed for user task
         kws_gos = {k:v for k, v in self.kws.items() if k in self.kws_aux_gos}
         if kws_gos:

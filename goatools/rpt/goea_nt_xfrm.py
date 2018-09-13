@@ -33,11 +33,30 @@ class MgrNtGOEAs(object):
         """Given GOEA namedtuples, return nts w/P-value in string format."""
         objntmgr = MgrNts(self.goea_results)
         dcts = objntmgr.init_dicts()
+        # pylint: disable=line-too-long
         pval_flds = set(k for k in self._get_fieldnames(next(iter(self.goea_results))) if k[:2] == 'p_')
         for fld_float in pval_flds:
             fld_str = "s_" + fld_float[2:]
             objntmgr.add_f2str(dcts, fld_float, fld_str, fmt)
         return objntmgr.mknts(dcts)
+
+    @staticmethod
+    def dflt_sortby_objgoea(goea_res):
+        """Default sorting of GOEA results."""
+        return [getattr(goea_res, 'namespace'),
+                getattr(goea_res, 'enrichment'),
+                getattr(goea_res, 'p_uncorrected'),
+                getattr(goea_res, 'depth'),
+                getattr(goea_res, 'GO')]
+
+    @staticmethod
+    def dflt_sortby_ntgoea(ntgoea):
+        """Default sorting of GOEA results stored in namedtuples."""
+        return [ntgoea.namespace,
+                ntgoea.enrichment,
+                ntgoea.p_uncorrected,
+                ntgoea.depth,
+                ntgoea.GO]
 
     def get_goea_nts_prt(self, fldnames=None, **usr_kws):
         """Return list of namedtuples removing fields which are redundant or verbose."""

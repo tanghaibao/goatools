@@ -79,7 +79,7 @@ class WrSubObo(object):
         """Given GO ID sources and optionally the relationship attribute, return all GO IDs."""
         go2obj_user = {}
         objrel = CurNHigher(self.relationships, self.godag)
-        objrel.get_go2obj_cur_n_high(go2obj_user, go_sources)
+        objrel.get_id2obj_cur_n_high(go2obj_user, go_sources)
         goids = set(go2obj_user)
         for goterm in go2obj_user.values():
             if goterm.alt_ids:

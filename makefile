@@ -210,6 +210,10 @@ clobber:
 	rm -f *.gaf *.gaf.*
 	rm -f goslim_*.obo goslim_*.owl
 	rm -f goa_*.gpi goa_*.gpa
+	rm -f *.png
+	rm -f gos_*
+	rm -f cell_cycle_genes_*.txt
+	rm -r *.gpa.gz
 
 # Tests which run longer and have much functionality covered by other tests
 #    tests/test_annotations_gaf.py \
@@ -273,6 +277,7 @@ NOSETESTS := \
 # Run all tests. If you are submitting a pull request, all tests must pass.
 test:
 	py.test tests/
+	make chk_parsers
 	# py.test tests/ --log-file=pytest.log
 
 # Used to call GOATOOLS developers attention to illegal lines in parsed files
@@ -284,4 +289,4 @@ chk_parsers:
 test_travis_subset:
 	py.test $(NOSETESTS)
 
-# Copyright (C) 2010-2017. Haibao Tang et al. All rights reserved.
+# Copyright (C) 2010-2018. Haibao Tang et al. All rights reserved.

@@ -22,7 +22,7 @@ Options:
   --concise           If a branch has already been printed, do not re-print.
                       Print '===' instead of dashes to note the point of compression
   --dash_len=<int>    Printed width of the dashes column [default: 6]
-  --go_marks=<GOs>    GO IDs to be marked
+  --item_marks=<GOs>    GO IDs to be marked
   --include_only=<GOs>  GO IDs to be included with all others omitted
   -r --relationship   Load and use the 'relationship' field
 """
@@ -62,7 +62,7 @@ class WrHierCli(object):
 
     kws_set_all = set(['relationship', 'up', 'f'])
     kws_dct_all = set(['GO', 'dag', 'i', 'o', 'max_indent', 'no_indent', 'concise',
-                       'gaf', 'gene2go', 'taxid', 'dash_len', 'include_only', 'go_marks'])
+                       'gaf', 'gene2go', 'taxid', 'dash_len', 'include_only', 'item_marks'])
     kws_dct_wr = set(['max_indent', 'no_indent', 'concise', 'relationship', 'dash_len'])
 
     def __init__(self, args=None, prt=sys.stdout):
@@ -78,7 +78,7 @@ class WrHierCli(object):
                                  children=True,
                                  prt=prt)
         self.goids = self._init_goids()
-        self._adj_go_marks()
+        self._adj_item_marks()
         self._adj_include_only()
         self._adj_for_assc()
 
@@ -135,18 +135,18 @@ class WrHierCli(object):
         else:
             objwr.prt_hier_up(self.goids, prt)
 
-    def _adj_go_marks(self):
+    def _adj_item_marks(self):
         """Adjust keywords, if needed."""
-        if 'go_marks' in self.kws:
-            # Process GO IDs specified in go_marks
-            goids = self._get_goids(self.kws['go_marks'])
-            # go_marks can take a list of GO IDs on cmdline or in a file.
-            #     --go_marks=GO:0043473,GO:0009987
-            #     --go_marks=go_marks.txt
+        if 'item_marks' in self.kws:
+            # Process GO IDs specified in item_marks
+            goids = self._get_goids(self.kws['item_marks'])
+            # item_marks can take a list of GO IDs on cmdline or in a file.
+            #     --item_marks=GO:0043473,GO:0009987
+            #     --item_marks=item_marks.txt
             if goids:
-                self.kws['go_marks'] = goids
+                self.kws['item_marks'] = goids
             else:
-                raise Exception("NO GO IDs FOUND IN go_marks")
+                raise Exception("NO GO IDs FOUND IN item_marks")
 
     def _adj_include_only(self):
         """Adjust keywords, if needed."""
@@ -165,8 +165,8 @@ class WrHierCli(object):
         """Print only GO IDs from associations and their ancestors."""
         if self.gene2gos:
             gos_assoc = set(get_b2aset(self.gene2gos).keys())
-            if 'go_marks' not in self.kws:
-                self.kws['go_marks'] = set(gos_assoc)
+            if 'item_marks' not in self.kws:
+                self.kws['item_marks'] = set(gos_assoc)
             if 'include_only' not in self.kws:
                 gosubdag = GoSubDag(gos_assoc, self.gosubdag.go2obj,
                                     self.gosubdag.relationships)

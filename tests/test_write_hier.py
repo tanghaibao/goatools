@@ -55,9 +55,9 @@ def write_hier_mrk(gosubdag, out):
     """Print all paths, but mark GO Terms of interest. """
     mark_lst = ['GO:0000001', 'GO:0000003', 'GO:0000006', 'GO:0000008', 'GO:0000009']
     out.write('\nTEST MARK: 01->03->06->08->09:\n')
-    objwr = WrHierGO(gosubdag, go_marks=mark_lst)
+    objwr = WrHierGO(gosubdag, item_marks=mark_lst)
     objwr.prt_hier_down("GO:0000001", out)
-      #go_marks=[oGO.id for oGO in oGOs_in_cluster])
+      #item_marks=[oGO.id for oGO in oGOs_in_cluster])
 
 #################################################################
 # Tests

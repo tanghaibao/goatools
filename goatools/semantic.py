@@ -77,10 +77,10 @@ class TermCounts(object):
         go2obj = self.go2obj
         for go_id, cnt in gocnts.items():
             goobj = go2obj[go_id]
-            assert cnt, "NO TERM COUNTS FOR {GO}".format(GO=goobj.id)
+            assert cnt, "NO TERM COUNTS FOR {GO}".format(GO=goobj.item_id)
             # Was the count set using an alternate GO?
-            if go_id != goobj.id:
-                go2cnt_add[goobj.id] = cnt
+            if go_id != goobj.item_id:
+                go2cnt_add[goobj.item_id] = cnt
             goid_alts |= goobj.alt_ids
             # Group by namespace
             aspect_counts[goobj.namespace] += cnt
@@ -90,9 +90,9 @@ class TermCounts(object):
         # Add missing alt GO IDs to gocnts
         for alt_goid in goid_alts.difference(gocnts):
             goobj = go2obj[alt_goid]
-            cnt = gocnts[goobj.id]
+            cnt = gocnts[goobj.item_id]
             assert cnt, "NO TERM COUNTS FOR ALT_ID({GOa}) ID({GO}): {NAME}".format(
-                GOa=alt_goid, GO=goobj.id, NAME=goobj.name)
+                GOa=alt_goid, GO=goobj.item_id, NAME=goobj.name)
             gocnts[alt_goid] = cnt
 
 

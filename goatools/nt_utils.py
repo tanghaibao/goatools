@@ -3,12 +3,15 @@
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
+import sys
+import datetime
 import collections as cx
 
 def get_dict_w_id2nts(ids, id2nts, flds, dflt_null=""):
     """Return a new dict of namedtuples by combining "dicts" of namedtuples or objects."""
     assert len(ids) == len(set(ids)), "NOT ALL IDs ARE UNIQUE: {IDs}".format(IDs=ids)
-    assert len(flds) == len(set(flds)), "DUPLICATE FIELDS: {IDs}".format(IDs=cx.Counter(flds).most_common())
+    assert len(flds) == len(set(flds)), "DUPLICATE FIELDS: {IDs}".format(
+        IDs=cx.Counter(flds).most_common())
     usr_id_nt = []
     # 1. Instantiate namedtuple object
     ntobj = cx.namedtuple("Nt", " ".join(flds))
@@ -50,28 +53,30 @@ def combine_nt_lists(lists, flds, dflt_null=""):
 
 def wr_py_nts(fout_py, nts, docstring=None, varname="nts"):
     """Save namedtuples into a Python module."""
-    import sys
-    import datetime
     if nts:
         with open(fout_py, 'w') as prt:
-            first_nt = nts[0]
-            nt_name = type(first_nt).__name__
-            if docstring is not None:
-                prt.write('"""{DOCSTRING}"""\n\n'.format(DOCSTRING=docstring))
+            prt.write('"""{DOCSTRING}"""\n\n'.format(DOCSTRING=docstring))
             prt.write("# Created: {DATE}\n".format(DATE=str(datetime.date.today())))
-            prt.write("import collections as cx\n\n")
-            prt.write("nt_fields = [\n")
-            for fld in first_nt._fields:
-                prt.write('    "{F}",\n'.format(F=fld))
-            prt.write("]\n\n")
-            prt.write('{NtName} = cx.namedtuple("{NtName}", " ".join(nt_fields))\n\n'.format(
-                NtName=nt_name))
-            prt.write("# {N:,} items\n".format(N=len(nts)))
-            prt.write("{VARNAME} = [\n".format(VARNAME=varname))
-            for ntup in nts:
-                prt.write("    {NT},\n".format(NT=ntup))
-            prt.write("]\n")
+            prt_nts(prt, nts, varname)
             sys.stdout.write(" {N:7,} items WROTE: {PY}\n".format(N=len(nts), PY=fout_py))
+
+def prt_nts(prt, nts, varname, spc='    '):
+    """Print namedtuples into a Python module."""
+    first_nt = nts[0]
+    nt_name = type(first_nt).__name__
+    prt.write("import collections as cx\n\n")
+    prt.write("NT_FIELDS = [\n")
+    for fld in first_nt._fields:
+        prt.write('{SPC}"{F}",\n'.format(SPC=spc, F=fld))
+    prt.write("]\n\n")
+    prt.write('{NtName} = cx.namedtuple("{NtName}", " ".join(NT_FIELDS))\n\n'.format(
+        NtName=nt_name))
+    prt.write("# {N:,} items\n".format(N=len(nts)))
+    prt.write("# pylint: disable=line-too-long\n")
+    prt.write("{VARNAME} = [\n".format(VARNAME=varname))
+    for ntup in nts:
+        prt.write("{SPC}{NT},\n".format(SPC=spc, NT=ntup))
+    prt.write("]\n")
 
 def get_unique_fields(fld_lists):
     """Get unique namedtuple fields, despite potential duplicates in lists of fields."""

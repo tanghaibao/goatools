@@ -5,8 +5,8 @@ __author__ = "DV Klopfenstein"
 
 import sys
 import collections as cx
-from goatools.godag.go_tasks import get_go2parents
-from goatools.godag.go_tasks import get_go2children
+from goatools.godag.go_tasks import get_id2parents
+from goatools.godag.go_tasks import get_id2children
 
 
 # ------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ def get_go2obj_unique(go2obj):
 def get_go2parents_go2obj(go2obj):
     """Return go2parents (set of parent GO IDs) for all GO ID keys in go2obj."""
     goobjs, altgo2goobj = get_goobjs_altgo2goobj(go2obj)
-    go2parents = get_go2parents(goobjs)
+    go2parents = get_id2parents(goobjs)
     add_alt_goids(go2parents, altgo2goobj)
     return go2parents
 
@@ -91,7 +91,7 @@ def get_go2parents_go2obj(go2obj):
 def get_go2children_go2obj(go2obj):
     """Return go2children (set of child GO IDs) for all GO ID keys in go2obj."""
     goobjs, altgo2goobj = get_goobjs_altgo2goobj(go2obj)
-    go2children = get_go2children(goobjs)
+    go2children = get_id2children(goobjs)
     add_alt_goids(go2children, altgo2goobj)
     return go2children
 

@@ -22,13 +22,13 @@ class OptionalAttrs(object):
     exp_scopes = set(['EXACT', 'BROAD', 'NARROW', 'RELATED'])
     exp_xrefpat = re.compile(r'^\S+:\S+$')
     # Required attributes are always loaded
-    exp_req = set(['name', 'id', 'is_obsolete', 'namespace', 'alt_id', 'is_a', 'is_obsolete'])
+    exp_req = set(['name', 'item_id', 'is_obsolete', 'namespace', 'alt_id', 'is_a', 'is_obsolete'])
     # Generated attributes
     exp_gen = set(['level', 'depth', 'parents', 'children', '_parents'])
     exp_relationships = set(['part_of',
                              'regulates', 'negatively_regulates', 'positively_regulates'])
 
-    attrs_scalar = set(['id', 'namespace', 'name', 'def', 'comment'])
+    attrs_scalar = set(['item_id', 'namespace', 'name', 'def', 'comment'])
     attrs_set = set(['xref', 'subset', 'alt_id'])
 
     def __init__(self, fin_obo, opt_field=None, keep_alt_ids=False):
@@ -47,8 +47,8 @@ class OptionalAttrs(object):
         """Check that GOTerm's 'get_upper' returns parents and relationships."""
         tic = timeit.default_timer()
         for goterm in self.go2obj.values():
-            goids_act = set(o.id for o in goterm.get_goterms_upper())
-            goids_exp = self._get_goterms_upper(goterm.id)
+            goids_act = set(o.item_id for o in goterm.get_goterms_upper())
+            goids_exp = self._get_goterms_upper(goterm.item_id)
             assert goids_act == goids_exp
         prt_hms(tic, "get_goterms_upper")
 
@@ -56,10 +56,10 @@ class OptionalAttrs(object):
         """Check that GOTerm's 'get_lower' returns parents and relationships."""
         tic = timeit.default_timer()
         for goterm in self.go2obj.values():
-            goids_act = set(o.id for o in goterm.get_goterms_lower())
-            goids_exp = self._get_goterms_lower(goterm.id)
+            goids_act = set(o.item_id for o in goterm.get_goterms_lower())
+            goids_exp = self._get_goterms_lower(goterm.item_id)
             assert goids_act == goids_exp, "{GO} EXP({E}) ACT({A})".format(
-                GO=goterm.id, E=goids_exp, A=goids_act)
+                GO=goterm.item_id, E=goids_exp, A=goids_act)
         prt_hms(tic, "get_goterms_lower")
 
     def _get_goterms_upper(self, goid):
@@ -158,7 +158,7 @@ class OptionalAttrs(object):
     def _chk_parents(self):
         """Check parents."""
         for goobj in self.go2obj.values():
-            exp_dct = self.go2dct[goobj.id]
+            exp_dct = self.go2dct[goobj.item_id]
             if 'is_a' in exp_dct:
                 # pylint: disable=protected-access
                 exp_parents = exp_dct['is_a']
@@ -170,10 +170,10 @@ class OptionalAttrs(object):
     def _chk_children(self):
         """Check children."""
         for goobj in self.go2obj.values():
-            exp_dct = self.go2dct[goobj.id]
+            exp_dct = self.go2dct[goobj.item_id]
             if '_children' in exp_dct:
                 exp_children = exp_dct['_children']
-                act_children = set(o.id for o in goobj.children)
+                act_children = set(o.item_id for o in goobj.children)
                 assert exp_children == act_children
             else:
                 assert not goobj.children
@@ -194,7 +194,7 @@ class OptionalAttrs(object):
         """Check the required attributes."""
         for goid, goobj in self.go2obj.items():
             godct = self.go2dct[goid]
-            assert goobj.id == godct['GO']
+            assert goobj.item_id == godct['GO']
             assert goobj.namespace == next(iter(godct['namespace'])), godct
             assert goobj.name == next(iter(godct['name']))
             self._chk_is_obsolete(goobj, godct)
@@ -221,13 +221,13 @@ class OptionalAttrs(object):
 
     def chk_no_optattrs(self):
         """Check that only the optional attributes requested are the attributes implemented."""
-        # name is_obsolete namespace id alt_ids
+        # name is_obsolete namespace item_id alt_ids
         # level namespace depth parents children _parents
         exp_flds = self.exp_req.union(self.exp_gen)
+        obj1_exp0 = set(['id', 'alt_ids'])
         for goobj in self.go2obj.values():
-            assert set(vars(goobj).keys()).difference(exp_flds) == set(['alt_ids'])
-            # print(vars(goobj).keys())
-            # print(" ".join(vars(goobj).keys()))
+            attrs = set(vars(goobj).keys()).difference(exp_flds)
+            assert attrs == obj1_exp0, attrs
 
     def chk_xref(self, prt=None):
         """Check xrefs."""
@@ -350,7 +350,7 @@ class OptionalAttrs(object):
                 for rel, exp_goids in rel2gos.items():
                     # Expected relationships store GO IDs.
                     # Actual relationships store GO Terms.
-                    act_goids = set(o.id for o in act_rel2recs[rel])
+                    act_goids = set(o.item_id for o in act_rel2recs[rel])
                     assert exp_goids == act_goids, "EXP({}) ACT({}) {}:\nEXP({})\nACT({})".format(
                         len(exp_goids), len(act_goids), goid, exp_goids, act_goids)
             else:
@@ -411,7 +411,14 @@ class OptionalAttrs(object):
                         go2dct[rec['GO']] = rec
                     rec = {}
                     if rec_typedef is not None:
-                        typedefdct[rec_typedef['id']] = rec_typedef
+                        # Example rec_typedef:
+                        #     {'xref': 'RO:0002212',
+                        #      'name': 'negatively regulates',
+                        #      'namespace': 'external',
+                        #      'transitive_over': 'part_of',
+                        #      'is_a': 'regulates',
+                        #      'id': 'negatively_regulates'}
+                        typedefdct[rec_typedef['item_id']] = rec_typedef
                         rec_typedef = None
                 elif line[:9] == "[Typedef]":
                     rec_typedef = {}
@@ -424,8 +431,8 @@ class OptionalAttrs(object):
                         # Beginning of GO record
                         if fld == "id":
                             assert not rec, "NOW({}) WAS({})".format(line, rec)
-                            rec = {'GO':val, 'id':val}
-                            flds.add(fld)
+                            rec = {'GO':val, 'item_id':val}
+                            flds.add('item_id')
                         # Middle of GO record
                         elif rec:
                             flds.add(fld)
@@ -439,6 +446,8 @@ class OptionalAttrs(object):
                             rec[fld].add(val)
 
                         if rec_typedef is not None:
+                            if fld == 'id':
+                                fld = 'item_id'
                             rec_typedef[fld] = val
 
         for dct in go2dct.values():

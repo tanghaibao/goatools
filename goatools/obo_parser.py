@@ -78,7 +78,7 @@ class OBOReader(object):
                             rec_curr = None
                         elif typedef_curr is not None:
                             # Save typedef.
-                            self.typedefs[typedef_curr.id] = typedef_curr
+                            self.typedefs[typedef_curr.item_id] = typedef_curr
                             typedef_curr = None
             # Return last record, if necessary
             if rec_curr is not None:
@@ -107,8 +107,10 @@ class OBOReader(object):
         #   def: "The maintenance of ...
         #   is_a: GO:0007005 ! mitochondrion organization
         if line[:4] == "id: ":
-            assert not rec_curr.id
-            rec_curr.id = line[4:]
+            assert not rec_curr.item_id
+            item_id = line[4:]
+            rec_curr.item_id = item_id
+            rec_curr.id = item_id
         elif line[:8] == "alt_id: ":
             rec_curr.alt_ids.add(line[8:])
         elif line[:6] == "name: ":
@@ -140,7 +142,8 @@ class GOTerm(object):
     """
 
     def __init__(self):
-        self.id = ""                # GO:NNNNNNN
+        self.id = ""                # GO:NNNNNNN  **DEPRECATED** RESERVED NAME IN PYTHON
+        self.item_id = ""           # GO:NNNNNNN (will replace deprecated "id")
         self.name = ""              # description
         self.namespace = ""         # BP, CC, MF
         self._parents = set()       # is_a basestring of parents
@@ -152,7 +155,7 @@ class GOTerm(object):
         self.alt_ids = set()        # alternative identifiers
 
     def __str__(self):
-        ret = ['{GO}\t'.format(GO=self.id)]
+        ret = ['{GO}\t'.format(GO=self.item_id)]
         if self.level is not None:
             ret.append('level-{L:>02}\t'.format(L=self.level))
         if self.depth is not None:
@@ -163,8 +166,8 @@ class GOTerm(object):
         return ''.join(ret)
 
     def __repr__(self):
-        """Print GO id and all attributes in GOTerm class."""
-        ret = ["GOTerm('{ID}'):".format(ID=self.id)]
+        """Print GO ID and all attributes in GOTerm class."""
+        ret = ["GOTerm('{ID}'):".format(ID=self.item_id)]
         for key, val in self.__dict__.items():
             if isinstance(val, int) or isinstance(val, str):
                 ret.append("{K}:{V}".format(K=key, V=val))
@@ -188,14 +191,14 @@ class GOTerm(object):
     def has_parent(self, term):
         """Return True if this GO object has a parent GO ID."""
         for parent in self.parents:
-            if parent.id == term or parent.has_parent(term):
+            if parent.item_id == term or parent.has_parent(term):
                 return True
         return False
 
     def has_child(self, term):
         """Return True if this GO object has a child GO ID."""
         for parent in self.children:
-            if parent.id == term or parent.has_child(term):
+            if parent.item_id == term or parent.has_child(term):
                 return True
         return False
 
@@ -203,7 +206,7 @@ class GOTerm(object):
         """Return all parent GO IDs."""
         all_parents = set()
         for parent in self.parents:
-            all_parents.add(parent.id)
+            all_parents.add(parent.item_id)
             all_parents |= parent.get_all_parents()
         return all_parents
 
@@ -211,7 +214,7 @@ class GOTerm(object):
         """Return all parent GO IDs through both 'is_a' and all relationships."""
         all_upper = set()
         for upper in self.get_goterms_upper():
-            all_upper.add(upper.id)
+            all_upper.add(upper.item_id)
             all_upper |= upper.get_all_upper()
         return all_upper
 
@@ -219,7 +222,7 @@ class GOTerm(object):
         """Return all children GO IDs."""
         all_children = set()
         for parent in self.children:
-            all_children.add(parent.id)
+            all_children.add(parent.item_id)
             all_children |= parent.get_all_children()
         return all_children
 
@@ -227,7 +230,7 @@ class GOTerm(object):
         """Return all parent GO IDs through both reverse 'is_a' and all relationships."""
         all_lower = set()
         for lower in self.get_goterms_lower():
-            all_lower.add(lower.id)
+            all_lower.add(lower.item_id)
             all_lower |= lower.get_all_lower()
         return all_lower
 
@@ -235,7 +238,7 @@ class GOTerm(object):
         """Return tuples for all parent GO IDs, containing current GO ID and parent GO ID."""
         all_parent_edges = set()
         for parent in self.parents:
-            all_parent_edges.add((self.id, parent.id))
+            all_parent_edges.add((self.item_id, parent.item_id))
             all_parent_edges |= parent.get_all_parent_edges()
         return all_parent_edges
 
@@ -243,7 +246,7 @@ class GOTerm(object):
         """Return tuples for all child GO IDs, containing current GO ID and child GO ID."""
         all_child_edges = set()
         for parent in self.children:
-            all_child_edges.add((parent.id, self.id))
+            all_child_edges.add((parent.item_id, self.item_id))
             all_child_edges |= parent.get_all_child_edges()
         return all_child_edges
 
@@ -266,7 +269,7 @@ class GOTerm(object):
 ####                       depth=1, depth_dashes="-"):
 ####        """Write hierarchy for a GO Term record."""
 ####        # Added by DV Klopfenstein
-####        goid = self.id
+####        goid = self.item_id
 ####        # Shortens hierarchy report by only printing the hierarchy
 ####        # for the sub-set of user-specified GO terms which are connected.
 ####        if include_only is not None and goid not in include_only:
@@ -283,7 +286,7 @@ class GOTerm(object):
 ####        if num_child is not None:
 ####            out.write('{N:>5} '.format(N=len(self.get_all_children())))
 ####        out.write('{GO}\tL-{L:>02}\tD-{D:>02}\t{desc}\n'.format(
-####            GO=self.id, L=self.level, D=self.depth, desc=self.name))
+####            GO=self.item_id, L=self.level, D=self.depth, desc=self.name))
 ####        # Track GOs previously printed only if needed
 ####        if short_prt:
 ####            gos_printed.add(goid)
@@ -317,7 +320,7 @@ class GODag(dict):
             #   1) Argument load_obsolete is True OR
             #   2) Argument load_obsolete is False and the GO term is "live" (not obsolete)
             if load_obsolete or not rec.is_obsolete:
-                self[rec.id] = rec
+                self[rec.item_id] = rec
                 for alt in rec.alt_ids:
                     alt2rec[alt] = rec
 
@@ -411,18 +414,18 @@ class GODag(dict):
                 if rec.depth is None:
                     _init_reldepth(rec)
 
-                # print("BBBBBBBBBBB1", rec.id, rec.relationship)
+                # print("BBBBBBBBBBB1", rec.item_id, rec.relationship)
                 #for (typedef, terms) in rec.relationship.items():
                 #    invert_typedef = self.typedefs[typedef].inverse_of
                 #    # print("BBBBBBBBBBB2 {} ({}) ({}) ({})".format(
-                #    #    rec.id, rec.relationship, typedef, invert_typedef))
+                #    #    rec.item_id, rec.relationship, typedef, invert_typedef))
                 #    if invert_typedef:
                 #        # Add inverted relationship
                 #        for term in terms:
                 #            if not hasattr(term, 'relationship'):
                 #                term.relationship = defaultdict(set)
                 #            term.relationship[invert_typedef].add(rec)
-                # print("BBBBBBBBBBB3", rec.id, rec.relationship)
+                # print("BBBBBBBBBBB3", rec.item_id, rec.relationship)
 
             if rec.level is None:
                 _init_level(rec)
@@ -480,7 +483,7 @@ class GODag(dict):
             Parameters:
             -----------
             - term:
-                the id of the GO term, where the paths begin (i.e. the
+                the ID of the GO term, where the paths begin (i.e. the
                 accession 'GO:0003682')
 
             Returns:
@@ -519,7 +522,7 @@ class GODag(dict):
         import pydot
         grph = pydot.Dot(graph_type='digraph', dpi="{}".format(dpi)) # Directed Graph
         edgeset = set()
-        usr_ids = [rec.id for rec in recs]
+        usr_ids = [rec.item_id for rec in recs]
         for rec in recs:
             if draw_parents:
                 edgeset.update(rec.get_all_parent_edges())
@@ -573,7 +576,7 @@ class GODag(dict):
         # adding nodes implicitly via add_edge misses nodes
         # without at least one edge
         for rec in recs:
-            grph.add_node(self.label_wrap(rec.id))
+            grph.add_node(self.label_wrap(rec.item_id))
 
         for src, target in edgeset:
             # default layout in graphviz is top->bottom, so we invert
@@ -588,7 +591,7 @@ class GODag(dict):
         # highlight the query terms
         for rec in recs:
             try:
-                node = grph.get_node(self.label_wrap(rec.id))
+                node = grph.get_node(self.label_wrap(rec.item_id))
                 node.attr.update(fillcolor="plum")
             except:
                 continue
@@ -622,7 +625,7 @@ class GODag(dict):
             sys.stderr.write("GML graph written to {0}\n".format(gmlfile))
 
         sys.stderr.write(("lineage info for terms %s written to %s\n" %
-                          ([rec.id for rec in recs], lineage_img)))
+                          ([rec.item_id for rec in recs], lineage_img)))
 
         if engine == "pygraphviz":
             grph.draw(lineage_img, prog="dot")

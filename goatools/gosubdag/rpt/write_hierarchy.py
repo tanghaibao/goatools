@@ -26,23 +26,23 @@ class WrHierGO(object):
     def prt_hier_all(self, prt=sys.stdout):
         """Write hierarchy for all GO Terms in obo file."""
         # Print: [biological_process, molecular_function, and cellular_component]
-        gos_printed = set()
+        items_printed = set()
         for goid in ['GO:0008150', 'GO:0003674', 'GO:0005575']:
-            gos_printed.update(self.prt_hier_down(goid, prt))
-        return gos_printed
+            items_printed.update(self.prt_hier_down(goid, prt))
+        return items_printed
 
     def prt_hier_down(self, goid, prt=sys.stdout):
         """Write hierarchy for all GO IDs below GO ID in arg, goid."""
         wrhiercfg = self._get_wrhiercfg()
         obj = WrHierPrt(self.gosubdag.go2obj, self.gosubdag.go2nt, wrhiercfg, prt)
         obj.prt_hier_rec(goid)
-        return obj.gos_printed
+        return obj.items_printed
 
     def prt_hier_up(self, goids, prt=sys.stdout):
         """Write hierarchy for all GO IDs below GO ID in arg, goid."""
         go2goterm_all = {go:self.gosubdag.go2obj[go] for go in goids}
         objp = GoPaths()
-        gos_printed = set()
+        items_printed = set()
         wrhiercfg = self._get_wrhiercfg()
         for namespace, go2term_ns in self._get_namespace2go2term(go2goterm_all).items():
             go_root = self.consts.NAMESPACE2GO[namespace]
@@ -56,13 +56,13 @@ class WrHierGO(object):
                 self.usrdct['include_only'] = set()
             self.usrdct['include_only'].update(goids_all)
             # Mark the user-specfied GO term
-            if 'go_marks' not in self.usrdct:
-                self.usrdct['go_marks'] = set()
-            self.usrdct['go_marks'].update(go2term_ns.keys())
+            if 'item_marks' not in self.usrdct:
+                self.usrdct['item_marks'] = set()
+            self.usrdct['item_marks'].update(go2term_ns.keys())
             obj = WrHierPrt(self.gosubdag.go2obj, self.gosubdag.go2nt, wrhiercfg, prt)
-            gos_printed.update(obj.gos_printed)
+            items_printed.update(obj.items_printed)
             obj.prt_hier_rec(go_root)
-        return gos_printed
+        return items_printed
 
     @staticmethod
     def _get_namespace2go2term(go2terms):
@@ -80,7 +80,7 @@ class WrHierGO(object):
         return {'name2prtfmt':{'ITEM':prtfmt, 'ID':'{GO}{alt:1}'},
                 'max_indent': self.usrdct.get('max_indent'),
                 'include_only': self.usrdct.get('include_only'),
-                'go_marks': self.usrdct.get('go_marks', set()),
+                'item_marks': self.usrdct.get('item_marks', set()),
                 'concise_prt': 'concise' in self.usrset,
                 'indent': 'no_indent' not in self.usrset,
                 'dash_len': self.usrdct.get('dash_len', 6)

@@ -7,10 +7,10 @@ __author__ = "DV Klopfenstein"
 
 import collections as cx
 from itertools import chain
-from goatools.godag.go_tasks import get_go2parents
-from goatools.godag.go_tasks import get_go2upper
-from goatools.godag.go_tasks import get_go2children
-from goatools.godag.go_tasks import get_go2lower
+from goatools.godag.go_tasks import get_id2parents
+from goatools.godag.go_tasks import get_id2upper
+from goatools.godag.go_tasks import get_id2children
+from goatools.godag.go_tasks import get_id2lower
 from goatools.gosubdag.go_tasks import get_goobjs_altgo2goobj
 from goatools.gosubdag.go_tasks import add_alt_goids
 
@@ -27,8 +27,8 @@ class CountRelativesInit(object):
         # Ex: set(['part_of', 'regulates', 'negatively_regulates', 'positively_regulates'])
         _goobjs, _altgo2goobj = get_goobjs_altgo2goobj(self.go2obj)
         _r0 = not relationships  # True if not using relationships
-        self.go2descendants = get_go2children(_goobjs) if _r0 else get_go2lower(_goobjs)
-        self.go2parents = get_go2parents(_goobjs) if _r0 else get_go2upper(_goobjs)
+        self.go2descendants = get_id2children(_goobjs) if _r0 else get_id2lower(_goobjs)
+        self.go2parents = get_id2parents(_goobjs) if _r0 else get_id2upper(_goobjs)
         self.go2dcnt = {go: len(p) for go, p in self.go2descendants.items()}
         add_alt_goids(self.go2parents, _altgo2goobj)
         add_alt_goids(self.go2descendants, _altgo2goobj)

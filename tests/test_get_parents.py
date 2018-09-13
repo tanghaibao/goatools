@@ -9,7 +9,7 @@ import os
 import sys
 import timeit
 from goatools.base import get_godag
-from goatools.godag.go_tasks import get_go2parents
+from goatools.godag.go_tasks import get_id2parents
 from goatools.test_data.godag_timed import prt_hms
 from goatools.test_data.checks import _chk_a2bset
 
@@ -28,8 +28,8 @@ def test_get_parent(prt=sys.stdout):
         go2parents_orig[goobj.id] = goobj.get_all_parents()
     tic = prt_hms(tic, "Get all goobj's parents using GOTerm.get_all_parents()", prt)
     # Get all parents for all GO IDs using GOTerm get_all_parents
-    go2parents_fast = get_go2parents(go2obj.values())
-    prt_hms(tic, "Get all goobj's parents using go_tasks::get_go2parents", prt)
+    go2parents_fast = get_id2parents(go2obj.values())
+    prt_hms(tic, "Get all goobj's parents using go_tasks::get_id2parents", prt)
     # Compare parent lists
     _chk_a2bset(go2parents_orig, go2parents_fast)
     print("PASSED: get_parent test")

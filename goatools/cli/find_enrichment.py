@@ -20,6 +20,7 @@ __author__ = "various"
 
 import os
 import sys
+import re
 import argparse
 
 from goatools.obo_parser import GODag
@@ -67,6 +68,8 @@ class GoeaCliArgs(object):
                        help='Only print results when PVAL_FIELD < PVAL.')
         p.add_argument('--outfile', default=None, type=str,
                        help='Write enrichment results into xlsx or tsv file')
+        p.add_argument('--id2sym', default=None, type=str,
+                       help='ASCII file containing one geneid and its symbol per line')
         p.add_argument('--sections', default=None, type=str,
                        help=('Use sections file for printing grouped GOEA results. '
                              'Example SECTIONS values:\n'
@@ -142,11 +145,27 @@ class GoeaCliFnc(object):
         if not self.args.compare:  # sanity check
             self.chk_genes(_study, _pop)
         self.methods = self.args.method.split(",")
+        self.itemid2name = self._init_itemid2name()
         self.objgoea = self._init_objgoea(_pop, _assoc)
         # Run GOEA
         self.results_all = self.objgoea.run_study(_study)
         # Prepare for grouping, if user-specified. Create GroupItems
         self.prepgrp = GroupItems(_assoc, self, self.godag.version) if self.sections else None
+
+    def _init_itemid2name(self):
+        """Print gene symbols instead of gene IDs, if provided."""
+        if not hasattr(self.args, 'id2sym'):
+            return None
+        fin_id2sym = self.args.id2sym
+        if fin_id2sym is not None and os.path.exists(fin_id2sym):
+            id2sym = {}
+            cmpl = re.compile(r'^\s*(\S+)[\s,;]+(\S+)')
+            with open(fin_id2sym) as ifstrm:
+                for line in ifstrm:
+                    mtch = cmpl.search(line)
+                    if mtch:
+                        id2sym[mtch.group(1)] = mtch.group(2)
+            return id2sym
 
     def prt_results(self, goea_results):
         """Print GOEA results to the screen or to a file."""
@@ -164,13 +183,14 @@ class GoeaCliFnc(object):
 
     def prt_outfiles_flat(self, goea_results, outfiles):
         """Write to outfiles."""
+        kws = {'indent':self.args.indent, 'itemid2name':self.itemid2name}
         for outfile in outfiles:
             if outfile.endswith(".xlsx"):
-                self.objgoea.wr_xlsx(outfile, goea_results, indent=self.args.indent)
+                self.objgoea.wr_xlsx(outfile, goea_results, **kws)
             #elif outfile.endswith(".txt"):  # TBD
             #    pass
             else:
-                self.objgoea.wr_tsv(outfile, goea_results, indent=self.args.indent)
+                self.objgoea.wr_tsv(outfile, goea_results, **kws)
 
     def _prt_results(self, goea_results):
         """Print GOEA results to the screen."""
@@ -181,6 +201,7 @@ class GoeaCliFnc(object):
         self.objgoea.print_summary(min_ratio=min_ratio, pval=self.args.pval)
         results_adj = self.objgoea.get_adj_records(goea_results, min_ratio, self.args.pval)
         if results_adj:
+            #### kws = {'indent':self.args.indent, 'itemid2name':self.itemid2name}
             if not self.prepgrp:
                 self.objgoea.print_results_adj(results_adj, self.args.indent)
             else:
@@ -308,7 +329,8 @@ class GroupItems(object):
         sortobj = Sorter(grprobj, section_sortby=lambda nt: getattr(nt, self.pval_fld))
         return sortobj
 
-    def get_objaart(self, goea_results, **kws):
+    @staticmethod
+    def get_objaart(goea_results, **kws):
         """Return a AArtGeneProductSetsOne object."""
         nts_goea = MgrNtGOEAs(goea_results).get_goea_nts_prt(**kws)
         # objaart = AArtGeneProductSetsOne(name, goea_nts, self)
