@@ -53,6 +53,7 @@ class GpadReader(object):
         # Seen 2018_09
         'acts_upstream_of',
         'acts_upstream_of_or_within',
+        'acts_upstream_of_negative_effect',
         'acts_upstream_of_or_within_negative_effect'
     ])
 
@@ -213,7 +214,8 @@ class GpadReader(object):
         """Check that qualifiers are expected values."""
         # http://geneontology.org/page/go-annotation-conventions#qual
         for qual in qualifiers:
-            assert qual in self.exp_qualifiers, "UNEXPECTED QUALIFIER({Q})".format(Q=qual)
+            assert qual in self.exp_qualifiers, "UNEXPECTED QUALIFIER({Q}): {F}".format(
+                Q=qual, F=self.filename)
 
     @staticmethod
     def _chk_qty_eq_1(flds, col_lst):
