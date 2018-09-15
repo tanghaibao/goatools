@@ -23,20 +23,20 @@ class WrHierGO(object):
         self.usrset = set([k for k, v in kws.items() if k in kws and v])
         # ' {NS} {dcnt:6,} L{level:02} D{depth:02} {D1:5} {GO_name}'
 
-    def prt_hier_all(self, prt=sys.stdout):
+    def prt_hier_all(self, prt=sys.stdout, sortby=None):
         """Write hierarchy for all GO Terms in obo file."""
         # Print: [biological_process, molecular_function, and cellular_component]
         items_printed = set()
         for goid in ['GO:0008150', 'GO:0003674', 'GO:0005575']:
-            items_printed.update(self.prt_hier_down(goid, prt))
+            items_printed.update(self.prt_hier_down(goid, prt, sortby))
         return items_printed
 
-    def prt_hier_down(self, goid, prt=sys.stdout):
+    def prt_hier_down(self, goid, prt=sys.stdout, sortby=None):
         """Write hierarchy for all GO IDs below GO ID in arg, goid."""
         wrhiercfg = self._get_wrhiercfg()
         obj = WrHierPrt(self.gosubdag.go2obj, self.gosubdag.go2nt, wrhiercfg, prt)
         obj.prt_hier_rec(goid)
-        return obj.items_printed
+        return obj.items_list
 
     def prt_hier_up(self, goids, prt=sys.stdout):
         """Write hierarchy for all GO IDs below GO ID in arg, goid."""
@@ -83,7 +83,8 @@ class WrHierGO(object):
                 'item_marks': self.usrdct.get('item_marks', set()),
                 'concise_prt': 'concise' in self.usrset,
                 'indent': 'no_indent' not in self.usrset,
-                'dash_len': self.usrdct.get('dash_len', 6)
+                'dash_len': self.usrdct.get('dash_len', 6),
+                'sortby': self.usrdct.get('sortby')
                }
 
 #### Examples:

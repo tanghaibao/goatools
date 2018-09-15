@@ -50,23 +50,50 @@ def test_write_hier_norep(name, go_id, gosubdag, out):
 @pytest.mark.skip
 def test_write_hier_lim(gosubdag, out):
     """Limits hierarchy list to GO Terms specified by user."""
-    go_omit = ['GO:0000005', 'GO:0000010']
+    # - GO:0000001      BP     9 L00 D00 top
+    # -- GO:0000002     BP     2 L01 D01 B
+    # -- GO:0000003     BP     7 L01 D01 A
+    # --- GO:0000004    BP     2 L02 D02 b
+    # ---- GO:0000007   BP     1 L03 D03 b1
+    # ----- GO:0000009  BP     0 L04 D04 ab
+    # --- GO:0000006    BP     3 L02 D02 a
+    # ---- GO:0000008   BP     2 L03 D03 a1
+    # ----- GO:0000009  BP     0 L04 D04 ab
+    go_omit = ['GO:0000005']
     go_ids = [go_id for go_id in gosubdag.go2nt.keys() if go_id not in go_omit]
     out.write('\nTEST {NAME} OMIT: 05->10:\n'.format(NAME="MINI"))
-    # TBD: Add include_only fnc to wr_hier
-    #### dag.write_hier("GO:0000001", out, include_only=go_ids)
-    WrHierGO(gosubdag).prt_hier_down("GO:0000001", out)
+    objwr = WrHierGO(gosubdag, include_only=go_ids, sortby=lambda o: o.item_id)
+    gos_prtd = objwr.prt_hier_down("GO:0000001", out)
+    print(gos_prtd)
+    assert gos_prtd == ['GO:0000001', 'GO:0000002', 'GO:0000003', 'GO:0000004', 'GO:0000007',
+                        'GO:0000009', 'GO:0000006', 'GO:0000008', 'GO:0000009', 'GO:0000010']
+
       #go_marks=[oGO.id for oGO in oGOs_in_cluster])
 
 @pytest.mark.skip
 def test_write_hier_mrk(gosubdag, out):
     """Print all paths, but mark GO Terms of interest. """
+    # > - GO:0000001      BP     9 L00 D00 top
+    #   -- GO:0000002     BP     2 L01 D01 B
+    #   --- GO:0000005    BP     1 L02 D02 c
+    #   ---- GO:0000010   BP     0 L03 D04 ac
+    # > -- GO:0000003     BP     7 L01 D01 A
+    #   --- GO:0000004    BP     2 L02 D02 b
+    #   ---- GO:0000007   BP     1 L03 D03 b1
+    # > ----- GO:0000009  BP     0 L04 D04 ab
+    #   --- GO:0000005    BP     1 L02 D02 c
+    #   ---- GO:0000010   BP     0 L03 D04 ac
+    # > --- GO:0000006    BP     3 L02 D02 a
+    # > ---- GO:0000008   BP     2 L03 D03 a1
+    # > ----- GO:0000009  BP     0 L04 D04 ab
+    #   ----- GO:0000010  BP     0 L03 D04 ac
     mark_lst = ['GO:0000001', 'GO:0000003', 'GO:0000006', 'GO:0000008', 'GO:0000009']
     out.write('\nTEST {NAME} MARK: 01->03->06->08->09:\n'.format(NAME="MINI"))
-    # TBD: Add go_marks fnc to wr_hier
-    #### dag.write_hier("GO:0000001", out, go_marks=mark_lst)
-    WrHierGO(gosubdag).prt_hier_down("GO:0000001", out)
-      #go_marks=[oGO.id for oGO in oGOs_in_cluster])
+    objwr = WrHierGO(gosubdag, item_marks=mark_lst, sortby=lambda o: o.item_id)
+    gos_prtd = objwr.prt_hier_down("GO:0000001", out)
+    assert gos_prtd == ['GO:0000001', 'GO:0000002', 'GO:0000005', 'GO:0000010', 'GO:0000003',
+                        'GO:0000004', 'GO:0000007', 'GO:0000009', 'GO:0000005', 'GO:0000010',
+                        'GO:0000006', 'GO:0000008', 'GO:0000009', 'GO:0000010']
 
 def _load_dag(dag_fin, opt_fields=None, out=None):
     """Run numerous tests for various REPOrts."""

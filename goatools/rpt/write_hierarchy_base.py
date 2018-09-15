@@ -21,9 +21,11 @@ class WrHierPrt(object):
         self.concise_prt = cfg.get('concise_prt', False)
         self.indent = cfg.get('indent', True)
         self.space_branches = cfg.get('space_branches', False)
+        self.sortby = cfg.get('sortby')
         # vars
         self.prt = prt
         self.items_printed = set()
+        self.items_list = []
         self.dash_len = cfg['dash_len'] + cfg.get('id_len', 10) + 2
 
     def prt_hier_rec(self, item_id, depth=1):
@@ -50,13 +52,14 @@ class WrHierPrt(object):
         else:
             self._prtstr(obj, dashes)
         self.items_printed.add(item_id)
+        self.items_list.append(item_id)
         # Do not print hierarchy below this turn if it has already been printed
         if no_repeat:
             return
         depth += 1
         if self.max_indent is not None and depth > self.max_indent:
             return
-        for child in obj.children:
+        for child in sorted(obj.children, key=self.sortby):
             self.prt_hier_rec(child.item_id, depth)
 
     def _prtfmt(self, item_id, dashes):

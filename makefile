@@ -276,7 +276,7 @@ NOSETESTS := \
 
 # Run all tests. If you are submitting a pull request, all tests must pass.
 test:
-	py.test tests/
+	py.test -v tests/
 	make chk_parsers
 	# py.test tests/ --log-file=pytest.log
 
