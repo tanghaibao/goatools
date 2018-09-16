@@ -59,7 +59,8 @@ class WrHierPrt(object):
         depth += 1
         if self.max_indent is not None and depth > self.max_indent:
             return
-        for child in sorted(obj.children, key=self.sortby):
+        children = obj.children if self.sortby is None else sorted(obj.children, key=self.sortby)
+        for child in children:
             self.prt_hier_rec(child.item_id, depth)
 
     def _prtfmt(self, item_id, dashes):
