@@ -213,7 +213,7 @@ clobber:
 	rm -f *.png
 	rm -f gos_*
 	rm -f cell_cycle_genes_*.txt
-	rm -r *.gpa.gz
+	rm -f *.gpa.gz
 
 # Tests which run longer and have much functionality covered by other tests
 #    tests/test_annotations_gaf.py \

@@ -23,15 +23,15 @@ class WrHierGO(object):
         self.usrset = set([k for k, v in kws.items() if k in kws and v])
         # ' {NS} {dcnt:6,} L{level:02} D{depth:02} {D1:5} {GO_name}'
 
-    def prt_hier_all(self, prt=sys.stdout, sortby=None):
+    def prt_hier_all(self, prt=sys.stdout):
         """Write hierarchy for all GO Terms in obo file."""
         # Print: [biological_process, molecular_function, and cellular_component]
-        items_printed = set()
+        items_list = set()
         for goid in ['GO:0008150', 'GO:0003674', 'GO:0005575']:
-            items_printed.update(self.prt_hier_down(goid, prt, sortby))
-        return items_printed
+            items_list.update(self.prt_hier_down(goid, prt))
+        return items_list
 
-    def prt_hier_down(self, goid, prt=sys.stdout, sortby=None):
+    def prt_hier_down(self, goid, prt=sys.stdout):
         """Write hierarchy for all GO IDs below GO ID in arg, goid."""
         wrhiercfg = self._get_wrhiercfg()
         obj = WrHierPrt(self.gosubdag.go2obj, self.gosubdag.go2nt, wrhiercfg, prt)
@@ -42,13 +42,11 @@ class WrHierGO(object):
         """Write hierarchy for all GO IDs below GO ID in arg, goid."""
         go2goterm_all = {go:self.gosubdag.go2obj[go] for go in goids}
         objp = GoPaths()
-        items_printed = set()
-        wrhiercfg = self._get_wrhiercfg()
+        items_list = []
         for namespace, go2term_ns in self._get_namespace2go2term(go2goterm_all).items():
-            go_root = self.consts.NAMESPACE2GO[namespace]
             goids_all = set()  # GO IDs from user-specfied GO to root
-            for goid, goterm in go2term_ns.items():
-                goids_all.add(goid)
+            for goid_usr, goterm in go2term_ns.items():
+                goids_all.add(goid_usr)
                 paths = objp.get_paths_from_to(goterm, goid_end=None, dn0_up1=True)
                 goids_all.update(set(o.id for p in paths for o in p))
             # Only include GO IDs from user-specified GO to the root
@@ -57,12 +55,17 @@ class WrHierGO(object):
             self.usrdct['include_only'].update(goids_all)
             # Mark the user-specfied GO term
             if 'item_marks' not in self.usrdct:
-                self.usrdct['item_marks'] = set()
-            self.usrdct['item_marks'].update(go2term_ns.keys())
+                self.usrdct['item_marks'] = {}
+            for goid_usr in go2term_ns.keys():
+                if goid_usr not in self.usrdct['item_marks']:
+                    self.usrdct['item_marks'][goid_usr] = '*'
+            # Write the hierarchy
+            wrhiercfg = self._get_wrhiercfg()
             obj = WrHierPrt(self.gosubdag.go2obj, self.gosubdag.go2nt, wrhiercfg, prt)
-            items_printed.update(obj.items_printed)
+            go_root = self._get_goroot(goids_all, namespace)
             obj.prt_hier_rec(go_root)
-        return items_printed
+            items_list.extend(obj.items_list)
+        return items_list
 
     @staticmethod
     def _get_namespace2go2term(go2terms):
@@ -80,12 +83,26 @@ class WrHierGO(object):
         return {'name2prtfmt':{'ITEM':prtfmt, 'ID':'{GO}{alt:1}'},
                 'max_indent': self.usrdct.get('max_indent'),
                 'include_only': self.usrdct.get('include_only'),
-                'item_marks': self.usrdct.get('item_marks', set()),
+                'item_marks': self.usrdct.get('item_marks', {}),
                 'concise_prt': 'concise' in self.usrset,
                 'indent': 'no_indent' not in self.usrset,
                 'dash_len': self.usrdct.get('dash_len', 6),
                 'sortby': self.usrdct.get('sortby')
                }
+
+    def _get_goroot(self, goids_all, namespace):
+        """Get the top GO for the set of goids_all."""
+        root_goid = self.consts.NAMESPACE2GO[namespace]
+        if root_goid in goids_all:
+            return root_goid
+        root_goids = set()
+        for goid in goids_all:
+            goterm = self.gosubdag.go2obj[goid]
+            if goterm.depth == 0:
+                root_goids.add(goterm.id)
+        if len(root_goids) == 1:
+            return next(iter(root_goids))
+        raise RuntimeError("UNEXPECTED NUMBER OF ROOTS: {R}".format(R=root_goids))
 
 #### Examples:
 ####

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Tests alternate OBOReader."""
 
 import os
@@ -58,17 +59,37 @@ def write_hier_lim(gosubdag, out):
                            'GO:0000009']
 
 
-def write_hier_mrk(gosubdag, out):
+def write_hier_mrk_lst(gosubdag, out):
     """Print all paths, but mark GO Terms of interest. """
     mark_lst = ['GO:0000001', 'GO:0000003', 'GO:0000006', 'GO:0000008', 'GO:0000009']
-    out.write('\nTEST MARK: 01->03->06->08->09:\n')
+    out.write('\nTEST MARK LIST: 01->03->06->08->09:\n')
     objwr = WrHierGO(gosubdag, item_marks=mark_lst, sortby=lambda o: o.item_id)
     gos_printed = objwr.prt_hier_down("GO:0000001", out)
     assert gos_printed == ['GO:0000001', 'GO:0000002', 'GO:0000005', 'GO:0000010',
                            'GO:0000003', 'GO:0000004', 'GO:0000007', 'GO:0000009',
                            'GO:0000005', 'GO:0000010', 'GO:0000006', 'GO:0000008',
                            'GO:0000009', 'GO:0000010']
-      #item_marks=[oGO.id for oGO in oGOs_in_cluster])
+
+def write_hier_mrk_dct(gosubdag, out):
+    """Print all paths, but mark GO Terms of interest. """
+    mark_dct = {'GO:0000001':'a', 'GO:0000003':'b', 'GO:0000006':'c',
+                'GO:0000008':'d', 'GO:0000009':'e'}
+    out.write('\nTEST MARK DICT: 01->03->06->08->09:\n')
+    objwr = WrHierGO(gosubdag, item_marks=mark_dct, sortby=lambda o: o.item_id)
+    gos_printed = objwr.prt_hier_down("GO:0000001", out)
+    assert gos_printed == ['GO:0000001', 'GO:0000002', 'GO:0000005', 'GO:0000010',
+                           'GO:0000003', 'GO:0000004', 'GO:0000007', 'GO:0000009',
+                           'GO:0000005', 'GO:0000010', 'GO:0000006', 'GO:0000008',
+                           'GO:0000009', 'GO:0000010']
+
+def write_hier_up(gosubdag, out):
+    """Print all paths, but mark GO Terms of interest. """
+    mark_dct = {'GO:0000001':'a', 'GO:0000003':'b', 'GO:0000006':'c', 'GO:0000008':'d'}
+    out.write('\nTEST MARK DICT: 01->03->06->08->09:\n')
+    objwr = WrHierGO(gosubdag, item_marks=mark_dct, sortby=lambda o: o.item_id)
+    gos_printed = objwr.prt_hier_up(["GO:0000005"], out)
+    assert gos_printed == ['GO:0000001', 'GO:0000002', 'GO:0000005', 'GO:0000003', 'GO:0000005']
+
 
 #################################################################
 # Tests
@@ -84,7 +105,9 @@ def test_all():
     write_hier_all(gosubdag, out)
     write_hier_norep(gosubdag, out)
     write_hier_lim(gosubdag, out)
-    write_hier_mrk(gosubdag, out)
+    write_hier_mrk_lst(gosubdag, out)
+    write_hier_mrk_dct(gosubdag, out)
+    write_hier_up(gosubdag, out)
     msg = "Elapsed HMS: {}\n\n".format(str(datetime.timedelta(seconds=(toc-tic))))
     sys.stdout.write(msg)
 

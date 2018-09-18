@@ -85,7 +85,7 @@ class WrHierCli(object):
     def _init_goids(self):
         goids_ret = []
         godagconsts = Consts()
-        print("WWWWWWWWWWWWWWWWWWWWWW", self.kws)
+        # print("WWWWWWWWWWWWWWWWWWWWWW", self.kws)
         if 'GO' in self.kws:
             for goid in self.kws['GO']:
                 if goid[:3] == "GO:":
@@ -144,7 +144,7 @@ class WrHierCli(object):
             #     --item_marks=GO:0043473,GO:0009987
             #     --item_marks=item_marks.txt
             if goids:
-                self.kws['item_marks'] = goids
+                self.kws['item_marks'] = {go:'>' for go in goids}
             else:
                 raise Exception("NO GO IDs FOUND IN item_marks")
 
@@ -166,7 +166,7 @@ class WrHierCli(object):
         if self.gene2gos:
             gos_assoc = set(get_b2aset(self.gene2gos).keys())
             if 'item_marks' not in self.kws:
-                self.kws['item_marks'] = set(gos_assoc)
+                self.kws['item_marks'] = {go:'>' for go in gos_assoc}
             if 'include_only' not in self.kws:
                 gosubdag = GoSubDag(gos_assoc, self.gosubdag.go2obj,
                                     self.gosubdag.relationships)

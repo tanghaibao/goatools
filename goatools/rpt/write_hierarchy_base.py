@@ -17,7 +17,7 @@ class WrHierPrt(object):
         self.nm2prtfmt = cfg['name2prtfmt'] if self.do_prtfmt else None
         self.max_indent = cfg['max_indent']
         self.include_only = cfg['include_only']
-        self.item_marks = cfg['item_marks']
+        self.item_marks = self._init_item_marks(cfg.get('item_marks'))
         self.concise_prt = cfg.get('concise_prt', False)
         self.indent = cfg.get('indent', True)
         self.space_branches = cfg.get('space_branches', False)
@@ -42,7 +42,8 @@ class WrHierPrt(object):
                 self.prt.write("\n")
         # Print marks if provided
         if self.item_marks:
-            self.prt.write('{MARK} '.format(MARK='>' if item_id in self.item_marks else ' '))
+            self.prt.write('{MARK} '.format(
+                MARK=self.item_marks[item_id] if item_id in self.item_marks else ' '))
 
         no_repeat = self.concise_prt and item_id in self.items_printed
         # Print content
@@ -88,6 +89,14 @@ class WrHierPrt(object):
             letter = '-' if single_or_double else '='
             return ''.join([letter]*depth)
         return ""
+
+    @staticmethod
+    def _init_item_marks(item_marks):
+        """Initialize the makred item dict."""
+        if isinstance(item_marks, dict):
+            return item_marks
+        if item_marks:
+            return {item_id:'>' for item_id in item_marks}
 
 
 # Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.
