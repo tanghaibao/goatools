@@ -91,7 +91,7 @@ class GOEnrichmentRecord(object):
     def __str__(self, indent=False):
         field_data = [getattr(self, f, "n.a.") for f in self._fldsdefprt[:-1]] + \
                      [getattr(self, "p_{}".format(m.fieldname)) for m in self.method_flds] + \
-                     [", ".join(sorted(getattr(self, self._fldsdefprt[-1], set())))]
+                     [", ".join(str(e) for e in sorted(getattr(self, self._fldsdefprt[-1], set())))]
         fldsdeffmt = self._fldsdeffmt
         field_formatter = fldsdeffmt[:-1] + ["%.3g"]*len(self.method_flds) + [fldsdeffmt[-1]]
         self._chk_fields(field_data, field_formatter)
