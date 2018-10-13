@@ -466,7 +466,7 @@ class GOEnrichmentStudy(object):
         """Write tab-separated table data"""
         prt_flds = kws.get('prt_flds', self.get_prtflds_default(goea_results))
         tsv_data = MgrNtGOEAs(goea_results).get_goea_nts_prt(prt_flds, **kws)
-        RPT.prt_tsv(prt, tsv_data, prt_flds, **kws)
+        RPT.prt_tsv(prt, tsv_data, **kws)
 
     @staticmethod
     def get_ns2nts(results, fldnames=None, **kws):
