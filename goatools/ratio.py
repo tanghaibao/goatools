@@ -44,6 +44,10 @@ def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
         return True
     stu_ratio = float(study_go) / study_n
     pop_ratio = float(pop_go) / pop_n
+    if stu_ratio == 0.0:
+        stu_ratio = 0.0000001
+    if pop_ratio == 0.0:
+        pop_ratio = 0.0000001
     if stu_ratio > pop_ratio:
         return stu_ratio / pop_ratio > min_ratio
     return pop_ratio / stu_ratio > min_ratio

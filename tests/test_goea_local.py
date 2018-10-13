@@ -26,7 +26,8 @@ def test_goea_fdr_dflt():
     study_fin = "{REPO}/tests/data/small_study".format(REPO=REPO)
     study_ids = [line.rstrip() for line in open(study_fin)]
     goea_results = goeaobj.run_study(study_ids)
-    goeaobj.print_summary(goea_results)
+    goeaobj.print_results(goea_results)
+    goeaobj.print_date()
 
 def test_goea_local(log=sys.stdout):
     """Test GOEA with local multipletest correction methods for local."""

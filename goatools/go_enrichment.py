@@ -503,8 +503,8 @@ class GOEnrichmentStudy(object):
         return []
 
     @staticmethod
-    def print_summary(min_ratio=None, pval=0.05):
-        """Print summary."""
+    def print_date(min_ratio=None, pval=0.05):
+        """Print GOATOOLS version and the date the GOEA was run."""
         import goatools
 
         # Header contains provenance and parameters

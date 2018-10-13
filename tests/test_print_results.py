@@ -29,6 +29,7 @@ def test_example():
     goea_results_sig = [r for r in goea_results_all if r.p_fdr_bh < 0.05]
     #goea_results_nt = MgrNtGOEAs(goea_results_sig).get_goea_nts_all()
     goeaobj.print_results(goea_results_sig)
+    goeaobj.print_date()
 
 
 if __name__ == '__main__':

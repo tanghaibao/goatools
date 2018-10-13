@@ -198,7 +198,7 @@ class GoeaCliFnc(object):
         if min_ratio is not None:
             assert 1 <= min_ratio <= 2
         # print("MMMMMMMMMMMMMMMMMMMMMM", min_ratio)
-        self.objgoea.print_summary(min_ratio=min_ratio, pval=self.args.pval)
+        self.objgoea.print_date(min_ratio=min_ratio, pval=self.args.pval)
         results_adj = self.objgoea.get_adj_records(goea_results, min_ratio, self.args.pval)
         if results_adj:
             #### kws = {'indent':self.args.indent, 'itemid2name':self.itemid2name}
