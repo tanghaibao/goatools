@@ -10,6 +10,8 @@ import sys
 class WrHierPrt(object):
     """Print the hierarchy of a set of objects w/attrs=[item_id, children]."""
 
+    fmt_dashes = '{DASHES} {ID}'
+
     def __init__(self, id2obj, id2nt, cfg, prt=sys.stdout):
         self.id2obj = id2obj  # Contains children (and parents)
         self.id2nt = id2nt    # Contains fields for printing (optional)
@@ -18,6 +20,7 @@ class WrHierPrt(object):
         self.max_indent = cfg['max_indent']
         self.include_only = cfg['include_only']
         self.item_marks = self._init_item_marks(cfg.get('item_marks'))
+        self.mark_dflt = cfg.get('mark_default', ' ')
         self.concise_prt = cfg.get('concise_prt', False)
         self.indent = cfg.get('indent', True)
         self.space_branches = cfg.get('space_branches', False)
@@ -43,7 +46,7 @@ class WrHierPrt(object):
         # Print marks if provided
         if self.item_marks:
             self.prt.write('{MARK} '.format(
-                MARK=self.item_marks[item_id] if item_id in self.item_marks else ' '))
+                MARK=self.item_marks.get(item_id, self.mark_dflt)))
 
         no_repeat = self.concise_prt and item_id in self.items_printed
         # Print content
@@ -69,14 +72,14 @@ class WrHierPrt(object):
         ntprt = self.id2nt[item_id]
         dct = ntprt._asdict()
         self.prt.write('{DASHES:{N}}'.format(
-            DASHES="{DASHES} {ID}".format(DASHES=dashes, ID=self.nm2prtfmt['ID'].format(**dct)),
+            DASHES=self.fmt_dashes.format(DASHES=dashes, ID=self.nm2prtfmt['ID'].format(**dct)),
             N=self.dash_len))
         self.prt.write("{INFO}\n".format(INFO=self.nm2prtfmt['ITEM'].format(**dct)))
 
     def _prtstr(self, obj, dashes):
         """Print object information using a namedtuple and a format pattern."""
         self.prt.write('{DASHES:{N}}'.format(
-            DASHES="{DASHES} {ID}".format(DASHES=dashes, ID=obj.item_id),
+            DASHES=self.fmt_dashes.format(DASHES=dashes, ID=obj.item_id),
             N=self.dash_len))
         self.prt.write("{INFO}\n".format(INFO=str(obj)))
 

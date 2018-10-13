@@ -53,7 +53,7 @@ def get_goeaobj(method, geneids_pop, taxid):
         propagate_counts=False,
         alpha=0.05,
         methods=[method])
-     # godag is also found in goeaobj.godag
+    # godag is also found in goeaobj.godag
     return goeaobj
 
 
