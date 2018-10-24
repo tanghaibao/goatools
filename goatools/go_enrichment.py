@@ -58,9 +58,15 @@ class GOEnrichmentRecord(object):
     _flds = set(_fldsdefprt).intersection(
         set(['study_items', 'study_count', 'study_n', 'pop_items', 'pop_count', 'pop_n']))
 
-    def __init__(self, **kwargs):
+    def __init__(self, goid, **kwargs):
         # Methods seen in current enrichment result
+        # pylint: disable=invalid-name
+        self.GO = goid
+        self.name = 'n.a'
+        self.NS = 'XX'
+        self.depth = 'n.a'
         self.method_flds = []
+        # Ex: ratio_in_pop ratio_in_study study_items p_uncorrected pop_items
         for key, val in kwargs.items():
             setattr(self, key, val)
             if key == 'ratio_in_study':
@@ -128,10 +134,12 @@ class GOEnrichmentRecord(object):
 
     def set_goterm(self, go2obj):
         """Set goterm and copy GOTerm's name and namespace."""
-        self.goterm = go2obj.get(self.GO, None)
-        present = self.goterm is not None
-        self.name = self.goterm.name if present else "n.a."
-        self.NS = self.namespace2NS[self.goterm.namespace] if present else "XX"
+        if self.GO in go2obj:
+            goterm = go2obj[self.GO]
+            self.goterm = goterm
+            self.name = goterm.name
+            self.depth = goterm.depth
+            self.NS = self.namespace2NS[self.goterm.namespace]
 
     def _init_enrichment(self):
         """Mark as 'enriched' or 'purified'."""
@@ -233,19 +241,6 @@ class GOEnrichmentRecord(object):
 class GOEnrichmentStudy(object):
     """Runs Fisher's exact test, as well as multiple corrections
     """
-    #### # Default Excel table column widths for GOEA results
-    #### default_fld2col_widths = {
-    ####     'NS'        :  3,
-    ####     'GO'        : 12,
-    ####     'alt'       :  2,
-    ####     'level'     :  3,
-    ####     'depth'     :  3,
-    ####     'enrichment':  1,
-    ####     'name'      : 60,
-    ####     'ratio_in_study':  8,
-    ####     'ratio_in_pop'  : 12,
-    ####     'study_items'   : 15,
-    #### }
 
     def __init__(self, pop, assoc, obo_dag, propagate_counts=True, alpha=.05, methods=None, **kws):
         self.log = kws['log'] if 'log' in kws else sys.stdout
@@ -341,7 +336,7 @@ class GOEnrichmentStudy(object):
             pop_count = len(pop_items)
 
             one_record = GOEnrichmentRecord(
-                GO=goid,
+                goid,
                 p_uncorrected=calc_pvalue(study_count, study_n, pop_count, pop_n),
                 study_items=study_items,
                 pop_items=pop_items,
@@ -437,9 +432,6 @@ class GOEnrichmentStudy(object):
             flds = ['GO', 'NS', 'p_uncorrected',
                     'ratio_in_study', 'ratio_in_pop', 'depth', 'name', 'study_items']
             prtfmt = objprt.get_prtfmt_str(flds)
-            #### prtfmt = " ".join([objprt.default_fld2fmt[f] for f in flds])
-            #### prtfmt = ("{GO} {NS} {p_uncorrected:5.2e} {ratio_in_study:>6} {ratio_in_pop:>9} "
-            ####           "{depth:02} {name:40} {study_items}\n")
         prtfmt = objprt.adjust_prtfmt(prtfmt)
         prt_flds = RPT.get_fmtflds(prtfmt)
         data_nts = MgrNtGOEAs(goea_results).get_goea_nts_prt(prt_flds, **kws)
@@ -559,9 +551,6 @@ class GOEnrichmentStudy(object):
             assert hasattr(nts_goea[0], '_fields')
             if sortby is None:
                 sortby = MgrNtGOEAs.dflt_sortby_objgoea
-                # sortby = lambda nt: [getattr(nt, 'namespace'), getattr(nt, 'enrichment'),
-                #                      getattr(nt, 'p_uncorrected'), getattr(nt, 'depth'),
-                #                      getattr(nt, 'GO')]
             nts_goea = sorted(nts_goea, key=sortby)
             wr_py_nts(fout_py, nts_goea, docstring, var_name)
 
