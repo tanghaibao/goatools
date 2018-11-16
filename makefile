@@ -151,6 +151,9 @@ vim_ext:
 	goatools/anno/extensions/extensions.py \
 	goatools/anno/extensions/extension.py
 
+log_ver:
+	git log -u goatools/__init__.py | tee tmp
+
 # if the gene ontology files don't exist, download them
 dnld_obo: $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
 

@@ -203,7 +203,7 @@ class GoeaCliFnc(object):
         if results_adj:
             #### kws = {'indent':self.args.indent, 'itemid2name':self.itemid2name}
             if not self.prepgrp:
-                self.objgoea.print_results_adj(results_adj, self.args.indent)
+                self.objgoea.print_results_adj(results_adj, indent=self.args.indent)
             else:
                 grpwr = self.prepgrp.get_objgrpwr(results_adj)
                 grpwr.prt_txt(sys.stdout)

@@ -7,7 +7,7 @@
 
 | | |
 |---|---|
-| Author | Haibao Tang ([tanghaibao](http://github.com/tanghaibao)) |
+| Authors | Haibao Tang ([tanghaibao](http://github.com/tanghaibao)) |
 | | DV Klopfenstein ([dvklopfenstein](https://github.com/dvklopfenstein)) |
 | | Brent Pedersen ([brentp](http://github.com/brentp)) |
 | | Fidel Ramirez ([fidelram](https://github.com/fidelram)) |

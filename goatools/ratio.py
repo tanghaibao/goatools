@@ -31,8 +31,9 @@ def get_terms(desc, geneset, assoc, obo_dag, log):
     if log is not None:
         num_stu = len(genes)
         num_pop = len(geneset)
+        perc = 100.0*num_stu/num_pop if num_pop != 0 else 0.0
         log.write("{P:3.0f}% {N:>6,} of {M:>6,} {DESC} items found in association\n".format(
-            DESC=desc, N=num_stu, M=num_pop, P=100.0*num_stu/num_pop))
+            DESC=desc, N=num_stu, M=num_pop, P=perc))
     return term2itemids
 
 def is_ratio_different(min_ratio, study_go, study_n, pop_go, pop_n):
