@@ -239,6 +239,7 @@ clobber:
 #    tests/test_find_enrichment_run.py \
 
 NOSETESTS := \
+    tests/test_study_zero.py \
     tests/test_wr_sections_txt.py \
     tests/test_altid_gosubdag.py \
     tests/test_dcnt_r01.py \
