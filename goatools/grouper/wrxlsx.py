@@ -70,7 +70,7 @@ class WrXlsxSortedGos(object):
 
     def wr_txt_nts(self, fout_txt, desc2nts, prtfmt=None):
         """Write grouped and sorted GO IDs to GOs."""
-        with open(fout_txt, 'wb') as prt:
+        with open(fout_txt, 'w') as prt:
             summary_dct = self.prt_txt_desc2nts(prt, desc2nts, prtfmt)
             if summary_dct:
                 print(self.sortobj.grprobj.fmtsum.format(
