@@ -206,7 +206,7 @@ class PlotCli(object):
         """Plot grouped GO IDs."""
         fout_img = self.get_outfile(kws['outfile'], goids)
         sections = read_sections(kws['sections'], exclude_ungrouped=True)
-        print ("KWWSSSSSSSS", kws)
+        # print ("KWWSSSSSSSS", kws)
         # kws_plt = {k:v for k, v in kws.items if k in self.kws_plt}
         grprobj_cur = self._get_grprobj(goids, sections)
         # GO: purple=hdr-only, green=hdr&usr, yellow=usr-only
