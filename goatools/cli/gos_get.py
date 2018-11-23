@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import os
@@ -54,18 +54,23 @@ class GetGOs(object):
     @staticmethod
     def rdtxt_gos(go_file, prt):
         """Read GO IDs from a file."""
-        goids = set()
+        goids_all = set()
         if not os.path.exists(go_file):
             raise RuntimeError("CAN NOT READ GO FILE: {FILE}\n".format(FILE=go_file))
-        re_go = re.compile(r"(GO:\d{7})+?")
+        re_go = re.compile(r'(GO:\d{7})+?')
+        re_com = re.compile(r'^\s*#')  # Lines starting with a '#' are comment lines and ignored
         with open(go_file) as ifstrm:
             for line in ifstrm:
+                # Skip lines that are comments
+                if re_com.search(line):
+                    continue
+                # Search for GO IDs on the line
                 goids_found = re_go.findall(line)
                 if goids_found:
-                    goids.update(goids_found)
+                    goids_all.update(goids_found)
             if prt:
-                prt.write("  {N} GO IDs READ: {TXT}\n".format(N=len(goids), TXT=go_file))
-        return goids
+                prt.write("  {N} GO IDs READ: {TXT}\n".format(N=len(goids_all), TXT=go_file))
+        return goids_all
 
     def get_goargs(self, go_args, prt):
         """Get GO IDs and colors for GO IDs from the GO ID runtime arguments."""
@@ -86,4 +91,4 @@ class GetGOs(object):
                 prt.write("WARNING: UNRECOGNIZED ARG({})\n".format(go_arg))
         return goids
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved.
