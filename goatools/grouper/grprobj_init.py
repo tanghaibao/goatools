@@ -145,7 +145,7 @@ class GrouperInit(object):
         gos_all = self.get_gos_all()
         # Minimum set of namedtuple fields available for use with Sorter on grouped GO IDs
         prt_flds_all = get_hdridx_flds() + self.gosubdag.prt_attr['flds']
-        if usr_go2nt is None:
+        if not usr_go2nt:
             return self.__init_go2nt_dflt(gos_all, prt_flds_all)
         usr_nt_flds = next(iter(usr_go2nt.values()))._fields
         # If user namedtuple already contains all fields available, then return usr_go2nt
