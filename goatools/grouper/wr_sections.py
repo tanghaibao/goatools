@@ -8,6 +8,22 @@ __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights re
 __author__ = "DV Klopfenstein"
 
 
+def get_fncsortnt(flds):
+    """Return a sort function for sorting header GO IDs found in sections."""
+    if 'tinfo' in flds:
+        if 'D1' in flds:
+            return lambda ntgo: [ntgo.NS, -1*ntgo.tinfo, ntgo.depth, ntgo.D1, ntgo.alt]
+        else:
+            return lambda ntgo: [ntgo.NS, -1*ntgo.tinfo, ntgo.depth, ntgo.alt]
+    if 'dcnt' in flds:
+        if 'D1' in flds:
+            return lambda ntgo: [ntgo.NS, -1*ntgo.dcnt, ntgo.depth, ntgo.D1, ntgo.alt]
+        else:
+            return lambda ntgo: [ntgo.NS, -1*ntgo.dcnt, ntgo.depth, ntgo.alt]
+    else:
+        return lambda ntgo: [ntgo.NS, -1*ntgo.depth, ntgo.alt]
+
+
 class WrSectionsBase(object):
     """Tasks for writing a sections file."""
 
@@ -15,7 +31,7 @@ class WrSectionsBase(object):
         self.ver_list = ver_list
         self.grprobj = grprobj
         self.gosubdag = grprobj.gosubdag
-        self.fncsortnt = self._init_fncsortnt()
+        self.fncsortnt = get_fncsortnt(self.gosubdag.prt_attr['flds'])
         self.prtfmt = self._init_prtfmt("fmta")
 
     def prt_ver(self, prt):
@@ -42,21 +58,6 @@ class WrSectionsBase(object):
         """Return print format for Grouper, which includes hdr1usr01 and num_usrgos."""
         prtfmt = self.gosubdag.prt_attr[key]
         return prtfmt.replace("{NS}", "{NS} {hdr1usr01:2} {num_usrgos:>4} uGOs")
-
-    def _init_fncsortnt(self):
-        """Return a sort function for sorting header GO IDs found in sections."""
-        if 'tinfo' in self.gosubdag.prt_attr['flds']:
-            if 'D1' in self.gosubdag.prt_attr['flds']:
-                return lambda ntgo: [ntgo.NS, -1*ntgo.tinfo, ntgo.depth, ntgo.D1, ntgo.alt]
-            else:
-                return lambda ntgo: [ntgo.NS, -1*ntgo.tinfo, ntgo.depth, ntgo.alt]
-        if 'dcnt' in self.gosubdag.prt_attr['flds']:
-            if 'D1' in self.gosubdag.prt_attr['flds']:
-                return lambda ntgo: [ntgo.NS, -1*ntgo.dcnt, ntgo.depth, ntgo.D1, ntgo.alt]
-            else:
-                return lambda ntgo: [ntgo.NS, -1*ntgo.dcnt, ntgo.depth, ntgo.alt]
-        else:
-            return lambda ntgo: [ntgo.NS, -1*ntgo.depth, ntgo.alt]
 
     def get_summary_data(self, sec2d_nt):
         """Get placed/unplaced GO IDs and sections."""
