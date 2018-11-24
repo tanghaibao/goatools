@@ -1,6 +1,6 @@
 """Sorts GO IDs or user-provided sections containing GO IDs."""
 
-__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -45,18 +45,20 @@ class Sorter(object):
          yes   True  False  False  .  y ... usr
     """
 
-    kw_keys_nts = set(["hdrgo_prt", "section_prt", "top_n", "use_sections"])
-    kw_keys_prt = set(["prt", "prtfmt"])
+    # Keywords for creating desc2nts
+    keys_nts = set(["hdrgo_prt", "section_prt", "top_n", "use_sections"])
 
     def __init__(self, grprobj, **kws):
         # Keyword arguments:
-        sortby = kws.get('sortby')
-        hdrgo_sortby = kws.get('hdrgo_sortby')
-        section_sortby = kws.get('section_sortby')
-        # data members
+        _sortby = kws.get('sortby')
+        _hdrgo_sortby = kws.get('hdrgo_sortby')
+        _section_sortby = kws.get('section_sortby')
+        # GO IDs are grouped, but not yet sorted
+        # print('SSSSSSSSSSS Sorter(kws={})'.format(kws))
         self.grprobj = grprobj
-        self.sortobj = SorterGoIds(grprobj, sortby, hdrgo_sortby)
-        self.sectobj = self._init_sectobj(section_sortby)  # SorterNts
+        # SorterGoIds can return either a 2-D list of sorted GO IDs or a flat sorted GO list
+        self.sortgos = SorterGoIds(grprobj, _sortby, _hdrgo_sortby)
+        self.sectobj = SorterNts(self.sortgos, _section_sortby) if grprobj.hdrobj.sections else None
 
     def prt_gos(self, prt=sys.stdout, **kws_usr):
         """Sort user GO ids, grouped under broader GO terms or sections. Print to screen."""
@@ -65,8 +67,7 @@ class Sorter(object):
         # desc2nts contains: (sections hdrgo_prt sortobj) or (flat hdrgo_prt sortobj)
         desc2nts = self.get_desc2nts(**kws_usr)
         # Keyword arguments (control print format): prt prtfmt
-        kws_prt = {k:v for k, v in kws_usr.items() if k in self.kw_keys_prt}
-        self.prt_nts(desc2nts, prt, **kws_prt)
+        self.prt_nts(desc2nts, prt, kws_usr.get('prtfmt'))
         return desc2nts
 
     def prt_nts(self, desc2nts, prt=sys.stdout, prtfmt=None):
@@ -85,13 +86,15 @@ class Sorter(object):
     def get_desc2nts(self, **kws_usr):
         """Return grouped, sorted namedtuples in either format: flat, sections."""
         # desc2nts contains: (sections hdrgo_prt sortobj) or (flat hdrgo_prt sortobj)
-        # kw_keys_nts: hdrgo_prt section_prt top_n use_sections
-        kws_nts = {k:v for k, v in kws_usr.items() if k in self.kw_keys_nts}
+        # keys_nts: hdrgo_prt section_prt top_n use_sections
+        kws_nts = {k:v for k, v in kws_usr.items() if k in self.keys_nts}
         return self.get_desc2nts_fnc(**kws_nts)
 
     def get_desc2nts_fnc(self, hdrgo_prt=True, section_prt=None,
                          top_n=None, use_sections=True):
         """Return grouped, sorted namedtuples in either format: flat, sections."""
+        # pat = 'XXXX Sorter:get_desc2nts_fnc(hdrgo_prt={}, section_prt={}, top_n={}, use_sections={})'
+        # print(pat.format(hdrgo_prt, section_prt, top_n, use_sections))
         # RETURN: flat list of namedtuples
         nts_flat = self.get_nts_flat(hdrgo_prt, use_sections)
         if nts_flat is not None:
@@ -101,7 +104,7 @@ class Sorter(object):
                 return {'sortobj':self,
                         'sections' : [(self.grprobj.hdrobj.secdflt, nts_flat)],
                         'hdrgo_prt':hdrgo_prt}
-
+        # print('FFFF Sorter:get_desc2nts_fnc: nts_flat is None')
         # RETURN: 2-D list [(section_name0, namedtuples0), (section_name1, namedtuples1), ...
         #     kws: top_n hdrgo_prt section_sortby
         # Over-ride hdrgo_prt depending on top_n value
@@ -113,7 +116,10 @@ class Sorter(object):
         hdrgo_prt_curr = hdrgo_prt is True
         if sec_sb is True or (sec_sb is not False and sec_sb is not None) or top_n is not None:
             hdrgo_prt_curr = False
+        # print('GGGG Sorter:get_desc2nts_fnc: hdrgo_prt_curr({}) sec_sb({}) top_n({})'.format(
+        #    hdrgo_prt_curr, sec_sb, top_n))
         nts_section = self.sectobj.get_sorted_nts_keep_section(hdrgo_prt_curr)
+        # print('HHHH Sorter:get_desc2nts_fnc: nts_section')
         # Take top_n in each section, if requested
         if top_n is not None:
             nts_section = [(s, nts[:top_n]) for s, nts in nts_section]
@@ -125,6 +131,7 @@ class Sorter(object):
             nts_flat = self.get_sections_flattened(nts_section)
             return {'sortobj':self, 'flat' : nts_flat, 'hdrgo_prt':hdrgo_prt_curr}
         # Send 2-D sections nts back
+        # print('IIII Sorter:get_desc2nts_fnc: nts_section')
         return {'sortobj':self, 'sections' : nts_section, 'hdrgo_prt':hdrgo_prt_curr}
 
     @staticmethod
@@ -144,12 +151,11 @@ class Sorter(object):
                 nts_flat.append(ntobj._make(vals))
         return nts_flat
 
-
     def get_nts_flat(self, hdrgo_prt=True, use_sections=True):
         """Return a flat list of sorted nts."""
         # Either there are no sections OR we are not using them
         if self.sectobj is None or not use_sections:
-            return self.sortobj.get_nts_sorted(
+            return self.sortgos.get_nts_sorted(
                 hdrgo_prt,
                 hdrgos=self.grprobj.get_hdrgos(),
                 hdrgo_sort=True)
@@ -169,11 +175,5 @@ class Sorter(object):
             if nts_sections:
                 return nts_sections[0][1][0]._fields
 
-    def _init_sectobj(self, section_sortby):
-        """Return SorterNts"""
-        if not self.sortobj.grprobj.hdrobj.sections:
-            return None
-        return SorterNts(self.sortobj, section_sortby)
 
-
-# Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
