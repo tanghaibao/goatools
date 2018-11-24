@@ -56,10 +56,10 @@ def test_sort():
 
 def _wr_xlsx(name, grprobj, **kws):
     """Group, sort, and print xlsx file."""
-    print('\nTEST {} kws_sortobj: {}'.format(name, kws))
+    # print('\nTEST {} kws_sortobj: {}'.format(name, kws))
+    # KWS SORT OBJ
     kws_sort = {'sortby', 'hdrgo_sortby', 'section_sortby'}
-    exp_keys = {"hdrgo_prt", "section_prt", "top_n", "use_sections",
-                "prt", "prtfmt"}
+    # KWS SORT FUNC: hdrgo_prt section_prt top_n use_sections prtfmt
     # Exclude ungrouped "Misc." section of sections var(sec_rd)
     fout_xlsx = "{NAME}.xlsx".format(NAME=name)
     # kws Sorter: hdrgo_prt section_prt top_n use_sections
