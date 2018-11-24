@@ -1,6 +1,6 @@
 """Sorts GO IDs or user-provided sections containing GO IDs."""
 
-__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import collections as cx
@@ -30,6 +30,13 @@ class SorterGoIds(object):
                       "GO:UUUUU1N" ...
     """
 
+    def sortby(self, ntd):
+        """Return function for sorting."""
+        if 'reldepth' in self.grprobj.gosubdag.prt_attr['flds']:
+            return [ntd.NS, -1*ntd.dcnt, ntd.reldepth]
+        else:
+            return [ntd.NS, -1*ntd.dcnt, ntd.depth]
+
     def __init__(self, grprobj, sortby=None, hdrgo_sortby=None):
         # User GO IDs grouped under header GO IDs are not sorted by the Grouper class.
         # Sort both user GO IDs in a group and header GO IDs across groups with these:
@@ -49,6 +56,9 @@ class SorterGoIds(object):
         # Causes GO group headers to be removed in a flat list, if they are not user GO IDs.
         # Contains fields that can be used in sortby lambda keywords.
         assert grprobj is not None
+        # print('SSSSSSSSSSS SorterGoIds(sortby={}, hdrgo_sortby={})'.format(sortby, hdrgo_sortby))
+        # print('SSSSSSSSSSS SorterGoIds::self.usrgo_sortby:', self.usrgo_sortby)
+        # print('SSSSSSSSSSS SorterGoIds::self.hdrgo_sortby:', self.hdrgo_sortby)
 
     # -- Sort header GO IDs and user GO IDs ----------------------------------------
     def get_nts_sorted(self, hdrgo_prt, hdrgos, hdrgo_sort):
@@ -88,13 +98,6 @@ class SorterGoIds(object):
         go2nt_all = self.grprobj.go2nt
         return {go:go2nt_all[go] for go in goids}
 
-    def sortby(self, ntd):
-        """Return function for sorting."""
-        if 'reldepth' in self.grprobj.gosubdag.prt_attr['flds']:
-            return [ntd.NS, -1*ntd.dcnt, ntd.reldepth]
-        else:
-            return [ntd.NS, -1*ntd.dcnt, ntd.depth]
-
     def _init_hdrgo_sortby(self, hdrgo_sortby, sortby):
         """Initialize header sort function."""
         if hdrgo_sortby is not None:
@@ -104,4 +107,4 @@ class SorterGoIds(object):
         return self.sortby
 
 
-# Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
