@@ -1,6 +1,6 @@
 """Sorts GO IDs or user-provided sections containing GO IDs."""
 
-__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
@@ -20,7 +20,7 @@ class SorterNts(object):
            * User GO IDs within a group
     """
 
-    def __init__(self, sortobj, section_sortby=None):
+    def __init__(self, sortgos, section_sortby=None):
         # User GO IDs grouped under header GO IDs are not sorted by the Grouper class.
         # Sort both user GO IDs in a group and header GO IDs across groups with these:
         # S: section_sortby (T=True, F=False, S=lambda sort function)
@@ -36,29 +36,31 @@ class SorterNts(object):
         #    NO     section_order usrgo_sortby   F  -  U  T
         #   YES     section_order usrgo_sortby   F  -  U  F
         #   YES     |<----section_sortby---->|   S  -  -  -
-        self.sortobj = sortobj
+        # print("SSSS SorterNts(sortgos, section_sortby={})".format(section_sortby))
+        self.sortgos = sortgos  # SorterGoIds
         self.section_sortby = section_sortby
-        self.sections = self.sortobj.grprobj.hdrobj.sections
+        self.sections = self.sortgos.grprobj.hdrobj.sections
 
     def get_sorted_nts_keep_section(self, hdrgo_prt):
         """Get 2-D list: 1st level is sections and 2nd level is grouped and sorted namedtuples."""
         section_nts = []
-        hdrgos_actual = self.sortobj.grprobj.get_hdrgos()
+        # print("SSSS SorterNts:get_sorted_nts_keep_section(hdrgo_prt={})".format(hdrgo_prt))
+        hdrgos_actual = self.sortgos.grprobj.get_hdrgos()
         hdrgos_secs = set()
         hdrgo_sort = False if self.section_sortby is False else True
-        secname_dflt = self.sortobj.grprobj.hdrobj.secdflt
+        secname_dflt = self.sortgos.grprobj.hdrobj.secdflt
         for section_name, section_hdrgos_all in self.sections:
             #section_hdrgos_act = set(section_hdrgos_all).intersection(hdrgos_actual)
             section_hdrgos_act = [h for h in section_hdrgos_all if h in hdrgos_actual]
             hdrgos_secs |= set(section_hdrgos_act)
-            nts_section = self.sortobj.get_nts_sorted(hdrgo_prt, section_hdrgos_act, hdrgo_sort)
+            nts_section = self.sortgos.get_nts_sorted(hdrgo_prt, section_hdrgos_act, hdrgo_sort)
             if nts_section:
                 nts_section = self._get_sorted_section(nts_section)
                 section_nts.append((section_name, nts_section))
         remaining_hdrgos = hdrgos_actual.difference(hdrgos_secs)
         # Add GO group headers not yet used under new section, Misc.
         if remaining_hdrgos:
-            nts_section = self.sortobj.get_nts_sorted(hdrgo_prt, remaining_hdrgos, hdrgo_sort)
+            nts_section = self.sortgos.get_nts_sorted(hdrgo_prt, remaining_hdrgos, hdrgo_sort)
             if nts_section:
                 nts_section = self._get_sorted_section(nts_section)
                 section_nts.append((secname_dflt, nts_section))
@@ -67,26 +69,28 @@ class SorterNts(object):
     def get_sorted_nts_omit_section(self, hdrgo_prt, hdrgo_sort):
         """Return a flat list of sections (wo/section names) with GO terms grouped and sorted."""
         nts_flat = []
+        # print("SSSS SorterNts:get_sorted_nts_omit_section(hdrgo_prt={}, hdrgo_sort={})".format(
+        #     hdrgo_prt, hdrgo_sort))
         hdrgos_seen = set()
-        hdrgos_actual = self.sortobj.grprobj.get_hdrgos()
+        hdrgos_actual = self.sortgos.grprobj.get_hdrgos()
         for _, section_hdrgos_all in self.sections:
             #section_hdrgos_act = set(section_hdrgos_all).intersection(hdrgos_actual)
             section_hdrgos_act = [h for h in section_hdrgos_all if h in hdrgos_actual]
             hdrgos_seen |= set(section_hdrgos_act)
-            self.sortobj.get_sorted_hdrgo2usrgos(
+            self.sortgos.get_sorted_hdrgo2usrgos(
                 section_hdrgos_act, nts_flat, hdrgo_prt, hdrgo_sort)
-        remaining_hdrgos = set(self.sortobj.grprobj.get_hdrgos()).difference(hdrgos_seen)
-        self.sortobj.get_sorted_hdrgo2usrgos(remaining_hdrgos, nts_flat, hdrgo_prt, hdrgo_sort)
+        remaining_hdrgos = set(self.sortgos.grprobj.get_hdrgos()).difference(hdrgos_seen)
+        self.sortgos.get_sorted_hdrgo2usrgos(remaining_hdrgos, nts_flat, hdrgo_prt, hdrgo_sort)
         return nts_flat
 
     def _get_sorted_section(self, nts_section):
         """Sort GO IDs in each section, if requested by user."""
         #pylint: disable=unnecessary-lambda
         if self.section_sortby is True:
-            return sorted(nts_section, key=lambda nt: self.sortobj.usrgo_sortby(nt))
+            return sorted(nts_section, key=lambda nt: self.sortgos.usrgo_sortby(nt))
         if self.section_sortby is False or self.section_sortby is None:
             return nts_section
         return sorted(nts_section, key=lambda nt: self.section_sortby(nt))
 
 
-# Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
