@@ -18,13 +18,15 @@ def test_sort():
     #------------------------------------------------------------
     # TEST: hdrgo_prt and section_prt
     #------------------------------------------------------------
-    # Print sections and headers: ph(print header) ch(color header)
+    # 1) Print sections:
+    #   * Print headers: ph(print header) ch(color header)
     _wr_xlsx("t_a1_ps1_ph1", grprobj)
-    # Print sections, omit headers (retain "a_ph1" sort)
+    #   * Omit headers (retain "a_ph1" sort)
     _wr_xlsx("t_a2_ps1_ph0", grprobj, hdrgo_prt=False)
-    # Use (but don't print) sections. Use and print headers.
+    # 2) Print section as an additional column instead of a section row.
+    #   * Use and print headers.
     _wr_xlsx("t_a3_ps0_ph1", grprobj, section_prt=False)
-    # Use (but don't print) sections. Use (but don't print) headers.
+    #   * Use (but don't print) headers.
     _wr_xlsx("t_a4_ps0_ph0", grprobj, section_prt=False, hdrgo_prt=False)
 
     #------------------------------------------------------------
@@ -36,7 +38,7 @@ def test_sort():
 
     #------------------------------------------------------------
     # TEST: use_sections=True hdrgo_prt(T/F)
-    #   These conditions force hdrgo_prt = False, even if hdrgo_prt was not mentioned
+    #   These conditions force hdrgo_prt = False, if hdrgo_prt was not mentioned
     #       * section_sortby == True
     #       * section_sortby = user_sort
     #       * top_n == N
@@ -54,10 +56,14 @@ def test_sort():
 
 def _wr_xlsx(name, grprobj, **kws):
     """Group, sort, and print xlsx file."""
+    print('\nTEST {} kws_sortobj: {}'.format(name, kws))
+    kws_sort = {'sortby', 'hdrgo_sortby', 'section_sortby'}
+    exp_keys = {"hdrgo_prt", "section_prt", "top_n", "use_sections",
+                "prt", "prtfmt"}
     # Exclude ungrouped "Misc." section of sections var(sec_rd)
     fout_xlsx = "{NAME}.xlsx".format(NAME=name)
     # kws Sorter: hdrgo_prt section_prt top_n use_sections
-    sortobj = Sorter(grprobj)
+    sortobj = Sorter(grprobj, **{k:v for k, v in kws.items() if k in kws_sort})
     desc2nts = sortobj.get_desc2nts(**kws)
     objwr = WrXlsxSortedGos(name, sortobj)
     # kws WrXlsxSortedGos wr_xlsx_nts: title hdrs
