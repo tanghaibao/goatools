@@ -4,62 +4,63 @@
 
 # GROUP NAME: init
 # SECTION: cyclin
-GO:0030332  # MF **    1 uGOs     0   0 L03 D03 R03 A     .... .... cyclin binding
+GO:0030332  # MF     0   0 L03 D03 R03 A     .... .... cyclin binding
 
 # SECTION: cytoskeletal protein binding
-GO:0008092  # MF **    2 uGOs    57  21 L03 D03 R03 A     .... .... cytoskeletal protein binding
+GO:0008092  # MF    57  21 L03 D03 R03 A     .... .... cytoskeletal protein binding
 
 # SECTION: pre-miRNA binding
-GO:0070883  # MF **    2 uGOs     1   1 L05 D05 R05 A     .... .... pre-miRNA binding
+GO:0070883  # MF     1   1 L05 D05 R05 A     .... .... pre-miRNA binding
 
 # SECTION: transcription
-GO:0032784  # BP **    4 uGOs    10   4 L07 D10 R11 ABC   .R.. .... regulation of DNA-templated transcription, elongation
-GO:0140110  # MF **    2 uGOs    39  10 L01 D01 R01 B     .... .... transcription regulator activity
+GO:0032784  # BP    10   4 L07 D10 R11 ABC   .R.. .... regulation of DNA-templated transcription, elongation
+GO:0140110  # MF    39  10 L01 D01 R01 B     .... .... transcription regulator activity
 
 # SECTION: viral process
-GO:0016032  # BP **    8 uGOs   362  47 L04 D04 R04 D     .... prdu viral process
+GO:0016032  # BP   362  47 L04 D04 R04 D     .... prdu viral process
+GO:0019048  # BP   147   8 L05 D06 R06 A     .... .... modulation by virus of host morphology or physiology
 
 # SECTION: protein
-GO:0051246  # BP **    6 uGOs   911  19 L05 D05 R05 BC    .R.. .... regulation of protein metabolic process
-GO:0019904  # MF **    1 uGOs    79  74 L03 D03 R03 A     .... .... protein domain specific binding
+GO:0051246  # BP   911  19 L05 D05 R05 BC    .R.. .... regulation of protein metabolic process
+GO:0019904  # MF    79  74 L03 D03 R03 A     .... .... protein domain specific binding
 
 # SECTION: phosphorylation
-GO:0042325  # BP **    2 uGOs   235   6 L07 D07 R07 ABC   .R.. .... regulation of phosphorylation
-GO:0001932  # BP **    4 uGOs   177  19 L07 D08 R08 ABC   .R.. .... regulation of protein phosphorylation
+GO:0042325  # BP   235   6 L07 D07 R07 ABC   .R.. .... regulation of phosphorylation
+GO:0001932  # BP   177  19 L07 D08 R08 ABC   .R.. .... regulation of protein phosphorylation
 
 # SECTION: host
-GO:0044217  # CC **    6 uGOs   128   7 L01 D01 R02 AB    P... .... other organism part
+GO:0044217  # CC   128   7 L01 D01 R02 AB    P... .... other organism part
 
 # SECTION: RNA polymerase II
-GO:0006357  # BP **    2 uGOs   318  56 L07 D10 R11 ABC   .R.. ...u regulation of transcription by RNA polymerase II
+GO:0006357  # BP   318  56 L07 D10 R11 ABC   .R.. ...u regulation of transcription by RNA polymerase II
 
 # SECTION: RNA
-GO:0051252  # BP **    8 uGOs   637  15 L05 D06 R07 ABC   .R.. .... regulation of RNA metabolic process
-GO:0003723  # MF **    1 uGOs   174  30 L04 D04 R04 A     .... .... RNA binding
+GO:0051252  # BP   637  15 L05 D06 R07 ABC   .R.. .... regulation of RNA metabolic process
+GO:0003723  # MF   174  30 L04 D04 R04 A     .... .... RNA binding
 
 # SECTION: phosphorus metabolic process
-GO:0051174  # BP **    4 uGOs   434   5 L05 D05 R05 ABC   .R.. .... regulation of phosphorus metabolic process
+GO:0051174  # BP   434   5 L05 D05 R05 ABC   .R.. .... regulation of phosphorus metabolic process
 
 # SECTION: gene expression
-GO:0010468  # BP **    2 uGOs   855  19 L05 D05 R05 BC    .R.. p... regulation of gene expression
+GO:0010468  # BP   855  19 L05 D05 R05 BC    .R.. p... regulation of gene expression
 
 # SECTION: multi-organism
-GO:0051704  # BP **    5 uGOs  2375  16 L01 D01 R01 D     .... .rdu multi-organism process
-GO:0044403  # BP **    6 uGOs  1375   5 L03 D03 R03 D     .... pr.. symbiont process
+GO:0051704  # BP  2375  16 L01 D01 R01 D     .... .rdu multi-organism process
+GO:0044403  # BP  1375   5 L03 D03 R03 D     .... pr.. symbiont process
 
 # SECTION: cyclic binding
-GO:0097159  # MF **    1 uGOs   497  52 L02 D02 R02 A     .... .... organic cyclic compound binding
-GO:1901363  # MF **    2 uGOs   457  38 L02 D02 R02 A     .... .... heterocyclic compound binding
+GO:0097159  # MF   497  52 L02 D02 R02 A     .... .... organic cyclic compound binding
+GO:1901363  # MF   457  38 L02 D02 R02 A     .... .... heterocyclic compound binding
 
 # SECTION: Broad
-GO:0008150  # BP **    1 uGOs 29680  29 L00 D00 R00       .... .rdu biological_process
-GO:0065007  # BP **    7 uGOs 13089   3 L01 D01 R01 B     .... .... biological regulation
-GO:0005575  # CC **    1 uGOs  4205  21 L00 D00 R00       .... .... cellular_component
-GO:0003674  # MF **    1 uGOs 11117  14 L00 D00 R00       .... .... molecular_function
+GO:0008150  # BP 29680  29 L00 D00 R00       .... .rdu biological_process
+GO:0065007  # BP 13089   3 L01 D01 R01 B     .... .... biological regulation
+GO:0005575  # CC  4205  21 L00 D00 R00       .... .... cellular_component
+GO:0003674  # MF 11117  14 L00 D00 R00       .... .... molecular_function
 
 # SECTION: Misc.
-GO:0008152  # BP *    13 uGOs  9752  21 L01 D01 R01 C     .... .rdu metabolic process
-GO:0009058  # BP *     7 uGOs  3640  19 L02 D02 R02 C     .... .rdu biosynthetic process
-GO:0034641  # BP *     2 uGOs  3635  23 L03 D03 R03 AC    .... .... cellular nitrogen compound metabolic process
-GO:0005488  # MF **    2 uGOs  1913  51 L01 D01 R01 A     .... .... binding
+GO:0008152  # BP  9752  21 L01 D01 R01 C     .... .rdu metabolic process
+GO:0009058  # BP  3640  19 L02 D02 R02 C     .... .rdu biosynthetic process
+GO:0034641  # BP  3635  23 L03 D03 R03 AC    .... .... cellular nitrogen compound metabolic process
+GO:0005488  # MF  1913  51 L01 D01 R01 A     .... .... binding
 

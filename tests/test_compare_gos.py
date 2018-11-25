@@ -2,7 +2,7 @@
 """Test gracefully exiting if no study genes are in assc or population."""
 
 import os
-from goatools.cli.compare_gos import CompareGOs
+from goatools.cli.compare_gos import CompareGOsCli
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
 
@@ -17,11 +17,9 @@ def test_example():
         'obo': os.path.join(REPO, 'go-basic.obo'),
         'slims': os.path.join('goslim_generic.obo'),
         'sections': os.path.join('data/compare_gos/sections.txt'),
-        'ofile': 'compare_gos.txt',
-        'xlsx': 'compare_gos.xlsx',
     }
-    obj = CompareGOs(**kws)
-    obj.cli()
+    obj = CompareGOsCli(**kws)
+    obj.write(fout_xlsx='compare_gos.xlsx', fout_txt='compare_gos.txt')
 
 
 if __name__ == '__main__':
