@@ -105,7 +105,9 @@ class CompareGOsCli(object):
                 kws_xlsx['prt_flds'] = [f for f in desc2nts['flds'] if f not in self.excl_flds]
             objgowr.wr_xlsx_nts(fout_xlsx, desc2nts, **kws_xlsx)
         if fout_txt is not None:
-            objgowr.wr_txt_nts(fout_txt, desc2nts, prtfmt=None)
+            prtfmt = objgowr.get_prtfmt('fmt')
+            print('FFFFFFFFFFFF', prtfmt)
+            objgowr.wr_txt_nts(fout_txt, desc2nts, prtfmt=prtfmt)
         if fout_xlsx is None and fout_txt is None:
             summary_dct = objgowr.prt_txt_desc2nts(sys.stdout, desc2nts, prtfmt=None)
             if summary_dct:

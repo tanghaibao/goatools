@@ -85,7 +85,7 @@ class WrXlsxSortedGos(object):
     def prt_txt_desc2nts(self, prt, desc2nts, prtfmt=None):
         """Print grouped and sorted GO IDs."""
         if prtfmt is None:
-            prtfmt = self._get_prtfmt("fmta")
+            prtfmt = self.get_prtfmt("fmta")
         if self.ver_list is not None:
             prt.write("# Versions:\n#    {VER}\n".format(VER="\n#    ".join(self.ver_list)))
         # 1-D: data to print is a flat list of namedtuples
@@ -160,7 +160,7 @@ class WrXlsxSortedGos(object):
             fld2col_widths[fld] = 2
         return fld2col_widths
 
-    def _get_prtfmt(self, key="fmta"):
+    def get_prtfmt(self, key="fmta"):
         """Return print format for Grouper, which includes hdr1usr01 and num_usrgos."""
         prtfmt = self.sortobj.grprobj.gosubdag.prt_attr[key]
         prtfmt = prtfmt.replace("{NS}", "{NS} {num_usrgos:>4} uGOs")
