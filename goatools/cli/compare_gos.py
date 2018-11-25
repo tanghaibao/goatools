@@ -79,6 +79,7 @@ class CompareGOsCli(object):
         self.go_fins = self.kws.get('GO_FILE')
         self.go_sets = self._init_go_sets()
         self.go_all = set.union(*self.go_sets)
+        self.hdrs = [os.path.splitext(os.path.basename(f))[0] for f in self.go_fins]
         self.objgrpd = self._init_grouped()
         # KWS: sortby hdrgo_sortby section_sortby
 
@@ -105,15 +106,21 @@ class CompareGOsCli(object):
                 kws_xlsx['prt_flds'] = [f for f in desc2nts['flds'] if f not in self.excl_flds]
             objgowr.wr_xlsx_nts(fout_xlsx, desc2nts, **kws_xlsx)
         if fout_txt is not None:
-            prtfmt = objgowr.get_prtfmt('fmt')
-            print('FFFFFFFFFFFF', prtfmt)
-            objgowr.wr_txt_nts(fout_txt, desc2nts, prtfmt=prtfmt)
+            self._wr_txt_nts(fout_txt, desc2nts, objgowr)
         if fout_xlsx is None and fout_txt is None:
-            summary_dct = objgowr.prt_txt_desc2nts(sys.stdout, desc2nts, prtfmt=None)
+            self._prt_ver_n_key(sys.stdout)
+            summary_dct = objgowr.prt_txt_desc2nts(sys.stdout, desc2nts, self._get_prtfmt(objgowr))
+            self._prt_ver_n_key(sys.stdout)
             if summary_dct:
                 print(sortobj.grprobj.fmtsum.format(ACTION='PRINTED:', FILE='', **summary_dct))
         # SUMMARY: hdr GOs(24 in 15 sections, N/A unused) READ: data/compare_gos/sections.txt
         self._prt_cnt_usrgos(self.go_all, sys.stdout)
+
+    def _get_prtfmt(self, objgowr):
+        """Get print format containing markers."""
+        prtfmt = objgowr.get_prtfmt('fmt')
+        marks = ''.join(['{{{}}}'.format(h) for h in self.hdrs])
+        return '{MARKS} {PRTFMT}'.format(MARKS=marks, PRTFMT=prtfmt)
 
     @staticmethod
     def _get_fncsortnt(flds):
@@ -159,15 +166,32 @@ class CompareGOsCli(object):
         return Grouped(self.go_all, self.godag, _tcntobj, **kws_grpd)
 
     def _init_go2present(self):
-        """Mark all GO IDs set membership in each section."""
+        """Mark all GO IDs with an X if present in the user GO list."""
         go2present = {}
-        hdrs = ["i{N}".format(N=n) for n in range(len(self.go_sets))]
-        hdrs = [os.path.splitext(os.path.basename(f))[0] for f in self.go_fins]
-        ntobj = namedtuple('NtPresent', " ".join(hdrs))
+        ntobj = namedtuple('NtPresent', " ".join(self.hdrs))
         for goid_all in self.go_all:
             present_true = [goid_all in gos for gos in self.go_sets]
             present_str = ['X' if tf else '.' for tf in present_true]
             go2present[goid_all] = ntobj._make(present_str)
         return go2present
+
+    def _wr_txt_nts(self, fout_txt, desc2nts, objgowr):
+        """Write grouped and sorted GO IDs to GOs."""
+        with open(fout_txt, 'w') as prt:
+            self._prt_ver_n_key(prt)
+            summary_dct = objgowr.prt_txt_desc2nts(prt, desc2nts, self._get_prtfmt(objgowr))
+            if summary_dct:
+                print(objgowr.sortobj.grprobj.fmtsum.format(
+                    ACTION="WROTE:", FILE=fout_txt, **summary_dct))
+            else:
+                print("  WROTE: {TXT}".format(TXT=fout_txt))
+
+    def _prt_ver_n_key(self, prt):
+        """Print GO DAG version and key indicating presence of GO ID in a list."""
+        prt.write("# Versions:\n#    {VER}\n".format(VER="\n#    ".join(self.objgrpd.ver_list)))
+        prt.write('\n# Marker keys:\n')
+        for hdr in self.hdrs:
+            prt.write('#  X -> GO is present in {HDR}\n'.format(HDR=hdr))
+
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved.

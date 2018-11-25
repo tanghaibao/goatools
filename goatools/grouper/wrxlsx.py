@@ -75,19 +75,23 @@ class WrXlsxSortedGos(object):
     def wr_txt_nts(self, fout_txt, desc2nts, prtfmt=None):
         """Write grouped and sorted GO IDs to GOs."""
         with open(fout_txt, 'w') as prt:
-            summary_dct = self.prt_txt_desc2nts(prt, desc2nts, prtfmt)
+            summary_dct = self._prt_txt_desc2nts(prt, desc2nts, prtfmt)
             if summary_dct:
                 print(self.sortobj.grprobj.fmtsum.format(
                     ACTION="WROTE:", FILE=fout_txt, **summary_dct))
             else:
                 print("  WROTE: {TXT}".format(TXT=fout_txt))
 
-    def prt_txt_desc2nts(self, prt, desc2nts, prtfmt=None):
+    def _prt_txt_desc2nts(self, prt, desc2nts, prtfmt=None):
         """Print grouped and sorted GO IDs."""
         if prtfmt is None:
             prtfmt = self.get_prtfmt("fmta")
         if self.ver_list is not None:
             prt.write("# Versions:\n#    {VER}\n".format(VER="\n#    ".join(self.ver_list)))
+        self.prt_txt_desc2nts(prt, desc2nts, prtfmt)
+
+    def prt_txt_desc2nts(self, prt, desc2nts, prtfmt):
+        """Print grouped and sorted GO IDs."""
         # 1-D: data to print is a flat list of namedtuples
         if 'flat' in desc2nts:
             nts = desc2nts.get('flat')
