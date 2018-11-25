@@ -64,11 +64,16 @@ class CompareGOsCli(object):
                    ])
     kws_set = set(['verbose'])
 
+    # Print fields to exclude, unless verbose is used
+    excl_flds = {'level', 'reldepth', 'alt', 'D1', 'childcnt',
+                 'format_txt', 'num_usrgos', 'is_hdrgo', 'is_usrgo', 'hdr_idx', 'hdr1usr01',
+                 'REL', 'REL_short', 'rel', 'id'}
+
     def __init__(self, **kws):
         _objdoc = DocOptParse(__doc__, self.kws_dict, self.kws_set)
         self.kws = _objdoc.get_docargs(prt=None) if not kws else kws
-        for key, val in self.kws.items():
-            print('WWWWWWWWWWWWWWWWWWW', key, val)
+        # for key, val in self.kws.items():
+        #     print('WWWWWWWWWWWWWWWWWWW', key, val)
         self.godag = get_godag(self.kws.get('obo'), prt=sys.stdout,
                                loading_bar=False, optional_attrs=['relationship'])
         self.go_fins = self.kws.get('GO_FILE')
@@ -79,7 +84,7 @@ class CompareGOsCli(object):
 
     def write(self, fout_xlsx=None, fout_txt=None, verbose=False):
         """Command-line interface for go_draw script."""
-        print('VVVVVVVVVVVVVVVV verbose', verbose)
+        #print('VVVVVVVVVVVVVVVV verbose', verbose)
         sys.stdout.write("{VER}\n".format(VER="\n".join(self.objgrpd.ver_list)))
         sortby = self._get_fncsortnt(self.objgrpd.grprobj.gosubdag.prt_attr['flds'])
         kws_sort = {'sortby' if verbose else 'section_sortby': sortby}
@@ -96,14 +101,15 @@ class CompareGOsCli(object):
         objgowr = WrXlsxSortedGos("init", sortobj, self.objgrpd.ver_list)
         if fout_xlsx is not None:
             kws_xlsx = {'shade_hdrgos':verbose}
+            if not verbose:
+                kws_xlsx['prt_flds'] = [f for f in desc2nts['flds'] if f not in self.excl_flds]
             objgowr.wr_xlsx_nts(fout_xlsx, desc2nts, **kws_xlsx)
         if fout_txt is not None:
             objgowr.wr_txt_nts(fout_txt, desc2nts, prtfmt=None)
         if fout_xlsx is None and fout_txt is None:
             summary_dct = objgowr.prt_txt_desc2nts(sys.stdout, desc2nts, prtfmt=None)
             if summary_dct:
-                print(sortobj.grprobj.fmtsum.format(
-                    ACTION="WROTE:", FILE=fout_txt, **summary_dct))
+                print(sortobj.grprobj.fmtsum.format(ACTION='PRINTED:', FILE='', **summary_dct))
         # SUMMARY: hdr GOs(24 in 15 sections, N/A unused) READ: data/compare_gos/sections.txt
         self._prt_cnt_usrgos(self.go_all, sys.stdout)
 
