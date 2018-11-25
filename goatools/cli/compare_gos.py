@@ -76,11 +76,11 @@ class CompareGOsCli(object):
         #     print('WWWWWWWWWWWWWWWWWWW', key, val)
         self.godag = get_godag(self.kws.get('obo'), prt=sys.stdout,
                                loading_bar=False, optional_attrs=['relationship'])
-        self.go_fins = self.kws.get('GO_FILE')
-        self.go_sets = self._init_go_sets()
-        self.go_all = set.union(*self.go_sets)
-        self.hdrs = [os.path.splitext(os.path.basename(f))[0] for f in self.go_fins]
-        self.objgrpd = self._init_grouped()
+        self.go_ntsets = self._init_go_ntsets(self.kws.get('GO_FILE'))
+        self.go_all = set.union(*[nt.go_set for nt in self.go_ntsets])
+        _tcntobj = self._get_tcntobj(**self.kws)  # Gets TermCounts or None
+        self.gosubdag = GoSubDag(self.go_all, self.godag, True, tcntobj=_tcntobj, prt=sys.stdout)
+        self.objgrpd = self._init_grouped(**self.kws)
         # KWS: sortby hdrgo_sortby section_sortby
 
     def write(self, fout_xlsx=None, fout_txt=None, verbose=False):
@@ -119,7 +119,7 @@ class CompareGOsCli(object):
     def _get_prtfmt(self, objgowr):
         """Get print format containing markers."""
         prtfmt = objgowr.get_prtfmt('fmt')
-        marks = ''.join(['{{{}}}'.format(h) for h in self.hdrs])
+        marks = ''.join(['{{{}}}'.format(nt.hdr) for nt in self.go_ntsets])
         return '{MARKS} {PRTFMT}'.format(MARKS=marks, PRTFMT=prtfmt)
 
     @staticmethod
@@ -131,20 +131,32 @@ class CompareGOsCli(object):
             return lambda ntgo: [ntgo.NS, -1*ntgo.dcnt, ntgo.depth, ntgo.alt]
         return lambda ntgo: [ntgo.NS, -1*ntgo.depth, ntgo.alt]
 
-    def _init_go_sets(self, prt=sys.stdout):
+    def _init_go_ntsets(self, go_fins):
+        """For each file containing GOs, extract GO IDs, store filename and header."""
+        nts = []
+        ntobj = namedtuple('NtGOFiles', 'hdr go_set, go_fin')
+        go_sets = self._init_go_sets(go_fins)
+        hdrs = [os.path.splitext(os.path.basename(f))[0] for f in go_fins]
+        assert len(go_fins) == len(go_sets)
+        assert len(go_fins) == len(hdrs)
+        for hdr, go_set, go_fin in zip(hdrs, go_sets, go_fins):
+            nts.append(ntobj(hdr=hdr, go_set=go_set, go_fin=go_fin))
+        return nts
+
+    def _init_go_sets(self, go_fins):
         """Get lists of GO IDs."""
         go_sets = []
-        assert self.go_fins, "EXPECTED FILES CONTAINING GO IDs"
-        assert len(self.go_fins) >= 2, "EXPECTED 2+ GO LISTS. FOUND: {L}".format(
-            L=' '.join(self.go_fins))
+        assert go_fins, "EXPECTED FILES CONTAINING GO IDs"
+        assert len(go_fins) >= 2, "EXPECTED 2+ GO LISTS. FOUND: {L}".format(
+            L=' '.join(go_fins))
         obj = GetGOs(self.godag)
-        for fin in self.go_fins:
+        for fin in go_fins:
             assert os.path.exists(fin), "GO FILE({F}) DOES NOT EXIST".format(F=fin)
-            go_sets.append(obj.get_usrgos(fin, prt))
+            go_sets.append(obj.get_usrgos(fin, sys.stdout))
         return go_sets
 
     def _prt_cnt_usrgos(self, usrgos_read, prt):
-        num_usrgos = len(self.objgrpd.gosubdag.go_sources)
+        num_usrgos = len(self.gosubdag.go_sources)
         prt.write("{GOs:6} user GO IDs".format(GOs=num_usrgos))
         if len(usrgos_read) != num_usrgos:
             prt.write(" of {M} GO IDs read".format(M=len(usrgos_read)))
@@ -158,19 +170,19 @@ class CompareGOsCli(object):
             _gosubdag = GoSubDag(self.go_all, self.godag, rcntobj=False, prt=None)
             return get_tcntobj(_gosubdag.go2obj, **kws)  # TermCounts
 
-    def _init_grouped(self):
+    def _init_grouped(self, **kws):
         """Get Grouped object."""
-        _tcntobj = self._get_tcntobj(**self.kws)  # Gets TermCounts or None
-        kws_grpd = {k:v for k, v in self.kws.items() if k in Grouped.kws_dict}
+        _tcntobj = self._get_tcntobj(**kws)
+        kws_grpd = {k:v for k, v in kws.items() if k in Grouped.kws_dict}
         kws_grpd['go2nt'] = self._init_go2present()
-        return Grouped(self.go_all, self.godag, _tcntobj, **kws_grpd)
+        return Grouped(self.gosubdag, self.godag.version, **kws_grpd)
 
     def _init_go2present(self):
         """Mark all GO IDs with an X if present in the user GO list."""
         go2present = {}
-        ntobj = namedtuple('NtPresent', " ".join(self.hdrs))
+        ntobj = namedtuple('NtPresent', " ".join(nt.hdr for nt in self.go_ntsets))
         for goid_all in self.go_all:
-            present_true = [goid_all in gos for gos in self.go_sets]
+            present_true = [goid_all in nt.go_set for nt in self.go_ntsets]
             present_str = ['X' if tf else '.' for tf in present_true]
             go2present[goid_all] = ntobj._make(present_str)
         return go2present
@@ -190,8 +202,8 @@ class CompareGOsCli(object):
         """Print GO DAG version and key indicating presence of GO ID in a list."""
         prt.write("# Versions:\n#    {VER}\n".format(VER="\n#    ".join(self.objgrpd.ver_list)))
         prt.write('\n# Marker keys:\n')
-        for hdr in self.hdrs:
-            prt.write('#  X -> GO is present in {HDR}\n'.format(HDR=hdr))
+        for ntgos in self.go_ntsets:
+            prt.write('#  X -> GO is present in {HDR}\n'.format(HDR=ntgos.hdr))
 
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved.

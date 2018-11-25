@@ -15,6 +15,23 @@ GO = GO:0008135
 goea: $(GO_OBO_FILE)
 	python scripts/find_enrichment.py --pval=0.05 --indent $(GOEA_FILES) --outfile results.txt
 
+# -------------------------------------------------------------------------------
+# ---- Compare 2+ GOEAS ---------------------------------------------------------
+# -------------------------------------------------------------------------------
+compare_gos:
+	python scripts/compare_gos.py \
+	data/compare_gos/tat_gos_simple1.tsv \
+	data/compare_gos/tat_gos_simple2.tsv \
+	-s data/compare_gos/sections.txt
+
+compare_gos_wr:
+	python scripts/compare_gos.py \
+	data/compare_gos/tat_gos_simple1.tsv \
+	data/compare_gos/tat_gos_simple2.tsv \
+	-s data/compare_gos/sections.txt \
+	--xlsx=tat_gos_simple.xlsx \
+	-o tat_gos_simple.txt
+
 # ---------------------------------------------------------------------------------------
 # ---- Grouping -------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------
@@ -134,6 +151,18 @@ map_slim: $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
 
 goea_all: goea goea_basic goea_xlsx goea_xlsx_bonferroni goea_tsv goea_files
 
+vim_compare_gos:
+	vim -p \
+	scripts/compare_gos.py \
+	tests/test_compare_gos.py \
+	tests/test_sorter_desc2nts.py \
+	goatools/cli/compare_gos.py \
+	goatools/cli/grouped.py \
+	goatools/grouper/wrxlsx.py \
+	goatools/grouper/sorter.py \
+	goatools/grouper/sorter_gos.py \
+	goatools/grouper/sorter_nts.py
+
 # ./tests/test_optional_attributes.py
 vim_attr:
 	vim -p \
@@ -239,6 +268,9 @@ clobber:
 #    tests/test_find_enrichment_run.py \
 
 NOSETESTS := \
+    tests/test_sorter_sections.py \
+    tests/test_sorter_desc2nts.py \
+    tests/test_compare_gos.py \
     tests/test_study_zero.py \
     tests/test_wr_sections_txt.py \
     tests/test_altid_gosubdag.py \
