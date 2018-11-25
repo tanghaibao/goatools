@@ -48,11 +48,12 @@ class WrXlsxSortedGos(object):
 
     def wr_xlsx_nts(self, fout_xlsx, desc2nts, **kws_usr):
         """Print grouped and sorted GO IDs."""
-        # KWS_USR: top_n section_prt section_sortby
+        # KWS_XLSX: top_n section_prt section_sortby
         # Adjust xlsx keyword args
         kws_xlsx = self._get_xlsx_kws(**kws_usr)
-        self._adjust_prt_flds(kws_xlsx, desc2nts, **kws_usr)
-        print('YYYY', kws_usr)
+        # KWS_SHADE: shade_hdrgos hdrgo_prt section_sortby top_n
+        shade_hdrgos = self._get_shade_hdrgos(**kws_usr)
+        self._adjust_prt_flds(kws_xlsx, desc2nts, shade_hdrgos)
         # 1-D: data to print is a flat list of namedtuples
         if 'flat' in desc2nts:
             nts = desc2nts.get('flat')
@@ -115,7 +116,7 @@ class WrXlsxSortedGos(object):
                 kws_xlsx[usr_key] = usr_val
         return kws_xlsx
 
-    def _adjust_prt_flds(self, kws_xlsx, desc2nts, **kws_usr):
+    def _adjust_prt_flds(self, kws_xlsx, desc2nts, shade_hdrgos):
         """Print user-requested fields or provided fields minus info fields."""
         # Use xlsx prt_flds from the user, if provided
         if "prt_flds" in kws_xlsx:
@@ -123,20 +124,17 @@ class WrXlsxSortedGos(object):
         # If the user did not provide specific fields to print in an xlsx file:
         dont_print = set(['hdr_idx', 'is_hdrgo', 'is_usrgo'])
         # Are we printing GO group headers?
-        #### top_n = None if 'sections' not in desc2nts else kws_usr.get('top_n', None)
-        #### shade_hdrs = False if top_n is not None else kws_usr.get("hdrgo_prt", True)
-        shade_hdrs = self._get_shade_hdrs(**kws_usr)
         # Build new list of xlsx print fields, excluding those which add no new information
         prt_flds_adjusted = []
         # Get all namedtuple fields
         nt_flds = self.sortobj.get_fields(desc2nts)
         # Keep fields intended for print and optionally gray-shade field (format_txt)
-        print('FFFFFFFFFFFFFFF WrXlsxSortedGos::_adjust_prt_flds:', nt_flds)
+        # print('FFFFFFFFFFFFFFF WrXlsxSortedGos::_adjust_prt_flds:', nt_flds)
         for nt_fld in nt_flds:
             if nt_fld not in dont_print:
                 # Only add grey-shade to hdrgo and section name rows if hdrgo_prt=True
                 if nt_fld == "format_txt":
-                    if shade_hdrs is True:
+                    if shade_hdrgos is True:
                         prt_flds_adjusted.append(nt_fld)
                 else:
                     prt_flds_adjusted.append(nt_fld)
@@ -169,8 +167,11 @@ class WrXlsxSortedGos(object):
         return "".join(['{hdr1usr01:2}', prtfmt, '\n'])
 
     @staticmethod
-    def _get_shade_hdrs(**kws):
+    def _get_shade_hdrgos(**kws):
         """If no hdrgo_prt specified, and these conditions are present -> hdrgo_prt=F."""
+        # KWS: shade_hdrgos hdrgo_prt section_sortby top_n
+        if 'shade_hdrgos' in kws:
+            return kws['shade_hdrgos']
         # Return user-sepcified hdrgo_prt, if provided
         if 'hdrgo_prt' in kws:
             return kws['hdrgo_prt']

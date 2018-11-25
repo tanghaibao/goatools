@@ -8,21 +8,6 @@ __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights re
 __author__ = "DV Klopfenstein"
 
 
-def get_fncsortnt(flds):
-    """Return a sort function for sorting header GO IDs found in sections."""
-    if 'tinfo' in flds:
-        if 'D1' in flds:
-            return lambda ntgo: [ntgo.NS, -1*ntgo.tinfo, ntgo.depth, ntgo.D1, ntgo.alt]
-        else:
-            return lambda ntgo: [ntgo.NS, -1*ntgo.tinfo, ntgo.depth, ntgo.alt]
-    if 'dcnt' in flds:
-        if 'D1' in flds:
-            return lambda ntgo: [ntgo.NS, -1*ntgo.dcnt, ntgo.depth, ntgo.D1, ntgo.alt]
-        else:
-            return lambda ntgo: [ntgo.NS, -1*ntgo.dcnt, ntgo.depth, ntgo.alt]
-    else:
-        return lambda ntgo: [ntgo.NS, -1*ntgo.depth, ntgo.alt]
-
 
 class WrSectionsBase(object):
     """Tasks for writing a sections file."""
@@ -31,7 +16,7 @@ class WrSectionsBase(object):
         self.ver_list = ver_list
         self.grprobj = grprobj
         self.gosubdag = grprobj.gosubdag
-        self.fncsortnt = get_fncsortnt(self.gosubdag.prt_attr['flds'])
+        self.fncsortnt = self._init_fncsortnt(self.gosubdag.prt_attr['flds'])
         self.prtfmt = self._init_prtfmt("fmta")
 
     def prt_ver(self, prt):
@@ -79,6 +64,22 @@ class WrSectionsBase(object):
         data = self.get_summary_data(sec2d_nt)
         return "{M} GO IDs placed into {N} sections; {U} unplaced GO IDs".format(
             N=len(data['sections']), M=len(data['grouped']), U=len(data['ungrouped']))
+
+    @staticmethod
+    def _init_fncsortnt(flds):
+        """Return a sort function for sorting header GO IDs found in sections."""
+        if 'tinfo' in flds:
+            if 'D1' in flds:
+                return lambda ntgo: [ntgo.NS, -1*ntgo.tinfo, ntgo.depth, ntgo.D1, ntgo.alt]
+            else:
+                return lambda ntgo: [ntgo.NS, -1*ntgo.tinfo, ntgo.depth, ntgo.alt]
+        if 'dcnt' in flds:
+            if 'D1' in flds:
+                return lambda ntgo: [ntgo.NS, -1*ntgo.dcnt, ntgo.depth, ntgo.D1, ntgo.alt]
+            else:
+                return lambda ntgo: [ntgo.NS, -1*ntgo.dcnt, ntgo.depth, ntgo.alt]
+        else:
+            return lambda ntgo: [ntgo.NS, -1*ntgo.depth, ntgo.alt]
 
 
 class WrSectionsPy(WrSectionsBase):

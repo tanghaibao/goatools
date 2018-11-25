@@ -5,22 +5,20 @@ Usage:
   compare_gos.py [GO_FILE] ... [options]
 
 Options:
-  -h --help                                 show this help message and exit
+  -h --help            show this help message and exit
 
   -s <sections.txt> --sections=<sections.txt>  Sections file for grouping
-  -S <sections module str>             Sections file for grouping
+  -S <sections module str>                     Python module with SECTIONS variable
 
   -o <file.txt>, --ofile=<file.txt>    write comparison of GO IDs into ASCII file
   --xlsx=<file.xlsx>   write comparison of GO IDs into an xlsx file
+  -v --verbose         Print sections as GO headers followed by each header's user GOs
 
   --obo=<file.obo>     Ontologies in obo file [default: go-basic.obo].
   --slims=<file.obo>   GO slims in obo file [default: goslim_generic.obo].
 
   --gaf=<file.gaf>     Annotations from a gaf file
   --gene2go=<gene2go>  Annotations from a gene2go file downloaded from NCBI
-
-  --hdrgo_prt=[True|False]  Print GO headers only if they are also user GO IDs [default: True]
-  --hdrgo_prt2=[True|False]  GO header markers: *=Header Only **=Header and user GO [default: True]
 
 """
 
@@ -50,7 +48,6 @@ from goatools.cli.grouped import Grouped
 #### from goatools.grouper.grprobj import Grouper
 #### from goatools.grouper.wr_sections import WrSectionsTxt
 #### from goatools.grouper.wr_sections import WrSectionsPy
-from goatools.grouper.wr_sections import get_fncsortnt
 from goatools.grouper.sorter import Sorter
 from goatools.grouper.wrxlsx import WrXlsxSortedGos
 
@@ -64,10 +61,8 @@ class CompareGOsCli(object):
                     'obo', 'slims',
                     'ofile', 'xlsx',
                     'gaf', 'gene2go', 'taxid',
-                    'hdrgo_prt',
-                    'hdrgo_prt2',
                    ])
-    kws_set = set()
+    kws_set = set(['verbose'])
 
     def __init__(self, **kws):
         _objdoc = DocOptParse(__doc__, self.kws_dict, self.kws_set)
@@ -81,35 +76,45 @@ class CompareGOsCli(object):
         self.go_all = set.union(*self.go_sets)
         self.objgrpd = self._init_grouped()
         # KWS: sortby hdrgo_sortby section_sortby
-        self.sortobj = Sorter(self.objgrpd.grprobj)
 
-    def write(self, fout_xlsx=None, fout_txt=None):
+    def write(self, fout_xlsx=None, fout_txt=None, verbose=False):
         """Command-line interface for go_draw script."""
+        print('VVVVVVVVVVVVVVVV verbose', verbose)
         sys.stdout.write("{VER}\n".format(VER="\n".join(self.objgrpd.ver_list)))
+        sortby = self._get_fncsortnt(self.objgrpd.grprobj.gosubdag.prt_attr['flds'])
+        kws_sort = {'sortby' if verbose else 'section_sortby': sortby}
+        sortobj = Sorter(self.objgrpd.grprobj, **kws_sort)
         # KWS: hdrgo_prt=True section_prt=None top_n=None use_sections=True
         # RET: {sortobj, sections, hdrgo_prt} or {sortobj flat hdrgo_prt}
-        desc2nts = self.sortobj.get_desc2nts_fnc(
-            self.kws.get('hdrgo_prt'),
-            self.kws.get('section_prt'),
-            self.kws.get('top_n'),
+        desc2nts = sortobj.get_desc2nts_fnc(
+            hdrgo_prt=verbose,
+            section_prt=True,
+            top_n=None,
             use_sections=True)
         print('FFFF', desc2nts['flds'])
         # Write user GO IDs in sections
-        objgowr = WrXlsxSortedGos("init", self.sortobj, self.objgrpd.ver_list)
-        sortby = get_fncsortnt(self.objgrpd.grprobj.gosubdag.prt_attr['flds'])
-        # objgowr.wr_txt_gos(self.kws['ofile'], sortby=sortby)
+        objgowr = WrXlsxSortedGos("init", sortobj, self.objgrpd.ver_list)
         if fout_xlsx is not None:
-            objgowr.wr_xlsx_nts(fout_xlsx, desc2nts, sortby=sortby, **self.kws)
+            kws_xlsx = {'shade_hdrgos':verbose}
+            objgowr.wr_xlsx_nts(fout_xlsx, desc2nts, **kws_xlsx)
         if fout_txt is not None:
             objgowr.wr_txt_nts(fout_txt, desc2nts, prtfmt=None)
         if fout_xlsx is None and fout_txt is None:
             summary_dct = objgowr.prt_txt_desc2nts(sys.stdout, desc2nts, prtfmt=None)
             if summary_dct:
-                print(self.sortobj.grprobj.fmtsum.format(
+                print(sortobj.grprobj.fmtsum.format(
                     ACTION="WROTE:", FILE=fout_txt, **summary_dct))
-        #objwr.wr_txt_section_hdrgos(kws['ofile'], sortby=objwr.fncsortnt)
         # SUMMARY: hdr GOs(24 in 15 sections, N/A unused) READ: data/compare_gos/sections.txt
         self._prt_cnt_usrgos(self.go_all, sys.stdout)
+
+    @staticmethod
+    def _get_fncsortnt(flds):
+        """Return a sort function for sorting header GO IDs found in sections."""
+        if 'tinfo' in flds:
+            return lambda ntgo: [ntgo.NS, -1*ntgo.tinfo, ntgo.depth, ntgo.alt]
+        if 'dcnt' in flds:
+            return lambda ntgo: [ntgo.NS, -1*ntgo.dcnt, ntgo.depth, ntgo.alt]
+        return lambda ntgo: [ntgo.NS, -1*ntgo.depth, ntgo.alt]
 
     def _init_go_sets(self, prt=sys.stdout):
         """Get lists of GO IDs."""
@@ -152,7 +157,9 @@ class CompareGOsCli(object):
         hdrs = [os.path.splitext(os.path.basename(f))[0] for f in self.go_fins]
         ntobj = namedtuple('NtPresent', " ".join(hdrs))
         for goid_all in self.go_all:
-            go2present[goid_all] = ntobj._make([goid_all in gos for gos in self.go_sets])
+            present_true = [goid_all in gos for gos in self.go_sets]
+            present_str = ['X' if tf else '.' for tf in present_true]
+            go2present[goid_all] = ntobj._make(present_str)
         return go2present
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved.

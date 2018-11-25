@@ -19,7 +19,8 @@ def test_example():
         'sections': os.path.join('data/compare_gos/sections.txt'),
     }
     obj = CompareGOsCli(**kws)
-    obj.write(fout_xlsx='compare_gos.xlsx', fout_txt='compare_gos.txt')
+    obj.write(fout_xlsx='compare_gos_v1.xlsx', fout_txt='compare_gos_v1.txt', verbose=True)
+    obj.write(fout_xlsx='compare_gos_v0.xlsx', fout_txt='compare_gos_v0.txt', verbose=False)
 
 
 if __name__ == '__main__':

@@ -38,8 +38,10 @@ class SorterNts(object):
         #   YES     |<----section_sortby---->|   S  -  -  -
         # print("SSSS SorterNts(sortgos, section_sortby={})".format(section_sortby))
         self.sortgos = sortgos  # SorterGoIds
+        # section_sortby: True, False or None, or a sort_fnc
         self.section_sortby = section_sortby
         self.sections = self.sortgos.grprobj.hdrobj.sections
+        # print('IIIIIIIIIIII SorterNts section_sortby', section_sortby)
 
     def get_sorted_nts_keep_section(self, hdrgo_prt):
         """Get 2-D list: 1st level is sections and 2nd level is grouped and sorted namedtuples."""
@@ -90,6 +92,7 @@ class SorterNts(object):
             return sorted(nts_section, key=lambda nt: self.sortgos.usrgo_sortby(nt))
         if self.section_sortby is False or self.section_sortby is None:
             return nts_section
+        # print('SORT GO IDS IN A SECTION')
         return sorted(nts_section, key=lambda nt: self.section_sortby(nt))
 
 

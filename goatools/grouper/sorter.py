@@ -54,7 +54,8 @@ class Sorter(object):
         _hdrgo_sortby = kws.get('hdrgo_sortby')
         _section_sortby = kws.get('section_sortby')
         # GO IDs are grouped, but not yet sorted
-        # print('SSSSSSSSSSS Sorter(kws={})'.format(kws))
+        # print('SSSSSSSSSSS Sorter(sortby={} hdrgo_sortby={}, section_sortby={}'.format(
+        #     _sortby, _hdrgo_sortby, _section_sortby))
         self.grprobj = grprobj
         # SorterGoIds can return either a 2-D list of sorted GO IDs or a flat sorted GO list
         self.sortgos = SorterGoIds(grprobj, _sortby, _hdrgo_sortby)
@@ -117,7 +118,7 @@ class Sorter(object):
         if sec_sb is True or (sec_sb is not False and sec_sb is not None) or top_n is not None:
             hdrgo_prt_curr = False
         # print('GGGG Sorter:get_desc2nts_fnc: hdrgo_prt_curr({}) sec_sb({}) top_n({})'.format(
-        #    hdrgo_prt_curr, sec_sb, top_n))
+        #     hdrgo_prt_curr, sec_sb, top_n))
         nts_section = self.sectobj.get_sorted_nts_keep_section(hdrgo_prt_curr)
         # print('HHHH Sorter:get_desc2nts_fnc: nts_section')
         # Take top_n in each section, if requested

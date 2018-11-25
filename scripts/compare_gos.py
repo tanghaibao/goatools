@@ -10,7 +10,7 @@ from goatools.cli.compare_gos import CompareGOsCli
 def run():
     """Compare two or more sets of GO IDs. Best done using sections."""
     obj = CompareGOsCli()
-    obj.write(obj.kws.get('xlsx'), obj.kws.get('ofile'))
+    obj.write(obj.kws.get('xlsx'), obj.kws.get('ofile'), obj.kws.get('verbose', False))
 
 
 if __name__ == '__main__':
