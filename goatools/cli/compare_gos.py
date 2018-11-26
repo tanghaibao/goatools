@@ -72,8 +72,6 @@ class CompareGOsCli(object):
     def __init__(self, **kws):
         _objdoc = DocOptParse(__doc__, self.kws_dict, self.kws_set)
         self.kws = _objdoc.get_docargs(prt=None) if not kws else kws
-        # for key, val in self.kws.items():
-        #     print('WWWWWWWWWWWWWWWWWWW', key, val)
         self.godag = get_godag(self.kws.get('obo'), prt=sys.stdout,
                                loading_bar=False, optional_attrs=['relationship'])
         self.go_ntsets = self._init_go_ntsets(self.kws.get('GO_FILE'))
@@ -111,9 +109,8 @@ class CompareGOsCli(object):
             summary_dct = objgowr.prt_txt_desc2nts(sys.stdout, desc2nts, self._get_prtfmt(objgowr))
             self._prt_ver_n_key(sys.stdout)
             if summary_dct:
-                print(sortobj.grprobj.fmtsum.format(ACTION='PRINTED:', FILE='', **summary_dct))
-        # SUMMARY: hdr GOs(24 in 15 sections, N/A unused) READ: data/compare_gos/sections.txt
-        self._prt_cnt_usrgos(self.go_all, sys.stdout)
+                print("\n{N} GO IDs in {S} sections".format(
+                    N=desc2nts['num_items'], S=desc2nts['num_sections']))
 
     def _get_prtfmt(self, objgowr):
         """Get print format containing markers."""
@@ -154,13 +151,6 @@ class CompareGOsCli(object):
             go_sets.append(obj.get_usrgos(fin, sys.stdout))
         return go_sets
 
-    def _prt_cnt_usrgos(self, usrgos_read, prt):
-        num_usrgos = len(self.gosubdag.go_sources)
-        prt.write("{GOs:6} user GO IDs".format(GOs=num_usrgos))
-        if len(usrgos_read) != num_usrgos:
-            prt.write(" of {M} GO IDs read".format(M=len(usrgos_read)))
-        prt.write("\n")
-
     def _get_tcntobj(self, **kws):
         """Get a TermCounts object if the user provides an annotation file, otherwise None."""
         # kws: gaf (gene2go taxid)
@@ -199,8 +189,8 @@ class CompareGOsCli(object):
             self._prt_ver_n_key(prt)
             summary_dct = objgowr.prt_txt_desc2nts(prt, desc2nts, self._get_prtfmt(objgowr))
             if summary_dct:
-                print(objgowr.sortobj.grprobj.fmtsum.format(
-                    ACTION="WROTE:", FILE=fout_txt, **summary_dct))
+                print("  {N:>5} GO IDs WROTE: {FOUT} ({S} sections)".format(
+                    N=desc2nts['num_items'], FOUT=fout_txt, S=desc2nts['num_sections']))
             else:
                 print("  WROTE: {TXT}".format(TXT=fout_txt))
 

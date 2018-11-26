@@ -99,12 +99,14 @@ class Sorter(object):
         if nts_flat:
             flds = nts_flat[0]._fields
             if not use_sections:
-                return {'sortobj':self, 'flat' : nts_flat, 'hdrgo_prt':hdrgo_prt, 'flds':flds}
+                return {'sortobj':self, 'flat' : nts_flat, 'hdrgo_prt':hdrgo_prt, 'flds':flds,
+                        'num_items':len(nts_flat), 'num_sections':1}
             else:
                 return {'sortobj':self,
                         'sections' : [(self.grprobj.hdrobj.secdflt, nts_flat)],
                         'hdrgo_prt':hdrgo_prt,
-                        'flds':flds}
+                        'flds':flds,
+                        'num_items':len(nts_flat), 'num_sections':1}
         # print('FFFF Sorter:get_desc2nts_fnc: nts_flat is None')
         # RETURN: 2-D list [(section_name0, namedtuples0), (section_name1, namedtuples1), ...
         #     kws: top_n hdrgo_prt section_sortby
@@ -127,16 +129,20 @@ class Sorter(object):
             if section_prt is None:
                 nts_flat = self.get_sections_flattened(nts_section)
                 flds = nts_flat[0]._fields if nts_flat else []
-                return {'sortobj':self, 'flat' : nts_flat, 'hdrgo_prt':hdrgo_prt_curr, 'flds':flds}
+                return {'sortobj':self, 'flat' : nts_flat, 'hdrgo_prt':hdrgo_prt_curr, 'flds':flds,
+                        'num_items':len(nts_flat), 'num_sections':1}
         # Send flat list of sections nts back, as requested
         if section_prt is False:
             nts_flat = self.get_sections_flattened(nts_section)
             flds = nts_flat[0]._fields if nts_flat else []
-            return {'sortobj':self, 'flat' : nts_flat, 'hdrgo_prt':hdrgo_prt_curr, 'flds':flds}
+            return {'sortobj':self, 'flat' : nts_flat, 'hdrgo_prt':hdrgo_prt_curr, 'flds':flds,
+                    'num_items':len(nts_flat), 'num_sections':1}
         # Send 2-D sections nts back
         # print('IIII Sorter:get_desc2nts_fnc: nts_section')
         flds = nts_section[0][1][0]._fields if nts_section else []
-        return {'sortobj':self, 'sections' : nts_section, 'hdrgo_prt':hdrgo_prt_curr, 'flds':flds}
+        return {'sortobj':self, 'sections' : nts_section, 'hdrgo_prt':hdrgo_prt_curr, 'flds':flds,
+                'num_items':sum(len(nts) for _, nts in nts_section),
+                'num_sections':len(nts_section)}
 
     @staticmethod
     def get_sections_flattened(section_nts):

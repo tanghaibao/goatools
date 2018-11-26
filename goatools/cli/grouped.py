@@ -24,14 +24,11 @@ class Grouped(object):
         self.ver_list = [godag_version, self.grprdflt.ver_goslims]
         self.sections = read_sections(self._get_secstr(**_kws), exclude_ungrouped=False)
         self.hdrobj = HdrgosSections(gosubdag, self.grprdflt.hdrgos_dflt, self.sections)
-        # print('WWWWWWWWWWWWW  Grouped', _kws)
-        # print('SSSSSSSSSSSSs  Grouped', self.sections)
         _go2nt = _kws.get('go2nt')
         self.grprobj = Grouper("all", gosubdag.go_sources, self.hdrobj, gosubdag, go2nt=_go2nt)
-
-        for elem in self.grprobj.get_sections_2d():
-            print(elem)
-        print('')
+        # for elem in self.grprobj.get_sections_2d():
+        #     print(elem)
+        # print('')
 
     @staticmethod
     def _get_secstr(**kws):
