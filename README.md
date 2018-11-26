@@ -64,7 +64,7 @@ Klopfenstein DV, Zhang L, Pedersen BS, ... Tang H [GOATOOLS: A Python library fo
 _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
 
   * **GO Grouping**:    
-    Visualize the major findings in a gene ontology enrichment analysis (GEOA) more easily by using grouping.    
+    Visualize the major findings in a gene ontology enrichment analysis (GEOA) more easily with grouping.    
     A detailed description of GOATOOLS GO grouping is found in the
     [manuscript](https://www.nature.com/articles/s41598-018-28948-z).    
     To group GO terms, see examples in
