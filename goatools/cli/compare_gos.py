@@ -85,7 +85,6 @@ class CompareGOsCli(object):
 
     def write(self, fout_xlsx=None, fout_txt=None, verbose=False):
         """Command-line interface for go_draw script."""
-        #print('VVVVVVVVVVVVVVVV verbose', verbose)
         sys.stdout.write("{VER}\n".format(VER="\n".join(self.objgrpd.ver_list)))
         sortby = self._get_fncsortnt(self.objgrpd.grprobj.gosubdag.prt_attr['flds'])
         kws_sort = {'sortby' if verbose else 'section_sortby': sortby}
@@ -174,18 +173,25 @@ class CompareGOsCli(object):
         """Get Grouped object."""
         _tcntobj = self._get_tcntobj(**kws)
         kws_grpd = {k:v for k, v in kws.items() if k in Grouped.kws_dict}
-        kws_grpd['go2nt'] = self._init_go2present()
+        kws_grpd['go2nt'] = self._init_go2ntpresent()
         return Grouped(self.gosubdag, self.godag.version, **kws_grpd)
 
-    def _init_go2present(self):
+    def _init_go2ntpresent(self):
         """Mark all GO IDs with an X if present in the user GO list."""
-        go2present = {}
+        go2ntpresent = {}
         ntobj = namedtuple('NtPresent', " ".join(nt.hdr for nt in self.go_ntsets))
+        # Get present marks for GO sources
         for goid_all in self.go_all:
             present_true = [goid_all in nt.go_set for nt in self.go_ntsets]
             present_str = ['X' if tf else '.' for tf in present_true]
-            go2present[goid_all] = ntobj._make(present_str)
-        return go2present
+            go2ntpresent[goid_all] = ntobj._make(present_str)
+        # Get present marks for all other GO ancestors
+        goids_ancestors = set(self.gosubdag.go2obj).difference(go2ntpresent)
+        assert not goids_ancestors.intersection(self.go_all)
+        strmark = ['.' for _ in range(len(self.go_ntsets))]
+        for goid in goids_ancestors:
+            go2ntpresent[goid] = ntobj._make(strmark)
+        return go2ntpresent
 
     def _wr_txt_nts(self, fout_txt, desc2nts, objgowr):
         """Write grouped and sorted GO IDs to GOs."""
