@@ -136,7 +136,8 @@ class Sorter(object):
             nts_flat = self.get_sections_flattened(nts_section)
             flds = nts_flat[0]._fields if nts_flat else []
             return {'sortobj':self, 'flat' : nts_flat, 'hdrgo_prt':hdrgo_prt_curr, 'flds':flds,
-                    'num_items':len(nts_flat), 'num_sections':1}
+                    'num_items':len(nts_flat),
+                    'num_sections':len(nts_section)}
         # Send 2-D sections nts back
         # print('IIII Sorter:get_desc2nts_fnc: nts_section')
         flds = nts_section[0][1][0]._fields if nts_section else []
