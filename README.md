@@ -63,7 +63,7 @@ _Please cite the following research paper if you use GOATOOLS in your research_:
 Klopfenstein DV, Zhang L, Pedersen BS, ... Tang H [GOATOOLS: A Python library for Gene Ontology analyses](https://www.nature.com/articles/s41598-018-28948-z)    
 _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
 
-  * **Compare GO lists**:
+  * **Compare GO lists**:    
     Use _scripts/compare_gos.py_ to compare two or more lists of GO IDs.
     This script can be used with or without grouping, but grouping can help
     the researcher visualize the major differences between the GO lists.
