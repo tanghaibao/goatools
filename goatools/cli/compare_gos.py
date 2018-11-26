@@ -35,19 +35,14 @@ from collections import namedtuple
 
 from goatools.base import get_godag
 from goatools.associations import get_tcntobj
+from goatools.godag.relationship_str import RelationshipStr
 
 from goatools.cli.docopt_parse import DocOptParse
 from goatools.cli.gos_get import GetGOs
+from goatools.cli.grouped import Grouped
 
 from goatools.gosubdag.gosubdag import GoSubDag
-
-from goatools.cli.grouped import Grouped
-#### from goatools.grouper.read_goids import read_sections
-#### from goatools.grouper.grprdflts import GrouperDflts
-#### from goatools.grouper.hdrgos import HdrgosSections
-#### from goatools.grouper.grprobj import Grouper
-#### from goatools.grouper.wr_sections import WrSectionsTxt
-#### from goatools.grouper.wr_sections import WrSectionsPy
+from goatools.gosubdag.rpt.wr_xlsx import GoDepth1LettersWr
 from goatools.grouper.sorter import Sorter
 from goatools.grouper.wrxlsx import WrXlsxSortedGos
 
@@ -102,13 +97,15 @@ class CompareGOsCli(object):
             if not verbose:
                 kws_xlsx['prt_flds'] = [f for f in desc2nts['flds'] if f not in self.excl_flds]
             objgowr.wr_xlsx_nts(fout_xlsx, desc2nts, **kws_xlsx)
+            fout_desc = '{BASE}_desc.txt'.format(BASE=os.path.splitext(fout_xlsx)[0])
+            self._wr_ver_n_key(fout_desc, verbose)
         if fout_txt is not None:
             self._wr_txt_nts(fout_txt, desc2nts, objgowr, verbose)
         if fout_xlsx is None and fout_txt is None:
-            self._prt_ver_n_key(sys.stdout)
+            self._prt_ver_n_key(sys.stdout, verbose)
             prtfmt = self._get_prtfmt(objgowr, verbose)
             summary_dct = objgowr.prt_txt_desc2nts(sys.stdout, desc2nts, prtfmt)
-            self._prt_ver_n_key(sys.stdout)
+            self._prt_ver_n_key(sys.stdout, verbose)
             if summary_dct:
                 print("\n{N} GO IDs in {S} sections".format(
                     N=desc2nts['num_items'], S=desc2nts['num_sections']))
@@ -119,6 +116,7 @@ class CompareGOsCli(object):
         prtfmt = prtfmt.replace('# ', '')
         # print('PPPPPPPPPPP', prtfmt)
         if not verbose:
+            prtfmt = prtfmt.replace('{hdr1usr01:2}', '')
             prtfmt = prtfmt.replace('{childcnt:3} L{level:02} ', '')
             prtfmt = prtfmt.replace('{num_usrgos:>4} uGOs ', '')
             prtfmt = prtfmt.replace('{D1:5} {REL} {rel}', '')
@@ -139,7 +137,11 @@ class CompareGOsCli(object):
     def _wr_txt_nts(self, fout_txt, desc2nts, objgowr, verbose):
         """Write grouped and sorted GO IDs to GOs."""
         with open(fout_txt, 'w') as prt:
-            self._prt_ver_n_key(prt)
+            self._prt_ver_n_key(prt, verbose)
+            prt.write('\n\n')
+            prt.write('# ----------------------------------------------------------------\n')
+            prt.write('# - Sections and GO IDs\n')
+            prt.write('# ----------------------------------------------------------------\n')
             prtfmt = self._get_prtfmt(objgowr, verbose)
             summary_dct = objgowr.prt_txt_desc2nts(prt, desc2nts, prtfmt)
             if summary_dct:
@@ -148,12 +150,51 @@ class CompareGOsCli(object):
             else:
                 print("  WROTE: {TXT}".format(TXT=fout_txt))
 
-    def _prt_ver_n_key(self, prt):
+    def _wr_ver_n_key(self, fout_txt, verbose):
+        """Write GO DAG version and key indicating presence of GO ID in a list."""
+        with open(fout_txt, 'w') as prt:
+            self._prt_ver_n_key(prt, verbose)
+            print('               WROTE: {TXT}'.format(TXT=fout_txt))
+
+
+    def _prt_ver_n_key(self, prt, verbose):
         """Print GO DAG version and key indicating presence of GO ID in a list."""
+        pre = '# '
+        prt.write('# ----------------------------------------------------------------\n')
+        prt.write('# - Description of GO ID fields\n')
+        prt.write('# ----------------------------------------------------------------\n')
         prt.write("# Versions:\n#    {VER}\n".format(VER="\n#    ".join(self.objgrpd.ver_list)))
         prt.write('\n# Marker keys:\n')
         for ntgos in self.go_ntsets:
-            prt.write('#  X -> GO is present in {HDR}\n'.format(HDR=ntgos.hdr))
+            prt.write('#     X -> GO is present in {HDR}\n'.format(HDR=ntgos.hdr))
+        if verbose:
+            prt.write('\n# Markers for header GO IDs and user GO IDs:\n')
+            prt.write("#     '**' -> GO term is both a header and a user GO ID\n")
+            prt.write("#     '* ' -> GO term is a header, but not a user GO ID\n")
+            prt.write("#     '  ' -> GO term is a user GO ID\n")
+        prt.write('\n# GO Namspaces:\n')
+        prt.write('#     BP -> Biological Process\n')
+        prt.write('#     MF -> Molecular Function\n')
+        prt.write('#     CC -> Cellualr Component\n')
+        if verbose:
+            prt.write('\n# Example fields: 5 uGOs   362  47 L04 D04 R04\n')
+            prt.write('#     N uGOs         -> number of user GO IDs under this GO header\n')
+            prt.write('#     First integer  -> number of GO descendants\n')
+            prt.write('#     Second integer -> number of GO children for the current GO ID\n')
+        prt.write('\n# Depth information:\n')
+        if not verbose:
+            prt.write('#     int -> number of GO descendants\n')
+        if verbose:
+            prt.write('#     Lnn -> level (minimum distance from root to node)\n')
+        prt.write('#     Dnn -> depth (maximum distance from root to node)\n')
+        if verbose:
+            prt.write('#     Rnn -> depth accounting for relationships\n\n')
+            RelationshipStr().prt_keys(prt, pre)
+        if verbose:
+            prt.write('\n')
+            objd1 = GoDepth1LettersWr(self.gosubdag.rcntobj)
+            objd1.prt_header(prt, 'DEPTH-01 GO terms and their aliases', pre)
+            objd1.prt_txt(prt, pre)
 
 
 class _Init(object):
@@ -217,7 +258,6 @@ class _Init(object):
             assert os.path.exists(fin), "GO FILE({F}) DOES NOT EXIST".format(F=fin)
             go_sets.append(obj.get_usrgos(fin, sys.stdout))
         return go_sets
-
 
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved.

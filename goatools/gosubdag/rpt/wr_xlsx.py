@@ -1,6 +1,6 @@
 """Used to operate on a sub-graph of a larger GO DAG."""
 
-__copyright__ = "Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -10,7 +10,7 @@ from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.wr_tbl import wr_xlsx as wr_xlsx_tbl
 from goatools.wr_tbl import wr_xlsx_sections as wr_xlsx_sections_tbl
 from goatools.wr_tbl import get_lines
-from goatools.wr_tbl import prt_txt
+#### from goatools.wr_tbl import prt_txt
 
 class GoSubDagWr(object):
     """Contains a sub-graph of the original obo from geneontology.org."""
@@ -85,15 +85,19 @@ class GoDepth1LettersWr(object):
         self.ns2nt = self._init_ns2nt(rcntobj)
         self.goone2ntletter = rcntobj.goone2ntletter
 
-    def prt_txt(self, prt=sys.stdout):
+    def prt_txt(self, prt=sys.stdout, pre=''):
         """Print letters, descendant count, and GO information."""
-        for ntdata in self.get_d1nts():
-            prt.write("{L:1} {d:6,} D{D:02} {GO} {NAME}\n".format(
+        data_nts = self.get_d1nts()
+        for ntdata in data_nts:
+            prt.write("{PRE}{L:1} {NS} {d:6,} D{D:02} {GO} {NAME}\n".format(
+                PRE=pre,
                 L=ntdata.D1,
                 d=ntdata.dcnt,
+                NS=ntdata.NS,
                 D=ntdata.depth,
                 GO=ntdata.GO,
                 NAME=ntdata.name))
+        return data_nts
 
     def wr_xlsx(self, fout_xlsx="gos_depth01.xlsx", **kws):
         """Write xlsx table of depth-01 GO terms and their letter representation."""
@@ -106,19 +110,26 @@ class GoDepth1LettersWr(object):
 
     def wr_txt(self, fout_txt="gos_depth01.txt", title=None):
         """write text table of depth-01 GO terms and their letter representation."""
-        data_nts = self.get_d1nts()
         with open(fout_txt, 'w') as prt:
-            if title is not None:
-                prt.write("{TITLE}\n\n".format(TITLE=title))
-                prt.write("    D1 : Letter representing the depth-01 GO term\n")
-                prt.write("    dcnt: Total number of all descendants\n")
-                prt.write("    dep: Depth; The maximum length path to ")
-                prt.write("leaf-level (childless) GO descendant(s)\n\n")
-                prt.write("D1 NS  dcnt dep GO ID      Description\n")
-                prt.write("- -- ------ --- ---------- ------------------------------\n")
-            prt_txt(prt, data_nts)
+            self.prt_header(prt, title)
+            data_nts = self.prt_txt(prt)
             sys.stdout.write("  {N:>5} items WROTE: {TXT}\n".format(
                 N=len(data_nts), TXT=fout_txt))
+
+    @staticmethod
+    def prt_header(prt, title=None, pre=''):
+        """write text table of depth-01 GO terms and their letter representation."""
+        if title is not None:
+            prt.write("{PRE}{TITLE}\n".format(TITLE=title, PRE=pre))
+            prt.write('{PRE}\n'.format(PRE=pre))
+        prt.write("{PRE}    D1 : Letter representing the depth-01 GO term\n".format(PRE=pre))
+        prt.write("{PRE}    dcnt: Total number of all descendants\n".format(PRE=pre))
+        prt.write("{PRE}    dep: Depth; The maximum length path to ".format(PRE=pre))
+        prt.write("{PRE}leaf-level (childless) GO descendant(s)\n".format(PRE=pre))
+        prt.write("{PRE}\n".format(PRE=pre))
+        prt.write("{PRE}D1 NS  dcnt dep GO ID      Description\n".format(PRE=pre))
+        prt.write("{PRE}- -- ------ --- ---------- ------------------------------\n".format(
+            PRE=pre))
 
     def wr_tex(self, fout_tex="gos_depth01.tex"):
         """write text table of depth-01 GO terms and their letter representation."""
@@ -187,4 +198,4 @@ class GoDepth1LettersWr(object):
         ns_nt = [(o.namespace, ntobj(D1="", dcnt=go2dcnt[o.id], goobj=o)) for o in d0s]
         return cx.OrderedDict(ns_nt)
 
-# Copyright (C) 2016-2017, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
