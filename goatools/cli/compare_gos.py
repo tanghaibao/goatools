@@ -84,7 +84,6 @@ class CompareGOsCli(object):
 
     def write(self, fout_xlsx=None, fout_txt=None, verbose=False):
         """Command-line interface for go_draw script."""
-        sys.stdout.write("{VER}\n".format(VER="\n".join(self.objgrpd.ver_list)))
         sortby = self._get_fncsortnt(self.objgrpd.grprobj.gosubdag.prt_attr['flds'])
         kws_sort = {'sortby' if verbose else 'section_sortby': sortby}
         sortobj = Sorter(self.objgrpd.grprobj, **kws_sort)
