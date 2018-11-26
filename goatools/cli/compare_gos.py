@@ -94,7 +94,7 @@ class CompareGOsCli(object):
             section_prt=True,
             top_n=None,
             use_sections=True)
-        print('FFFF', desc2nts['flds'])
+        # print('FFFF', desc2nts['flds'])
         # Write user GO IDs in sections
         objgowr = WrXlsxSortedGos("init", sortobj, self.objgrpd.ver_list)
         if fout_xlsx is not None:
@@ -103,18 +103,27 @@ class CompareGOsCli(object):
                 kws_xlsx['prt_flds'] = [f for f in desc2nts['flds'] if f not in self.excl_flds]
             objgowr.wr_xlsx_nts(fout_xlsx, desc2nts, **kws_xlsx)
         if fout_txt is not None:
-            self._wr_txt_nts(fout_txt, desc2nts, objgowr)
+            self._wr_txt_nts(fout_txt, desc2nts, objgowr, verbose)
         if fout_xlsx is None and fout_txt is None:
             self._prt_ver_n_key(sys.stdout)
-            summary_dct = objgowr.prt_txt_desc2nts(sys.stdout, desc2nts, self._get_prtfmt(objgowr))
+            prtfmt = self._get_prtfmt(objgowr, verbose)
+            summary_dct = objgowr.prt_txt_desc2nts(sys.stdout, desc2nts, prtfmt)
             self._prt_ver_n_key(sys.stdout)
             if summary_dct:
                 print("\n{N} GO IDs in {S} sections".format(
                     N=desc2nts['num_items'], S=desc2nts['num_sections']))
 
-    def _get_prtfmt(self, objgowr):
+    def _get_prtfmt(self, objgowr, verbose):
         """Get print format containing markers."""
         prtfmt = objgowr.get_prtfmt('fmt')
+        prtfmt = prtfmt.replace('# ', '')
+        # print('PPPPPPPPPPP', prtfmt)
+        if not verbose:
+            prtfmt = prtfmt.replace('{childcnt:3} L{level:02} ', '')
+            prtfmt = prtfmt.replace('{num_usrgos:>4} uGOs ', '')
+            prtfmt = prtfmt.replace('{D1:5} {REL} {rel}', '')
+            prtfmt = prtfmt.replace('R{reldepth:02} ', '')
+        # print('PPPPPPPPPPP', prtfmt)
         marks = ''.join(['{{{}}}'.format(nt.hdr) for nt in self.go_ntsets])
         return '{MARKS} {PRTFMT}'.format(MARKS=marks, PRTFMT=prtfmt)
 
@@ -183,11 +192,12 @@ class CompareGOsCli(object):
             go2ntpresent[goid] = ntobj._make(strmark)
         return go2ntpresent
 
-    def _wr_txt_nts(self, fout_txt, desc2nts, objgowr):
+    def _wr_txt_nts(self, fout_txt, desc2nts, objgowr, verbose):
         """Write grouped and sorted GO IDs to GOs."""
         with open(fout_txt, 'w') as prt:
             self._prt_ver_n_key(prt)
-            summary_dct = objgowr.prt_txt_desc2nts(prt, desc2nts, self._get_prtfmt(objgowr))
+            prtfmt = self._get_prtfmt(objgowr, verbose)
+            summary_dct = objgowr.prt_txt_desc2nts(prt, desc2nts, prtfmt)
             if summary_dct:
                 print("  {N:>5} GO IDs WROTE: {FOUT} ({S} sections)".format(
                     N=desc2nts['num_items'], FOUT=fout_txt, S=desc2nts['num_sections']))
