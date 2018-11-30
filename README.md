@@ -75,7 +75,8 @@ _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
     This script can be used with or without grouping. Grouping can help
     the researcher better visualize the major differences between the GO lists.
   * **Stochastic GOEA simulations**:    
-    One of our findings using the simulations is using larger GOEA study sizes yield higher sensitivity,
+    One of the findings resulting from our simulations is:
+    [Larger study sizes result in higher GOEA sensitivity](https://github.com/dvklopfenstein/goatools_simulation#manuscript-figures),
     meaning fewer truly significant observations go unreported.
     The code for the stochastic GOEA simulations
     described in the paper is found here:    
