@@ -79,7 +79,7 @@ _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
     [Larger study sizes result in higher GOEA sensitivity](https://github.com/dvklopfenstein/goatools_simulation#manuscript-figures),
     meaning fewer truly significant observations go unreported.    
     The code for the stochastic GOEA simulations
-    described in the paper is found here:    
+    described in the paper is found here:
     https://github.com/dvklopfenstein/goatools_simulation
 
 ## Installation
