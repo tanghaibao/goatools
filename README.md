@@ -72,8 +72,7 @@ _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
     where the optional _--sections_ argument is used.    
   * **Compare GO lists**:    
     Compare two or more lists of GO IDs using _scripts/compare_gos.py_.    
-    This script can be used with or without grouping. Grouping can help
-    the researcher better visualize the major differences between the GO lists.
+    This script can be used with or without grouping.
   * **Stochastic GOEA simulations**:    
     One of the findings resulting from our simulations is:
     [Larger study sizes result in higher GOEA sensitivity](https://github.com/dvklopfenstein/goatools_simulation#manuscript-figures),
