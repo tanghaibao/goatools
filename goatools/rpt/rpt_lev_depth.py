@@ -142,7 +142,7 @@ class RptLevDepth(object):
         self.log.write('Lev   BP    MF    CC    BP    MF    CC\n')
         self.log.write('--- ----  ----  ----  ----  ----  ----\n')
         for i in range(max_val+1):
-            vals = ['{:>5}'.format(cnts[desc][i][ns]) for desc in cnts for ns in self.nss]
+            vals = ['{:>5}'.format(cnts[desc][i][ns]) for desc in sorted(cnts) for ns in self.nss]
             self.log.write('{:>02} {}\n'.format(i, ' '.join(vals)))
 
     @staticmethod
