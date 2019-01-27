@@ -266,12 +266,15 @@ clobber:
 #    tests/test_gosubdag_children.py \
 #    tests/test_find_enrichment_overlap.py \
 #    tests/test_find_enrichment_run.py \
+#    tests/test_study_zero.py \
+#    tests/test_gosubdag_mk.py \
+#    tests/test_gpad_read.py \
+#    tests/test_quickgo_xml.py \
 
 NOSETESTS := \
     tests/test_sorter_sections.py \
     tests/test_sorter_desc2nts.py \
     tests/test_compare_gos.py \
-    tests/test_study_zero.py \
     tests/test_wr_sections_txt.py \
     tests/test_altid_gosubdag.py \
     tests/test_dcnt_r01.py \
@@ -279,7 +282,6 @@ NOSETESTS := \
     tests/test_grpr_get_sections_2d.py \
     tests/test_sorter.py \
     tests/test_gosubdag_relationships.py \
-    tests/test_gosubdag_mk.py \
     tests/test_go_depth1.py \
     tests/test_i92_relationship_parentchild.py \
     tests/test_i96_goea_ncbi.py \
@@ -289,7 +291,6 @@ NOSETESTS := \
     tests/test_get_children.py \
     tests/test_optional_attributes.py \
     tests/test_genes_cell_cycle.py \
-    tests/test_gpad_read.py \
     tests/test_semantic_similarity.py \
     tests/test_goea_errors.py \
     tests/test_ncbi_entrez_annotations.py \
