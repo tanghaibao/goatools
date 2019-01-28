@@ -12,10 +12,15 @@ from goatools.test_data.genes_NCBI_10090_ProteinCoding import GENEID2NT as GeneI
 from goatools.test_data.nature3102_goea import get_geneid2symbol
 from goatools.associations import get_assoc_ncbi_taxids
 
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+
 def test_pc_w_rels(prt=sys.stdout):
     """Test P-value calculations."""
-    results_r0 = _get_results(propagate_counts=True, relationships=False, prt=prt)
-    results_r1 = _get_results(propagate_counts=True, relationships=True, prt=prt)
+    file_obo = os.path.join(REPO, "go-basic.obo")
+    godag_r0 = get_godag(file_obo, prt, loading_bar=None)
+    godag_r1 = get_godag(file_obo, prt, loading_bar=None, optional_attrs=['relationship'])
+    results_r0 = _get_results(godag_r1, propagate_counts=True, relationships=False, prt=prt)
+    results_r1 = _get_results(godag_r1, propagate_counts=True, relationships=True, prt=prt)
     _chk_results(results_r0, results_r1, prt)
 
 def _chk_results(results_r0, results_r1, prt):
@@ -23,19 +28,18 @@ def _chk_results(results_r0, results_r1, prt):
     prt.write('TBD: Compare results')
     pass
 
-def _get_results(propagate_counts, relationships, prt=sys.stdout):
+def _get_results(godag, propagate_counts, relationships, prt=sys.stdout):
     """Run a GOEA. Return results"""
     taxid = 10090 # Mouse study
-    file_obo = os.path.join(os.getcwd(), "go-basic.obo")
-    obo_dag = get_godag(file_obo, prt, loading_bar=None)
     geneids_pop = set(GeneID2nt_mus.keys())
     assoc_geneid2gos = get_assoc_ncbi_taxids([taxid], loading_bar=None)
     geneids_study = get_geneid2symbol("nbt.3102-S4_GeneIDs.xlsx")
     goeaobj = GOEnrichmentStudy(
         geneids_pop,
         assoc_geneid2gos,
-        obo_dag,
+        godag,
         propagate_counts=propagate_counts,
+        relationships=relationships,
         alpha=0.05,
         methods=['fdr_bh'])
     return goeaobj.run_study(geneids_study, prt=prt)

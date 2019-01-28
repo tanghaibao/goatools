@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 """Test to re-produce issue#96: Passes currently."""
 
+from __future__ import print_function
+
 import os
 from goatools.base import get_godag
-from goatools.associations import get_assoc_ncbi_taxids
+from goatools.associations import dnld_ncbi_gene_file
+from goatools.associations import read_ncbi_gene2go
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.test_data.genes_NCBI_9606_All import GENEID2NT
+
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 
 def test_i96():
@@ -15,14 +20,19 @@ def test_i96():
     study_ids = _get_geneids()
     population_ids = GENEID2NT.keys()
     # Get databases
-    gene2go = get_assoc_ncbi_taxids([9606], loading_bar=None)
-    fin_obo = os.path.join(os.getcwd(), "go-basic.obo")
+
+    fin = os.path.join(REPO, 'gene2go')
+    dnld_ncbi_gene_file(fin, loading_bar=None)
+    gene2go = read_ncbi_gene2go(fin, [9606], loading_bar=None)
+
+    fin_obo = os.path.join(REPO, "go-basic.obo")
     godag = get_godag(fin_obo, loading_bar=None)
     goeaobj = GOEnrichmentStudy(population_ids, gene2go, godag, methods=['fdr_bh'])
     # Run GOEA Gene Ontology Enrichment Analysis
     results_goeas = goeaobj.run_study(study_ids)
 
 
+# pylint: disable=line-too-long, bad-continuation
 def _get_geneids():
     """Return study gene set."""
     symbol2geneid = {nt.Symbol:g for g, nt in GENEID2NT.items()}

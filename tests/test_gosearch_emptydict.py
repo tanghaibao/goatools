@@ -11,12 +11,13 @@ from goatools.associations import get_assoc_ncbi_taxids
 __copyright__ = "Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def test_gosearch(log=sys.stdout):
     """Test GoSearch class with no annotations."""
     taxids = [9606, 10090]
     # Download ontologies and annotations, if necessary
-    fin_go_obo = os.path.join(os.getcwd(), "go-basic.obo")
+    fin_go_obo = os.path.join(REPO, "go-basic.obo")
     download_go_basic_obo(fin_go_obo, loading_bar=None)
     # Because get_assoc_ncbi_taxids returns id2gos, we will opt to
     # use the (optional) multi-level dictionary separate associations by taxid

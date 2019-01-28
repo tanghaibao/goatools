@@ -66,6 +66,7 @@ class GOEnrichmentRecord(object):
         self.NS = 'XX'
         self.depth = 'n.a'
         self.method_flds = []
+        self.kws = kwargs
         # Ex: ratio_in_pop ratio_in_study study_items p_uncorrected pop_items
         for key, val in kwargs.items():
             setattr(self, key, val)
