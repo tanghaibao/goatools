@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Test various options while sorting when using sections."""
 
+import os
 from goatools.base import get_godag
 from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.grouper.grprdflts import GrouperDflts
@@ -10,6 +11,8 @@ from goatools.grouper.sorter import Sorter
 from goatools.grouper.wrxlsx import WrXlsxSortedGos
 from goatools.test_data.sorter import USER_GOS
 from goatools.test_data.sorter import SECTIONS
+
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 
 def test_sort():
@@ -73,7 +76,8 @@ def _wr_xlsx(name, grprobj, **kws):
 
 def _get_grprobj():
     """Get object for grouping GO IDs."""
-    godag = get_godag("go-basic.obo", prt=None, loading_bar=False, optional_attrs=['relationship'])
+    fin_obo = os.path.join(REPO, "go-basic.obo")
+    godag = get_godag(fin_obo, prt=None, loading_bar=False, optional_attrs=['relationship'])
     gosubdag = GoSubDag(USER_GOS, godag, relationships=True, tcntobj=None)
     grprdflt = GrouperDflts(gosubdag)
     hdrobj = HdrgosSections(gosubdag, grprdflt.hdrgos_dflt, SECTIONS)

@@ -15,8 +15,8 @@ def test_example():
     kws = {
         'GO_FILE': [os.path.join(REPO, 'data/compare_gos', f) for f in files],
         'obo': os.path.join(REPO, 'go-basic.obo'),
-        'slims': os.path.join('goslim_generic.obo'),
-        'sections': os.path.join('data/compare_gos/sections.txt'),
+        'slims': os.path.join(REPO, 'goslim_generic.obo'),
+        'sections': os.path.join(REPO, 'data/compare_gos/sections.txt'),
     }
     obj = CompareGOsCli(**kws)
     obj.write(fout_xlsx='compare_gos_v1.xlsx', fout_txt='compare_gos_v1.txt', verbose=True)
