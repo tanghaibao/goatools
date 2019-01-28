@@ -10,6 +10,7 @@ REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def test_i92():
     """Issue#92: parsing of part_of and other relationships as parent-children connections"""
+    print('CWD', os.getcwd())
     # Loading heartjogging GO graph with the relationship tags
     fin_obo = "tests/data/heartjogging.obo"
     # Expected parents and upper(includes relationship)

@@ -15,6 +15,7 @@ REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def test_grouper_d2(do_plot=False):
     """Group depth-02 GO terms under their most specific depth-01 GO parent(s)."""
+    print('CWD', os.getcwd())
     # Get GOs to be grouped
     # Since no "Grouping GOs" were provided, depth-01 GOs are used for grouping.
     grprdflt = _get_grprdflt()

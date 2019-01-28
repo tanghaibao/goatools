@@ -17,10 +17,12 @@ def test_i96():
     """Test to re-produce issue#96: Passes currently."""
     # Trying to duplicate: ValueError("All values in table must be nonnegative.
     # Get genes
+    print('CWD', os.getcwd())
     study_ids = _get_geneids()
     population_ids = GENEID2NT.keys()
     # Get databases
 
+    print(os.getcwd())
     fin = os.path.join(REPO, 'gene2go')
     dnld_ncbi_gene_file(fin, loading_bar=None)
     gene2go = read_ncbi_gene2go(fin, [9606])
