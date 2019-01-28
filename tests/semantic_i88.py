@@ -2,6 +2,8 @@
 """Test for TermsCount(Go,Association) not working for human genes - goa_human.gaf #88."""
 # https://github.com/tanghaibao/goatools/issues/88
 
+from __future__ import print_function
+
 import os
 from goatools import obo_parser
 from goatools.associations import dnld_assc
@@ -10,11 +12,14 @@ from goatools.semantic import TermCounts, get_info_content
 from goatools.semantic import resnik_sim
 from goatools.semantic import lin_sim
 
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+
+
 def test_semantic_i88():
     """Computing basic semantic similarities between GO terms."""
     godag = obo_parser.GODag("go-basic.obo")
     # Get all the annotations from arabidopsis.
-    fin_gaf = os.path.join(os.getcwd(), "gene_association.tair")
+    fin_gaf = os.path.join(REPO, "gene_association.tair")
     # dnld_assc includes read_gaf
     associations = dnld_assc(fin_gaf, godag, prt=None)
 
@@ -44,11 +49,13 @@ def test_semantic_i88():
     # the GO. Then we can calculate this as follows:
     #       "Resnik similarity score (GO:0048364, GO:0044707) = 4.0540784252
     sim_r = resnik_sim(go_id3, go_id4, godag, termcounts)
-    print('Resnik similarity score ({GO1}, {GO2}) = {VAL}'.format(GO1=go_id3, GO2=go_id4, VAL=sim_r))
+    print('Resnik similarity score ({GO1}, {GO2}) = {VAL}'.format(
+        GO1=go_id3, GO2=go_id4, VAL=sim_r))
 
     # Lin similarity score (GO:0048364, GO:0044707) = -0.607721957763
     sim_l = lin_sim(go_id3, go_id4, godag, termcounts)
-    print('Lin similarity score ({GO1}, {GO2}) = {VAL}'.format(GO1=go_id3, GO2=go_id4, VAL=sim_l))
+    print('Lin similarity score ({GO1}, {GO2}) = {VAL}'.format(
+        GO1=go_id3, GO2=go_id4, VAL=sim_l))
 
 
 if __name__ == '__main__':

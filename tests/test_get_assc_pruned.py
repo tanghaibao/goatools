@@ -9,13 +9,16 @@ from goatools.associations import dnld_assc
 from goatools.associations import get_assc_pruned
 from goatools.associations import get_b2aset
 
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+
+
 # pylint: disable=too-few-public-methods
 class Run(object):
     """Holds the data for the tests. Runs the tests. Checks the results."""
 
     def __init__(self):
         self.prt = sys.stdout
-        _fin_assc = os.path.join(os.getcwd(), "goa_human.gaf")
+        _fin_assc = os.path.join(REPO, "goa_human.gaf")
         self.gene2gos_orig = dnld_assc(_fin_assc, go2obj=None, prt=self.prt)
         self.go2genes_orig = get_b2aset(self.gene2gos_orig)
         _num_genes = [len(gs) for gs in self.go2genes_orig.values()]

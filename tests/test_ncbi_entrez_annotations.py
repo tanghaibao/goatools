@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Tests downloading and reading of the GO annotation file from NCBI Gene.
 
         python test_NCBI_Entrez_annotations.py
@@ -6,11 +7,16 @@
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
+import os
 import sys
 from collections import defaultdict
-from goatools.associations import get_assoc_ncbi_taxids
+from goatools.associations import dnld_ncbi_gene_file
+from goatools.associations import read_ncbi_gene2go
 from goatools.test_data.genes_NCBI_9606_ProteinCoding import GENEID2NT as GeneID2nt_hsa
 from goatools.test_data.genes_NCBI_7227_ProteinCoding import GENEID2NT as GeneID2nt_dme
+
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+
 
 def test_ncbi_gene2go(log=sys.stdout):
     """Return GO associations to Entrez GeneIDs. Download if necessary.
@@ -31,11 +37,8 @@ def test_ncbi_gene2go(log=sys.stdout):
     """
     # Get associations for human(9606), mouse(10090), and fly(7227)
     # (optional) multi-level dictionary separate associations by taxid
-    taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
     # Simple dictionary containing id2gos
-    taxids = [9606, 10090, 7227]
-    id2gos = get_assoc_ncbi_taxids(taxids, taxid2asscs=taxid2asscs, loading_bar=None)
-    log.write("  {N} items found in gene2go from NCBI's ftp server\n".format(N=len(id2gos)))
+    taxid2asscs = _get_id2gos('gene2go', [9606, 10090, 7227], log)
     taxid2pc = {9606:GeneID2nt_hsa, 7227:GeneID2nt_dme}
     # Report findings
     log.write("   taxid    GOs GeneIDs  Description\n")
@@ -50,6 +53,15 @@ def test_ncbi_gene2go(log=sys.stdout):
         assert num_go2genes_all > 6000
         if taxid in taxid2pc.keys():
             rpt_coverage(taxid, asscs, taxid2pc[taxid], log)
+
+def _get_id2gos(file_assc, taxids, log):
+    """Return associations."""
+    taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
+    fin = os.path.join(REPO, file_assc)
+    dnld_ncbi_gene_file(fin, loading_bar=None)
+    id2gos = read_ncbi_gene2go(fin, taxids, taxid2asscs=taxid2asscs)
+    log.write("  {N} items found in gene2go from NCBI's ftp server\n".format(N=len(id2gos)))
+    return taxid2asscs
 
 def rpt_coverage(taxid, asscs, pc2nt, log):
     """Calculate and report GO coverage on protein-coding genes.

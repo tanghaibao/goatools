@@ -12,6 +12,9 @@ from goatools.semantic import get_info_content
 from goatools.semantic import resnik_sim
 from goatools.semantic import lin_sim
 
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+
+
 def test_semantic_similarity():
     """Computing basic semantic similarities between GO terms."""
     goids = [
@@ -29,12 +32,11 @@ def test_semantic_similarity():
     ]
 
 
-    cwd = os.getcwd()  # current working directory
-    godag = get_godag(os.path.join(os.getcwd(), "go-basic.obo"), loading_bar=None)
+    godag = get_godag(os.path.join(REPO, "go-basic.obo"), loading_bar=None)
     for species, assc_name in associations:  # Limit test numbers for speed
         print()
         # Get all the annotations for the current species
-        assc_gene2gos = dnld_assc(os.path.join(cwd, assc_name), godag, prt=None)
+        assc_gene2gos = dnld_assc(os.path.join(REPO, assc_name), godag, prt=None)
         # Calculate the information content of the single term, GO:0048364
         termcounts = TermCounts(godag, assc_gene2gos)
 

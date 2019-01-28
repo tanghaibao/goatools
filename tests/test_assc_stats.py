@@ -7,18 +7,21 @@ from goatools.associations import dnld_assc
 from goatools.associations import get_b2aset
 from goatools.statsdescribe import StatsDescribe
 
+
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+
 def test_assc_stats(prt=sys.stdout):
     """Test association statistics."""
     associations = [
         ('hsa', 'goa_human.gaf'),         # human
         ('mus', 'gene_association.mgi'),  # mouse
         ('dme', 'gene_association.fb')]   # fly
-    godag = get_godag(os.path.join(os.getcwd(), "go-basic.obo"), loading_bar=None)
+    godag = get_godag(os.path.join(REPO, "go-basic.obo"), loading_bar=None)
     describe_go2obj(godag, prt)
     obj = StatsDescribe('Assc', "{:6,}")
     obj.prt_hdr(prt, "Assc.")
     for org, assc_name in associations:
-        fin_assc = os.path.join(os.getcwd(), assc_name)
+        fin_assc = os.path.join(REPO, assc_name)
         describe_assc(org, fin_assc, godag, obj, prt)
 
 def describe_go2obj(go2obj, prt):

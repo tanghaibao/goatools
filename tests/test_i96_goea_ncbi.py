@@ -23,7 +23,7 @@ def test_i96():
 
     fin = os.path.join(REPO, 'gene2go')
     dnld_ncbi_gene_file(fin, loading_bar=None)
-    gene2go = read_ncbi_gene2go(fin, [9606], loading_bar=None)
+    gene2go = read_ncbi_gene2go(fin, [9606])
 
     fin_obo = os.path.join(REPO, "go-basic.obo")
     godag = get_godag(fin_obo, loading_bar=None)
