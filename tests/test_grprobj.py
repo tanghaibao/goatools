@@ -1,19 +1,25 @@
 #!/usr/bin/env python
 """Test method, grouper, in class, CountRelatives."""
 
+import os
 import sys
+from goatools.base import get_godag
+from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.grouper.grprdflts import GrouperDflts
 from goatools.grouper.hdrgos import HdrgosSections
 from goatools.grouper.grprobj import Grouper
 from goatools.grouper.wr_sections import WrSectionsTxt
 
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+
+
 def test_grouper_d2(do_plot=False):
     """Group depth-02 GO terms under their most specific depth-01 GO parent(s)."""
     # Get GOs to be grouped
     # Since no "Grouping GOs" were provided, depth-01 GOs are used for grouping.
-    grprdflt = GrouperDflts()
+    grprdflt = _get_grprdflt()
     hdrobj = HdrgosSections(grprdflt.gosubdag, grprdflt.hdrgos_dflt, sections=None, hdrgos=None)
-    grprobj = Grouper("Transient Increase", get_data0(), hdrobj, grprdflt.gosubdag, go2nt=None)
+    grprobj = Grouper("Transient Increase", get_data0(), hdrobj, _get_gosubdag(), go2nt=None)
     objwr = WrSectionsTxt(grprobj)
     objwr.wr_txt_section_hdrgos("transient_increase_hdrgos.txt")
     objwr.wr_txt_grouping_gos()
@@ -81,6 +87,19 @@ def get_data0():
         "GO:0006464", "GO:0016192", "GO:0016043", "GO:0007411", "GO:0043412",
         "GO:0007610", "GO:0007267", "GO:0009966", "GO:0048468", "GO:0007154",
         "GO:0048731", "GO:0006928", "GO:0015672"]
+
+def _get_gosubdag():
+    """Get GO DAG."""
+    fin = os.path.join(REPO, 'go-basic.obo')
+    godag = get_godag(fin, prt=sys.stdout, loading_bar=False, optional_attrs=['relationship'])
+    return GoSubDag(None, godag)
+
+def _get_grprdflt():
+    """Get Grouper defaults."""
+    gosubdag = _get_gosubdag()
+    fin_slim = os.path.join(REPO, 'goslim_generic.obo')
+    return GrouperDflts(gosubdag, fin_slim)
+
 
 if __name__ == '__main__':
     test_grouper_d2(True)

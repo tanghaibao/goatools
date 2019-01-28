@@ -1,19 +1,22 @@
 #!/usr/bin/env python
 """Ensure that alternate GO IDs are in the go-basic.obo DAG go2obj dictionary."""
 
+import os
 from goatools.base import get_godag
 from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.grouper.grprdflts import GrouperDflts
 from goatools.grouper.hdrgos import HdrgosSections
 from goatools.grouper.grprobj import Grouper
 
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+
 def test_alt_id():
     """Ensure that alternate GO IDs."""
-    obo_dag = get_godag("go-basic.obo")
+    obo_dag = get_godag(os.path.join(REPO, "go-basic.obo"))
     # Create/Initialize GoSubDag
     goids = _get_data0()
     gosubdag = GoSubDag(obo_dag.keys(), obo_dag)
-    grprdflt = GrouperDflts(gosubdag)
+    grprdflt = _get_grprdflt(gosubdag)
     # Create/Initialize Grouper
     hdrobj = HdrgosSections(grprdflt.gosubdag, grprdflt.hdrgos_dflt, sections=None, hdrgos=None)
     Grouper("test_altid_gosubdag", goids, hdrobj, grprdflt.gosubdag, go2nt=None)
@@ -21,6 +24,11 @@ def test_alt_id():
     obo_goids = obo_dag.keys()
     obo_goids_set = set(obo_goids)
     assert len(alt_ids.intersection(obo_goids_set)) == len(alt_ids)
+
+def _get_grprdflt(gosubdag):
+    """Get Grouper defaults."""
+    fin_slim = os.path.join(REPO, 'goslim_generic.obo')
+    return GrouperDflts(gosubdag, fin_slim)
 
 def _get_altids(obo_dag):
     """Get all alternate GO ids."""

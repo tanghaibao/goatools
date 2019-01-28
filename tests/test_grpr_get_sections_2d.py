@@ -7,7 +7,10 @@ provided when a Grouper object is initialized.
 
 """
 
+import os
 import sys
+from goatools.base import get_godag
+from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.test_data.gjoneska_goea_consistent_increase import goea_results
 from goatools.test_data.sections.gjoneska_pfenning import SECTIONS
 from goatools.grouper.grprdflts import GrouperDflts
@@ -15,12 +18,13 @@ from goatools.grouper.hdrgos import HdrgosSections
 from goatools.grouper.grprobj import Grouper
 
 PRT = sys.stdout
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def test_fnc():
     """Test function, get_sections_2d, in the Grouper class."""
     usrgo2nt = {getattr(nt, 'GO'):nt for nt in goea_results if getattr(nt, 'p_fdr_bh') < 0.05}
     usrgos = usrgo2nt.keys()
-    grprdflt = GrouperDflts()
+    grprdflt = _get_grprdflt()
     hdrobj = HdrgosSections(grprdflt.gosubdag, grprdflt.hdrgos_dflt, sections=SECTIONS, hdrgos=None)
     grprobj = Grouper("test", usrgos, hdrobj, grprdflt.gosubdag, go2nt=usrgo2nt)
     assert set(usrgos) == grprobj.usrgos
@@ -54,6 +58,18 @@ def chk_results(sections_act, grprobj):
                 PRT.write("ACT  {I:2} {S} {H}\n".format(S=section_name, H=hdrgo, I=idx))
                 assert idx == 0 and idx_act is None or idx_act == idx - 1
                 idx_act = idx
+
+def _get_gosubdag():
+    """Get GO DAG."""
+    fin = os.path.join(REPO, 'go-basic.obo')
+    godag = get_godag(fin, prt=sys.stdout, loading_bar=False, optional_attrs=['relationship'])
+    return GoSubDag(None, godag)
+
+def _get_grprdflt():
+    """Get Grouper defaults."""
+    gosubdag = _get_gosubdag()
+    fin_slim = os.path.join(REPO, 'goslim_generic.obo')
+    return GrouperDflts(gosubdag, fin_slim)
 
 if __name__ == '__main__':
     test_fnc()

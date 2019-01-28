@@ -3,19 +3,24 @@
 
 from __future__ import print_function
 
+import os
 import sys
 
+from goatools.base import get_godag
+from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.grouper.grprdflts import GrouperDflts
 from goatools.grouper.hdrgos import HdrgosSections
 from goatools.grouper.grprobj import Grouper
 from goatools.grouper.sorter import Sorter
+
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 
 # pylint: disable=too-many-locals
 def test_dflthdrs(prt=sys.stdout, do_plt=False):
     """Group depth-02 GO terms under their most specific depth-01 GO parent(s)."""
     # Initialize GoSubDag for grouping use once, since it takes a few seconds to initialize
-    grprdflt = GrouperDflts()
+    grprdflt = _get_grprdflt()
 
     # Get GOs to be grouped
     data = get_data0()
@@ -170,6 +175,18 @@ def get_data0():
         #"GO:0007610", # BP 1   219 L01 D01 O   behavior
         "GO:0007612", # BP 0    14 L04 D06 DKO learning
         "GO:0007611"])# BP 0    22 L03 D05 DKO learning or memory
+
+def _get_gosubdag():
+    """Get GO DAG."""
+    fin = os.path.join(REPO, 'go-basic.obo')
+    godag = get_godag(fin, prt=sys.stdout, loading_bar=False, optional_attrs=['relationship'])
+    return GoSubDag(None, godag)
+
+def _get_grprdflt():
+    """Get Grouper defaults."""
+    gosubdag = _get_gosubdag()
+    fin_slim = os.path.join(REPO, 'goslim_generic.obo')
+    return GrouperDflts(gosubdag, fin_slim)
 
 
 if __name__ == '__main__':

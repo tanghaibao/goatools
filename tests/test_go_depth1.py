@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Test the use of CountRelatives to visualize the branche(s) of any GO term."""
 
+import os
 import sys
 import collections as cx
 from goatools.base import get_godag
@@ -8,13 +9,15 @@ from goatools.gosubdag.godag_rcnt import CountRelatives
 #### from goatools.gosubdag.godag_depth1 import GoDepth1Letters
 from goatools.gosubdag.rpt.wr_xlsx import GoDepth1LettersWr
 
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+
 def test_all(prt=sys.stdout):
     """Test initialization and operation of CountRelatives for GO term branch(s) visualization."""
-    obo_dag = get_godag("go-basic.obo", prt=None)
-    rcntobj = CountRelatives(obo_dag)
+    godag = get_godag(os.path.join(REPO, "go-basic.obo"), prt=sys.stdout)
+    rcntobj = CountRelatives(godag)
     _wr_xlsx_d1(rcntobj)
     _run_get_letters_d1(rcntobj)
-    _run_get_letters_d2(obo_dag, rcntobj, prt)
+    _run_get_letters_d2(godag, rcntobj, prt)
 
 def _run_get_letters_d1(rcntobj):
     """Test get_letter on goobjs at depth-01."""
