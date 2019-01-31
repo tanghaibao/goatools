@@ -1,47 +1,62 @@
 """Manage evidence codes as reported by the Gene Ontology Consortium."""
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
 import collections as cx
 
+
+# pylint: disable=line-too-long
 class EvidenceCodes(object):
     """From http://geneontology.org/page/guide-go-evidence-codes"""
+    # gocwiki.geneontology.org/index.php/Evidence_Code_Ontology_%28ECO%29
 
-    ntobj = cx.namedtuple("NtCode", "group name")
+    ntobj = cx.namedtuple("NtCode", "eco group name")
 
     code2name = cx.OrderedDict([
         # Experimental Evidence codes:
-        ("EXP", ntobj._make(["Experimental", "Inferred from Experiment"])),
-        ("IDA", ntobj._make(["Experimental", "Inferred from Direct Assay"])),
-        ("IPI", ntobj._make(["Experimental", "Inferred from Physical Interaction"])),
-        ("IMP", ntobj._make(["Experimental", "Inferred from Mutant Phenotype"])),
-        ("IGI", ntobj._make(["Experimental", "Inferred from Genetic Interaction"])),
-        ("IEP", ntobj._make(["Experimental", "Inferred from Expression Pattern"])),
+        ("EXP", ntobj._make(["ECO:0000269", "Experimental", "Inferred from Experiment"])),
+        ("IDA", ntobj._make(["ECO:0000314", "Experimental", "Inferred from Direct Assay"])),
+        ("IPI", ntobj._make(["ECO:0000353", "Experimental", "Inferred from Physical Interaction"])),
+        ("IMP", ntobj._make(["ECO:0000315", "Experimental", "Inferred from Mutant Phenotype"])),
+        ("IGI", ntobj._make(["ECO:0000316", "Experimental", "Inferred from Genetic Interaction"])),
+        ("IEP", ntobj._make(["ECO:0000270", "Experimental", "Inferred from Expression Pattern"])),
 
-        # Computational Analysis evidence codes
-        ("ISS", ntobj._make(["Computational", "Inferred from Sequence or structural Similarity"])),
-        ("ISO", ntobj._make(["Computational", "Inferred from Sequence Orthology"])),
-        ("ISA", ntobj._make(["Computational", "Inferred from Sequence Alignment"])),
-        ("ISM", ntobj._make(["Computational", "Inferred from Sequence Model"])),
-        ("IGC", ntobj._make(["Computational", "Inferred from Genomic Context"])),
-        ("IBA", ntobj._make(["Computational", "Inferred from Biological aspect of Ancestor"])),
-        ("IBD", ntobj._make(["Computational", "Inferred from Biological aspect of Descendant"])),
-        ("IKR", ntobj._make(["Computational", "Inferred from Key Residues"])),
-        ("IRD", ntobj._make(["Computational", "Inferred from Rapid Divergence"])),
-        ("RCA", ntobj._make(["Computational", "Inferred from Reviewed Computational Analysis"])),
+        # Similarity evidence codes
+        ("ISS", ntobj._make(["ECO:0000250", "Similarity", "Inferred from Sequence or structural Similarity"])),
+        ("ISO", ntobj._make(["ECO:0000266", "Similarity", "Inferred from Sequence Orthology"])),
+        ("ISA", ntobj._make(["ECO:0000247", "Similarity", "Inferred from Sequence Alignment"])),
+        ("ISM", ntobj._make(["ECO:0000255", "Similarity", "Inferred from Sequence Model used in manual assertion"])),
+        ("IGC", ntobj._make(["ECO:0000317", "Similarity", "Inferred from Genomic Context"])),
+        ("IBA", ntobj._make(["ECO:0000318", "Similarity", "Inferred from Biological aspect of Ancestor"])),
+        ("IBD", ntobj._make(["ECO:0000319", "Similarity", "Inferred from Biological aspect of Descendant"])),
+        ("IKR", ntobj._make(["ECO:0000320", "Similarity", "Inferred from phylogenetic determination of loss of key residues (manual assertion)"])),
+        ("IRD", ntobj._make(["ECO:0000321", "Similarity", "Inferred from Rapid Divergence from ancestral sequence (manual assertion)"])),
+        ("IMR", ntobj._make(["ECO:0000320", "Similarity", "Phylogenetic determination of loss of key residues in manual assertion"])),
+
+        # Combinatorial evidence codes
+        ("RCA", ntobj._make(["ECO:0000245", "Combinatorial", "Inferred from Reviewed Computational Analysis"])),
+
+        # High Throughput Experimental evidence codes
+        ("HTP", ntobj._make(["ECO:0006056", "High_Throughput", "Inferred from High Throughput Experimental"])),
+        ("HDA", ntobj._make(["ECO:0007005", "High_Throughput", "Inferred from High Throughput Direct Assay"])),
+        ("HMP", ntobj._make(["ECO:0007001", "High_Throughput", "Inferred from High Throughput Mutant Phenotype"])),
+        ("HGI", ntobj._make(["ECO:0007003", "High_Throughput", "Inferred from High Throughput Genetic Interaction"])),
+        ("HEP", ntobj._make(["ECO:0007007", "High_Throughput", "Inferred from High Throughput Expression Pattern"])),
 
         # Author Statement evidence codes
-        ("TAS", ntobj._make(["Author", "Traceable Author Statement"])),
-        ("NAS", ntobj._make(["Author", "Non-traceable Author Statement"])),
+        ("TAS", ntobj._make(["ECO:0000304", "Author", "Traceable Author Statement used in manual assertion"])),
+        ("NAS", ntobj._make(["ECO:0000303", "Author", "Non-traceable Author Statement used in manual assertion"])),
 
-        # Curatorial Statement codes
-        ("IC", ntobj._make(["Curatorial", "Inferred by Curator"])),
-        ("ND", ntobj._make(["Curatorial", "No biological Data available"])),
+        # Curator Inference
+        ("IC", ntobj._make(["ECO:0000305", "Curatorial", "Inferred by Curator"])),
 
-        # Automatically-Assigned evidence code
-        ("IEA", ntobj._make(["Automatic", "Inferred from Electronic Annotation"]))])
+        # No Biological Data
+        ("ND", ntobj._make(["ECO:0000307", "No biological data", "No biological Data available"])),
+
+        # Automatic Assertion
+        ("IEA", ntobj._make(["ECO:0000501", "Automatic", "Inferred from Electronic Annotation"]))])
 
     def __init__(self):
         self.ev2idx = {ev:i for i, ev in enumerate(self.code2name.keys())}
@@ -72,4 +87,4 @@ class EvidenceCodes(object):
         """Return evidence codes in order shown in cod2name."""
         return sorted(codes, key=lambda e: [self.ev2idx.get(e)])
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
