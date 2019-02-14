@@ -39,19 +39,24 @@ def test_quickgo():
     # fp = <socket._fileobject object at 0x6ffffc601d0>>>
     print(obj.info)
 
-    print('\nREAD')
+    print('\nREAD JSON RESULTS')
     jsonstr = obj.read()
     # print(jsonstr)
     print(type(jsonstr))
 
-    go_dict = json.loads(jsonstr)
-    print(go_dict.keys())
-    print('numberOfHits: {V}'.format(V=go_dict['numberOfHits']))
-    print('pageInfo: {V}'.format(V=go_dict['pageInfo']))
-    print('results:')
-    assert len(go_dict['results']) == 1
-    for key, val in sorted(go_dict['results'][0].items()):
-        print('    {N:3} {K}'.format(K=key, N=len(val)))
+    jsonout = json.loads(jsonstr)
+    print(jsonout.keys())
+    print('numberOfHits: {V}'.format(V=jsonout['numberOfHits']))
+    print('pageInfo: {V}'.format(V=jsonout['pageInfo']))
+
+    # PRINT THE GO TERM
+    print('\nresults:')
+    assert len(jsonout['results']) == 1
+    go_dict = jsonout['results'][0]
+    print('id: {GO}'.format(GO=go_dict['id']))
+    print('{N} children'.format(N=len(go_dict['children'])))
+    print('DEFINITION: {DEFN}'.format(DEFN=go_dict['definition']))
+    print(jsonout['results'][0].keys())
 
 
 if __name__ == '__main__':
