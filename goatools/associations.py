@@ -2,7 +2,7 @@
 Routines to read in association file between genes and GO terms.
 """
 
-__copyright__ = "Copyright (C) 2010-2018, H Tang et al. All rights reserved."
+__copyright__ = "Copyright (C) 2010-2019, H Tang et al. All rights reserved."
 __author__ = "various"
 
 from collections import defaultdict
@@ -15,14 +15,15 @@ from goatools.anno.gaf_reader import GafReader
 
 def dnld_assc(assc_name, go2obj, prt=sys.stdout):
     """Download association from http://geneontology.org/gene-associations."""
-    # Example assc_name: "gene_association.tair"
+    # Example assc_name: "tair.gaf"
     # Download the Association
     dirloc, assc_base = os.path.split(assc_name)
     if not dirloc:
         dirloc = os.getcwd()
     assc_locfile = os.path.join(dirloc, assc_base) if not dirloc else assc_name
     if not os.path.isfile(assc_locfile):
-        assc_http = "http://geneontology.org/gene-associations/"
+        # assc_http = "http://geneontology.org/gene-associations/"
+        assc_http = "http://current.geneontology.org/annotations/"
         for ext in ['gz']:
             src = os.path.join(assc_http, "{ASSC}.{EXT}".format(ASSC=assc_base, EXT=ext))
             dnld_file(src, assc_locfile, prt, loading_bar=None)
@@ -221,4 +222,4 @@ def get_tcntobj(go2obj, **kws):
         return TermCounts(go2obj, annots)
 
 
-# Copyright (C) 2010-2018, H Tang et al. All rights reserved."
+# Copyright (C) 2010-2019, H Tang et al. All rights reserved."

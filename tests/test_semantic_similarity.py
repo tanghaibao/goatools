@@ -27,7 +27,7 @@ def test_semantic_similarity():
     """Computing basic semantic similarities between GO terms."""
     godag = get_godag(os.path.join(REPO, "go-basic.obo"), loading_bar=None)
     # Get all the annotations from arabidopsis.
-    associations = dnld_assc(os.path.join(REPO, 'gene_association.tair'), godag)
+    associations = dnld_assc(os.path.join(REPO, 'tair.gaf'), godag)
 
 
     # Now we can calculate the semantic distance and semantic similarity, as so:

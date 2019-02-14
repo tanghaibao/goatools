@@ -19,7 +19,7 @@ def test_semantic_i88():
     """Computing basic semantic similarities between GO terms."""
     godag = obo_parser.GODag("go-basic.obo")
     # Get all the annotations from arabidopsis.
-    fin_gaf = os.path.join(REPO, "gene_association.tair")
+    fin_gaf = os.path.join(REPO, "tair.gaf")
     # dnld_assc includes read_gaf
     associations = dnld_assc(fin_gaf, godag, prt=None)
 

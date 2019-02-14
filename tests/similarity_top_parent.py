@@ -40,7 +40,7 @@ def _test_path_bp_mf(branch_dist, godag, prt):
     go_bp = 'GO:0007516' # level-04 depth-05 hemocyte development [biological_process]
     dst_none = semantic_distance(go_mf, go_bp, godag)
     sim_none = semantic_similarity(go_mf, go_bp, godag)
-    assc = dnld_assc("gene_association.tair", godag)
+    assc = dnld_assc("tair.gaf", godag)
     termcounts = TermCounts(godag, assc)
     fmt = '({GO1}, {GO2}) {TYPE:6} score = {VAL}\n'
     sim_r = resnik_sim(go_mf, go_bp, godag, termcounts)

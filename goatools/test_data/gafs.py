@@ -1,0 +1,57 @@
+"""Associations in http://current.geneontology.org/annotations/."""
+
+__copyright__ = "Copyright (C) 2010-2019, DV Klopfenstein, H Tang et al. All rights reserved."
+
+
+ASSOCIATIONS = {
+    'aspgd.gaf',
+    'cgd.gaf',
+    'dictybase.gaf',
+    'ecocyc.gaf',
+    'fb.gaf',
+    'genedb_lmajor.gaf',
+    'genedb_pfalciparum.gaf',
+    'genedb_tbrucei.gaf',
+    'gonuts.gaf',
+    'gramene_oryza.gaf',
+    'jcvi.gaf',
+    'mgi.gaf',
+    'pamgo_atumefaciens.gaf',
+    'pamgo_ddadantii.gaf',
+    'pamgo_mgrisea.gaf',
+    'pamgo_oomycetes.gaf',
+    'pombase.gaf',
+    'pseudocap.gaf',
+    'reactome.gaf',
+    'rgd.gaf',
+    'sgd.gaf',
+    'sgn.gaf',
+    'tair.gaf',
+    'wb.gaf',
+    'zfin.gaf',
+    'goa_chicken.gaf',
+    'goa_chicken_complex.gaf',
+    'goa_chicken_isoform.gaf',
+    'goa_chicken_rna.gaf',
+    'goa_cow.gaf',
+    'goa_cow_complex.gaf',
+    'goa_cow_isoform.gaf',
+    'goa_cow_rna.gaf',
+    'goa_dog.gaf',
+    'goa_dog_complex.gaf',
+    'goa_dog_isoform.gaf',
+    'goa_dog_rna.gaf',
+    'goa_human.gaf',
+    'goa_human_complex.gaf',
+    'goa_human_isoform.gaf',
+    'goa_human_rna.gaf',
+    'goa_pig.gaf',
+    'goa_pig_complex.gaf',
+    'goa_pig_isoform.gaf',
+    'goa_pig_rna.gaf',
+    'goa_uniprot_all.gaf',
+    'goa_uniprot_all_noiea.gaf',
+}
+
+
+# Copyright (C) 2010-2019, DV Klopfenstein, H Tang et al. All rights reserved.

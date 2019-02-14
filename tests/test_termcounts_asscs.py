@@ -5,70 +5,28 @@ from __future__ import print_function
 
 import os
 import sys
+import timeit
+import datetime
 from goatools.base import get_godag
 from goatools.associations import dnld_assc
 from goatools.semantic import TermCounts
 from goatools.semantic import get_info_content
+from goatools.test_data.gafs import ASSOCIATIONS
+
+TIC = timeit.default_timer()
 
 def test_semantic_similarity(usr_assc=None):
     """Computing basic semantic similarities between GO terms."""
+    not_these = {'goa_uniprot_all.gaf', 'goa_uniprot_all_noiea.gaf'}
+    associations = sorted(ASSOCIATIONS.difference(not_these))
     go2obj = get_go2obj()
     # goids = go2obj.keys()
-    associations = [
-        'gene_association.GeneDB_Lmajor',
-        'gene_association.GeneDB_Pfalciparum',
-        'gene_association.GeneDB_Tbrucei',
-        'gene_association.GeneDB_tsetse',
-        'gene_association.PAMGO_Atumefaciens',
-        'gene_association.PAMGO_Ddadantii',
-        #'gene_association.PAMGO_Mgrisea', # TBD Resolve DB_Name containing '|'
-        'gene_association.PAMGO_Oomycetes',
-        'gene_association.aspgd',
-        'gene_association.cgd',
-        'gene_association.dictyBase',
-        'gene_association.ecocyc',
-        'gene_association.fb',
-        'gene_association.gonuts',
-        #'gene_association.gramene_oryza', # DB_Name
-        'gene_association.jcvi',
-        'gene_association.mgi',
-        'gene_association.pombase',
-        'gene_association.pseudocap',
-        'gene_association.reactome',
-        'gene_association.rgd',
-        'gene_association.sgd',
-        'gene_association.sgn',
-        'gene_association.tair',
-        'gene_association.wb',
-        'gene_association.zfin',
-        'goa_chicken.gaf',
-        'goa_chicken_complex.gaf',
-        'goa_chicken_isoform.gaf',
-        'goa_chicken_rna.gaf',
-        'goa_cow.gaf',
-        'goa_cow_complex.gaf',
-        'goa_cow_isoform.gaf',
-        'goa_cow_rna.gaf',
-        'goa_dog.gaf',
-        'goa_dog_complex.gaf',
-        'goa_dog_isoform.gaf',
-        'goa_dog_rna.gaf',
-        'goa_human.gaf',
-        'goa_human_complex.gaf',
-        'goa_human_isoform.gaf',
-        'goa_human_rna.gaf',
-        'goa_pdb.gaf',
-        'goa_pig.gaf',
-        'goa_pig_complex.gaf',
-        'goa_pig_isoform.gaf',
-        'goa_pig_rna.gaf',
-        #'goa_uniprot_all.gaf',
-        #'goa_uniprot_all_noiea.gaf',
-    ]
+    # http://current.geneontology.org/annotations/
     if usr_assc is not None:
         associations = [usr_assc]
     cwd = os.getcwd()
     for assc_name in associations:  # Limit test numbers for speed
+        tic = timeit.default_timer()
         # Get all the annotations from arabidopsis.
         assc_gene2gos = dnld_assc(os.path.join(cwd, assc_name), go2obj, prt=sys.stdout)
 
@@ -81,12 +39,18 @@ def test_semantic_similarity(usr_assc=None):
         #print termcounts.gocnts.most_common()
 
         if go_cnt:
-            print("\n{ASSC}".format(ASSC=assc_name))
+            print("{ASSC}".format(ASSC=assc_name))
             print(sorted(termcounts.aspect_counts.most_common()))
             gocnt_max = go_cnt[0][1]
             prt_info(termcounts, go_cnt, None)
             prt_info(termcounts, go_cnt, gocnt_max/2.0)
             prt_info(termcounts, go_cnt, gocnt_max/10.0)
+        print("{HMS} {hms} {ASSC}\n".format(ASSC=assc_name, HMS=_hms(TIC), hms=_hms(tic)))
+    print('{HMS} {N} Associations'.format(HMS=_hms(TIC), N=len(associations)))
+
+def _hms(tic):
+    """Get Timing."""
+    return '{HMS}'.format(HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic))))
 
 def prt_info(termcounts, go_cnt, max_val):
     """Print the information content of a frequently used GO ID."""
