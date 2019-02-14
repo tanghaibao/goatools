@@ -17,7 +17,6 @@ from goatools.gosubdag.go_tasks import chk_goids
 class GoSubDag(object):
     """Manages a user-specified subset of a GO DAG."""
 
-
     def __init__(self, go_sources, go2obj, relationships=None, **kws):
         # kws _Init: rcntobj relationships
         # tic = timeit.default_timer()
