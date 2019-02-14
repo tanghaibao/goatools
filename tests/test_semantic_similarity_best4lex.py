@@ -28,7 +28,7 @@ def test_semantic_similarity():
     # Get all the annotations from arabidopsis.
     associations = [
         ('human', 'goa_human.gaf'),
-        ('yeast', 'gene_association.sgd'),
+        ('yeast', 'sgd.gaf'),
     ]
 
 
@@ -59,8 +59,6 @@ def test_semantic_similarity():
                 GO1=go_a, GO2=go_b, RESNIK=sim_r, LIN=sim_l))
             assert sim_r, "FATAL RESNIK SCORE"
             assert sim_l, "FATAL LIN SCORE"
-
-
 
 
 if __name__ == '__main__':

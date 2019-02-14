@@ -13,9 +13,9 @@ REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 def test_assc_stats(prt=sys.stdout):
     """Test association statistics."""
     associations = [
-        ('hsa', 'goa_human.gaf'),         # human
-        ('mus', 'gene_association.mgi'),  # mouse
-        ('dme', 'gene_association.fb')]   # fly
+        ('hsa', 'goa_human.gaf'), # human
+        ('mus', 'mgi.gaf'),       # mouse
+        ('dme', 'fb.gaf')]        # fly
     godag = get_godag(os.path.join(REPO, "go-basic.obo"), loading_bar=None)
     describe_go2obj(godag, prt)
     obj = StatsDescribe('Assc', "{:6,}")
@@ -54,6 +54,8 @@ def describe_assc(org, fin_assc, go2obj, obj, prt):
     # dme gene/GO |  7878 | 1 to 1,675 |    1 |      3 |    7 |   10 |     41
     gene2gos = dnld_assc(fin_assc, go2obj, prt=None) # Associations
     go2genes = get_b2aset(gene2gos)
+    assert gene2gos
+    assert go2genes
     cnts_gos_p_gene = [len(gos) for gos in gene2gos.values()]
     cnts_genes_p_go = [len(genes) for genes in go2genes.values()]
     obj.prt_data("{ORG} GO/gene".format(ORG=org), cnts_gos_p_gene, prt)

@@ -3,12 +3,11 @@
         python test_annotations_gaf.py
 """
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import os
 import sys
-import pytest
 
 from collections import defaultdict
 from goatools.associations import read_gaf
@@ -44,7 +43,7 @@ def _test_gaf_read(msg, species_ids, keepif, log=sys.stdout):
         fin_gaf = os.path.join(local_dir, fin_gaf)
         log.write("\n")
         id2gos = read_gaf(fin_gaf, taxid2asscs=taxid2asscs, keepif=keepif)
-        if "gene_association.mgi" in fin_gaf:
+        if "mgi.gaf" in fin_gaf:
             _chk_key(id2gos, "MGI:")
         log.write("  {N:>6,} IDs found in {F}\n".format(N=len(id2gos), F=fin_gaf))
         go2ids = read_gaf(fin_gaf, go2geneids=True, keepif=keepif)
@@ -72,4 +71,4 @@ def _chk_key(a2bs, pattern):
 if __name__ == '__main__':
     test_gaf_read()
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved.

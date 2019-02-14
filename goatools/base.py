@@ -148,33 +148,22 @@ def get_godag(fin_obo="go-basic.obo", prt=sys.stdout, loading_bar=True, optional
     download_go_basic_obo(fin_obo, prt, loading_bar)
     return GODag(fin_obo, optional_attrs, load_obsolete=False, prt=prt)
 
-def get_gaf_name(species):
-    """Given a species (eg goa_human, mgi, fb), return filename of GAF file."""
-    gaf_pats = {
-        'gas':"gene_association.{S}",
-        'goa':"{S}.gaf"}
-    # Example species text: goa_human mgi fb
-    gaf_key = 'goa' if species[:4] == "goa_" else 'gas'
-    # Return Examples: goa_human.gaf gene_association.mgi gene_association.fb
-    return gaf_pats[gaf_key].format(S=species)
-
 def dnld_gaf(species_txt, prt=sys.stdout, loading_bar=True):
     """Download GAF file if necessary."""
     return dnld_gafs([species_txt], prt, loading_bar)[0]
 
 def dnld_gafs(species_list, prt=sys.stdout, loading_bar=True):
     """Download GAF files if necessary."""
-    # Example GAF files:
-    #   http://geneontology.org/gene-associations/gene_association.mgi.gz
-    #   http://geneontology.org/gene-associations/gene_association.fb.gz
-    #   http://geneontology.org/gene-associations/goa_human.gaf.gz
-    #   NA: http://geneontology.org/gene-associations/gene_association.goa_human.gz
-    http = "http://geneontology.org/gene-associations"
+    # Example GAF files in  http://current.geneontology.org/annotations/:
+    #   http://current.geneontology.org/annotations/mgi.gaf.gz
+    #   http://current.geneontology.org/annotations/fb.gaf.gz
+    #   http://current.geneontology.org/annotations/goa_human.gaf.gz
+    http = "http://current.geneontology.org/annotations/"
     # There are two filename patterns for gene associations on geneontology.org
     fin_gafs = []
     cwd = os.getcwd()
     for species_txt in species_list: # e.g., goa_human mgi fb
-        gaf_base = get_gaf_name(species_txt) # goa_human.gaf
+        gaf_base = '{ABC}.gaf'.format(ABC=species_txt) # goa_human.gaf
         gaf_cwd = os.path.join(cwd, gaf_base) # {CWD}/goa_human.gaf
         wget_cmd = "{HTTP}/{GAF}.gz".format(HTTP=http, GAF=gaf_base)
         dnld_file(wget_cmd, gaf_cwd, prt, loading_bar)

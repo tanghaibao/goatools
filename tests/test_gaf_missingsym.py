@@ -9,7 +9,7 @@ REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def test_missingsym():
     """Tests read a GAF with missing (required) DB_Symbol text."""
-    # Original gaf file (gene_association.mgi) was reduced
+    # Original gaf file (mgi.gaf) was reduced
     fin_gaf = "tests/data/gaf_missingsym.mgi"
     # Test that gene products that are missing the required DB_Symbol are ignored
     gene2gos = read_gaf(os.path.join(REPO, fin_gaf))
