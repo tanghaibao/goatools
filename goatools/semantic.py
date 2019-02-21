@@ -154,7 +154,7 @@ def lin_sim_calc(goid1, goid2, sim_r, termcnts):
     if sim_r is not None:
         info = get_info_content(goid1, termcnts) + get_info_content(goid2, termcnts)
         if info != 0:
-            return (-2*sim_r)/info
+            return (2*sim_r)/info
 
 
 def common_parent_go_ids(goids, godag):
