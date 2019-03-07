@@ -194,6 +194,11 @@ $(GOSLIM_OBO_FILE):
 	@echo "downloading GOslim file: $(GOSLIM_OBO_FILE)"
 	wget -O $(GOSLIM_OBO_FILE) $(GOSLIM_OBO_DOWNLOAD)
 
+dnld_gene2go:
+	@echo "Downloading gene2go"
+	#wget ftp://ftp.ncbi.nih.gov/gene/DATA/gene2go.gz
+	gunzip gene2go.gz
+
 pylint:
 	@git status -uno | perl -ne 'if (/(\S+.py)/) {printf "echo $$1\npylint -r no %s\n", $$1}' | tee tmp_pylint
 	chmod 755 tmp_pylint
