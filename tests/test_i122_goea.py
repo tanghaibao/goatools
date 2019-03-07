@@ -20,22 +20,27 @@ def test_i122():
 
     # Result is the same whether fisher_scipy_stats of fisher
     pvalcalc = 'fisher_scipy_stats'
-    goeaobj = GOEnrichmentStudy(population_ids, obj.gene2go, obj.godag, methods=['bonferroni'], pvalcalc=pvalcalc)
+    goeaobj = GOEnrichmentStudy(population_ids, obj.gene2go, obj.godag, methods=['bonferroni', 'fdr_bh'], pvalcalc=pvalcalc)
     # Run GOEA Gene Ontology Enrichment Analysis
     results_goeas = goeaobj.run_study_nts(study_ids)
+    print('NS GO         p stu_ratio pop_ratio    p-uncorr bonferro fdr_bh   stu  ')
     for ntd in results_goeas:
-        if ntd.study_count == 0 and ntd.p_bonferroni < 0.05:
-            assert ntd.enrichment == 'p'
-            print('{NS} {GO} {RS} {RP} {e} {PVAL:8.2e} {BONF:8.2e} {STU}'.format(
-                NS=ntd.NS, GO=ntd.GO,
-                RS=ntd.ratio_in_study, RP=ntd.ratio_in_pop,
-                e=ntd.enrichment,
-                PVAL=ntd.p_uncorrected, BONF=ntd.p_bonferroni,
-                STU=ntd.study_items))
+        if ntd.study_count == 0:
+            doprt = False
+            if ntd.p_bonferroni < 0.05:
+                assert ntd.enrichment == 'p'
+                doprt = True
+            if ntd.p_fdr_bh < 0.05:
+                assert ntd.enrichment == 'p'
+                doprt = True
+            if doprt:
+                print(obj.str_nt(ntd))
     # print(next(iter(results_goeas))._fields)
 
 class _Run():
     """Run test."""
+
+    patrec = '{NS} {GO} {e} {RS} {RP:>12} {PVAL:8.2e} {BONF:8.2e} {BH:8.2e} {STU}'
 
     def __init__(self, taxid, fin_gene2go, fin_gobasic):
         _fin = os.path.join(REPO, fin_gene2go)
@@ -45,6 +50,13 @@ class _Run():
         _fin_obo = os.path.join(REPO, fin_gobasic)
         self.godag = get_godag(_fin_obo, loading_bar=None)
 
+    def str_nt(self, ntd):
+        return self.patrec.format(
+            NS=ntd.NS, GO=ntd.GO,
+            RS=ntd.ratio_in_study, RP=str(ntd.ratio_in_pop),
+            e=ntd.enrichment,
+            PVAL=ntd.p_uncorrected, BONF=ntd.p_bonferroni, BH=ntd.p_fdr_bh,
+            STU=ntd.study_items)
 
     def get_genes_study_n_bg(self):
         """Get the study and background genes."""
