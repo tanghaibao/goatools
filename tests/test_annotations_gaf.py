@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Tests downloading and reading of a GO Association File (GAF).
 
         python test_annotations_gaf.py

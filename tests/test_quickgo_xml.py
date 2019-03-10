@@ -5,14 +5,14 @@ from __future__ import print_function
 
 __copyright__ = "Copyright (C) 2015-2019, DV Klopfenstein, H Tang, All rights reserved."
 
-
-from urllib import urlopen
-import xmltodict
 import pytest
 
 @pytest.mark.skip
 def test_quickgo():
     """Download a oboxml file from QuickGO and read it."""
+    from urllib import urlopen
+    import xmltodict
+
     # NOTE: Use json instead of xml. See test_quickgo_json.py
     oboxml = urlopen('http://www.ebi.ac.uk/QuickGO/GTerm?id=GO:0003723&format=oboxml')
     print(oboxml)

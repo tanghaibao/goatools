@@ -158,7 +158,7 @@ def dnld_gafs(species_list, prt=sys.stdout, loading_bar=True):
     #   http://current.geneontology.org/annotations/mgi.gaf.gz
     #   http://current.geneontology.org/annotations/fb.gaf.gz
     #   http://current.geneontology.org/annotations/goa_human.gaf.gz
-    http = "http://current.geneontology.org/annotations/"
+    http = "http://current.geneontology.org/annotations"
     # There are two filename patterns for gene associations on geneontology.org
     fin_gafs = []
     cwd = os.getcwd()

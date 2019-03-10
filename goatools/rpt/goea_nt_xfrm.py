@@ -43,8 +43,8 @@ class MgrNtGOEAs(object):
     @staticmethod
     def dflt_sortby_objgoea(goea_res):
         """Default sorting of GOEA results."""
-        return [getattr(goea_res, 'namespace'),
-                getattr(goea_res, 'enrichment'),
+        return [getattr(goea_res, 'enrichment'),
+                getattr(goea_res, 'namespace'),
                 getattr(goea_res, 'p_uncorrected'),
                 getattr(goea_res, 'depth'),
                 getattr(goea_res, 'GO')]
@@ -52,8 +52,8 @@ class MgrNtGOEAs(object):
     @staticmethod
     def dflt_sortby_ntgoea(ntgoea):
         """Default sorting of GOEA results stored in namedtuples."""
-        return [ntgoea.namespace,
-                ntgoea.enrichment,
+        return [ntgoea.enrichment,
+                ntgoea.namespace,
                 ntgoea.p_uncorrected,
                 ntgoea.depth,
                 ntgoea.GO]

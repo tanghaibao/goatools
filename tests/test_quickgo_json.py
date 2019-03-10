@@ -1,26 +1,30 @@
 #!/usr/bin/env python
-"""Download a obj file from QuickGO and read it."""
+"""Download a rsp file from QuickGO and read it."""
 
 from __future__ import print_function
 
 __copyright__ = "Copyright (C) 2015-2019, DV Klopfenstein, H Tang, All rights reserved."
 
 
-from urllib import urlopen
+#### from urllib import urlopen
+import requests
 import json
 
 def test_quickgo():
-    """Download a obj file from QuickGO and read it."""
-    obj = urlopen('https://www.ebi.ac.uk/QuickGO/services/ontology/go/terms/GO:0003723/complete')
-    print(obj)
+    """Download a rsp file from QuickGO and read it."""
+    #### rsp = urlopen('https://www.ebi.ac.uk/QuickGO/services/ontology/go/terms/GO:0003723/complete')
+    rsp = requests.get('https://www.ebi.ac.uk/QuickGO/services/ontology/go/terms/GO:0003723/complete')
+    print(rsp)
 
     # __doc__ __init__ __iter__ __module__ __repr__
     # close code fileno fp getcode geturl headers info next read readline readlines url
-    print(' '.join(sorted(dir(obj))))
+    print(' '.join(sorted(dir(rsp))))
 
     # Code
-    print(obj.code)
-    assert obj.code == 200
+    #### print(rsp.code)
+    #### rsp.code == 200
+    print(rsp.status_code)
+    rsp.status_code == 200
 
     # Headers
     # Example:
@@ -33,18 +37,19 @@ def test_quickgo():
     #     Connection: close
     #     Last-Modified: Wed, 28 Nov 2018 11:47:50 GMT
     #     Content-Length: 6172
-    print(obj.headers)
+    print(rsp.headers)
 
     # <bound method addinfourl.info of <addinfourl at 7696577623752 whose
-    # fp = <socket._fileobject object at 0x6ffffc601d0>>>
-    print(obj.info)
+    # fp = <socket._filerspect rspect at 0x6ffffc601d0>>>
+    # print(rsp.info)
 
     print('\nREAD JSON RESULTS')
-    jsonstr = obj.read()
-    # print(jsonstr)
-    print(type(jsonstr))
+    #### jsonstr = rsp.read()
+    jsonout = rsp.json()
+    #### print(jsonstr)
+    #### print(type(jsonstr))
 
-    jsonout = json.loads(jsonstr)
+    #### jsonout = json.loads(jsonstr)
     print(jsonout.keys())
     print('numberOfHits: {V}'.format(V=jsonout['numberOfHits']))
     print('pageInfo: {V}'.format(V=jsonout['pageInfo']))
