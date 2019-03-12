@@ -7,3 +7,6 @@ xlsxwriter
 statsmodels
 xlrd
 docopt
+pydot
+requests
+wget
