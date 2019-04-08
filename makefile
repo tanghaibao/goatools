@@ -252,6 +252,59 @@ clobber:
 	rm -f cell_cycle_genes_*.txt
 	rm -f *.gpa.gz
 
+ANNO = gaf
+ANNO_HTTP = http://current.geneontology.org/annotations
+dnld_anno:
+	wget $(ANNO_HTTP)/aspgd.$(ANNO).gz; gunzip aspgd.$(ANNO).gz
+	wget $(ANNO_HTTP)/cgd.$(ANNO).gz; gunzip cgd.$(ANNO).gz
+	wget $(ANNO_HTTP)/dictybase.$(ANNO).gz; gunzip dictybase.$(ANNO).gz
+	wget $(ANNO_HTTP)/ecocyc.$(ANNO).gz; gunzip ecocyc.$(ANNO).gz
+	wget $(ANNO_HTTP)/fb.$(ANNO).gz; gunzip fb.$(ANNO).gz
+	wget $(ANNO_HTTP)/genedb_lmajor.$(ANNO).gz; gunzip genedb_lmajor.$(ANNO).gz
+	wget $(ANNO_HTTP)/genedb_pfalciparum.$(ANNO).gz; gunzip genedb_pfalciparum.$(ANNO).gz
+	wget $(ANNO_HTTP)/genedb_tbrucei.$(ANNO).gz; gunzip genedb_tbrucei.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_chicken.$(ANNO).gz; gunzip goa_chicken.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_chicken_complex.$(ANNO).gz; gunzip goa_chicken_complex.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_chicken_isoform.$(ANNO).gz; gunzip goa_chicken_isoform.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_chicken_rna.$(ANNO).gz; gunzip goa_chicken_rna.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_cow.$(ANNO).gz; gunzip goa_cow.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_cow_complex.$(ANNO).gz; gunzip goa_cow_complex.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_cow_isoform.$(ANNO).gz; gunzip goa_cow_isoform.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_cow_rna.$(ANNO).gz; gunzip goa_cow_rna.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_dog.$(ANNO).gz; gunzip goa_dog.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_dog_complex.$(ANNO).gz; gunzip goa_dog_complex.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_dog_isoform.$(ANNO).gz; gunzip goa_dog_isoform.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_dog_rna.$(ANNO).gz; gunzip goa_dog_rna.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_human.$(ANNO).gz; gunzip goa_human.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_human_complex.$(ANNO).gz; gunzip goa_human_complex.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_human_isoform.$(ANNO).gz; gunzip goa_human_isoform.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_human_rna.$(ANNO).gz; gunzip goa_human_rna.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_pig.$(ANNO).gz; gunzip goa_pig.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_pig_complex.$(ANNO).gz; gunzip goa_pig_complex.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_pig_isoform.$(ANNO).gz; gunzip goa_pig_isoform.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_pig_rna.$(ANNO).gz; gunzip goa_pig_rna.$(ANNO).gz
+	wget $(ANNO_HTTP)/gonuts.$(ANNO).gz; gunzip gonuts.$(ANNO).gz
+	wget $(ANNO_HTTP)/gramene_oryza.$(ANNO).gz; gunzip gramene_oryza.$(ANNO).gz
+	wget $(ANNO_HTTP)/jcvi.$(ANNO).gz; gunzip jcvi.$(ANNO).gz
+	wget $(ANNO_HTTP)/mgi.$(ANNO).gz; gunzip mgi.$(ANNO).gz
+	wget $(ANNO_HTTP)/pamgo_atumefaciens.$(ANNO).gz; gunzip pamgo_atumefaciens.$(ANNO).gz
+	wget $(ANNO_HTTP)/pamgo_ddadantii.$(ANNO).gz; gunzip pamgo_ddadantii.$(ANNO).gz
+	wget $(ANNO_HTTP)/pamgo_mgrisea.$(ANNO).gz; gunzip pamgo_mgrisea.$(ANNO).gz
+	wget $(ANNO_HTTP)/pamgo_oomycetes.$(ANNO).gz; gunzip pamgo_oomycetes.$(ANNO).gz
+	wget $(ANNO_HTTP)/pombase.$(ANNO).gz; gunzip pombase.$(ANNO).gz
+	wget $(ANNO_HTTP)/pseudocap.$(ANNO).gz; gunzip pseudocap.$(ANNO).gz
+	wget $(ANNO_HTTP)/reactome.$(ANNO).gz; gunzip reactome.$(ANNO).gz
+	wget $(ANNO_HTTP)/rgd.$(ANNO).gz; gunzip rgd.$(ANNO).gz
+	wget $(ANNO_HTTP)/sgd.$(ANNO).gz; gunzip sgd.$(ANNO).gz
+	wget $(ANNO_HTTP)/sgn.$(ANNO).gz; gunzip sgn.$(ANNO).gz
+	wget $(ANNO_HTTP)/tair.$(ANNO).gz; gunzip tair.$(ANNO).gz
+	wget $(ANNO_HTTP)/wb.$(ANNO).gz; gunzip wb.$(ANNO).gz
+	wget $(ANNO_HTTP)/zfin.$(ANNO).gz; gunzip zfin.$(ANNO).gz
+
+dnld_anno_uniprot:
+	wget $(ANNO_HTTP)/goa_uniprot_all.$(ANNO).gz; gunzip goa_uniprot_all.$(ANNO).gz
+	wget $(ANNO_HTTP)/goa_uniprot_all_noiea.$(ANNO).gz; gunzip goa_uniprot_all_noiea.$(ANNO).gz
+
 # Tests which run longer and have much functionality covered by other tests
 #    tests/test_annotations_gaf.py \
 
