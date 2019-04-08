@@ -11,6 +11,7 @@ import sys
 import os
 import re
 import collections as cx
+from datetime import datetime
 from goatools.evidence_codes import EvidenceCodes
 
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
@@ -193,7 +194,7 @@ class GafData(object):
         # Although thee go not appear in:
         #     http://geneontology.org/page/go-annotation-conventions#qual
         # they do appear in more than one July 2018 GAFs:
-        #     'enables', 'involved_in', 'part_of', 
+        #     'enables', 'involved_in', 'part_of',
     ])
 
     def __init__(self, ver, allow_missing_symbol=False):
@@ -250,8 +251,8 @@ class GafData(object):
             db_synonym,   # 10 DB_Synonym
             flds[11],     # 11 DB_Type
             taxons,       # 12 Taxon
-            flds[12],     # 13 Date
-            flds[13]]     # 14 Assigned_By
+            datetime.strptime(flds[13], '%Y%m%d').date(),     # 13 Date
+            flds[14]]     # 14 Assigned_By
         # Version 2.x has these additional fields not found in v1.0
         if self.ver[0] == '2':
             # i=15) Annotation_Extension: optional 0 or greater; Ex: part_of(CL:0000576)
