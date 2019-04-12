@@ -96,7 +96,8 @@ class GafReader(object):
         ver = None
         hdrobj = GafHdr()
         datobj = None
-        lnum = line = -1
+        lnum = -1
+        line = ''
         try:
             with open(fin_gaf) as ifstrm:
                 for lnum, line in enumerate(ifstrm, 1):

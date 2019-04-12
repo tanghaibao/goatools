@@ -11,6 +11,7 @@ import os
 import sys
 from collections import defaultdict
 from goatools.associations import dnld_ncbi_gene_file
+from goatools.associations import read_ncbi_gene2go_old
 from goatools.associations import read_ncbi_gene2go
 from goatools.test_data.genes_NCBI_9606_ProteinCoding import GENEID2NT as GeneID2nt_hsa
 from goatools.test_data.genes_NCBI_7227_ProteinCoding import GENEID2NT as GeneID2nt_dme

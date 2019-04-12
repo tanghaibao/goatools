@@ -212,6 +212,8 @@ clean:
 	rm -f nbt3102_*
 	rm -f data/gaf/goa_human_illegal.gaf.log
 	rm -f gogrp_*.txt
+	rm -f tests/data/gaf_missingsym.mgi.log
+	rm -f tmp_test_sections.py
 
 clean_pyc:
 	find . -name \*.pyc | xargs rm -f

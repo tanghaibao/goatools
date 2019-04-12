@@ -12,6 +12,8 @@ import wget
 from goatools.base import dnld_file
 from goatools.semantic import TermCounts
 from goatools.anno.gaf_reader import GafReader
+from goatools.anno.genetogo_reader import Gene2GoReader
+from goatools.anno.opts import AnnoOptions
 
 def dnld_assc(assc_name, go2obj, prt=sys.stdout):
     """Download association from http://geneontology.org/gene-associations."""
@@ -110,7 +112,25 @@ def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout, loading_bar=True)
 
 def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
-    # Written by DV Klopfenstein
+    obj = Gene2GoReader(fin_gene2go, taxids)
+    # b_geneid2gos = not kws.get('go2geneids', False)
+    opt = AnnoOptions(**kws)
+    # By default, return id2gos. User can cause go2geneids to be returned by:
+    #   >>> read_ncbi_gene2go(..., go2geneids=True
+    if 'taxid2asscs' not in kws:
+        if len(obj.taxid2asscs) == 1:
+            taxid = next(iter(obj.taxid2asscs))
+            return obj.get_annotations_dct(taxid, opt)
+    # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
+    # e.g., taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set))
+    taxid2asscs_ret = obj.get_annotations_taxid2dct(opt)
+    taxid2asscs_usr = kws.get('taxid2asscs', defaultdict(lambda: defaultdict(lambda: defaultdict(set))))
+    if 'taxid2asscs' in kws:
+        obj.fill_taxid2asscs(taxid2asscs_usr, taxid2asscs_ret)
+    return obj.get_id2gos_all(taxid2asscs_ret)
+
+def read_ncbi_gene2go_old(fin_gene2go, taxids=None, **kws):
+    """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
     # kws: taxid2asscs evidence_set
     # Simple associations
     id2gos = defaultdict(set)
