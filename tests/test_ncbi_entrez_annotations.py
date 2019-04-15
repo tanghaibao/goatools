@@ -4,14 +4,14 @@
         python test_NCBI_Entrez_annotations.py
 """
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import os
 import sys
 from collections import defaultdict
 from goatools.associations import dnld_ncbi_gene_file
-from goatools.associations import read_ncbi_gene2go_old
+#### from goatools.associations import read_ncbi_gene2go_old
 from goatools.associations import read_ncbi_gene2go
 from goatools.test_data.genes_NCBI_9606_ProteinCoding import GENEID2NT as GeneID2nt_hsa
 from goatools.test_data.genes_NCBI_7227_ProteinCoding import GENEID2NT as GeneID2nt_dme
@@ -44,9 +44,10 @@ def test_ncbi_gene2go(log=sys.stdout):
     # Report findings
     log.write("   taxid    GOs GeneIDs  Description\n")
     log.write("   ----- ------ -------  -----------\n")
+    assert taxid2asscs
     for taxid, asscs in taxid2asscs.items():
-        num_gene2gos_all = len(asscs['GeneID2GOs'])
-        num_go2genes_all = len(asscs['GO2GeneIDs'])
+        num_gene2gos_all = len(asscs['ID2GOs'])
+        num_go2genes_all = len(asscs['GO2IDs'])
         log.write("  {TAXID:>6} {N:>6,} {M:>7,}  all DNA items\n".format(
             TAXID=taxid, N=num_go2genes_all, M=num_gene2gos_all))
         # Basic check to ensure gene2go was downloaded and data was returned.
@@ -77,7 +78,7 @@ def rpt_coverage(taxid, asscs, pc2nt, log):
 
     """
     # List of all protein-coding genes have GO terms associated with them
-    geneid2gos = asscs['GeneID2GOs']
+    geneid2gos = asscs['ID2GOs']
     pcgene_w_gos = set(geneid2gos.keys()).intersection(set(pc2nt.keys()))
     num_pcgene_w_gos = len(pcgene_w_gos)
     num_pc_genes = len(pc2nt)
@@ -89,7 +90,6 @@ def rpt_coverage(taxid, asscs, pc2nt, log):
     txt = "  {TAXID:>6} {N:>6,} {M:>7,}  {COV:2.0f}% GO coverage of {TOT:,} protein-coding genes\n"
     log.write(txt.format(
         TAXID=taxid, N=len(gos_pcgenes), M=num_pcgene_w_gos, COV=perc_cov, TOT=num_pc_genes))
-
 
 
 if __name__ == '__main__':

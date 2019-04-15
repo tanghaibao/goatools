@@ -123,11 +123,11 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
             return obj.get_annotations_dct(taxid, opt)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
     # e.g., taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set))
-    taxid2asscs_ret = obj.get_annotations_taxid2dct(opt)
-    taxid2asscs_usr = kws.get('taxid2asscs', defaultdict(lambda: defaultdict(lambda: defaultdict(set))))
+    t2asscs_ret = obj.get_annotations_taxid2dct(opt)
+    t2asscs_usr = kws.get('taxid2asscs', defaultdict(lambda: defaultdict(lambda: defaultdict(set))))
     if 'taxid2asscs' in kws:
-        obj.fill_taxid2asscs(taxid2asscs_usr, taxid2asscs_ret)
-    return obj.get_id2gos_all(taxid2asscs_ret)
+        obj.fill_taxid2asscs(t2asscs_usr, t2asscs_ret)
+    return obj.get_id2gos_all(t2asscs_ret)
 
 def read_ncbi_gene2go_old(fin_gene2go, taxids=None, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
@@ -162,8 +162,8 @@ def read_ncbi_gene2go_old(fin_gene2go, taxids=None, **kws):
                             else:
                                 id2gos[go_id].add(geneid)
                             if taxid2asscs is not None:
-                                taxid2asscs[taxid_curr]['GeneID2GOs'][geneid].add(go_id)
-                                taxid2asscs[taxid_curr]['GO2GeneIDs'][go_id].add(geneid)
+                                taxid2asscs[taxid_curr]['ID2GOs'][geneid].add(go_id)
+                                taxid2asscs[taxid_curr]['GO2IDs'][go_id].add(geneid)
         sys.stdout.write("  {N:,} items READ: {ASSC}\n".format(N=len(id2gos), ASSC=fin_gene2go))
     return id2gos # return simple associations
 

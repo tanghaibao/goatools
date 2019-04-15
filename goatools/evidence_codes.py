@@ -58,8 +58,7 @@ class EvidenceCodes(object):
         # Automatic Assertion
         ("IEA", ntobj._make(["ECO:0000501", "Automatic", "Inferred from Electronic Annotation"]))])
 
-    def __init__(self):
-        self.ev2idx = {ev:i for i, ev in enumerate(self.code2name.keys())}
+    ev2idx = {ev:i for i, ev in enumerate(code2name.keys())}
 
     def sort_nts(self, nt_list, codekey):
         """Sort list of namedtuples such so evidence codes in same order as code2name."""
@@ -86,5 +85,18 @@ class EvidenceCodes(object):
     def get_order(self, codes):
         """Return evidence codes in order shown in cod2name."""
         return sorted(codes, key=lambda e: [self.ev2idx.get(e)])
+
+    def prt_summary_anno2ev(self, associations, prt=sys.stdout):
+        """Print annotation/evidence code summary."""
+        ctr = cx.Counter()
+        for ntanno in associations:
+            evidence_code = ntanno.Evidence_Code
+            if 'NOT' not in ntanno.Qualifier:
+                ctr[evidence_code] += 1
+            elif 'NOT' in ntanno.Qualifier:
+                ctr["NOT {EV:3}".format(EV=ntanno.Evidence_Code)] += 1
+            else:
+                raise Exception("UNEXPECTED INFO")
+        self.prt_ev_cnts(ctr, prt)
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."

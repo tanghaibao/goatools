@@ -9,7 +9,7 @@ from goatools.go_search import GoSearch
 from goatools.associations import get_assoc_ncbi_taxids
 from goatools.wr_tbl import prt_txt
 
-__copyright__ = "Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2010-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 def test_cell_cycle(taxid=9606, log=sys.stdout):
@@ -25,12 +25,12 @@ def get_genes_cell_cycle(taxid=9606, log=sys.stdout):
     download_go_basic_obo(fin_go_obo, loading_bar=None)
     # Because get_assoc_ncbi_taxids returns id2gos, we will opt to
     # use the (optional) multi-level dictionary separate associations by taxid
-    # taxid2asscs contains both GO2GeneIDs and GeneID2GOs.
+    # taxid2asscs contains both GO2IDs and ID2GOs.
     taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
     get_assoc_ncbi_taxids([taxid], taxid2asscs=taxid2asscs, loading_bar=None)
 
     # Initialize GO-search helper object with obo and annotations(go2items)
-    srch = GoSearch(fin_go_obo, go2items=taxid2asscs[taxid]['GO2GeneIDs'])
+    srch = GoSearch(fin_go_obo, go2items=taxid2asscs[taxid]['GO2IDs'])
     # Compile search pattern for 'cell cycle'
     cell_cycle = re.compile(r'cell cycle', flags=re.IGNORECASE)
     # Find ALL GOs that have 'cell cycle'. Store results in file.
@@ -84,4 +84,4 @@ if __name__ == '__main__':
     test_cell_cycle(9606)
     test_cell_cycle(10090)
 
-# Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2010-2019, DV Klopfenstein, H Tang, All rights reserved.

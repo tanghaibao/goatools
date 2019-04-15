@@ -11,14 +11,15 @@ import sys
 import re
 import collections as cx
 from goatools.base import nopen
+from goatools.anno.annoreader_base import AnnoReaderBase
 from goatools.anno.extensions.extensions import AnnotationExtensions
 from goatools.anno.extensions.extension import AnnotationExtension
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
-class GpadReader(object):
+class GpadReader(AnnoReaderBase):
     """Read a Gene Product Association Data (GPAD) and store the data in a Python object."""
 
     # http://geneontology.org/page/gene-product-association-data-gpad-format
@@ -62,23 +63,15 @@ class GpadReader(object):
     ])
 
     def __init__(self, filename=None, hdr_only=False):
-        self.filename = filename
+        super(GpadReader, self).__init__(filename)
         # Initialize associations and header information
         self.hdr = None
         self.associations = self.read_gpad(filename, hdr_only) if filename is not None else []
         self.qty = len(self.associations)
 
-    def prt_summary_anno2ev(self):
+    def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print annotation/evidence code summary."""
-        ctr = cx.Counter()
-        for ntgpad in self.associations:
-            evidence_code = ntgpad.Evidence_Code
-            if 'NOT' not in ntgpad.Qualifier:
-                ctr[evidence_code] += 1
-            elif 'NOT' in ntgpad.Qualifier:
-                ctr["NOT {EV}".format(EV=ntgpad.Evidence_Code)] += 1
-            else:
-                raise Exception("UNEXPECTED INFO")
+        self.evobj.prt_summary_anno2ev(self.associations, prt)
 
     def _get_ntgpad(self, ntgpadobj, flds):
         """Convert fields from string to preferred format for GPAD ver 2.1 and 2.0."""
@@ -255,4 +248,4 @@ class GpadHdr(object):
         if mtch:
             self.gpadhdr.append(mtch.group(1))
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."

@@ -12,23 +12,22 @@ import os
 import re
 import collections as cx
 from datetime import datetime
-from goatools.evidence_codes import EvidenceCodes
+from goatools.anno.annoreader_base import AnnoReaderBase
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
 # pylint: disable=broad-except,too-few-public-methods,line-too-long
-class GafReader(object):
+class GafReader(AnnoReaderBase):
     """Reads a Gene Annotation File (GAF). Returns a Python object."""
 
     exp_kwdct = set(['allow_missing_symbol'])
 
     def __init__(self, filename=None, hdr_only=False, prt=sys.stdout, **kws):
+        super(GafReader, self).__init__(filename)
         # kws: allow_missing_symbol
         self.kws = {k:v for k, v in kws.items() if k in self.exp_kwdct}
-        self.filename = filename
-        self.evobj = EvidenceCodes()
         # Initialize associations and header information
         self.hdr = None
         self.datobj = None
@@ -133,16 +132,7 @@ class GafReader(object):
 
     def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print annotation/evidence code summary."""
-        ctr = cx.Counter()
-        for ntgaf in self.associations:
-            evidence_code = ntgaf.Evidence_Code
-            if 'NOT' not in ntgaf.Qualifier:
-                ctr[evidence_code] += 1
-            elif 'NOT' in ntgaf.Qualifier:
-                ctr["NOT {EV}".format(EV=ntgaf.Evidence_Code)] += 1
-            else:
-                raise Exception("UNEXPECTED INFO")
-        self.evobj.prt_ev_cnts(ctr, prt)
+        self.evobj.prt_summary_anno2ev(self.associations, prt)
 
 
 class GafData(object):
@@ -188,15 +178,6 @@ class GafData(object):
         "2.1" : 17,
         "2.0" : 17,
         "1.0" : 15}
-
-    # Expected values for a Qualifier
-    exp_qualifiers = set([
-        'not', 'contributes_to', 'colocalizes_with',
-        # Although thee go not appear in:
-        #     http://geneontology.org/page/go-annotation-conventions#qual
-        # they do appear in more than one July 2018 GAFs:
-        #     'enables', 'involved_in', 'part_of',
-    ])
 
     def __init__(self, ver, allow_missing_symbol=False):
         self.ver = ver
@@ -381,4 +362,4 @@ class GafHdr(object):
         if mtch:
             self.gafhdr.append(mtch.group(1))
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."

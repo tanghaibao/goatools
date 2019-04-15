@@ -20,6 +20,7 @@ class Gene2GoReader(AnnoReaderBase):
     """Reads a Gene Annotation File (GAF). Returns a Python object."""
 
     taxid_dflt = 9606  # human is the default taxid
+
     # Shared names(3): GO_ID Qualifier GO_term
     # Equivalent names(3): DB_ID->GeneID  Evidence_Code->Evidence  DB_Reference->PubMed
     # Only gene2go(2): Category/NS and tax_id
@@ -28,50 +29,27 @@ class Gene2GoReader(AnnoReaderBase):
 
     ## exp_kwdct = set(['allow_missing_symbol'])
 
-    def __init__(self, filename=None, taxids=None, prt=sys.stdout):  # , **kws):
-        super(Gene2GoReader, self).__init__(filename, prt)
-        # kws: allow_missing_symbol
-        ## self.kws = {k:v for k, v in kws.items() if k in self.exp_kwdct}
-        #### self.filename = filename
-        #### self.evobj = EvidenceCodes()
+    def __init__(self, filename=None, taxids=None):  # , **kws):
+        super(Gene2GoReader, self).__init__(filename)
         # Initialize associations and header information
-        #### self.hdr = None
-        #### self.datobj = None
-        self.associations = self._read_nts(filename, taxids)
+        self.associations = [] if filename is None else self._read_nts(filename, taxids)
         self.taxid2asscs = self._init_taxid2asscs(self.associations)
         #### self.associations = self.evobj.sort_nts(self._read_nts(filename), 'Evidence_Code')
-        #### self.associations = self._init_assn(filename, hdr_only, prt) if filename is not None else []
 
     def prt_qualifiers(self, prt=sys.stdout):
-        """Print Qualifiers found in the annotations.
-           QUALIFIERS:
-                1,462 colocalizes_with
-                1,454 contributes_to
-                1,157 not
-                   13 not colocalizes_with   (TBD: CHK - Seen in gene2go, but not gafs)
-                    4 not contributes_to     (TBD: CHK - Seen in gene2go, but not gafs)
-        """
-        prt.write('QUALIFIERS:\n')
-        for fld, cnt in cx.Counter(q for nt in self.associations for q in nt.Qualifier).most_common():
-            prt.write('    {N:6,} {FLD}\n'.format(N=cnt, FLD=fld))
+        """Print Qualifiers: 1,462 colocalizes_with; 1,454 contributes_to; 1,157 not"""
+        # 13 not colocalizes_with   (TBD: CHK - Seen in gene2go, but not gafs)
+        #  4 not contributes_to     (TBD: CHK - Seen in gene2go, but not gafs)
+        self._prt_qualifiers(self.associations, prt)
 
     def get_annotations_dct(self, taxid, options):
-        """Return gene2go data for user-specified taxids."""
-        # Simple associations
-        id2gos = cx.defaultdict(set)
-        b_geneid2gos = options.b_geneid2gos
-        keep = options.keep
+        """Return geneid2gos, or optionally go2geneids."""
         assert taxid in self.taxid2asscs, '**FATAL: TAXID({T}) DATA MISSING'.format(T=taxid)
-        for ntd in self.taxid2asscs[taxid]:
-            # NOT: Used when gene is expected to have function F, but does NOT.
-            # ND : GO function not seen after exhaustive annotation attempts to the gene.
-            # if 'not' not in set(ntd.Qualifier) and ntd.Evidence_Code != 'ND':
-            if keep(ntd.Qualifier, ntd.Evidence_Code):
-                if b_geneid2gos:
-                    id2gos[int(ntd.DB_ID)].add(ntd.GO_ID)
-                else:
-                    id2gos[ntd.GO_ID].add(int(ntd.DB_ID))
-        return dict(id2gos)
+        return self._get_annotations_dct(self.taxid2asscs[taxid], options)
+
+    def prt_summary_anno2ev(self, prt=sys.stdout):
+        """Print a summary of all Evidence Codes seen across all taxids loaded"""
+        self.evobj.prt_summary_anno2ev(self.associations, prt)
 
     def get_annotations_taxid2dct(self, options, taxids=None):
         """Read Gene Association File (GAF). Return data."""
@@ -88,23 +66,23 @@ class Gene2GoReader(AnnoReaderBase):
                     geneid = ntd.DB_ID
                     go_id = ntd.GO_ID
                     if taxid:
-                        taxid2asscs[taxid]['GeneID2GOs'][geneid].add(go_id)
-                        taxid2asscs[taxid]['GO2GeneIDs'][go_id].add(geneid)
+                        taxid2asscs[taxid]['ID2GOs'][geneid].add(go_id)
+                        taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
         return taxid2asscs
 
     @staticmethod
     def fill_taxid2asscs(taxid2asscs_usr, taxid2asscs_ret):
         """Fill user taxid2asscs for backward compatibility."""
         for taxid, ab_ret in taxid2asscs_ret.items():
-            taxid2asscs_usr[taxid]['GeneID2GOs'] = ab_ret['GeneID2GOs']
-            taxid2asscs_usr[taxid]['GO2GeneIDs'] = ab_ret['GO2GeneIDs']
+            taxid2asscs_usr[taxid]['ID2GOs'] = ab_ret['ID2GOs']
+            taxid2asscs_usr[taxid]['GO2IDs'] = ab_ret['GO2IDs']
 
     @staticmethod
     def get_id2gos_all(taxid2asscs_a2b):
-        """Get associations for all stored species taxid2asscs[taxid][GeneID2GOs|GO2GeneIDs]."""
+        """Get associations for all stored species taxid2asscs[taxid][ID2GOs|GO2IDs]."""
         id2gos_all = {}
         for a2b in taxid2asscs_a2b.values():
-            for geneid, gos in a2b['GeneID2GOs'].items():
+            for geneid, gos in a2b['ID2GOs'].items():
                 id2gos_all[geneid] = gos
         return id2gos_all
 

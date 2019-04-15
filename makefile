@@ -373,9 +373,9 @@ NOSETESTS := \
     tests/test_mapslim.py
 
 # Run all tests. If you are submitting a pull request, all tests must pass.
-test:
+pytest:
 	#py.test -v tests/
-	python3 -m pytest -v tests
+	python3 -m pytest -v tests | tee pytest.log
 	make chk_parsers
 	# py.test tests/ --log-file=pytest.log
 
@@ -388,4 +388,4 @@ chk_parsers:
 test_travis_subset:
 	py.test $(NOSETESTS)
 
-# Copyright (C) 2010-2018. Haibao Tang et al. All rights reserved.
+# Copyright (C) 2010-2019. Haibao Tang et al. All rights reserved.
