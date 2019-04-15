@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Tests GO depth and level hierarchy reporting."""
 
-__copyright__ = "Copyright (C) 2015-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2015-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import os
@@ -26,9 +26,10 @@ def test_write_summary_cnts(log=sys.stdout):
     taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
     # Get associations for human fly and mouse
     get_assoc_ncbi_taxids(taxids, taxid2asscs=taxid2asscs, loading_bar=None)
+    assert taxid2asscs, 'taxid2asscs EMPTY'
     for taxid, assc in taxid2asscs.items():
         log.write("\nSummary for Ontologies for taxid({T}):\n".format(T=taxid))
-        go_ids = assc['GO2GeneIDs'].keys()
+        go_ids = assc['GO2IDs'].keys()
         rptobj.write_summary_cnts(go_ids)
         log.write("\nSummary for Ontologies for taxid({T}):\n".format(T=taxid))
         go_objs = [godag.get(goid) for goid in go_ids]
@@ -39,4 +40,4 @@ def test_write_summary_cnts(log=sys.stdout):
 if __name__ == '__main__':
     test_write_summary_cnts()
 
-# Copyright (C) 2015-2018, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2015-2019, DV Klopfenstein, H Tang, All rights reserved.

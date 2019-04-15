@@ -268,7 +268,7 @@ class GafData(object):
         """Check that qualifiers are expected values."""
         # http://geneontology.org/page/go-annotation-conventions#qual
         for qual in qualifiers:
-            if qual not in self.exp_qualifiers:
+            if qual not in AnnoReaderBase.exp_qualifiers:
                 errname = 'UNEXPECTED QUALIFIER({QUAL})'.format(QUAL=qual)
                 self.illegal_lines[errname].append((lnum, "\t".join(flds)))
 

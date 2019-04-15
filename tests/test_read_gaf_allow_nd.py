@@ -1,6 +1,7 @@
+#!/usr/bin/env python
 """Read GAF file and allow ND Evidence codes."""
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -41,4 +42,4 @@ def test_gaf_read(log=sys.stdout):
 if __name__ == '__main__':
     test_gaf_read()
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved.
