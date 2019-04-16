@@ -8,8 +8,12 @@ __author__ = "various"
 from collections import defaultdict
 import os
 import sys
-import wget
+#### import wget
+#### import requests
+#### from ftplib import FTP
 from goatools.base import dnld_file
+from goatools.base import ftp_get
+#### from goatools.base import wget
 from goatools.semantic import TermCounts
 from goatools.anno.gaf_reader import GafReader
 from goatools.anno.genetogo_reader import Gene2GoReader
@@ -97,11 +101,14 @@ def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout, loading_bar=True)
         if os.path.exists(fin_gz):
             os.remove(fin_gz)
         fin_ftp = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{F}.gz".format(F=fin_base)
-        if log is not None:
-            log.write("  DOWNLOADING GZIP: {GZ}\n".format(GZ=fin_ftp))
-        if loading_bar:
-            loading_bar = wget.bar_adaptive
-        wget.download(fin_ftp, bar=loading_bar)
+        ## if log is not None:
+        ##     log.write("  DOWNLOADING GZIP: {GZ}\n".format(GZ=fin_ftp))
+        ## if loading_bar:
+        ##     loading_bar = wget.bar_adaptive
+        ## wget.download(fin_ftp, bar=loading_bar)
+        ## rsp = wget(fin_ftp)
+        ## print('IIIIIIIIIIIIIIIIII', dir(rsp))
+        ftp_get(fin_ftp, fin_gz)
         with gzip.open(fin_gz, 'rb') as zstrm:
             if log is not None:
                 log.write("\n  READ GZIP:  {F}\n".format(F=fin_gz))
@@ -109,6 +116,7 @@ def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout, loading_bar=True)
                 ostrm.write(zstrm.read())
                 if log is not None:
                     log.write("  WROTE UNZIPPED: {F}\n".format(F=fin))
+
 
 def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
@@ -144,6 +152,7 @@ def read_ncbi_gene2go_old(fin_gene2go, taxids=None, **kws):
     if taxids is None: # Default taxid is Human
         taxids = [9606]
     with open(fin_gene2go) as ifstrm:
+        # pylint: disable=too-many-nested-blocks
         for line in ifstrm:
             if line[0] != '#': # Line contains data. Not a comment
                 line = line.rstrip() # chomp
@@ -171,12 +180,12 @@ def get_gaf_hdr(fin_gaf):
     """Read Gene Association File (GAF). Return GAF version and data info."""
     return GafReader(fin_gaf, hdr_only=True).hdr
 
-def read_gaf(fin_gaf, prt=sys.stdout, **kws):
+def read_gaf(fin_gaf, prt=sys.stdout, hdr_only=False, allow_missing_symbol=False, **kws):
     """Read Gene Association File (GAF). Return data."""
     # keyword arguments what is read from GAF.
     hdr_only = kws.get('hdr_only', None) # Read all data from GAF by default
     # Read GAF file
-    gafobj = GafReader(fin_gaf, hdr_only, prt, **kws)
+    gafobj = GafReader(fin_gaf, hdr_only, prt, allow_missing_symbol)
     return gafobj.read_gaf(**kws)
 
 def get_b2aset(a2bset):

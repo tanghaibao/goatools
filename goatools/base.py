@@ -8,7 +8,9 @@ import sys
 import bz2
 import gzip
 import urllib
-import wget
+#### import wget
+import requests
+from ftplib import FTP
 
 
 if sys.version_info[0] < 3:
@@ -115,6 +117,7 @@ def download_go_basic_obo(obo="go-basic.obo", prt=sys.stdout, loading_bar=True):
         http = "http://purl.obolibrary.org/obo/go"
         if "slim" in obo:
             http = "http://www.geneontology.org/ontology/subsets"
+            # http = 'http://current.geneontology.org/ontology/subsets'
         obo_remote = "{HTTP}/{OBO}".format(HTTP=http, OBO=os.path.basename(obo))
         dnld_file(obo_remote, obo, prt, loading_bar)
     else:
@@ -170,6 +173,38 @@ def dnld_gafs(species_list, prt=sys.stdout, loading_bar=True):
         fin_gafs.append(gaf_cwd)
     return fin_gafs
 
+def http_get(url, fout=None):
+    """Download a file from http. Save it in a file named by fout"""
+    rsp = requests.get(url, stream=True)
+    if rsp.status_code == 200 and fout is not None:
+        with open(fout, 'wb') as prt:
+            for chunk in rsp:  # .iter_content(chunk_size=128):
+                prt.write(chunk)
+            print('  WROTE: {F}\n'.format(F=fout))
+    else:
+        print(rsp.status_code, rsp.reason, url)
+        print(rsp.content)
+    return rsp
+
+def ftp_get(fin_src, fout):
+# def ftp_get(ftphost, chg_dir, fin_ftp, fout):
+    """Download a file from an ftp server"""
+    assert fin_src[:6] == 'ftp://', fin_src
+    dir_full, fin_ftp = os.path.split(fin_src[6:])
+    pt0 = dir_full.find('/')
+    assert pt0 != -1, pt0
+    ftphost = dir_full[:pt0]
+    chg_dir = dir_full[pt0+1:]
+    print('FTP RETR {HOST} {DIR} {SRC} -> {DST}'.format(
+        HOST=ftphost, DIR=chg_dir, SRC=fin_ftp, DST=fout))
+    ftp = FTP(ftphost)  # connect to host, default port      ftp.ncbi.nlm.nih.gov
+    ftp.login()         # user anonymous, passwd anonymous@
+    ftp.cwd(chg_dir)    # change into "debian" directory     gene/DATA
+    cmd = 'RETR {F}'.format(F=fin_ftp)   #                   gene2go.gz
+    ftp.retrbinary(cmd, open(fout, 'wb').write)  #           /usr/home/gene2go.gz
+    ftp.quit()
+
+
 def dnld_file(src_ftp, dst_file, prt=sys.stdout, loading_bar=True):
     """Download specified file if necessary."""
     if os.path.isfile(dst_file):
@@ -177,12 +212,14 @@ def dnld_file(src_ftp, dst_file, prt=sys.stdout, loading_bar=True):
     do_gunzip = src_ftp[-3:] == '.gz' and dst_file[-3:] != '.gz'
     dst_wget = "{DST}.gz".format(DST=dst_file) if do_gunzip else dst_file
     # Write to stderr, not stdout so this message will be seen when running nosetests
-    wget_msg = "wget.download({SRC} out={DST})\n".format(SRC=src_ftp, DST=dst_wget)
+    wget_msg = "wget({SRC} out={DST})\n".format(SRC=src_ftp, DST=dst_wget)
     sys.stderr.write("  {WGET}".format(WGET=wget_msg))
-    if loading_bar:
-        loading_bar = wget.bar_adaptive
+    #### if loading_bar:
+    ####     loading_bar = wget.bar_adaptive
     try:
-        wget.download(src_ftp, out=dst_wget, bar=loading_bar)
+        #### wget.download(src_ftp, out=dst_wget, bar=loading_bar)
+        rsp = http_get(src_ftp, dst_wget) if src_ftp[:4] == 'http' else ftp_get(src_ftp, dst_wget)
+        # print('JJJJJJJJJJJJJJJJJJ', dir(rsp))
         if do_gunzip:
             if prt is not None:
                 prt.write("  gunzip {FILE}\n".format(FILE=dst_wget))
@@ -202,4 +239,4 @@ def gzip_open_to(fin_gz, fout):
     assert os.path.isfile(fout), "COULD NOT GUNZIP({G}) TO FILE({F})".format(G=fin_gz, F=fout)
     os.remove(fin_gz)
 
-# Copyright (C) 2013-2018, B Pedersen, et al. All rights reserved."
+# Copyright (C) 2013-2019, B Pedersen, et al. All rights reserved."
