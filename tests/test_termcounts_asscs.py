@@ -25,10 +25,14 @@ def test_semantic_similarity(usr_assc=None):
     if usr_assc is not None:
         associations = [usr_assc]
     cwd = os.getcwd()
+    not_found = set()
     for assc_name in associations:  # Limit test numbers for speed
         tic = timeit.default_timer()
         # Get all the annotations from arabidopsis.
         assc_gene2gos = dnld_assc(os.path.join(cwd, assc_name), go2obj, prt=sys.stdout)
+        if not assc_gene2gos:
+            not_found.add(assc_name)
+            continue
 
         # Calculate the information content of the single term, GO:0048364
         #       "Information content (GO:0048364) = 7.75481392334
@@ -47,6 +51,13 @@ def test_semantic_similarity(usr_assc=None):
             prt_info(termcounts, go_cnt, gocnt_max/10.0)
         print("{HMS} {hms} {ASSC}\n".format(ASSC=assc_name, HMS=_hms(TIC), hms=_hms(tic)))
     print('{HMS} {N} Associations'.format(HMS=_hms(TIC), N=len(associations)))
+    if not_found:
+        _prt_not_found(not_found)
+
+def _prt_not_found(not_found):
+    print('**WARNING: EMPTY ASSOCIATIONS:')
+    for assc in not_found:
+        print(assc)
 
 def _hms(tic):
     """Get Timing."""

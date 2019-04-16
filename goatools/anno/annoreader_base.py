@@ -15,8 +15,6 @@ __author__ = "DV Klopfenstein"
 class AnnoReaderBase(object):
     """Reads a Gene Association File. Returns a Python object."""
 
-    ## exp_kwdct = set(['allow_missing_symbol'])
-
     # Expected values for a Qualifier
     exp_qualifiers = set([
         # Seen in both GAF and gene2go
@@ -31,12 +29,18 @@ class AnnoReaderBase(object):
         #     'enables', 'involved_in', 'part_of',
     ])
 
-    def __init__(self, filename=None):  ## , **kws):
+    def __init__(self, filename=None, **kws):
         # kws: allow_missing_symbol
-        ## self.kws = {k:v for k, v in kws.items() if k in self.exp_kwdct}
         self.filename = filename
         self.evobj = EvidenceCodes()
-        self.associations = None
+        # Read anotation file, store namedtuples:
+        #     Gene2GoReader(filename=None, taxids=None):
+        #     GafReader(filename=None, hdr_only=False, prt=sys.stdout, allow_missing_symbol=False):
+        #     GpadReader(filename=None, hdr_only=False):
+        self.hdr = None
+        self.datobj = None
+        self.associations = self._init_associations(filename, **kws)
+        # assert self.associations, 'NO ANNOTATIONS FOUND: {ANNO}'.format(ANNO=filename)
 
     @staticmethod
     def _prt_qualifiers(associations, prt=sys.stdout):

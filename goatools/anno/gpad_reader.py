@@ -22,6 +22,33 @@ __author__ = "DV Klopfenstein"
 class GpadReader(AnnoReaderBase):
     """Read a Gene Product Association Data (GPAD) and store the data in a Python object."""
 
+    def __init__(self, filename=None, hdr_only=False):
+        super(GpadReader, self).__init__(filename, hdr_only=hdr_only)
+        self.qty = len(self.associations)
+
+    def prt_summary_anno2ev(self, prt=sys.stdout):
+        """Print annotation/evidence code summary."""
+        self.evobj.prt_summary_anno2ev(self.associations, prt)
+
+    def _init_associations(self, fin_gpad, hdr_only=False):
+        """Read annotation file and store a list of namedtuples."""
+        ini = _InitAssc(fin_gpad)
+        nts = ini.init_associations(hdr_only)
+        self.hdr = ini.hdr
+        return nts
+
+    def get_relation_cnt(self):
+        """Return a Counter containing all relations contained in the Annotation Extensions."""
+        ctr = cx.Counter()
+        for ntgpad in self.associations:
+            if ntgpad.Extension is not None:
+                ctr += ntgpad.Extension.get_relations_cnt()
+        return ctr
+
+# pylint: disable=too-few-public-methods
+class _InitAssc(object):
+    """Read annotation file and store a list of namedtuples."""
+
     # http://geneontology.org/page/gene-product-association-data-gpad-format
     gpadhdr = [ #              Col Req?     Cardinality    Example
         #                      --- -------- -------------- -----------------
@@ -62,16 +89,9 @@ class GpadReader(AnnoReaderBase):
         'acts_upstream_of_or_within_positive_effect',
     ])
 
-    def __init__(self, filename=None, hdr_only=False):
-        super(GpadReader, self).__init__(filename)
-        # Initialize associations and header information
+    def __init__(self, filename):
+        self.filename = filename
         self.hdr = None
-        self.associations = self.read_gpad(filename, hdr_only) if filename is not None else []
-        self.qty = len(self.associations)
-
-    def prt_summary_anno2ev(self, prt=sys.stdout):
-        """Print annotation/evidence code summary."""
-        self.evobj.prt_summary_anno2ev(self.associations, prt)
 
     def _get_ntgpad(self, ntgpadobj, flds):
         """Convert fields from string to preferred format for GPAD ver 2.1 and 2.0."""
@@ -170,13 +190,15 @@ class GpadReader(AnnoReaderBase):
             exts.append(grp)
         return AnnotationExtensions(exts)
 
-    def read_gpad(self, fin_gpad, hdr_only=False):
+    def init_associations(self, hdr_only=False):
         """Read GPAD file. HTTP address okay. GZIPPED/BZIPPED file okay."""
-        ga_lst = []
+        associations = []
+        if self.filename is None:
+            return associations
         ver = None
         ntgpadobj = None
         hdrobj = GpadHdr()
-        ifstrm = nopen(fin_gpad)
+        ifstrm = nopen(self.filename)
         for line in ifstrm:
             # Read header
             if ntgpadobj is None:
@@ -187,17 +209,17 @@ class GpadReader(AnnoReaderBase):
                 else:
                     self.hdr = hdrobj.get_hdr()
                     if hdr_only:
-                        return ga_lst
+                        return associations
                     ntgpadobj = cx.namedtuple("ntgpadobj", " ".join(self.gpad_columns[ver]))
             # Read data
             if ntgpadobj is not None:
                 flds = self._split_line(line)
                 ntgpad = self._get_ntgpad(ntgpadobj, flds)
-                ga_lst.append(ntgpad)
+                associations.append(ntgpad)
         # GPAD file has been read
         readmsg = "  READ {N:7,} associations: {FIN}\n"
-        sys.stdout.write(readmsg.format(N=len(ga_lst), FIN=fin_gpad))
-        return ga_lst
+        sys.stdout.write(readmsg.format(N=len(associations), FIN=self.filename))
+        return associations
 
     def _split_line(self, line):
         """Split line into field values."""
@@ -220,14 +242,6 @@ class GpadReader(AnnoReaderBase):
         for col in col_lst:
             assert flds[col], "UNEXPECTED REQUIRED VALUE({V}) AT INDEX({R})".format(
                 V=flds[col], R=col)
-
-    def get_relation_cnt(self):
-        """Return a Counter containing all relations contained in the Annotation Extensions."""
-        ctr = cx.Counter()
-        for ntgpad in self.associations:
-            if ntgpad.Extension is not None:
-                ctr += ntgpad.Extension.get_relations_cnt()
-        return ctr
 
 
 class GpadHdr(object):

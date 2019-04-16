@@ -22,16 +22,12 @@ __author__ = "DV Klopfenstein"
 class GafReader(AnnoReaderBase):
     """Reads a Gene Annotation File (GAF). Returns a Python object."""
 
-    exp_kwdct = set(['allow_missing_symbol'])
+    def __init__(self, filename=None, hdr_only=False, prt=sys.stdout, allow_missing_symbol=False):
+        super(GafReader, self).__init__(filename, hdr_only=hdr_only, prt=prt, allow_missing_symbol=allow_missing_symbol)
 
-    def __init__(self, filename=None, hdr_only=False, prt=sys.stdout, **kws):
-        super(GafReader, self).__init__(filename)
-        # kws: allow_missing_symbol
-        self.kws = {k:v for k, v in kws.items() if k in self.exp_kwdct}
-        # Initialize associations and header information
-        self.hdr = None
-        self.datobj = None
-        self.associations = self._init_assn(filename, hdr_only, prt) if filename is not None else []
+    def prt_summary_anno2ev(self, prt=sys.stdout):
+        """Print annotation/evidence code summary."""
+        self.evobj.prt_summary_anno2ev(self.associations, prt)
 
     def read_gaf(self, **kws):
         """Read Gene Association File (GAF). Return data."""
@@ -77,9 +73,25 @@ class GafReader(AnnoReaderBase):
             return lambda nt: True
         return lambda nt: 'NOT' not in nt.Qualifier
 
-    def _init_assn(self, fin_gaf, hdr_only, prt):
+    def _init_associations(self, fin_gaf, hdr_only, prt, allow_missing_symbol):
+        """Read annotation file and store a list of namedtuples."""
+        ini = _InitAssc()
+        nts = ini.init_associations(fin_gaf, hdr_only, prt, allow_missing_symbol)
+        self.hdr = ini.hdr
+        self.datobj = ini.datobj
+        return nts
+
+
+class _InitAssc(object):
+    """Read annotation file and store a list of namedtuples."""
+
+    def __init__(self):
+        self.hdr = None
+        self.datobj = None
+
+    def init_associations(self, fin_gaf, hdr_only, prt, allow_missing_symbol):
         """Read GAF file. Store annotation data in a list of namedtuples."""
-        nts = self._read_gaf_nts(fin_gaf, hdr_only)
+        nts = self._read_gaf_nts(fin_gaf, hdr_only, allow_missing_symbol)
         # GAF file has been read
         if prt:
             prt.write("  READ    {N:9,} associations: {FIN}\n".format(N=len(nts), FIN=fin_gaf))
@@ -87,9 +99,10 @@ class GafReader(AnnoReaderBase):
         if self.datobj:
             if self.datobj.ignored or self.datobj.illegal_lines:
                 self.datobj.prt_error_summary(fin_gaf)
-        return self.evobj.sort_nts(nts, 'Evidence_Code')
+        return nts
+        #### return self.evobj.sort_nts(nts, 'Evidence_Code')
 
-    def _read_gaf_nts(self, fin_gaf, hdr_only):
+    def _read_gaf_nts(self, fin_gaf, hdr_only, allow_missing_symbol):
         """Read GAF file. Store annotation data in a list of namedtuples."""
         nts = []
         ver = None
@@ -110,7 +123,7 @@ class GafReader(AnnoReaderBase):
                             self.hdr = hdrobj.get_hdr()
                             if hdr_only:
                                 return nts
-                            datobj = GafData(ver, **self.kws)
+                            datobj = GafData(ver, allow_missing_symbol)
                     # Read data
                     if datobj is not None and line[0] != '!':
                         # print(lnum, line)
@@ -130,9 +143,6 @@ class GafReader(AnnoReaderBase):
         self.datobj = datobj
         return nts
 
-    def prt_summary_anno2ev(self, prt=sys.stdout):
-        """Print annotation/evidence code summary."""
-        self.evobj.prt_summary_anno2ev(self.associations, prt)
 
 
 class GafData(object):

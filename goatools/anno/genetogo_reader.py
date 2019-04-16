@@ -19,22 +19,12 @@ __author__ = "DV Klopfenstein"
 class Gene2GoReader(AnnoReaderBase):
     """Reads a Gene Annotation File (GAF). Returns a Python object."""
 
-    taxid_dflt = 9606  # human is the default taxid
-
-    # Shared names(3): GO_ID Qualifier GO_term
-    # Equivalent names(3): DB_ID->GeneID  Evidence_Code->Evidence  DB_Reference->PubMed
-    # Only gene2go(2): Category/NS and tax_id
-    hdrs = ['tax_id', 'GeneID', 'GO_ID', 'Evidence', 'Qualifier', 'GO_term', 'PubMed', 'Category']
-    flds = ['tax_id', 'DB_ID', 'GO_ID', 'Evidence_Code', 'Qualifier', 'GO_term', 'DB_Reference', 'NS']
-
-    ## exp_kwdct = set(['allow_missing_symbol'])
-
     def __init__(self, filename=None, taxids=None):  # , **kws):
-        super(Gene2GoReader, self).__init__(filename)
+        super(Gene2GoReader, self).__init__(filename, taxids=taxids)
         # Initialize associations and header information
-        self.associations = [] if filename is None else self._read_nts(filename, taxids)
         self.taxid2asscs = self._init_taxid2asscs(self.associations)
-        #### self.associations = self.evobj.sort_nts(self._read_nts(filename), 'Evidence_Code')
+        # pylint: disable=superfluous-parens
+        print('{N} taxids stored'.format(N=len(self.taxid2asscs)))
 
     def prt_qualifiers(self, prt=sys.stdout):
         """Print Qualifiers: 1,462 colocalizes_with; 1,454 contributes_to; 1,157 not"""
@@ -86,37 +76,39 @@ class Gene2GoReader(AnnoReaderBase):
                 id2gos_all[geneid] = gos
         return id2gos_all
 
-    ## def _init_assn(self, fin_anno, hdr_only, prt):
-    ##     """Read GAF file. Store annotation data in a list of namedtuples."""
-    ##     nts = self._read_nts(fin_anno, hdr_only)
-    ##     # Annotation file has been read
-    ##     if prt:
-    ##         prt.write("  READ    {N:9,} associations: {FIN}\n".format(N=len(nts), FIN=fin_anno))
-    ##     # If there are illegal GAF lines ...
-    ##     if self.datobj:
-    ##         if self.datobj.ignored or self.datobj.illegal_lines:
-    ##             self.datobj.prt_error_summary(fin_anno)
-    ##     return self.evobj.sort_nts(nts, 'Evidence_Code')
-
-    def _chk_qualifiers(self, qualifiers, lnum, ntd):
-        """Check that qualifiers are expected values."""
-        # http://geneontology.org/page/go-annotation-conventions#qual
-        for qualifier in qualifiers:
-            if qualifier not in self.exp_qualifiers:
-                errname = '** WARNING: UNEXPECTED QUALIFIER({QUAL})'.format(QUAL=qualifier)
-                print('LNUM({LNUM}): {ERR}\n{NT}'.format(LNUM=lnum, ERR=errname, NT=ntd))
-                # self.illegal_lines[errname].append((lnum, "\t".join(flds)))
-
-    def _init_taxid2asscs(self, associations):
+    # - initialization -------------------------------------------------------------------------
+    @staticmethod
+    def _init_taxid2asscs(associations):
         """Create dict with taxid keys and annotation namedtuple list."""
         taxid2asscs = cx.defaultdict(list)
-        # Loop through list of a namedtuples saved from NCBI's gene2go annotations
         for ntanno in associations:
             taxid2asscs[ntanno.tax_id].append(ntanno)
-        print('{N} taxids stored'.format(N=len(taxid2asscs)))
-        return {t:self.evobj.sort_nts(nts, 'Evidence_Code') for t, nts in taxid2asscs.items()}
+        return dict(taxid2asscs)
 
-    def _read_nts(self, fin_anno, taxids=None):
+    def _init_associations(self, fin_anno, taxids=None):
+        """Read annotation file and store a list of namedtuples."""
+        ini = _InitAssc()
+        nts = ini.init_associations(fin_anno, taxids)
+        self.hdr = ini.hdr
+        return nts
+
+
+class _InitAssc(object):
+    """Read annotation file and store a list of namedtuples."""
+
+    taxid_dflt = 9606  # human is the default taxid
+
+    # Shared names(3): GO_ID Qualifier GO_term
+    # Equivalent names(3): DB_ID->GeneID  Evidence_Code->Evidence  DB_Reference->PubMed
+    # Only gene2go(2): Category/NS and tax_id
+    hdrs = ['tax_id', 'GeneID', 'GO_ID', 'Evidence', 'Qualifier', 'GO_term', 'PubMed', 'Category']
+    flds = ['tax_id', 'DB_ID', 'GO_ID', 'Evidence_Code', 'Qualifier', 'GO_term', 'DB_Reference', 'NS']
+
+    def __init__(self):
+        self.hdr = None
+
+    # pylint: disable=too-many-locals
+    def init_associations(self, fin_anno, taxids=None):
         """Read annotation file. Store annotation data in a list of namedtuples."""
         nts = []
         if fin_anno is None:
@@ -196,6 +188,16 @@ class Gene2GoReader(AnnoReaderBase):
         data = zip(self.flds, line.split('\t'))
         txt = ["{:2}) {:13} {}".format(i, hdr, val) for i, (hdr, val) in enumerate(data)]
         prt.write("{LNUM}\n{TXT}\n".format(LNUM=lnum, TXT='\n'.join(txt)))
+
+    ## def _chk_qualifiers(self, qualifiers, lnum, ntd):
+    ##     """Check that qualifiers are expected values."""
+    ##     # http://geneontology.org/page/go-annotation-conventions#qual
+    ##     for qualifier in qualifiers:
+    ##         if qualifier not in self.exp_qualifiers:
+    ##             errname = '** WARNING: UNEXPECTED QUALIFIER({QUAL})'.format(QUAL=qualifier)
+    ##             # pylint: disable=superfluous-parens
+    ##             print('LNUM({LNUM}): {ERR}\n{NT}'.format(LNUM=lnum, ERR=errname, NT=ntd))
+    ##             # self.illegal_lines[errname].append((lnum, "\t".join(flds)))
 
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."

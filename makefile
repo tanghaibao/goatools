@@ -206,6 +206,7 @@ pylint:
 
 clean:
 	make clean_pyc
+	rm -f tmp_pylint
 	rm -f goea*.xlsx goea.tsv GO_lineage.png
 	cd tests; make --no-print-directory clean
 	rm -f *.xlsx *.tsv *.log
@@ -214,6 +215,10 @@ clean:
 	rm -f gogrp_*.txt
 	rm -f tests/data/gaf_missingsym.mgi.log
 	rm -f tmp_test_sections.py
+	rm -f ?_sec?_hdr*.txt
+	rm -f compare_gos_*.txt
+	rm -f transient_increase_hdrgos.txt
+	rm -f tmp_test_sections_out.txt
 
 clean_pyc:
 	find . -name \*.pyc | xargs rm -f

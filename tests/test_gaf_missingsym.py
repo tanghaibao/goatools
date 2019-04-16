@@ -16,6 +16,11 @@ def test_missingsym():
     assert len(gene2gos) == 16, len(gene2gos)
     assert 'MGI:3643263' not in gene2gos
     assert 'P84751' not in gene2gos
+    # Test that gene products that are missing the required DB_Symbol are ignored
+    gene2gos = read_gaf(os.path.join(REPO, fin_gaf), allow_missing_symbol=False)
+    assert len(gene2gos) == 16, len(gene2gos)
+    assert 'MGI:3643263' not in gene2gos
+    assert 'P84751' not in gene2gos
     # Tests saving annotation, even if missing required DB_Symbol
     gene2gos = read_gaf(os.path.join(REPO, fin_gaf), allow_missing_symbol=True)
     assert len(gene2gos) == 18
