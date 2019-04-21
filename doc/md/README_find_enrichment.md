@@ -4,8 +4,9 @@
 
   1. [with **uncorrected pvalues < 0.05** to the screen](#1-print-go-terms-with-uncorrected-pvalues--005-to-the-screen-default):
     (default)
-  2. [with **uncorrected pvalues < 0.05** to the screen, **grouped**](#2-print-go-terms-with-uncorrected-pvalues--005-to-the-screen-grouped): **--sections=...**
-  3. [with **uncorrected pvalues < 0.05** to files](#3-print-go-terms-with-uncorrected-pvalues--005-to-an-xlsx-file):
+  2. [with **uncorrected pvalues < 0.05** to the screen, **grouped**](#2-print-go-terms-with-uncorrected-pvalues--005-to-the-screen-grouped):    
+     **--sections=...**
+  3. [with **uncorrected pvalues < 0.05** to files](#3-print-go-terms-with-uncorrected-pvalues--005-to-an-xlsx-file):    
     **--outfile=goea.xlsx**
   4. [with **Benjamini-Hochberg pvalues < 0.05** (plus bonferroni, sidak, holm)](#4-print-go-terms-with-benjamini-hochberg-pvalues--005) 
     **--pval_field=fdr_bh**    
