@@ -1,6 +1,8 @@
 """Read an Association File and store the data in a Python object."""
 
 import sys
+import timeit
+import datetime
 # import os
 # import re
 import collections as cx
@@ -14,6 +16,8 @@ __author__ = "DV Klopfenstein"
 # pylint: disable=broad-except,too-few-public-methods,line-too-long
 class AnnoReaderBase(object):
     """Reads a Gene Association File. Returns a Python object."""
+
+    tic = timeit.default_timer()
 
     # Expected values for a Qualifier
     exp_qualifiers = set([
@@ -29,8 +33,9 @@ class AnnoReaderBase(object):
         #     'enables', 'involved_in', 'part_of',
     ])
 
-    def __init__(self, filename=None, **kws):
+    def __init__(self, name, filename=None, **kws):
         # kws: allow_missing_symbol
+        self.name = name
         self.filename = filename
         self.evobj = EvidenceCodes()
         # Read anotation file, store namedtuples:
@@ -39,8 +44,15 @@ class AnnoReaderBase(object):
         #     GpadReader(filename=None, hdr_only=False):
         self.hdr = None
         self.datobj = None
+        # pylint: disable=no-member
         self.associations = self._init_associations(filename, **kws)
         # assert self.associations, 'NO ANNOTATIONS FOUND: {ANNO}'.format(ANNO=filename)
+
+    def prt_qualifiers(self, prt=sys.stdout):
+        """Print Qualifiers: 1,462 colocalizes_with; 1,454 contributes_to; 1,157 not"""
+        # 13 not colocalizes_with   (TBD: CHK - Seen in gene2go, but not gafs)
+        #  4 not contributes_to     (TBD: CHK - Seen in gene2go, but not gafs)
+        self._prt_qualifiers(self.associations, prt)
 
     @staticmethod
     def _prt_qualifiers(associations, prt=sys.stdout):
@@ -73,6 +85,13 @@ class AnnoReaderBase(object):
                 else:
                     id2gos[ntd.GO_ID].add(int(ntd.DB_ID))
         return dict(id2gos)
+
+    def hms(self, msg, tic=None, prt=sys.stdout):
+        """Print elapsed time and message."""
+        if tic is None:
+            tic = self.tic
+        hms = str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))
+        prt.write('{HMS}: {MSG}\n'.format(HMS=hms, MSG=msg))
 
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."

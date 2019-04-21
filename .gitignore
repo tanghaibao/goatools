@@ -7,6 +7,7 @@ gene_association.*
 /*.json
 gene2go
 *.gz
+.cache
 
 # Temporary working files
 *.png

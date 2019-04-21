@@ -258,6 +258,7 @@ clobber:
 	rm -f gos_*
 	rm -f cell_cycle_genes_*.txt
 	rm -f *.gpa.gz
+	rm -f gaf-eco-mapping-derived.txt
 
 ANNO = gaf
 ANNO_HTTP = http://current.geneontology.org/annotations
@@ -383,6 +384,7 @@ pytest:
 	python3 -m pytest -v tests | tee pytest.log
 	make chk_parsers
 	# py.test tests/ --log-file=pytest.log
+	grep FAIL pytest.log
 
 # Used to call GOATOOLS developers attention to illegal lines in parsed files
 chk_parsers:

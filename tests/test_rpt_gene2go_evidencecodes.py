@@ -16,7 +16,7 @@ def test_ev():
     """Return GO associations from a GAF file. Download if necessary."""
     evs = _get_evidencecodes('gene2go')
     obj = EvidenceCodes()
-    missing = evs.difference(obj.code2name)
+    missing = evs.difference(obj.code2nt)
     assert not missing, 'MISSING({EV})'.format(EV=missing)
 
 def _get_evidencecodes(fin_gene2go):

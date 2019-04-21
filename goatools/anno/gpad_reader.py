@@ -1,5 +1,4 @@
 """Read a Gene Product Association Data (GPAD) and store the data in a Python object.
-
     Annotations available from the Gene Ontology Consortium:
 
 
@@ -14,16 +13,17 @@ from goatools.base import nopen
 from goatools.anno.annoreader_base import AnnoReaderBase
 from goatools.anno.extensions.extensions import AnnotationExtensions
 from goatools.anno.extensions.extension import AnnotationExtension
+from goatools.anno.eco2group import ECO2GRP
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
 class GpadReader(AnnoReaderBase):
-    """Read a Gene Product Association Data (GPAD) and store the data in a Python object."""
+    """dRead a Gene Product Association Data (GPAD) and store the data in a Python object."""
 
     def __init__(self, filename=None, hdr_only=False):
-        super(GpadReader, self).__init__(filename, hdr_only=hdr_only)
+        super(GpadReader, self).__init__('gpad', filename, hdr_only=hdr_only)
         self.qty = len(self.associations)
 
     def prt_summary_anno2ev(self, prt=sys.stdout):
@@ -52,21 +52,22 @@ class _InitAssc(object):
     # http://geneontology.org/page/gene-product-association-data-gpad-format
     gpadhdr = [ #              Col Req?     Cardinality    Example
         #                      --- -------- -------------- -----------------
-        'DB',                 #  0 required 1              UniProtKB
-        'DB_ID',              #  1 required 1              P12345
-        'Qualifier',          #  2 required 1 or greater   NOT
-        'GO_ID',              #  3 required 1              GO:0003993
+        'DB',            #  0 required 1              UniProtKB
+        'DB_ID',         #  1 required 1              P12345
+        'Qualifier',     #  2 required 1 or greater   NOT
+        'GO_ID',         #  3 required 1              GO:0003993
         # DB_Ref: set([''DOI:10.1002/sita.200600112', 'GO_REF:0000037', 'Reactome:R-HSA-6814682'])
-        'DB_Reference',       #  4 required 1 or greater   set(['PMID:2676709',
-        'ECO_Evidence_Code',  #  5 required 1              ECO:NNNNNNN
-        'With_From',          #  6 optional 0 or greater   GO:0000346
-        'Taxon',              #  7 optional 0 or 1         taxon:9606
-        'Date',               #  8 required 1              20090118
+        'DB_Reference',  #  4 required 1 or greater   set(['PMID:2676709',
+        'ECO',           #  5 required 1              ECO:NNNNNNN
+        'Evidence_Code', #    eco2group[ECO]
+        'With_From',     #  6 optional 0 or greater   GO:0000346
+        'Taxon',         #  7 optional 0 or 1         taxon:9606
+        'Date',          #  8 required 1              20090118
         # Assigned_By: Ensembl FlyBase GO_Central GOC MGI Reactome UniProt WormBase
-        'Assigned_By',        #  9 required 1              SGD
+        'Assigned_By',   #  9 required 1              SGD
         # Annotations (Optional)
-        'Extension',          # 10 optional 0 or greater
-        'Properties',         # 11 optional 0 or greater
+        'Extension',     # 10 optional 0 or greater
+        'Properties',    # 11 optional 0 or greater
     ]
 
     gpad_columns = {"1.1" : gpadhdr}            # !gpad-version: 1.1
@@ -110,13 +111,15 @@ class _InitAssc(object):
         # Additional Formatting
         self._chk_qualifier(qualifiers)
         # Create list of values
+        eco = flds[5]
         gpadvals = [
             flds[0],      #  0  DB
             flds[1],      #  1  DB_ID
             qualifiers,   #  3  Qualifier
             flds[3],      #  4  GO_ID
             db_reference, #  5  DB_Reference
-            flds[5],      #  6  ECO_Evidence_Code
+            eco,          #  6  ECO
+            ECO2GRP[eco],
             with_from,    #  7  With_From
             taxons,       # 12 Taxon
             flds[8],      # 13 Date
@@ -146,8 +149,13 @@ class _InitAssc(object):
         """Return Interacting taxon ID | optional | 0 or 1 | gaf column 13."""
         if not taxon:
             return None
-        assert taxon[:6] == 'taxon:', 'UNRECOGNIZED Taxon({Taxon})'.format(Taxon=taxon)
-        taxid = taxon[6:]
+        ## assert taxon[:6] == 'taxon:', 'UNRECOGNIZED Taxon({Taxon})'.format(Taxon=taxon)
+        ## taxid = taxon[6:]
+        ## assert taxon[:10] == 'NCBITaxon:', 'UNRECOGNIZED Taxon({Taxon})'.format(Taxon=taxon)
+        ## taxid = taxon[10:]
+        # Get tzxon number: taxon:9606 NCBITaxon:9606
+        sep = taxon.find(':')
+        taxid = taxon[sep + 1:]
         assert taxid.isdigit(), "UNEXPECTED TAXON({T})".format(T=taxid)
         return int(taxid)
 
@@ -165,8 +173,11 @@ class _InitAssc(object):
                 go_evidence = prop[12:]
             else:
                 assert False, "UNPROGRAMMED PROPERTY({P})".format(P=prop)
-        assert go_evidence is not None, "go_evidence == None"
-        prop2val['go_evidence'] = go_evidence
+        ## TBD: Is 'go_evidence' still used? Replaced by ECO? And eco2group
+        ## assert go_evidence is not None, "go_evidence == None"
+        ## prop2val['go_evidence'] = go_evidence
+        if go_evidence is not None:
+            prop2val['go_evidence'] = go_evidence
         return prop2val
 
     def _get_extensions(self, extline):
@@ -190,16 +201,20 @@ class _InitAssc(object):
             exts.append(grp)
         return AnnotationExtensions(exts)
 
-    def init_associations(self, hdr_only=False):
+    # pylint: disable=too-many-locals
+    def init_associations(self, hdr_only=False, prt=sys.stdout):
         """Read GPAD file. HTTP address okay. GZIPPED/BZIPPED file okay."""
+        import timeit
+        import datetime
         associations = []
+        tic = timeit.default_timer()
         if self.filename is None:
             return associations
         ver = None
         ntgpadobj = None
         hdrobj = GpadHdr()
         ifstrm = nopen(self.filename)
-        for line in ifstrm:
+        for lnum, line in enumerate(ifstrm, 1):
             # Read header
             if ntgpadobj is None:
                 if line[0] == '!':
@@ -214,11 +229,25 @@ class _InitAssc(object):
             # Read data
             if ntgpadobj is not None:
                 flds = self._split_line(line)
-                ntgpad = self._get_ntgpad(ntgpadobj, flds)
-                associations.append(ntgpad)
+                try:
+                    ntgpad = self._get_ntgpad(ntgpadobj, flds)
+                    associations.append(ntgpad)
+                except StandardError as inst:
+                    import traceback
+                    traceback.print_exc()
+                    sys.stdout.write("\n  **FATAL: {MSG}\n\n".format(MSG=str(inst)))
+                    sys.stdout.write("**FATAL: {FIN}[{LNUM}]:\n{L}\n".format(
+                        FIN=self.filename, L=line, LNUM=lnum))
+                    for idx, val in enumerate(flds):
+                        sys.stdout.write('{I:2} {VAL}\n'.format(I=idx, VAL=val))
+                    ## if datobj is not None:
+                    ##     datobj.prt_line_detail(sys.stdout, line)
+                    sys.exit(1)
+
         # GPAD file has been read
-        readmsg = "  READ {N:7,} associations: {FIN}\n"
-        sys.stdout.write(readmsg.format(N=len(associations), FIN=self.filename))
+        prt.write('HMS:{HMS} {N:,} annotations READ: {ANNO}\n'.format(
+            N=len(associations), ANNO=self.filename,
+            HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
         return associations
 
     def _split_line(self, line):

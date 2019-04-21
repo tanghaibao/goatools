@@ -20,17 +20,19 @@ class Gene2GoReader(AnnoReaderBase):
     """Reads a Gene Annotation File (GAF). Returns a Python object."""
 
     def __init__(self, filename=None, taxids=None):  # , **kws):
-        super(Gene2GoReader, self).__init__(filename, taxids=taxids)
+        super(Gene2GoReader, self).__init__('gene2go', filename, taxids=taxids)
         # Initialize associations and header information
         self.taxid2asscs = self._init_taxid2asscs(self.associations)
         # pylint: disable=superfluous-parens
-        print('{N} taxids stored'.format(N=len(self.taxid2asscs)))
+        self._prt_cnt_taxid()
 
-    def prt_qualifiers(self, prt=sys.stdout):
-        """Print Qualifiers: 1,462 colocalizes_with; 1,454 contributes_to; 1,157 not"""
-        # 13 not colocalizes_with   (TBD: CHK - Seen in gene2go, but not gafs)
-        #  4 not contributes_to     (TBD: CHK - Seen in gene2go, but not gafs)
-        self._prt_qualifiers(self.associations, prt)
+    def _prt_cnt_taxid(self, prt=sys.stdout):
+        """Print the number of taxids stored."""
+        num_taxids = len(self.taxid2asscs)
+        prt.write('{N} taxids stored'.format(N=num_taxids))
+        if num_taxids < 5:
+            prt.write(': {Ts}'.format(Ts=' '.join(sorted(str(t) for t in self.taxid2asscs))))
+        prt.write('\n')
 
     def get_annotations_dct(self, taxid, options):
         """Return geneid2gos, or optionally go2geneids."""
@@ -151,7 +153,7 @@ class _InitAssc(object):
             sys.stderr.write("**FATAL: {FIN}[{LNUM}]:\n{L}".format(FIN=fin_anno, L=line, LNUM=lnum))
             self._prt_line_detail(sys.stdout, line, lnum)
             sys.exit(1)
-        print('HMS:{HMS} {N:,} lines READ: {ANNO}'.format(
+        print('HMS:{HMS} {N:,} annotations READ: {ANNO}'.format(
             N=len(nts), ANNO=fin_anno,
             HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
         return nts

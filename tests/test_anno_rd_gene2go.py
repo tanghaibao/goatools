@@ -7,7 +7,6 @@ import os
 from goatools.associations import dnld_ncbi_gene_file
 from goatools.anno.genetogo_reader import Gene2GoReader
 from goatools.associations import read_ncbi_gene2go
-# from goatools.associations import read_ncbi_gene2go
 from goatools.associations import read_ncbi_gene2go_old
 
 

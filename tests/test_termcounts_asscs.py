@@ -55,9 +55,9 @@ def test_semantic_similarity(usr_assc=None):
         _prt_not_found(not_found)
 
 def _prt_not_found(not_found):
-    print('**WARNING: EMPTY ASSOCIATIONS:')
-    for assc in not_found:
-        print(assc)
+    print('**WARNING: {N} EMPTY ASSOCIATIONS:'.format(N=len(not_found)))
+    for idx, assc in enumerate(not_found):
+        print('    {I}) {ASSC}'.format(I=idx, ASSC=assc))
 
 def _hms(tic):
     """Get Timing."""
