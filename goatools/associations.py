@@ -19,7 +19,7 @@ from goatools.anno.gaf_reader import GafReader
 from goatools.anno.genetogo_reader import Gene2GoReader
 from goatools.anno.opts import AnnoOptions
 
-def dnld_assc(assc_name, go2obj, prt=sys.stdout):
+def dnld_assc(assc_name, go2obj=None, prt=sys.stdout):
     """Download association from http://geneontology.org/gene-associations."""
     # Example assc_name: "tair.gaf"
     # Download the Association
