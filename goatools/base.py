@@ -8,7 +8,6 @@ import sys
 import bz2
 import gzip
 import urllib
-#### import wget
 import requests
 from ftplib import FTP
 
@@ -175,6 +174,7 @@ def dnld_gafs(species_list, prt=sys.stdout, loading_bar=True):
 
 def http_get(url, fout=None):
     """Download a file from http. Save it in a file named by fout"""
+    print('requests.get({URL}, stream=True)'.format(URL=url))
     rsp = requests.get(url, stream=True)
     if rsp.status_code == 200 and fout is not None:
         with open(fout, 'wb') as prt:
@@ -187,7 +187,6 @@ def http_get(url, fout=None):
     return rsp
 
 def ftp_get(fin_src, fout):
-# def ftp_get(ftphost, chg_dir, fin_ftp, fout):
     """Download a file from an ftp server"""
     assert fin_src[:6] == 'ftp://', fin_src
     dir_full, fin_ftp = os.path.split(fin_src[6:])
@@ -213,13 +212,12 @@ def dnld_file(src_ftp, dst_file, prt=sys.stdout, loading_bar=True):
     dst_wget = "{DST}.gz".format(DST=dst_file) if do_gunzip else dst_file
     # Write to stderr, not stdout so this message will be seen when running nosetests
     wget_msg = "wget({SRC} out={DST})\n".format(SRC=src_ftp, DST=dst_wget)
-    sys.stderr.write("  {WGET}".format(WGET=wget_msg))
+    #### sys.stderr.write("  {WGET}".format(WGET=wget_msg))
     #### if loading_bar:
     ####     loading_bar = wget.bar_adaptive
     try:
         #### wget.download(src_ftp, out=dst_wget, bar=loading_bar)
         rsp = http_get(src_ftp, dst_wget) if src_ftp[:4] == 'http' else ftp_get(src_ftp, dst_wget)
-        # print('JJJJJJJJJJJJJJJJJJ', dir(rsp))
         if do_gunzip:
             if prt is not None:
                 prt.write("  gunzip {FILE}\n".format(FILE=dst_wget))
