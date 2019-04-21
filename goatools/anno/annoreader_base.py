@@ -8,6 +8,7 @@ import datetime
 import collections as cx
 # from datetime import datetime
 from goatools.evidence_codes import EvidenceCodes
+from goatools.anno.opts import AnnoOptions
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
@@ -48,6 +49,11 @@ class AnnoReaderBase(object):
         self.associations = self._init_associations(filename, **kws)
         # assert self.associations, 'NO ANNOTATIONS FOUND: {ANNO}'.format(ANNO=filename)
 
+    def get_id2gos(self, **kws):
+        """Get associations in dict, id2gos"""
+        options = AnnoOptions(**kws)
+        return self._get_annotations_dct(self.associations, options)
+
     def prt_qualifiers(self, prt=sys.stdout):
         """Print Qualifiers: 1,462 colocalizes_with; 1,454 contributes_to; 1,157 not"""
         # 13 not colocalizes_with   (TBD: CHK - Seen in gene2go, but not gafs)
@@ -81,9 +87,9 @@ class AnnoReaderBase(object):
             # if 'not' not in set(ntd.Qualifier) and ntd.Evidence_Code != 'ND':
             if keep(ntd.Qualifier, ntd.Evidence_Code):
                 if b_geneid2gos:
-                    id2gos[int(ntd.DB_ID)].add(ntd.GO_ID)
+                    id2gos[ntd.DB_ID].add(ntd.GO_ID)
                 else:
-                    id2gos[ntd.GO_ID].add(int(ntd.DB_ID))
+                    id2gos[ntd.GO_ID].add(ntd.DB_ID)
         return dict(id2gos)
 
     def hms(self, msg, tic=None, prt=sys.stdout):

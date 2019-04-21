@@ -13,6 +13,7 @@ import sys
 #### from ftplib import FTP
 from goatools.base import dnld_file
 from goatools.base import ftp_get
+from goatools.anno.factory import get_objanno
 #### from goatools.base import wget
 from goatools.semantic import TermCounts
 from goatools.anno.gaf_reader import GafReader
@@ -44,46 +45,12 @@ def dnld_assc(assc_name, go2obj=None, prt=sys.stdout):
         assc[gene] = goids_cur.intersection(goids_dag)
     return assc
 
-def read_associations(assoc_fn, no_top=False):
-    """
-    Reads a gene id go term association file. The format of the file
-    is as follows:
-
-    AAR1	GO:0005575;GO:0003674;GO:0006970;GO:0006970;GO:0040029
-    AAR2	GO:0005575;GO:0003674;GO:0040029;GO:0009845
-    ACD5	GO:0005575;GO:0003674;GO:0008219
-    ACL1	GO:0005575;GO:0003674;GO:0009965;GO:0010073
-    ACL2	GO:0005575;GO:0003674;GO:0009826
-    ACL3	GO:0005575;GO:0003674;GO:0009826;GO:0009965
-
-    Also, the following format is accepted (gene ids are repeated):
-
-    AAR1	GO:0005575
-    AAR1    GO:0003674
-    AAR1    GO:0006970
-    AAR2	GO:0005575
-    AAR2    GO:0003674
-    AAR2    GO:0040029
-
-    :param assoc_fn: file name of the association
-    :return: dictionary having keys: gene id, values set of GO terms
-    """
-    assoc = defaultdict(set)
-    top_terms = set(['GO:0008150', 'GO:0003674', 'GO:0005575']) # BP, MF, CC
-    for row in open(assoc_fn, 'r'):
-        atoms = row.split()
-        if len(atoms) == 2:
-            gene_id, go_terms = atoms
-        elif len(atoms) > 2 and row.count('\t') == 1:
-            gene_id, go_terms = row.split("\t")
-        else:
-            continue
-        gos = set(go_terms.split(";"))
-        if no_top:
-            gos = gos.difference(top_terms)
-        assoc[gene_id] |= gos
-
-    return assoc
+def read_associations(assoc_fn, anno_type='id2gos', **kws):
+    """Return associatinos in id2gos format"""
+    # kws get_objanno: taxids hdr_only prt allow_missing_symbol
+    obj = get_objanno(assoc_fn, anno_type, **kws)
+    # kws get_id2gos: evidence_set keep_ND keep_NOT b_geneid2gos go2geneids
+    return obj.get_id2gos(**kws)
 
 def get_assoc_ncbi_taxids(taxids, force_dnld=False, loading_bar=True, **kws):
     """Download NCBI's gene2go. Return annotations for user-specified taxid(s)."""
@@ -107,7 +74,6 @@ def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout, loading_bar=True)
         ##     loading_bar = wget.bar_adaptive
         ## wget.download(fin_ftp, bar=loading_bar)
         ## rsp = wget(fin_ftp)
-        ## print('IIIIIIIIIIIIIIIIII', dir(rsp))
         ftp_get(fin_ftp, fin_gz)
         with gzip.open(fin_gz, 'rb') as zstrm:
             if log is not None:

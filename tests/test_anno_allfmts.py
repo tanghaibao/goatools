@@ -29,6 +29,15 @@ def test_anno_read():
         print('>>>>> {I} >>>>> prt_summary_anno2ev {ANNO}'.format(I=idx, ANNO=obj.name))
         obj.prt_summary_anno2ev()
 
+    print('- get_id2gos ------------------------------------------------------')
+    for idx, obj in enumerate(annoobjs):
+        id2gos = obj.get_id2gos()
+        num_ids = len(id2gos)
+        print('>>>>> {I} >>>>> get_id2gos {N:6,} {ANNO}'.format(I=idx, N=num_ids, ANNO=obj.name))
+        assert next(iter(next(iter(id2gos.values()))))[:3] == "GO:"
+        if obj.filename[-16:] == 'data/association':
+            assert num_ids == 34284
+
 
 # pylint: disable=too-few-public-methods
 class _Anno(object):

@@ -31,7 +31,8 @@ def get_goea_results(method="fdr_bh"):
     root_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
     obo_fin = os.path.join(root_dir, "goslim_generic.obo")
     obo_dag = GODag(obo_fin)
-    assoc = read_associations(os.path.join(root_dir, "slim_association"), no_top=True)
+    fin_slim = os.path.join(root_dir, "slim_association")
+    assoc = read_associations(fin_slim, 'id2gos', no_top=True)
     popul_ids = [line.rstrip() for line in open(os.path.join(root_dir, "small_population"))]
     goeaobj = GOEnrichmentStudy(popul_ids, assoc, obo_dag, methods=[method])
     study_ids = [line.rstrip() for line in open(os.path.join(root_dir, "small_study"))]

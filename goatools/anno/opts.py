@@ -13,6 +13,7 @@ class AnnoOptions:
 
     def __init__(self, **kws):
         # Get associations only for specified Evidence_Codes
+        # kws: evidence_set keep_ND keep_NOT b_geneid2gos go2geneids
         self.evidence_set = kws.get('evidence_set', None)
         # Associations are normally gene2gos
         # Return go2genes, if desired

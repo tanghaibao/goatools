@@ -12,6 +12,7 @@ from goatools.anno.idtogos_reader import IdToGosReader
 
 def get_objanno(fin_anno, anno_type=None, **kws):
     """Read annotations in GAF, GPAD, Entrez gene2go, or text format."""
+    # kws get_objanno: taxids hdr_only prt allow_missing_symbol
     anno_type = get_anno_desc(fin_anno, anno_type)
     if anno_type is not None:
         if anno_type == 'gene2go':

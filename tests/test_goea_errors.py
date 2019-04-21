@@ -18,7 +18,8 @@ ROOT = os.path.dirname(os.path.abspath(__file__)) + "/../data/"
 def init_goea(**kws):
     """Initialize GODag and GOEnrichmentStudy."""
     godag = get_godag(os.path.join(os.getcwd(), "go-basic.obo"), loading_bar=None)
-    assoc = read_associations(ROOT + "association", no_top=True)
+    fin_assc = ROOT + "association"
+    assoc = read_associations(fin_assc, 'id2gos', no_top=True)
     popul_ids = [line.rstrip() for line in open(ROOT + "population")]
     methods = kws['methods'] if 'methods' in kws else ['not_bonferroni']
     study_ids = [line.rstrip() for line in open(ROOT + "study")]

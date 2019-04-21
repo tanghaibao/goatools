@@ -42,7 +42,8 @@ def test_goea_statsmodels(log=sys.stdout):
 def get_goeaobj(methods=None):
     """Test GOEA with method, fdr."""
     obo_dag = GODag(ROOT + "goslim_generic.obo")
-    assoc = read_associations(ROOT + "slim_association", no_top=True)
+    fin_assc = ROOT + "slim_association"
+    assoc = read_associations(fin_assc, 'id2gos', no_top=True)
     popul_ids = [line.rstrip() for line in open(ROOT + "small_population")]
     goeaobj = GOEnrichmentStudy(popul_ids, assoc, obo_dag, methods=methods)
     return goeaobj

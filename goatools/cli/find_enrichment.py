@@ -107,6 +107,10 @@ class GoeaCliArgs(object):
                        help="Check that a minimum amount of study genes are in the population")
         p.add_argument('--goslim', default='goslim_generic.obo', type=str,
                        help="The GO slim file is used when grouping GO terms.")
+        p.add_argument('--ev_inc', default='all', type=str,
+                       help="Include specified evidence codes and groups separated by commas")
+        p.add_argument('--ev_exc', default='None', type=str,
+                       help="Exclude specified evidence codes and groups separated by commas")
 
         if len(sys.argv) == 1:
             sys.exit(not p.print_help())
@@ -275,7 +279,7 @@ class GoeaCliFnc(object):
     def rd_files(self):
         """Read files and return study and population."""
         study_fn, pop_fn, assoc_fn = self.args.filenames
-        assoc = read_associations(assoc_fn)
+        assoc = read_associations(assoc_fn, 'id2gos')
         study, pop = self._read_geneset(study_fn, pop_fn)
         print("Study: {0} vs. Population {1}\n".format(len(study), len(pop)))
         return study, pop, assoc

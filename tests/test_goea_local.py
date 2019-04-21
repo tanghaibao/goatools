@@ -78,7 +78,8 @@ def get_goeaobj(methods=None):
     """Test GOEA with method, fdr."""
     obo_fin = os.path.join(REPO, "go-basic.obo")
     obo_dag = get_godag(obo_fin, loading_bar=None)
-    assoc = read_associations("{REPO}/tests/data/small_association".format(REPO=REPO), no_top=True)
+    fin_assc = "{REPO}/tests/data/small_association".format(REPO=REPO)
+    assoc = read_associations(fin_assc, 'id2gos', no_top=True)
     popul_fin = "{REPO}/tests/data/small_population".format(REPO=REPO)
     popul_ids = [line.rstrip() for line in open(popul_fin)]
     goeaobj = GOEnrichmentStudy(popul_ids, assoc, obo_dag, methods=methods)

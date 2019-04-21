@@ -73,7 +73,8 @@ def run_bonferroni():
     #
     # 1. Initialize
     godag = get_godag(os.path.join(os.getcwd(), "go-basic.obo"), loading_bar=None)
-    assoc = read_associations(os.path.join(REPO, "data/association"), no_top=True)
+    fin_assc = os.path.join(REPO, "data/association")
+    assoc = read_associations(fin_assc, 'id2gos', no_top=True)
     popul_ids = [line.rstrip() for line in open(os.path.join(REPO, "data/population"))]
     study_ids = [line.rstrip() for line in open(os.path.join(REPO, "data/study"))]
     # 2. Run enrichment analysis

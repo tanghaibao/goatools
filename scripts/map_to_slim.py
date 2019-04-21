@@ -78,7 +78,7 @@ if __name__ == '__main__':
     if opts.ass_file_name:
         assert os.path.exists(opts.ass_file_name), ("file %s not found!"
                                                     % opts.ass_file_name)
-        assocs = read_associations(opts.ass_file_name)
+        assocs = read_associations(opts.ass_file_name, 'id2gos')
         for protein_product, go_terms in assocs.items():
             all_direct_anc = set()
             all_covered_anc = set()

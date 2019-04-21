@@ -24,11 +24,16 @@ class IdToGosReader(AnnoReaderBase):
         """Print a summary of all Evidence Codes seen in annotations"""
         prt.write('**NOTE: No evidence codes in associations: {F}\n'.format(F=self.filename))
 
+    def get_id2gos(self, **kws):
+        """Return associations as a dict: id2gos"""
+        return self.id2gos
+
     # - initialization -------------------------------------------------------------------------
     def _init_associations(self, fin_anno):
         """Read annotation file and store a list of namedtuples."""
         ini = _InitAssc(fin_anno)
-        self.hdr = ini.flds
+        # self.hdr = ini.flds
+        self.id2gos = ini.id2gos
         return ini.nts
 
 class _InitAssc(object):
