@@ -5,6 +5,9 @@ import sys
 from goatools.base import download_go_basic_obo
 from goatools.base import download_ncbi_associations
 
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+
+
 def test_dnlds(prt=sys.stdout):
     """Test downloads of ontologies and NCBI associations."""
     goslims = [
@@ -20,15 +23,14 @@ def test_dnlds(prt=sys.stdout):
         'goslim_virus',
         'goslim_yeast']
     # Test downloads of ontologies.
-    cwd = os.getcwd()
-    dnld_ontology(os.path.join(cwd, "go-basic.obo"))
+    dnld_ontology(os.path.join(REPO, "go-basic.obo"))
     # Test downloads of go-slim ontologies.
     for goslim in goslims:
         for ext in ['obo', 'owl']:
-            file_dst = os.path.join(cwd, "{DAG}.{EXT}".format(DAG=goslim, EXT=ext))
+            file_dst = os.path.join(REPO, "{DAG}.{EXT}".format(DAG=goslim, EXT=ext))
             dnld_ontology(file_dst)
     # Test downloading of associations from NCBI.
-    file_assc = os.path.join(cwd, "gene2go")
+    file_assc = os.path.join(REPO, "gene2go")
     #os.system("rm -f {FILE}".format(FILE=file_assc))
     #download_ncbi_associations(file_assc, prt, loading_bar=None)
     #download_ncbi_associations(file_assc, prt, loading_bar=None)
