@@ -24,6 +24,7 @@ def test_anno_read():
     for idx, obj in enumerate(annoobjs):
         print('>>>>> {I} >>>>> prt_summary_anno2ev {ANNO}'.format(I=idx, ANNO=obj.name))
         obj.prt_summary_anno2ev()
+        obj.chk_associations()
 
     print('- get_id2gos ------------------------------------------------------')
     for idx, obj in enumerate(annoobjs):

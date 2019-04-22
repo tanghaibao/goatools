@@ -46,7 +46,7 @@ class _InitAssc(object):
         tic = timeit.default_timer()
         self.id2gos = self._init_id2gos(fin_anno)
         self.nts = self.init_associations()
-        print('HMS:{HMS} {N:,} annotations READ: {ANNO}'.format(
+        print('HMS:{HMS} {N:7,} annotations READ: {ANNO}'.format(
             N=len(self.nts), ANNO=fin_anno,
             HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
 

@@ -219,6 +219,7 @@ clean:
 	rm -f compare_gos_*.txt
 	rm -f transient_increase_hdrgos.txt
 	rm -f tmp_test_sections_out.txt
+	rm -f *.err
 
 clean_pyc:
 	find . -name \*.pyc | xargs rm -f
@@ -259,6 +260,8 @@ clobber:
 	rm -f cell_cycle_genes_*.txt
 	rm -f *.gpa.gz
 	rm -f gaf-eco-mapping-derived.txt
+	rm -f *.gpad
+	rm -f tmp*
 
 ANNO = gaf
 ANNO_HTTP = http://current.geneontology.org/annotations

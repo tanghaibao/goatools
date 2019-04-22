@@ -10,10 +10,11 @@ import sys
 import re
 import collections as cx
 from goatools.base import nopen
-from goatools.anno.annoreader_base import AnnoReaderBase
 from goatools.anno.extensions.extensions import AnnotationExtensions
 from goatools.anno.extensions.extension import AnnotationExtension
 from goatools.anno.eco2group import ECO2GRP
+from goatools.anno.annoreader_base import AnnoReaderBase
+GET_DATE_YYYYMMDD = AnnoReaderBase.get_date_yyyymmdd
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
@@ -122,7 +123,7 @@ class _InitAssc(object):
             ECO2GRP[eco],
             with_from,    #  7  With_From
             taxons,       # 12 Taxon
-            flds[8],      # 13 Date
+            GET_DATE_YYYYMMDD(flds[8]),      # 13 Date
             flds[9],      # 14 Assigned_By
             exten,        # 12 Extension
             props]        # 12 Annotation_Properties
@@ -245,7 +246,7 @@ class _InitAssc(object):
                     sys.exit(1)
 
         # GPAD file has been read
-        prt.write('HMS:{HMS} {N:,} annotations READ: {ANNO}\n'.format(
+        prt.write('HMS:{HMS} {N:7,} annotations READ: {ANNO}\n'.format(
             N=len(associations), ANNO=self.filename,
             HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
         return associations

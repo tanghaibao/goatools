@@ -153,7 +153,7 @@ class _InitAssc(object):
             sys.stderr.write("**FATAL: {FIN}[{LNUM}]:\n{L}".format(FIN=fin_anno, L=line, LNUM=lnum))
             self._prt_line_detail(sys.stdout, line, lnum)
             sys.exit(1)
-        print('HMS:{HMS} {N:,} annotations READ: {ANNO}'.format(
+        print('HMS:{HMS} {N:7,} annotations READ: {ANNO}'.format(
             N=len(nts), ANNO=fin_anno,
             HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
         return nts

@@ -3,10 +3,10 @@
 import sys
 import timeit
 import datetime
+from datetime import date
 # import os
 # import re
 import collections as cx
-# from datetime import datetime
 from goatools.evidence_codes import EvidenceCodes
 from goatools.anno.opts import AnnoOptions
 
@@ -105,12 +105,21 @@ class AnnoReaderBase(object):
                     id2gos[ntd.GO_ID].add(ntd.DB_ID)
         return dict(id2gos)
 
+    @staticmethod
+    def get_date_yyyymmdd(yyyymmdd):
+        """Return datetime.date given string."""
+        return date(int(yyyymmdd[:4]), int(yyyymmdd[4:6], base=10), int(yyyymmdd[6:], base=10))
+
     def hms(self, msg, tic=None, prt=sys.stdout):
         """Print elapsed time and message."""
         if tic is None:
             tic = self.tic
         hms = str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))
         prt.write('{HMS}: {MSG}\n'.format(HMS=hms, MSG=msg))
+
+    def chk_associations(self, fout_err=None):
+        """Check that associations are in expected format."""
+        pass
 
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."

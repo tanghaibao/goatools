@@ -13,6 +13,7 @@ import re
 import collections as cx
 import datetime
 from goatools.anno.annoreader_base import AnnoReaderBase
+GET_DATE_YYYYMMDD = AnnoReaderBase.get_date_yyyymmdd
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
@@ -73,6 +74,11 @@ class GafReader(AnnoReaderBase):
             return lambda nt: True
         return lambda nt: 'NOT' not in nt.Qualifier
 
+    def chk_associations(self, fout_err="gaf.err"):
+        """Check that fields are legal in GAF"""
+        obj = GafData("2.1")
+        return obj.chk(self.associations, fout_err)
+
     def _init_associations(self, fin_gaf, hdr_only, prt, allow_missing_symbol):
         """Read annotation file and store a list of namedtuples."""
         ini = _InitAssc()
@@ -96,7 +102,7 @@ class _InitAssc(object):
         nts = self._read_gaf_nts(fin_gaf, hdr_only, allow_missing_symbol)
         # GAF file has been read
         if prt:
-            prt.write('HMS:{HMS} {N:,} annotations READ: {ANNO}\n'.format(
+            prt.write('HMS:{HMS} {N:7,} annotations READ: {ANNO}\n'.format(
                 N=len(nts), ANNO=fin_gaf,
                 HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
         # If there are illegal GAF lines ...
@@ -112,18 +118,20 @@ class _InitAssc(object):
         ver = None
         hdrobj = GafHdr()
         datobj = None
-        ntobj = None
+        # pylint: disable=not-callable
+        ntobj_make = None
+        get_gafvals = None
         lnum = -1
         line = ''
         try:
             with open(fin_gaf) as ifstrm:
                 for lnum, line in enumerate(ifstrm, 1):
                     # Read data
-                    if datobj is not None and line[0] != '!':
+                    if get_gafvals:
                         # print(lnum, line)
-                        gafvals = datobj.get_gafvals(line, lnum)
-                        if gafvals is not None:
-                            nts.append(ntobj._make(gafvals))
+                        gafvals = get_gafvals(line)
+                        if gafvals:
+                            nts.append(ntobj_make(gafvals))
                         else:
                             datobj.ignored.append((lnum, line))
                     # Read header
@@ -137,7 +145,8 @@ class _InitAssc(object):
                             if hdr_only:
                                 return nts
                             datobj = GafData(ver, allow_missing_symbol)
-                            ntobj = datobj.get_ntobj()
+                            get_gafvals = datobj.get_gafvals
+                            ntobj_make = datobj.get_ntobj()._make
         except Exception as inst:
             import traceback
             traceback.print_exc()
@@ -204,83 +213,70 @@ class GafData(object):
         self.ignored = []  # Illegal GAF lines that are ignored (e.g., missing an ID)
         self.illegal_lines = cx.defaultdict(list)  # GAF lines that are missing information (missing taxon)
 
+    def chk(self, annotations, fout_err):
+        """Check annotations."""
+        for idx, ntd in enumerate(annotations):
+            self._chk_fld(ntd, "Qualifier")        # optional 0 or greater
+            self._chk_fld(ntd, "DB_Reference", 1)  # required 1 or greater
+            self._chk_fld(ntd, "With_From")        # optional 0 or greater
+            self._chk_fld(ntd, "DB_Name", 0, 1)    # optional 0 or 1
+            self._chk_fld(ntd, "DB_Synonym")       # optional 0 or greater
+            self._chk_fld(ntd, "Taxon", 1, 2)
+            flds = list(ntd)
+            self._chk_qty_eq_1(flds)
+            self._chk_qualifier(ntd.Qualifier, flds, idx)
+            if not ntd.Taxon or len(ntd.Taxon) not in {1, 2}:
+                self.illegal_lines['BAD TAXON'].append((idx, '**{I}) TAXON: {NT}'.format(I=idx, NT=ntd)))
+        if self.illegal_lines:
+            self.prt_error_summary(fout_err)
+        return not self.illegal_lines
+
     def get_ntobj(self):
         """Get namedtuple object specific to version"""
         return cx.namedtuple("ntgafobj", " ".join(self.flds))
 
-    def get_gafvals(self, line, lnum):
-        """Return namedtuple filled with data."""
-        flds = line.split('\t')
-        num_flds = len(flds)
-        if num_flds >= 15:  # Gaf line must have a minimum of 15 values
-            #### return self._get_gafvals(flds, num_flds, lnum)
-            return self._get_gafvals(flds, lnum)
-
-    def _get_gafvals(self, flds, lnum):
+    def get_gafvals(self, line):
         """Convert fields from string to preferred format for GAF ver 2.1 and 2.0."""
-        # Cardinality:
-        #     True  -> is_set
-        #     False -> is_list
-        qualifiers = [t.lower() for t in self._rd_fld_vals("Qualifier", flds[3], True)]
-        db_reference = self._rd_fld_vals("DB_Reference", flds[5], True, 1)
-        with_from = self._rd_fld_vals("With_From", flds[7], True)
-        db_name = self._rd_fld_vals("DB_Name", flds[9], True, 0)  # , 1)
-        db_synonym = self._rd_fld_vals("DB_Synonym", flds[10], True)
-        taxons = self._rd_fld_vals("Taxon", flds[12], False, 1, 2)
-        if not self._chk_qty_eq_1(flds):
-            return None
-        # Additional Formatting
-        taxons = self._do_taxons(taxons, flds, lnum)
-        self._chk_qualifier(qualifiers, flds, lnum)
-        # Create list of values
-        gafvals = [
-            flds[0],      # 0  DB
-            flds[1],      # 1  DB_ID
-            flds[2],      # 2  DB_Symbol
-            qualifiers,   # 3  Qualifier
-            flds[4],      # 4  GO_ID
-            db_reference, # 5  DB_Reference
-            flds[6],      # 6  Evidence_Code
-            with_from,    # 7  With_From
-            flds[8],      # 8  Aspect
-            db_name,      # 9  DB_Name
-            db_synonym,   # 10 DB_Synonym
-            flds[11],     # 11 DB_Type
-            taxons,       # 12 Taxon
-            datetime.datetime.strptime(flds[13], '%Y%m%d').date(),  # 13 Date
-            flds[14]]  # 14 Assigned_By
+        flds = line.split('\t')
+
+        flds[3] = [t.lower() for t in self._get_set(flds[3])]   # 3  Qualifier
+        flds[5] = self._get_set(flds[5])     # 5  DB_Reference
+        flds[7] = self._get_set(flds[7])     # 7  With_From
+        flds[9] = self._get_set(flds[9])     # 9  DB_Name
+        flds[10] = self._get_set(flds[10])   # 10 DB_Synonym
+        flds[12] = self._do_taxons(flds[12])  # 12 Taxon
+        flds[13] = GET_DATE_YYYYMMDD(flds[13]) # self.strptime(flds[13], '%Y%m%d').date(),  # 13 Date   20190406
+
         # Version 2.x has these additional fields not found in v1.0
-        #### if self.ver[0] == '2':
         if self.is_long:
-            gafvals.append(self._rd_fld_vals("Annotation_Extension", flds[15], True))
-            gafvals.append(self._rd_fld_vals("Gene_Product_Form_ID", flds[16].rstrip(), True))
-            #### # i=15) Annotation_Extension: optional 0 or greater; Ex: part_of(CL:0000576)
-            #### if num_flds > 15:
-            ####     gafvals.append(self._rd_fld_vals("Annotation_Extension", flds[15], True))
-            #### else:
-            ####     gafvals.append(None)
-            #### # i=16) Gene_Product_Form_ID: optional 0 or 1;       Ex: UniProtKB:P12345-2
-            #### if num_flds > 16:
-            ####     #self._prt_line_detail(sys.stdout, flds, lnum)
-            ####     gafvals.append(self._rd_fld_vals("Gene_Product_Form_ID", flds[16], True))
-            #### else:
-            ####     gafvals.append(None)
-        return gafvals
-        #### return self.ntgafobj._make(gafvals)
+            flds[15] = self._get_set(flds[15])
+            flds[16] = self._get_set(flds[16].rstrip())
+        else:
+            flds[14] = self._get_set(flds[14].rstrip())
+        return flds
 
     @staticmethod
-    def _rd_fld_vals(name, val, set1_list0=True, qty_min=0, qty_max=None):
+    def _get_set(val):
         """Further split a GAF value within a single field."""
-        if not val and qty_min == 0:
-            return set() if set1_list0 else []
-        vals = val.split('|') # Use a pipe to separate entries
+        return set(val.split('|')) if val else set()
+
+    @staticmethod
+    def _get_list(val):
+        """Further split a GAF value within a single field."""
+        return val.split('|') if val else []
+
+    def _chk_fld(self, ntd, name, qty_min=0, qty_max=None):
+        """Further split a GAF value within a single field."""
+        vals = getattr(ntd, name)
         num_vals = len(vals)
-        assert num_vals >= qty_min, \
-            "FIELD({F}): MIN QUANTITY({Q}) WASN'T MET: {V}".format(F=name, Q=qty_min, V=vals)
+        if num_vals < qty_min:
+            self.illegal_lines['MIN QTY'].append(
+                (-1, "FIELD({F}): MIN QUANTITY({Q}) WASN'T MET: {V}".format(F=name, Q=qty_min, V=vals)))
         if qty_max is not None:
-            assert num_vals <= qty_max, \
-                "FIELD({F}): MAX QUANTITY({Q}) EXCEEDED: {V}".format(F=name, Q=qty_max, V=vals)
-        return set(vals) if set1_list0 else vals
+            if num_vals > qty_max:
+                self.illegal_lines['MAX QTY'].append(
+                    (-1, "FIELD({F}): MAX QUANTITY({Q}) EXCEEDED: {V}\n{NT}".format(
+                        F=name, Q=qty_max, V=vals, NT=ntd)))
 
     def _chk_qualifier(self, qualifiers, flds, lnum):
         """Check that qualifiers are expected values."""
@@ -306,26 +302,20 @@ class GafData(object):
         """Check that these fields have only one value: required 1."""
         for col in self.req1:
             if not flds[col]:
-                # sys.stderr.write("**ERROR: UNEXPECTED REQUIRED VAL({V}) FOR COL({R}):{H}: ".format(
-                #     V=flds[col], H=self.gafhdr[col], R=col))
-                # sys.stderr.write("{H0}({DB}) {H1}({ID})\n".format(
-                #     H0=self.gafhdr[0], DB=flds[0], H1=self.gafhdr[1], ID=flds[1]))
-                return False  # Check failed
-        return True  # Check passed
+                self.illegal_lines['QTY 1'].append(
+                    (-1, "**ERROR: UNEXPECTED REQUIRED VAL({V}) FOR COL({R}):{H}: ".format(
+                        V=flds[col], H=self.gafhdr[col], R=col)))
+                self.illegal_lines['QTY 1'].append((-1, "{H0}({DB}) {H1}({ID})\n".format(
+                    H0=self.gafhdr[0], DB=flds[0], H1=self.gafhdr[1], ID=flds[1])))
 
-    def _do_taxons(self, taxons, flds, lnum):
+    def _do_taxons(self, taxon_str):
         """Taxon"""
+        taxons = self._get_list(taxon_str)
         taxons_str = [v.split(':')[1] for v in taxons] # strip "taxon:"
         taxons_int = [int(s) for s in taxons_str if s]
-        # taxons = [int(v[6:]) for v in taxons] # strip "taxon:"
-        num_taxons = len(taxons_int)
-        if taxons_int:
-            assert num_taxons == 1 or num_taxons == 2
-        else:
-            self.illegal_lines['ILLEGAL TAXON'].append((lnum, "\t".join(flds)))
         return taxons_int
 
-    def prt_error_summary(self, fin_gaf):
+    def prt_error_summary(self, fout_err):
         """Print a summary about the GAF file that was read."""
         # Get summary of error types and their counts
         errcnts = []
@@ -335,16 +325,16 @@ class GafData(object):
             for err_name, errors in self.illegal_lines.items():
                 errcnts.append("  {N:9,} {ERROR}\n".format(N=len(errors), ERROR=err_name))
         # Save error details into a log file
-        fout_log = self._wrlog_details_illegal_gaf(fin_gaf, errcnts)
+        fout_log = self._wrlog_details_illegal_gaf(fout_err, errcnts)
         sys.stdout.write("  WROTE GAF ERROR LOG: {LOG}:\n".format(LOG=fout_log))
         for err_cnt in errcnts:
             sys.stdout.write(err_cnt)
 
-    def _wrlog_details_illegal_gaf(self, fin_gaf, err_cnts):
+    def _wrlog_details_illegal_gaf(self, fout_err, err_cnts):
         """Print details regarding illegal GAF lines seen to a log file."""
-        fout_log = "{}.log".format(fin_gaf)
-        gaf_base = os.path.basename(fin_gaf)
-        with open(fout_log, 'w') as prt:
+        # fout_err = "{}.log".format(fin_gaf)
+        gaf_base = os.path.basename(fout_err)
+        with open(fout_err, 'w') as prt:
             prt.write("ILLEGAL GAF ERROR SUMMARY:\n\n")
             for err_cnt in err_cnts:
                 prt.write(err_cnt)
@@ -360,7 +350,7 @@ class GafData(object):
                         ERR=error, FIN=gaf_base, L=line, LNUM=lnum))
                     self.prt_line_detail(prt, line)
                     prt.write("\n\n")
-        return fout_log
+        return fout_err
 
 
 class GafHdr(object):
