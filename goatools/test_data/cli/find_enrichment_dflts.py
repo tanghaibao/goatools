@@ -15,6 +15,7 @@ class ArgsDict(object):
 
     def __init__(self):
         self.namespace = {
+            'annofmt': None,
             'alpha' : 0.05,
             'compare' : False,
             'filenames' : [

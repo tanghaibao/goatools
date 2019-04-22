@@ -15,7 +15,7 @@ About significance cutoff:
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2010-2018, H Tang et al. All rights reserved."
+__copyright__ = "Copyright (C) 2010-2019, H Tang et al. All rights reserved."
 __author__ = "various"
 
 import os
@@ -25,13 +25,14 @@ import argparse
 
 from goatools.obo_parser import GODag
 from goatools.go_enrichment import GOEnrichmentStudy
-from goatools.associations import read_associations
 from goatools.multiple_testing import Methods
 from goatools.pvalcalc import FisherFactory
 from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
 from goatools.rpt.prtfmt import PrtFmt
 from goatools.semantic import TermCounts
 from goatools.wr_tbl import prt_tsv_sections
+from goatools.anno.factory import get_anno_desc
+from goatools.anno.factory import get_objanno
 
 from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.grouper.read_goids import read_sections
@@ -50,6 +51,7 @@ class GoeaCliArgs(object):
 
     def __init__(self):
         self.args = self._init_args()
+        print(self.args)
 
     def _init_args(self):
         """Get enrichment arg parser."""
@@ -60,6 +62,10 @@ class GoeaCliArgs(object):
 
         p.add_argument('filenames', type=str, nargs=3,
                        help='data/study data/population data/association')
+        p.add_argument('--annofmt', default=None, type=str,
+                       help=('Annotation file format. '
+                             'Not needed if type can be determined using filename'),
+                       choices=['gene2go', 'gaf', 'gpad', 'id2gos'])
         p.add_argument('--alpha', default=0.05, type=float,
                        help='Test-wise alpha for multiple testing')
         p.add_argument('--pval', default=.05, type=float,
@@ -109,7 +115,7 @@ class GoeaCliArgs(object):
                        help="The GO slim file is used when grouping GO terms.")
         p.add_argument('--ev_inc', default='all', type=str,
                        help="Include specified evidence codes and groups separated by commas")
-        p.add_argument('--ev_exc', default='None', type=str,
+        p.add_argument('--ev_exc', default='ND', type=str,
                        help="Exclude specified evidence codes and groups separated by commas")
 
         if len(sys.argv) == 1:
@@ -145,7 +151,9 @@ class GoeaCliFnc(object):
         _optional_attrs = ['relationship'] if self.sections else None
         self.godag = GODag(obo_file=self.args.obo, optional_attrs=_optional_attrs)
         # Get GOEnrichmentStudy
-        _study, _pop, _assoc = self.rd_files()
+        self.objanno = self._get_objanno(self.args.filenames[2])
+        _assoc = self._get_id2gos()
+        _study, _pop = self.rd_files(*self.args.filenames[:2])
         if not self.args.compare:  # sanity check
             self.chk_genes(_study, _pop)
         self.methods = self.args.method.split(",")
@@ -155,6 +163,21 @@ class GoeaCliFnc(object):
         self.results_all = self.objgoea.run_study(_study)
         # Prepare for grouping, if user-specified. Create GroupItems
         self.prepgrp = GroupItems(_assoc, self, self.godag.version) if self.sections else None
+
+    def _get_id2gos(self):
+        """Return annotations as id2gos"""
+        kws = {}
+        return self.objanno.get_id2gos(**kws)
+
+    def _get_objanno(self, assoc_fn):
+        """Get an annotation object"""
+        # Determine annotation file format from filename, if possible
+        anno_type = get_anno_desc(assoc_fn, None)
+        # Default annotation file format is id2gos
+        if anno_type is None:
+            anno_type = self.args.annofmt if self.args.annofmt else 'id2gos'
+        kws = {}
+        return get_objanno(assoc_fn, anno_type, **kws)
 
     def _init_itemid2name(self):
         """Print gene symbols instead of gene IDs, if provided."""
@@ -201,11 +224,9 @@ class GoeaCliFnc(object):
         min_ratio = self.args.ratio
         if min_ratio is not None:
             assert 1 <= min_ratio <= 2
-        # print("MMMMMMMMMMMMMMMMMMMMMM", min_ratio)
         self.objgoea.print_date(min_ratio=min_ratio, pval=self.args.pval)
         results_adj = self.objgoea.get_adj_records(goea_results, min_ratio, self.args.pval)
         if results_adj:
-            #### kws = {'indent':self.args.indent, 'itemid2name':self.itemid2name}
             if not self.prepgrp:
                 self.objgoea.print_results_adj(results_adj, indent=self.args.indent)
             else:
@@ -276,18 +297,19 @@ class GoeaCliFnc(object):
                     E=" ".join([k for k in dir(next(iter(self.results_all))) if k[:2] == 'p_']))
         return pval_fld
 
-    def rd_files(self):
+    def rd_files(self, study_fn, pop_fn):
         """Read files and return study and population."""
-        study_fn, pop_fn, assoc_fn = self.args.filenames
-        assoc = read_associations(assoc_fn, 'id2gos')
         study, pop = self._read_geneset(study_fn, pop_fn)
         print("Study: {0} vs. Population {1}\n".format(len(study), len(pop)))
-        return study, pop, assoc
+        return study, pop
 
     def _read_geneset(self, study_fn, pop_fn):
         """Open files containing genes. Return study genes and population genes."""
         pop = set(_.strip() for _ in open(pop_fn) if _.strip())
         study = frozenset(_.strip() for _ in open(study_fn) if _.strip())
+        if next(iter(pop)).isdigit():
+            pop = set(int(g) for g in pop)
+            study = frozenset(int(g) for g in study)
         # some times the pop is a second group to compare, rather than the
         # population in that case, we need to make sure the overlapping terms
         # are removed first
@@ -334,11 +356,11 @@ class GroupItems(object):
         sortobj = Sorter(grprobj, section_sortby=lambda nt: getattr(nt, self.pval_fld))
         return sortobj
 
-    @staticmethod
-    def get_objaart(goea_results, **kws):
-        """Return a AArtGeneProductSetsOne object."""
-        nts_goea = MgrNtGOEAs(goea_results).get_goea_nts_prt(**kws)
-        # objaart = AArtGeneProductSetsOne(name, goea_nts, self)
+    # @staticmethod
+    # def get_objaart(goea_results, **kws):
+    #     """Return a AArtGeneProductSetsOne object."""
+    #     nts_goea = MgrNtGOEAs(goea_results).get_goea_nts_prt(**kws)
+    #     # objaart = AArtGeneProductSetsOne(name, goea_nts, self)
 
     def _init_objaartall(self):
         """Get background database info for making ASCII art."""
@@ -450,4 +472,4 @@ class GrpWr(object):
         return flds
 
 
-# Copyright (C) 2010-2018, H Tang et al. All rights reserved.
+# Copyright (C) 2010-2019, H Tang et al. All rights reserved.
