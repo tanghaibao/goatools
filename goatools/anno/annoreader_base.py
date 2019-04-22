@@ -49,6 +49,19 @@ class AnnoReaderBase(object):
         self.associations = self._init_associations(filename, **kws)
         # assert self.associations, 'NO ANNOTATIONS FOUND: {ANNO}'.format(ANNO=filename)
 
+    def get_population(self):
+        """Get population IDs (all DB_IDs)"""
+        return self._get_population(self.associations)
+
+    def get_ids_g_goids(self, goids):
+        """Get database IDs (DB_IDs), given a set of GO IDs."""
+        return set(nt.DB_ID for nt in self.associations if nt.GO_ID in goids)
+
+    @staticmethod
+    def _get_population(associations):
+        """Get all IDs in the associations"""
+        return set(nt.DB_ID for nt in associations)
+
     def get_id2gos(self, **kws):
         """Get associations in dict, id2gos"""
         options = AnnoOptions(**kws)
