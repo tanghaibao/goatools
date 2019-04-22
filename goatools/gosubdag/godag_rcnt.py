@@ -1,6 +1,6 @@
 """Get descendant/parent counts for all GO terms in a GODag and broad L0 and L1 terms."""
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 from goatools.gosubdag.godag_rcnt_init import CountRelativesInit
@@ -15,7 +15,7 @@ class CountRelatives(object):
         self.go2obj = go2obj
         # Count of total number of descendants for each GO term
         _ini = CountRelativesInit(go2obj, relationships, dcnt, go2letter)
-        self.go2descendants = _ini.go2descendants
+        self.go2descendants = _ini.go2descendants  # GO IDs
         # Used by: Semantic, Grouper
         self.go2parents = _ini.go2parents
         self.go2dcnt = _ini.go2dcnt
@@ -38,4 +38,4 @@ class CountRelatives(object):
         return "".join(sorted(self.get_parents_letters(goobj), reverse=reverse))
 
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
