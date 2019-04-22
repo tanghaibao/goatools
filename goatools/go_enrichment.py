@@ -13,7 +13,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 
-__copyright__ = "Copyright (C) 2010-2018, H Tang et al., All rights reserved."
+__copyright__ = "Copyright (C) 2010-2019, H Tang et al., All rights reserved."
 __author__ = "various"
 
 import sys
@@ -373,13 +373,25 @@ class GOEnrichmentStudy(object):
         """Print information regarding multitest correction results."""
         ntm = ntmt.nt_method
         attr_mult = "p_{M}".format(M=self.methods.get_fieldname(ntm.source, ntm.method))
-        eps = [r.enrichment for r in results if getattr(r, attr_mult) < alpha]
+        eps = [r for r in results if getattr(r, attr_mult) < alpha]
         sig_cnt = len(eps)
-        ctr = cx.Counter(eps)
+        ctr = cx.Counter([r.enrichment for r in eps])
         log.write("{N:8,} GO terms found significant (< {A}=alpha) ".format(
             N=sig_cnt, A=alpha))
         log.write('({E:3} enriched + {P:3} purified): '.format(E=ctr['e'], P=ctr['p']))
         log.write("{MSRC} {METHOD}\n".format(MSRC=ntm.source, METHOD=ntm.method))
+        log.write("{N:8,} study items associated with significant GO IDs (enriched)\n".format(
+            N=len(self.get_study_items(r for r in eps if r.enrichment == 'e'))))
+        log.write("{N:8,} study items associated with significant GO IDs (purified)\n".format(
+            N=len(self.get_study_items(r for r in eps if r.enrichment == 'p'))))
+
+    @staticmethod
+    def get_study_items(results):
+        """Return a list of study items associated with the given results."""
+        study_items = set()
+        for obj in results:
+            study_items.update(obj.study_items)
+        return study_items
 
     def _run_multitest_statsmodels(self, ntmt):
         """Use multitest mthods that have been implemented in statsmodels."""
@@ -568,4 +580,4 @@ class GOEnrichmentStudy(object):
             nts_goea = sorted(nts_goea, key=sortby)
             wr_py_nts(fout_py, nts_goea, docstring, var_name)
 
-# Copyright (C) 2010-2018, H Tang et al., All rights reserved.
+# Copyright (C) 2010-2019, H Tang et al., All rights reserved.
