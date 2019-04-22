@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -18,7 +18,7 @@ class GoSubDag(object):
     """Manages a user-specified subset of a GO DAG."""
 
     def __init__(self, go_sources, go2obj, relationships=None, **kws):
-        # kws _Init: rcntobj relationships
+        # kws _Init: rcntobj
         # tic = timeit.default_timer()
         _ini = InitGOs(go_sources, go2obj, relationships, **kws)
         self.go_sources = _ini.go_sources # set(go_sources)
@@ -35,7 +35,7 @@ class GoSubDag(object):
         ### tic = _rpt_hms(tic, "GoSubDag: Create GoDepth1Letters")
         self.go2nt = _fld.get_go2nt_all(self.rcntobj)
         ### tic = _rpt_hms(tic0, "GoSubDag: total")
-        prt = kws.get('prt', None)
+        prt = kws.get('prt', sys.stdout)
         if prt is not None:
             self.prt_objdesc(prt)
 
@@ -139,4 +139,4 @@ class GoSubDag(object):
         prt.write("             GoSubDag: relationships: {RELS}\n".format(RELS=self.relationships))
 
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
