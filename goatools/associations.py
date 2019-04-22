@@ -14,6 +14,7 @@ import sys
 from goatools.base import dnld_file
 from goatools.base import ftp_get
 from goatools.anno.factory import get_objanno
+from goatools.anno.factory import get_anno_desc
 #### from goatools.base import wget
 from goatools.semantic import TermCounts
 from goatools.anno.gaf_reader import GafReader
@@ -83,6 +84,16 @@ def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout, loading_bar=True)
                 if log is not None:
                     log.write("  WROTE UNZIPPED: {F}\n".format(F=fin))
 
+def dnld_annofile(fin_anno, anno_type):
+    """Download annotation file, if needed"""
+    if os.path.exists(fin_anno):
+        return
+    anno_type = get_anno_desc(fin_anno, anno_type)
+    if anno_type == 'gene2go':
+        ### download_ncbi_associations(fin_anno)
+        dnld_ncbi_gene_file(fin_anno)
+    if anno_type in {'gaf', 'gpad'}:
+        dnld_assc(fin_anno)
 
 def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
