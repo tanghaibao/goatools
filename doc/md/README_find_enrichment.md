@@ -2,7 +2,8 @@
 
 ## Run GOEA and print GO terms
 
-  1. with pvalues < 0.05 corrected using Benjamini-Hochberg multiple test correction using annotation in a:    
+  1. [with **pvalues < 0.05 corrected using Benjamini-Hochberg multiple test
+		 correction**](#1-enrichment-analysis-using-various-annotation-formats) using annotation in a:    
      * Original id-to-GOs text format   
      * GAF file    
      * GPAD file    
@@ -28,50 +29,41 @@ CMD: python scripts/find_enrichment.py data/study data/population data/associati
 
 ### 1) Enrichment Analysis using various annotation formats    
 
-Print results where Benjamini-Hochberg values are less than 0.05    
+Arguments to print results where Benjamini-Hochberg values are less than 0.05:    
 ```
 --pval=0.05             # print pvalue's < 0.05
---method=fdr_bh         # Benjamini-Hochberg multiple test correction on uncorrected p-values
---pval_field=fdr_bh     # print fdr-bh values < 0.05 (rather than uncorrected pvalues)
+--method=fdr_bh         # Use Benjamini-Hochberg multiple test correction on uncorrected p-values
+--pval_field=fdr_bh     # print fdr_bh values < 0.05 (rather than uncorrected pvalues)
 --outfile=FILENAME.xlsx # Write to an Excel spreadsheet
 ```
 
 ### 1A) Original id-to-GOs text format    
+```
+python3 scripts/find_enrichment.py data/study data/population data/association --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_id2gos.xlsx
+```
 
 ### 1B) GAF file
-
-**COMMAND:**    
 ```
 python3 scripts/find_enrichment.py ids_stu_gaf.txt ids_pop_gaf.txt goa_human.gaf --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gaf.xlsx
 ```
 
-**RESULTS:**    
-```
-go-basic.obo: fmt(1.2) rel(2019-04-17) 47,398 GO Terms
-HMS:0:00:13.741054 424,966 annotations READ: goa_human.gaf
-Study: 100 vs. Population 19427
-
-fisher module not installed.  Falling back on scipy.stats.fisher_exact
-Propagating term counts to parents ..
-1 GO IDs in assc. are not found in the GO-DAG: GO:0034437
-100% 19,366 of 19,427 population items found in association
- 94%     94 of    100 study items found in association
-100%    100 of    100 study items found in population(19427)
-Calculating 21,575 uncorrected p-values using fisher_scipy_stats
-  21,575 GO terms are associated with 19,366 of 19,427 population items
-   2,055 GO terms are associated with     94 of    100 study items
-       7 GO terms found significant (< 0.05=alpha) (  5 enriched +   2 purified): statsmodels fdr_bh
-      49 study items associated with significant GO IDs (enriched)
-      19 study items associated with significant GO IDs (purified)
-    481 of 21,575 results have uncorrected P-values <= 0.05=pval
-
-      7 items WROTE: results_gaf.xlsx
-```
-
-
 ### 1B) GPAD file
+```
+python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx
+```
 
 ### 1D) NCBI's gene2go file
+#### Human is the default:
+```
+python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
+```
+
+#### Specify mouse using the **--taxid** argment:
+```
+python3 scripts/find_enrichment.py ids_stu_gene2go_10090.txt ids_pop_gene2go_10090.txt gene2go --taxid=10090 --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_10090.xlsx
+```
+
+
 
 ### 2) Print GO terms with uncorrected pvalues < 0.05 to the screen (default)
 The default is to print all GO terms with uncorrected P-values < 0.05 (default)

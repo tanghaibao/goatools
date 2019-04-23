@@ -49,6 +49,14 @@ class AnnoReaderBase(object):
         self.associations = self._init_associations(filename, **kws)
         # assert self.associations, 'NO ANNOTATIONS FOUND: {ANNO}'.format(ANNO=filename)
 
+    def get_name(self):
+        """Return type of annotation"""
+        return self.name
+
+    def get_taxid(self):
+        """Return taxid, if one was provided, otherwise return -1"""
+        return -1
+
     def get_population(self):
         """Get population IDs (all DB_IDs)"""
         return self._get_population(self.associations)

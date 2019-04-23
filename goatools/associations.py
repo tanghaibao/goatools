@@ -8,14 +8,10 @@ __author__ = "various"
 from collections import defaultdict
 import os
 import sys
-#### import wget
-#### import requests
-#### from ftplib import FTP
 from goatools.base import dnld_file
 from goatools.base import ftp_get
 from goatools.anno.factory import get_objanno
 from goatools.anno.factory import get_anno_desc
-#### from goatools.base import wget
 from goatools.semantic import TermCounts
 from goatools.anno.gaf_reader import GafReader
 from goatools.anno.genetogo_reader import Gene2GoReader
@@ -101,7 +97,7 @@ def dnld_annofile(fin_anno, anno_type):
 
 def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
-    obj = Gene2GoReader(fin_gene2go, taxids)
+    obj = Gene2GoReader(fin_gene2go, taxids=taxids)
     # b_geneid2gos = not kws.get('go2geneids', False)
     opt = AnnoOptions(**kws)
     # By default, return id2gos. User can cause go2geneids to be returned by:

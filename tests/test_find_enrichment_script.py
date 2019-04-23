@@ -10,7 +10,6 @@ from goatools.base import get_godag
 from goatools.associations import dnld_annofile
 from goatools.anno.factory import get_objanno
 from goatools.gosubdag.gosubdag import GoSubDag
-from goatools.go_enrichment import GOEnrichmentStudy
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
@@ -31,23 +30,36 @@ def test_find_enrichment():
         _get_objanno('data/association', anno_type='id2gos'),
     ]
 
+    pat = ('python3 scripts/find_enrichment.py {STU} {POP} {ASSC} '
+           '--pval=0.05 --method=fdr_bh --pval_field=fdr_bh '
+           '--taxid={TAXID} --outfile=results_{NAME}.xlsx')
+    cmds = []
     for obj in annoobjs:
-        assc = obj.get_id2gos()
         pop = obj.get_population()
         enriched = obj.get_ids_g_goids(gos)
-        objgoea = _get_objgoea(pop, assc, godag)
-        results = objgoea.run_study(enriched)
-        print('{N} results'.format(N=len(results)))
+        fout_pop = os.path.join(REPO, 'ids_pop_{BASE}.txt'.format(BASE=obj.get_name()))
+        fout_stu = os.path.join(REPO, 'ids_stu_{BASE}.txt'.format(BASE=obj.get_name()))
+        _wr(fout_pop, pop)
+        _wr(fout_stu, list(enriched)[:100])
+        cmd = pat.format(STU=fout_stu, POP=fout_pop, ASSC=obj.filename,
+                         TAXID=obj.get_taxid(), NAME=obj.get_name())
+        cmds.append(cmd)
+        print('\nRUNNING {NAME}: {CMD}\n'.format(CMD=cmd, NAME=obj.get_name()))
+        assert os.system(cmd) == 0
+
+    print("COMANDS RUN:")
+    for cmd in cmds:
+        print(cmd)
+
     print("TEST PASSED")
 
 
-def _get_objgoea(pop, assoc, godag):
-    """Run gene ontology enrichment analysis (GOEA)."""
-    return GOEnrichmentStudy(pop, assoc, godag,
-                             propagate_counts=True,
-                             relationships=False,
-                             alpha=0.05,
-                             methods={'fdr_bh'})
+def _wr(fout_txt, genes):
+    """Write genes into a text file."""
+    with open(fout_txt, 'w') as prt:
+        for gene in sorted(genes):
+            prt.write('{GENE}\n'.format(GENE=gene))
+        print('  {N:6,} WROTE: {TXT}'.format(N=len(genes), TXT=fout_txt))
 
 def _get_enriched_goids(top, godag):
     """Get a set of GO IDs related to specified top term"""

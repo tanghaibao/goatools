@@ -66,6 +66,8 @@ class GoeaCliArgs(object):
                        help=('Annotation file format. '
                              'Not needed if type can be determined using filename'),
                        choices=['gene2go', 'gaf', 'gpad', 'id2gos'])
+        p.add_argument('--taxid', default=9606, type=int,
+                       help="When using NCBI's gene2go annotation file, specify desired taxid")
         p.add_argument('--alpha', default=0.05, type=float,
                        help='Test-wise alpha for multiple testing')
         p.add_argument('--pval', default=.05, type=float,
@@ -145,6 +147,7 @@ class GoeaCliArgs(object):
 class GoeaCliFnc(object):
     """For running a GOEA on the command-line."""
 
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, args):
         self.args = args
         self.sections = read_sections(self.args.sections) if self.args.sections else None
@@ -155,7 +158,7 @@ class GoeaCliFnc(object):
         _assoc = self._get_id2gos()
         _study, _pop = self.rd_files(*self.args.filenames[:2])
         if not self.args.compare:  # sanity check
-            self.chk_genes(_study, _pop)
+            self.chk_genes(_study, _pop, _assoc)
         self.methods = self.args.method.split(",")
         self.itemid2name = self._init_itemid2name()
         self.objgoea = self._init_objgoea(_pop, _assoc)
@@ -176,7 +179,7 @@ class GoeaCliFnc(object):
         # Default annotation file format is id2gos
         if anno_type is None:
             anno_type = self.args.annofmt if self.args.annofmt else 'id2gos'
-        kws = {}
+        kws = {'taxid': self.args.taxid} if anno_type == 'gene2go' else {}
         return get_objanno(assoc_fn, anno_type, **kws)
 
     def _init_itemid2name(self):
@@ -247,7 +250,7 @@ class GoeaCliFnc(object):
                                  pvalcalc=self.args.pvalcalc,
                                  methods=self.methods)
 
-    def chk_genes(self, study, pop):
+    def chk_genes(self, study, pop, assoc=None):
         """Check gene sets."""
         if len(pop) < len(study):
             exit("\nERROR: The study file contains more elements than the population file. "
@@ -260,6 +263,14 @@ class GoeaCliFnc(object):
         if overlap <= self.args.min_overlap:
             exit("\nERROR: only {} of genes/proteins in the study are found in the "
                  "background population. Please check.\n".format(overlap))
+        # Population and associations
+        if assoc is not None and pop.isdisjoint(assoc.keys()):
+            if self.objanno.name == 'gene2go':
+                err = ('**FATAL: NO POPULATION ITEMS SEEN IN THE NCBI gene2go ANNOTATIONS '
+                       'FOR taxid({T}). TRY: --taxid=<taxid number>')
+                exit(err.format(T=next(iter(self.objanno.taxid2asscs.keys()))))
+            else:
+                exit('**FATAL: NO POPULATION ITEMS SEEN IN THE ANNOTATIONS')
 
     def get_results_sig(self):
         """Get significant results."""

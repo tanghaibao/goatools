@@ -19,8 +19,9 @@ __author__ = "DV Klopfenstein"
 class Gene2GoReader(AnnoReaderBase):
     """Reads a Gene Annotation File (GAF). Returns a Python object."""
 
-    def __init__(self, filename=None, taxids=None):  # , **kws):
-        super(Gene2GoReader, self).__init__('gene2go', filename, taxids=taxids)
+    def __init__(self, filename=None, **kws):
+        # kws: taxids or taxid
+        super(Gene2GoReader, self).__init__('gene2go', filename, **kws)
         # Initialize associations and header information
         self.taxid2asscs = self._init_taxid2asscs(self.associations)
         # pylint: disable=superfluous-parens
@@ -69,6 +70,17 @@ class Gene2GoReader(AnnoReaderBase):
             taxid2asscs_usr[taxid]['ID2GOs'] = ab_ret['ID2GOs']
             taxid2asscs_usr[taxid]['GO2IDs'] = ab_ret['GO2IDs']
 
+    def get_name(self):
+        """Get name using taxid"""
+        if len(self.taxid2asscs) == 1:
+            return '{BASE}_{TAXID}'.format(
+                BASE=self.name, TAXID=next(iter(self.taxid2asscs.keys())))
+        return '{BASE}_various'.format(BASE=self.name)
+
+    def get_taxid(self):
+        """Return taxid, if one was provided"""
+        return next(iter(self.taxid2asscs.keys())) if len(self.taxid2asscs) == 1 else True
+
     @staticmethod
     def get_id2gos_all(taxid2asscs_a2b):
         """Get associations for all stored species taxid2asscs[taxid][ID2GOs|GO2IDs]."""
@@ -87,9 +99,9 @@ class Gene2GoReader(AnnoReaderBase):
             taxid2asscs[ntanno.tax_id].append(ntanno)
         return dict(taxid2asscs)
 
-    def _init_associations(self, fin_anno, taxids=None):
+    def _init_associations(self, fin_anno, taxid=None, taxids=None):
         """Read annotation file and store a list of namedtuples."""
-        ini = _InitAssc()
+        ini = _InitAssc(taxid, taxids)
         nts = ini.init_associations(fin_anno, taxids)
         self.hdr = ini.hdr
         return nts
@@ -106,8 +118,28 @@ class _InitAssc(object):
     hdrs = ['tax_id', 'GeneID', 'GO_ID', 'Evidence', 'Qualifier', 'GO_term', 'PubMed', 'Category']
     flds = ['tax_id', 'DB_ID', 'GO_ID', 'Evidence_Code', 'Qualifier', 'GO_term', 'DB_Reference', 'NS']
 
-    def __init__(self):
+    def __init__(self, taxid=None, taxids=None):
         self.hdr = None
+        self.taxids = self._init_taxids(taxid, taxids)
+
+    @staticmethod
+    def _init_taxids(taxid, taxids):
+        """Return taxid set"""
+        ret = set()
+        if taxids is not None:
+            if taxids is True:
+                return True 
+            if isinstance(taxids, int):
+                ret.add(taxids)
+            else:
+                ret.update(taxids)
+        if taxid is not None:
+            ret.add(taxid)
+        if not ret:
+            ret.add(9606)
+            # pylint: disable=superfluous-parens
+            print('**NOTE: DEFAULT TAXID STORED FROM gene2go IS 9606 (human)\n')
+        return ret
 
     # pylint: disable=too-many-locals
     def init_associations(self, fin_anno, taxids=None):
@@ -124,7 +156,7 @@ class _InitAssc(object):
                 ntobj = cx.namedtuple('ntanno', self.flds)
                 # Get: 1) Specified taxids, default taxid(human), or all taxids
                 get_all = taxids is True
-                taxids = self._get_taxids(taxids, sys.stdout)
+                taxids = self.taxids
                 for lnum, line in enumerate(ifstrm, 1):
                     # Read data
                     if line[0] != '#':
@@ -157,18 +189,6 @@ class _InitAssc(object):
             N=len(nts), ANNO=fin_anno,
             HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
         return nts
-
-    def _get_taxids(self, taxids, prt=None):
-        """Get a function which determines whether to save annotations for a given taxid."""
-        # Default taxid is Human
-        if taxids is None:
-            if prt:
-                prt.write('**NOTE: DEFAULT TAXID STORED FROM gene2go IS 9606 (human)\n')
-            return set([self.taxid_dflt])
-        if isinstance(taxids, int):
-            return set([taxids])
-        assert hasattr(taxids, '__iter__'), 'BAD TAXIDS({T})'.format(T=taxids)
-        return set(taxids)
 
     @staticmethod
     def _get_qualifiers(qualifier):

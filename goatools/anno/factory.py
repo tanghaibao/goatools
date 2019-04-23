@@ -16,8 +16,8 @@ def get_objanno(fin_anno, anno_type=None, **kws):
     anno_type = get_anno_desc(fin_anno, anno_type)
     if anno_type is not None:
         if anno_type == 'gene2go':
-            taxids = kws.get('taxids', None)
-            return Gene2GoReader(fin_anno, taxids)
+            # kws: taxid taxids
+            return Gene2GoReader(fin_anno, **kws)
         if anno_type == 'gaf':
             hdr_only = kws.get('hdr_only', False)
             prt = kws.get('prt', sys.stdout)
