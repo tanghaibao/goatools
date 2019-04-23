@@ -1,5 +1,6 @@
 # Tools for Gene Ontology
 
+[![DIO](/doc/images/DOI.svg)](https://www.nature.com/articles/s41598-018-28948-z)
 [![Latest PyPI version](https://img.shields.io/pypi/v/goatools.svg)](https://pypi.python.org/pypi/goatools)
 [![bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools)
 
