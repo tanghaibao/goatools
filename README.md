@@ -47,6 +47,7 @@ This package contains a Python library to
       File](http://geneontology.org/page/go-annotation-file-gaf-format-21)) files.
   - Read GPAD ([Gene Product Association Data](https://geneontology.github.io/docs/gene-product-association-data-gpad-format/)) files.
   - Read NCBI's gene2go GO association file.
+  - Read id2gos format. See [example](/data/association)
 
 - Compare two or more lists of GO IDs using _scripts/compare_gos.py_
 - [Plot GO hierarchies](https://github.com/tanghaibao/goatools#plot-go-lineage)
