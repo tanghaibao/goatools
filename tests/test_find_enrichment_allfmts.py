@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test running an enrichment using any annotation file format."""
 
 from __future__ import print_function
@@ -32,14 +32,30 @@ def test_find_enrichment():
         _get_objanno('data/association', anno_type='id2gos'),
     ]
 
+    cmdline_args = []
     for obj in annoobjs:
         assc = obj.get_id2gos()
         pop = obj.get_population()
         enriched = obj.get_ids_g_goids(gos)
+        fout_pop = 'ids_pop_{BASE}.txt'.format(BASE=obj.name)
+        fout_stu = 'ids_stu_{BASE}.txt'.format(BASE=obj.name)
+        _wr(fout_pop, pop)
+        _wr(fout_stu, list(enriched)[:100])
+        cmdline_args.append((fout_stu, fout_pop, obj.filename))
         objgoea = _get_objgoea(pop, assc, godag)
         results = objgoea.run_study(enriched)
     print("TEST PASSED")
 
+    for args in cmdline_args:
+        print('scripts/find_enrichment.py {FILES}'.format(FILES=' '.join(args)))
+
+
+def _wr(fout_txt, genes):
+    """Write genes into a text file."""
+    with open(fout_txt, 'w') as prt:
+        for gene in sorted(genes):
+            prt.write('{GENE}\n'.format(GENE=gene))
+        print('  {N:6,} WROTE: {TXT}'.format(N=len(genes), TXT=fout_txt))
 
 def _get_objgoea(pop, assoc, godag):
     """Run gene ontology enrichment analysis (GOEA)."""

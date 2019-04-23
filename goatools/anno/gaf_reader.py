@@ -150,8 +150,8 @@ class _InitAssc(object):
         except Exception as inst:
             import traceback
             traceback.print_exc()
-            sys.stderr.write("\n  **FATAL: {MSG}\n\n".format(MSG=str(inst)))
-            sys.stderr.write("**FATAL: {FIN}[{LNUM}]:\n{L}".format(FIN=fin_gaf, L=line, LNUM=lnum))
+            sys.stderr.write("\n  **FATAL-gaf: {MSG}\n\n".format(MSG=str(inst)))
+            sys.stderr.write("**FATAL-gaf: {FIN}[{LNUM}]:\n{L}".format(FIN=fin_gaf, L=line, LNUM=lnum))
             if datobj is not None:
                 datobj.prt_line_detail(sys.stdout, line)
             sys.exit(1)

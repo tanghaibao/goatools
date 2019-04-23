@@ -29,12 +29,7 @@ def dnld_assc(assc_name, go2obj=None, prt=sys.stdout):
     if not dirloc:
         dirloc = os.getcwd()
     assc_locfile = os.path.join(dirloc, assc_base) if not dirloc else assc_name
-    if not os.path.isfile(assc_locfile):
-        # assc_http = "http://geneontology.org/gene-associations/"
-        assc_http = "http://current.geneontology.org/annotations/"
-        for ext in ['gz']:
-            src = os.path.join(assc_http, "{ASSC}.{EXT}".format(ASSC=assc_base, EXT=ext))
-            dnld_file(src, assc_locfile, prt, loading_bar=None)
+    dnld_annotation(assc_locfile, prt)
     # Read the downloaded association
     assc_orig = read_gaf(assc_locfile, prt)
     if go2obj is None:
@@ -45,6 +40,15 @@ def dnld_assc(assc_name, go2obj=None, prt=sys.stdout):
     for gene, goids_cur in assc_orig.items():
         assc[gene] = goids_cur.intersection(goids_dag)
     return assc
+
+def dnld_annotation(assc_file, prt=sys.stdout):
+    """Download gaf, gpad, or gpi from http://current.geneontology.org/annotations/"""
+    if not os.path.isfile(assc_file):
+        # assc_http = "http://geneontology.org/gene-associations/"
+        assc_http = "http://current.geneontology.org/annotations/"
+        _, assc_base = os.path.split(assc_file)
+        src = os.path.join(assc_http, "{ASSC}.gz".format(ASSC=assc_base))
+        dnld_file(src, assc_file, prt, loading_bar=None)
 
 def read_associations(assoc_fn, anno_type='id2gos', **kws):
     """Return associatinos in id2gos format"""
@@ -93,7 +97,7 @@ def dnld_annofile(fin_anno, anno_type):
         ### download_ncbi_associations(fin_anno)
         dnld_ncbi_gene_file(fin_anno)
     if anno_type in {'gaf', 'gpad'}:
-        dnld_assc(fin_anno)
+        dnld_annotation(fin_anno)
 
 def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
