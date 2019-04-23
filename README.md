@@ -26,7 +26,7 @@
 
 This package contains a Python library to
 
-- Process over- and under-representation of certain GO terms, based on
+- [Process over- and under-representation of certain GO terms](/doc/md/README_find_enrichment.md), based on
   Fisher's exact test. With numerous multiple correction routines
   including locally implemented routines for Bonferroni, Sidak, Holm,
   and false discovery rate. Also included are multiple test

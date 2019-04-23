@@ -295,8 +295,8 @@ class GOEnrichmentStudy(object):
             keep_if = kws['keep_if']
             results = [r for r in results if keep_if(r)]
 
-        # Default sort order: First, sort by BP, MF, CC. Second, sort by pval
-        results.sort(key=lambda r: [r.NS, r.enrichment, r.p_uncorrected])
+        # Default sort order:
+        results.sort(key=lambda r: [r.enrichment, r.NS, r.p_uncorrected])
         return results # list of GOEnrichmentRecord objects
 
     def run_study_nts(self, study, **kws):
