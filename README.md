@@ -1,6 +1,5 @@
 # Tools for Gene Ontology
 
-[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.31628.svg)](http://dx.doi.org/10.5281/zenodo.31628)
 [![Latest PyPI version](https://img.shields.io/pypi/v/goatools.svg)](https://pypi.python.org/pypi/goatools)
 [![bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools)
 
