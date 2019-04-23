@@ -45,6 +45,7 @@ This package contains a Python library to
   files](http://geneontology.org/page/go-annotation-file-formats):
   - Read GAF ([Gene Association
       File](http://geneontology.org/page/go-annotation-file-gaf-format-21)) files.
+  - Read GPAD ([Gene Product Association Data](https://geneontology.github.io/docs/gene-product-association-data-gpad-format/)) files.
   - Read NCBI's gene2go GO association file.
 
 - Compare two or more lists of GO IDs using _scripts/compare_gos.py_
