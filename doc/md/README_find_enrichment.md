@@ -1,6 +1,6 @@
 # Gene Ontolog Enrichment Analyses (GOEA) from the command-line
 
-## Run GOEA and print GO terms
+## GOEA command-line examples
 
   1. [with **pvalues < 0.05 corrected using Benjamini-Hochberg multiple test
 		 correction**](#1-enrichment-analysis-using-various-annotation-formats) using annotation in a:    

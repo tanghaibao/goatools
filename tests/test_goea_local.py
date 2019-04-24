@@ -13,12 +13,13 @@ REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 def test_unknown_gos():
     """Ensure that a study with only unknown GO Terms will run gracefully."""
     #pylint: disable=bad-whitespace
-    os.system("python {SCR} --alpha=0.05 {STUDY} {POP} {ASSN} --obo={OBO}".format(
+    code = os.system("python {SCR} --alpha=0.05 {STUDY} {POP} {ASSN} --obo={OBO}".format(
         SCR  ="{REPO}/scripts/find_enrichment.py".format(REPO=REPO),
         OBO  ="{REPO}/go-basic.obo".format(REPO=REPO),
         STUDY="{REPO}/tests/data/study_unknown".format(REPO=REPO),
         POP  ="{REPO}/tests/data/small_population".format(REPO=REPO),
         ASSN ="{REPO}/tests/data/small_association".format(REPO=REPO)))
+    assert code != 0, "**FAILED: Simple find_enrichment test"
 
 def test_goea_fdr_dflt():
     """Test GOEA with method, fdr. Print original summary"""

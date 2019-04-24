@@ -90,7 +90,6 @@ def dnld_annofile(fin_anno, anno_type):
         return
     anno_type = get_anno_desc(fin_anno, anno_type)
     if anno_type == 'gene2go':
-        ### download_ncbi_associations(fin_anno)
         dnld_ncbi_gene_file(fin_anno)
     if anno_type in {'gaf', 'gpad'}:
         dnld_annotation(fin_anno)
@@ -98,60 +97,23 @@ def dnld_annofile(fin_anno, anno_type):
 def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
     obj = Gene2GoReader(fin_gene2go, taxids=taxids)
-    # b_geneid2gos = not kws.get('go2geneids', False)
-    opt = AnnoOptions(**kws)
+    #### opt = AnnoOptions(**kws)
     # By default, return id2gos. User can cause go2geneids to be returned by:
     #   >>> read_ncbi_gene2go(..., go2geneids=True
     if 'taxid2asscs' not in kws:
         if len(obj.taxid2asscs) == 1:
             taxid = next(iter(obj.taxid2asscs))
-            return obj.get_annotations_dct(taxid, opt)
+            kws_ncbi = {k:v for k, v in kws.items() if k in AnnoOptions.keys_exp}
+            kws_ncbi['taxid'] = taxid
+            return obj.get_id2gos(**kws_ncbi)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
     # e.g., taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set))
+    opt = AnnoOptions(**kws)
     t2asscs_ret = obj.get_annotations_taxid2dct(opt)
     t2asscs_usr = kws.get('taxid2asscs', defaultdict(lambda: defaultdict(lambda: defaultdict(set))))
     if 'taxid2asscs' in kws:
         obj.fill_taxid2asscs(t2asscs_usr, t2asscs_ret)
     return obj.get_id2gos_all(t2asscs_ret)
-
-def read_ncbi_gene2go_old(fin_gene2go, taxids=None, **kws):
-    """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
-    # kws: taxid2asscs evidence_set
-    # Simple associations
-    id2gos = defaultdict(set)
-    # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
-    # e.g., taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set))
-    taxid2asscs = kws.get('taxid2asscs', None)
-    evs = kws.get('evidence_set', None)
-    # By default, return id2gos. User can cause go2geneids to be returned by:
-    #   >>> read_ncbi_gene2go(..., go2geneids=True
-    b_geneid2gos = not kws.get('go2geneids', False)
-    if taxids is None: # Default taxid is Human
-        taxids = [9606]
-    with open(fin_gene2go) as ifstrm:
-        # pylint: disable=too-many-nested-blocks
-        for line in ifstrm:
-            if line[0] != '#': # Line contains data. Not a comment
-                line = line.rstrip() # chomp
-                flds = line.split('\t')
-                if len(flds) >= 5:
-                    taxid_curr, geneid, go_id, evidence, qualifier = flds[:5]
-                    taxid_curr = int(taxid_curr)
-                    # NOT: Used when gene is expected to have function F, but does NOT.
-                    # ND : GO function not seen after exhaustive annotation attempts to the gene.
-                    if taxid_curr in taxids and qualifier != 'NOT' and evidence != 'ND':
-                        # Optionally specify a subset of GOs based on their evidence.
-                        if evs is None or evidence in evs:
-                            geneid = int(geneid)
-                            if b_geneid2gos:
-                                id2gos[geneid].add(go_id)
-                            else:
-                                id2gos[go_id].add(geneid)
-                            if taxid2asscs is not None:
-                                taxid2asscs[taxid_curr]['ID2GOs'][geneid].add(go_id)
-                                taxid2asscs[taxid_curr]['GO2IDs'][go_id].add(geneid)
-        sys.stdout.write("  {N:,} items READ: {ASSC}\n".format(N=len(id2gos), ASSC=fin_gene2go))
-    return id2gos # return simple associations
 
 def get_gaf_hdr(fin_gaf):
     """Read Gene Association File (GAF). Return GAF version and data info."""
@@ -159,11 +121,7 @@ def get_gaf_hdr(fin_gaf):
 
 def read_gaf(fin_gaf, prt=sys.stdout, hdr_only=False, allow_missing_symbol=False, **kws):
     """Read Gene Association File (GAF). Return data."""
-    # keyword arguments what is read from GAF.
-    hdr_only = kws.get('hdr_only', None) # Read all data from GAF by default
-    # Read GAF file
-    gafobj = GafReader(fin_gaf, hdr_only, prt, allow_missing_symbol)
-    return gafobj.read_gaf(**kws)
+    return GafReader(fin_gaf, hdr_only, prt, allow_missing_symbol).get_id2gos(**kws)
 
 def get_b2aset(a2bset):
     """Given gene2gos, return go2genes. Given go2genes, return gene2gos."""

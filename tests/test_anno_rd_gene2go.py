@@ -4,10 +4,12 @@
 from __future__ import print_function
 
 import os
+import sys
+from collections import defaultdict
 from goatools.associations import dnld_ncbi_gene_file
 from goatools.anno.genetogo_reader import Gene2GoReader
 from goatools.associations import read_ncbi_gene2go
-from goatools.associations import read_ncbi_gene2go_old
+## from goatools.associations import read_ncbi_gene2go_old
 
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -65,6 +67,46 @@ def _dnld_anno(file_anno):
     dnld_ncbi_gene_file(file_anno, loading_bar=None)
     assert os.path.isfile(file_anno), "MISSING ANNO({F})".format(F=file_anno)
     assert os.path.getsize(file_anno) > 1000000, "BAD ANNO({F})".format(F=file_anno)
+
+
+def read_ncbi_gene2go_old(fin_gene2go, taxids=None, **kws):
+    """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
+    # kws: taxid2asscs evidence_set
+    # Simple associations
+    id2gos = defaultdict(set)
+    # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
+    # e.g., taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set))
+    taxid2asscs = kws.get('taxid2asscs', None)
+    evs = kws.get('evidence_set', None)
+    # By default, return id2gos. User can cause go2geneids to be returned by:
+    #   >>> read_ncbi_gene2go(..., go2geneids=True
+    b_geneid2gos = not kws.get('go2geneids', False)
+    if taxids is None: # Default taxid is Human
+        taxids = [9606]
+    with open(fin_gene2go) as ifstrm:
+        # pylint: disable=too-many-nested-blocks
+        for line in ifstrm:
+            if line[0] != '#': # Line contains data. Not a comment
+                line = line.rstrip() # chomp
+                flds = line.split('\t')
+                if len(flds) >= 5:
+                    taxid_curr, geneid, go_id, evidence, qualifier = flds[:5]
+                    taxid_curr = int(taxid_curr)
+                    # NOT: Used when gene is expected to have function F, but does NOT.
+                    # ND : GO function not seen after exhaustive annotation attempts to the gene.
+                    if taxid_curr in taxids and qualifier != 'NOT' and evidence != 'ND':
+                        # Optionally specify a subset of GOs based on their evidence.
+                        if evs is None or evidence in evs:
+                            geneid = int(geneid)
+                            if b_geneid2gos:
+                                id2gos[geneid].add(go_id)
+                            else:
+                                id2gos[go_id].add(geneid)
+                            if taxid2asscs is not None:
+                                taxid2asscs[taxid_curr]['ID2GOs'][geneid].add(go_id)
+                                taxid2asscs[taxid_curr]['GO2IDs'][go_id].add(geneid)
+        sys.stdout.write("  {N:,} items READ: {ASSC}\n".format(N=len(id2gos), ASSC=fin_gene2go))
+    return id2gos # return simple associations
 
 
 if __name__ == '__main__':

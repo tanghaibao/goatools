@@ -35,10 +35,14 @@ class Gene2GoReader(AnnoReaderBase):
             prt.write(': {Ts}'.format(Ts=' '.join(sorted(str(t) for t in self.taxid2asscs))))
         prt.write('\n')
 
-    def get_annotations_dct(self, taxid, options):
+    def get_id2gos(self, **kws):
+    #### def get_annotations_dct(self, taxid, options):
         """Return geneid2gos, or optionally go2geneids."""
-        assert taxid in self.taxid2asscs, '**FATAL: TAXID({T}) DATA MISSING'.format(T=taxid)
-        return self._get_annotations_dct(self.taxid2asscs[taxid], options)
+        assert len(self.taxid2asscs) == 1, 'USE Gene2GoReader::get_id2gos_taxid'
+        #### assert 'taxid' in kws, "**FATAL: 'taxid' NOT FOUND IN Gene2GoReader::get_id2gos({KW})".format(KW=kws)
+        #### assert taxid in self.taxid2asscs, '**FATAL: TAXID({T}) DATA MISSING'.format(T=taxid)
+        taxid = next(iter(self.taxid2asscs.keys()))
+        return self._get_id2gos(self.taxid2asscs[taxid], **kws)
 
     def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print a summary of all Evidence Codes seen across all taxids loaded"""
@@ -128,7 +132,7 @@ class _InitAssc(object):
         ret = set()
         if taxids is not None:
             if taxids is True:
-                return True 
+                return True
             if isinstance(taxids, int):
                 ret.add(taxids)
             else:

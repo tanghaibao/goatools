@@ -13,12 +13,8 @@ class IdToGosReader(AnnoReaderBase):
     """Reads a Annotation File in text format with data in id2gos line"""
 
     def __init__(self, filename=None):  # , **kws):
+        self.id2gos = None
         super(IdToGosReader, self).__init__('id2gos', filename)
-
-    ## def get_annotations_dct(self, taxid, options):
-    ##     """Return geneid2gos, or optionally go2geneids."""
-    ##     assert taxid in self.taxid2asscs, '**FATAL: TAXID({T}) DATA MISSING'.format(T=taxid)
-    ##     return self._get_annotations_dct(self.taxid2asscs[taxid], options)
 
     def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print a summary of all Evidence Codes seen in annotations"""
@@ -27,6 +23,11 @@ class IdToGosReader(AnnoReaderBase):
     def get_id2gos(self, **kws):
         """Return associations as a dict: id2gos"""
         return self.id2gos
+
+    # pylint: disable=unused-argument
+    def reduce_annotations(self, associations, options):
+        """Return full annotations due to lack of Evidence_code or Qualifier in this format"""
+        return self.associations
 
     # - initialization -------------------------------------------------------------------------
     def _init_associations(self, fin_anno):
@@ -60,7 +61,7 @@ class _InitAssc(object):
         return nts
 
     @staticmethod
-    # def read_associations(assoc_fn, no_top=False):
+    #### def read_associations(assoc_fn, no_top=False):
     def _init_id2gos(assoc_fn):  ##, no_top=False):
         """
         Reads a gene id go term association file. The format of the file

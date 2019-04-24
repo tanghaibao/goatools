@@ -53,6 +53,7 @@ class AnnoReaderBase(object):
         """Return type of annotation"""
         return self.name
 
+    # pylint: disable=no-self-use
     def get_taxid(self):
         """Return taxid, if one was provided, otherwise return -1"""
         return -1
@@ -71,9 +72,17 @@ class AnnoReaderBase(object):
         return set(nt.DB_ID for nt in associations)
 
     def get_id2gos(self, **kws):
-        """Get associations in dict, id2gos"""
+        """Return all associations in a dict, id2gos"""
+        return self._get_id2gos(self.associations, **kws)
+
+    def _get_id2gos(self, associations, **kws):
+        """Return given associations in a dict, id2gos"""
         options = AnnoOptions(**kws)
-        return self._get_annotations_dct(self.associations, options)
+        # Default reduction is to remove. For all options, see goatools/anno/opts.py:
+        #   * Evidence_Code == ND -> No biological data No biological Data available
+        #   * Qualifiers contain NOT
+        assc = self.reduce_annotations(associations, options)
+        return self.__get_id2gos(assc) if options.b_geneid2gos else self.__get_go2ids(assc)
 
     def prt_qualifiers(self, prt=sys.stdout):
         """Print Qualifiers: 1,462 colocalizes_with; 1,454 contributes_to; 1,157 not"""
@@ -95,23 +104,26 @@ class AnnoReaderBase(object):
         for fld, cnt in cx.Counter(q for nt in associations for q in nt.Qualifier).most_common():
             prt.write('    {N:6,} {FLD}\n'.format(N=cnt, FLD=fld))
 
-    @staticmethod
-    def _get_annotations_dct(associations, options):
-        """Return gene2go data for user-specified taxids."""
-        # Simple associations
-        id2gos = cx.defaultdict(set)
-        b_geneid2gos = options.b_geneid2gos
+    def reduce_annotations(self, annotations, options):
+        """Reduce annotations to ones used to identify enrichment (normally exclude ND and NOT)."""
         keep = options.keep
+        return [nt for nt in annotations if keep(nt.Qualifier, nt.Evidence_Code)]
+
+    @staticmethod
+    def __get_id2gos(associations):
+        """Return gene2go data for user-specified taxids."""
+        id2gos = cx.defaultdict(set)
         for ntd in associations:
-            # NOT: Used when gene is expected to have function F, but does NOT.
-            # ND : GO function not seen after exhaustive annotation attempts to the gene.
-            # if 'not' not in set(ntd.Qualifier) and ntd.Evidence_Code != 'ND':
-            if keep(ntd.Qualifier, ntd.Evidence_Code):
-                if b_geneid2gos:
-                    id2gos[ntd.DB_ID].add(ntd.GO_ID)
-                else:
-                    id2gos[ntd.GO_ID].add(ntd.DB_ID)
+            id2gos[ntd.DB_ID].add(ntd.GO_ID)
         return dict(id2gos)
+
+    @staticmethod
+    def __get_go2ids(associations):
+        """Return gene2go data for user-specified taxids."""
+        go2ids = cx.defaultdict(set)
+        for ntd in associations:
+            go2ids[ntd.GO_ID].add(ntd.DB_ID)
+        return dict(go2ids)
 
     @staticmethod
     def get_date_yyyymmdd(yyyymmdd):
@@ -122,8 +134,10 @@ class AnnoReaderBase(object):
         """Print elapsed time and message."""
         if tic is None:
             tic = self.tic
-        hms = str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))
+        now = timeit.default_timer()
+        hms = str(datetime.timedelta(seconds=(now-tic)))
         prt.write('{HMS}: {MSG}\n'.format(HMS=hms, MSG=msg))
+        return now
 
     def chk_associations(self, fout_err=None):
         """Check that associations are in expected format."""
