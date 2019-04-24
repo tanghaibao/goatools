@@ -68,7 +68,7 @@ def _dnld_anno(file_anno):
     assert os.path.isfile(file_anno), "MISSING ANNO({F})".format(F=file_anno)
     assert os.path.getsize(file_anno) > 1000000, "BAD ANNO({F})".format(F=file_anno)
 
-
+# Fomerly in goatools/associations.py file
 def read_ncbi_gene2go_old(fin_gene2go, taxids=None, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
     # kws: taxid2asscs evidence_set

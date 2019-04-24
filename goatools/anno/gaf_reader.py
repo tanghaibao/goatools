@@ -26,53 +26,50 @@ class GafReader(AnnoReaderBase):
     def __init__(self, filename=None, hdr_only=False, prt=sys.stdout, allow_missing_symbol=False):
         super(GafReader, self).__init__('gaf', filename, hdr_only=hdr_only, prt=prt, allow_missing_symbol=allow_missing_symbol)
 
-    def prt_summary_anno2ev(self, prt=sys.stdout):
-        """Print annotation/evidence code summary."""
-        self.evobj.prt_summary_anno2ev(self.associations, prt)
-
     def read_gaf(self, **kws):
-        """Read Gene Association File (GAF). Return data."""
-        # Simple associations
-        id2gos = cx.defaultdict(set)
-        # keyword arguments for choosing which GO IDs to keep
-        # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
-        taxid2asscs = kws.get('taxid2asscs', None)
-        b_geneid2gos = not kws.get('go2geneids', False)
-        evs = kws.get('evidence_set', None)
-        eval_nd = self._get_nd(kws.get('keep_ND', False))
-        eval_not = self._get_not(kws.get('keep_NOT', False))
-        # Optionally specify a subset of GOs based on their evidence.
-        # By default, return id2gos. User can cause go2geneids to be returned by:
-        #   >>> read_ncbi_gene2go(..., go2geneids=True
-        for ntgaf in self.associations:
-            if eval_nd(ntgaf) and eval_not(ntgaf):
-                if evs is None or ntgaf.Evidence_Code in evs:
-                    geneid = ntgaf.DB_ID
-                    go_id = ntgaf.GO_ID
-                    if b_geneid2gos:
-                        id2gos[geneid].add(go_id)
-                    else:
-                        id2gos[go_id].add(geneid)
-                    if taxid2asscs is not None:
-                        if ntgaf.Taxon:
-                            taxid = ntgaf.Taxon[0]
-                            taxid2asscs[taxid]['ID2GOs'][geneid].add(go_id)
-                            taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
-        return id2gos # return simple associations
+        """Read Gene Association File (GAF). Return associations."""
+        return self.get_id2gos(**kws)
+    ####    # Simple associations
+    ####    id2gos = cx.defaultdict(set)
+    ####    # keyword arguments for choosing which GO IDs to keep
+    ####    # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
+    ####    taxid2asscs = kws.get('taxid2asscs', None)
+    ####    b_geneid2gos = not kws.get('go2geneids', False)
+    ####    evs = kws.get('evidence_set', None)
+    ####    eval_nd = self._get_nd(kws.get('keep_ND', False))
+    ####    eval_not = self._get_not(kws.get('keep_NOT', False))
+    ####    # Optionally specify a subset of GOs based on their evidence.
+    ####    # By default, return id2gos. User can cause go2geneids to be returned by:
+    ####    #   >>> read_ncbi_gene2go(..., go2geneids=True
+    ####    for ntgaf in self.associations:
+    ####        if eval_nd(ntgaf) and eval_not(ntgaf):
+    ####            if evs is None or ntgaf.Evidence_Code in evs:
+    ####                geneid = ntgaf.DB_ID
+    ####                go_id = ntgaf.GO_ID
+    ####                if b_geneid2gos:
+    ####                    id2gos[geneid].add(go_id)
+    ####                else:
+    ####                    id2gos[go_id].add(geneid)
+    ####                if taxid2asscs is not None:
+    ####                    if ntgaf.Taxon:
+    ####                        taxid = ntgaf.Taxon[0]
+    ####                        taxid2asscs[taxid]['ID2GOs'][geneid].add(go_id)
+    ####                        taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
+    ####    return id2gos # return simple associations
 
-    @staticmethod
-    def _get_nd(keep_nd):
-        """Allow GAF values always or never."""
-        if keep_nd:
-            return lambda nt: True
-        return lambda nt: nt.Evidence_Code != 'ND'
+    #### @staticmethod
+    #### def _get_nd(keep_nd):
+    ####     """Allow GAF values always or never."""
+    ####     if keep_nd:
+    ####         return lambda nt: True
+    ####     return lambda nt: nt.Evidence_Code != 'ND'
 
-    @staticmethod
-    def _get_not(keep_not):
-        """Allow GAF values always or never."""
-        if keep_not:
-            return lambda nt: True
-        return lambda nt: 'NOT' not in nt.Qualifier
+    #### @staticmethod
+    #### def _get_not(keep_not):
+    ####     """Allow GAF values always or never."""
+    ####     if keep_not:
+    ####         return lambda nt: True
+    ####     return lambda nt: 'NOT' not in nt.Qualifier
 
     def chk_associations(self, fout_err="gaf.err"):
         """Check that fields are legal in GAF"""
@@ -112,6 +109,7 @@ class _InitAssc(object):
         return nts
         #### return self.evobj.sort_nts(nts, 'Evidence_Code')
 
+    # pylint: disable=too-many-locals
     def _read_gaf_nts(self, fin_gaf, hdr_only, allow_missing_symbol):
         """Read GAF file. Store annotation data in a list of namedtuples."""
         nts = []
@@ -239,7 +237,7 @@ class GafData(object):
         """Convert fields from string to preferred format for GAF ver 2.1 and 2.0."""
         flds = line.split('\t')
 
-        flds[3] = [t.lower() for t in self._get_set(flds[3])]   # 3  Qualifier
+        flds[3] = set(t.lower() for t in self._get_set(flds[3]))  # 3  Qualifier
         flds[5] = self._get_set(flds[5])     # 5  DB_Reference
         flds[7] = self._get_set(flds[7])     # 7  With_From
         flds[9] = self._get_set(flds[9])     # 9  DB_Name

@@ -22,14 +22,13 @@ class IdToGosReader(AnnoReaderBase):
 
     def get_id2gos(self, **kws):
         """Return associations as a dict: id2gos"""
-        return self.id2gos
+        return self._get_id2gos(self.associations, **kws) if kws else self.id2gos
 
     # pylint: disable=unused-argument
     def reduce_annotations(self, associations, options):
         """Return full annotations due to lack of Evidence_code or Qualifier in this format"""
         return self.associations
 
-    # - initialization -------------------------------------------------------------------------
     def _init_associations(self, fin_anno):
         """Read annotation file and store a list of namedtuples."""
         ini = _InitAssc(fin_anno)

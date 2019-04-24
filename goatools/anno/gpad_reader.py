@@ -27,17 +27,6 @@ class GpadReader(AnnoReaderBase):
         super(GpadReader, self).__init__('gpad', filename, hdr_only=hdr_only)
         self.qty = len(self.associations)
 
-    def prt_summary_anno2ev(self, prt=sys.stdout):
-        """Print annotation/evidence code summary."""
-        self.evobj.prt_summary_anno2ev(self.associations, prt)
-
-    def _init_associations(self, fin_gpad, hdr_only=False):
-        """Read annotation file and store a list of namedtuples."""
-        ini = _InitAssc(fin_gpad)
-        nts = ini.init_associations(hdr_only)
-        self.hdr = ini.hdr
-        return nts
-
     def get_relation_cnt(self):
         """Return a Counter containing all relations contained in the Annotation Extensions."""
         ctr = cx.Counter()
@@ -45,6 +34,13 @@ class GpadReader(AnnoReaderBase):
             if ntgpad.Extension is not None:
                 ctr += ntgpad.Extension.get_relations_cnt()
         return ctr
+
+    def _init_associations(self, fin_gpad, hdr_only=False):
+        """Read annotation file and store a list of namedtuples."""
+        ini = _InitAssc(fin_gpad)
+        nts = ini.init_associations(hdr_only)
+        self.hdr = ini.hdr
+        return nts
 
 # pylint: disable=too-few-public-methods
 class _InitAssc(object):

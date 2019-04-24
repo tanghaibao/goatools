@@ -97,7 +97,6 @@ def dnld_annofile(fin_anno, anno_type):
 def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
     obj = Gene2GoReader(fin_gene2go, taxids=taxids)
-    #### opt = AnnoOptions(**kws)
     # By default, return id2gos. User can cause go2geneids to be returned by:
     #   >>> read_ncbi_gene2go(..., go2geneids=True
     if 'taxid2asscs' not in kws:
@@ -108,8 +107,9 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
             return obj.get_id2gos(**kws_ncbi)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
     # e.g., taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set))
-    opt = AnnoOptions(**kws)
-    t2asscs_ret = obj.get_annotations_taxid2dct(opt)
+    #### opt = AnnoOptions(**kws)
+    #### t2asscs_ret = obj.get_annotations_taxid2dct(opt)
+    t2asscs_ret = obj.get_taxid2asscs(taxids, **kws)
     t2asscs_usr = kws.get('taxid2asscs', defaultdict(lambda: defaultdict(lambda: defaultdict(set))))
     if 'taxid2asscs' in kws:
         obj.fill_taxid2asscs(t2asscs_usr, t2asscs_ret)

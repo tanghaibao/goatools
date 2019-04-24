@@ -49,6 +49,10 @@ class AnnoReaderBase(object):
         self.associations = self._init_associations(filename, **kws)
         # assert self.associations, 'NO ANNOTATIONS FOUND: {ANNO}'.format(ANNO=filename)
 
+    def prt_summary_anno2ev(self, prt=sys.stdout):
+        """Print annotation/evidence code summary."""
+        self.evobj.prt_summary_anno2ev(self.associations, prt)
+
     def get_name(self):
         """Return type of annotation"""
         return self.name
@@ -82,7 +86,7 @@ class AnnoReaderBase(object):
         #   * Evidence_Code == ND -> No biological data No biological Data available
         #   * Qualifiers contain NOT
         assc = self.reduce_annotations(associations, options)
-        return self.__get_id2gos(assc) if options.b_geneid2gos else self.__get_go2ids(assc)
+        return self._get_dbid2goids(assc) if options.b_geneid2gos else self._get_goid2dbids(assc)
 
     def prt_qualifiers(self, prt=sys.stdout):
         """Print Qualifiers: 1,462 colocalizes_with; 1,454 contributes_to; 1,157 not"""
@@ -110,7 +114,7 @@ class AnnoReaderBase(object):
         return [nt for nt in annotations if keep(nt.Qualifier, nt.Evidence_Code)]
 
     @staticmethod
-    def __get_id2gos(associations):
+    def _get_dbid2goids(associations):
         """Return gene2go data for user-specified taxids."""
         id2gos = cx.defaultdict(set)
         for ntd in associations:
@@ -118,7 +122,7 @@ class AnnoReaderBase(object):
         return dict(id2gos)
 
     @staticmethod
-    def __get_go2ids(associations):
+    def _get_goid2dbids(associations):
         """Return gene2go data for user-specified taxids."""
         go2ids = cx.defaultdict(set)
         for ntd in associations:

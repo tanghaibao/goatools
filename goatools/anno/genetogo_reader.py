@@ -10,6 +10,7 @@ import collections as cx
 import timeit
 import datetime
 from goatools.anno.annoreader_base import AnnoReaderBase
+from goatools.anno.opts import AnnoOptions
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
@@ -23,56 +24,18 @@ class Gene2GoReader(AnnoReaderBase):
         # kws: taxids or taxid
         super(Gene2GoReader, self).__init__('gene2go', filename, **kws)
         # Initialize associations and header information
-        self.taxid2asscs = self._init_taxid2asscs(self.associations)
-        # pylint: disable=superfluous-parens
-        self._prt_cnt_taxid()
-
-    def _prt_cnt_taxid(self, prt=sys.stdout):
-        """Print the number of taxids stored."""
-        num_taxids = len(self.taxid2asscs)
-        prt.write('{N} taxids stored'.format(N=num_taxids))
-        if num_taxids < 5:
-            prt.write(': {Ts}'.format(Ts=' '.join(sorted(str(t) for t in self.taxid2asscs))))
-        prt.write('\n')
+        self.taxid2asscs = self._init_taxid2asscs()
 
     def get_id2gos(self, **kws):
     #### def get_annotations_dct(self, taxid, options):
         """Return geneid2gos, or optionally go2geneids."""
-        assert len(self.taxid2asscs) == 1, 'USE Gene2GoReader::get_id2gos_taxid'
-        #### assert 'taxid' in kws, "**FATAL: 'taxid' NOT FOUND IN Gene2GoReader::get_id2gos({KW})".format(KW=kws)
-        #### assert taxid in self.taxid2asscs, '**FATAL: TAXID({T}) DATA MISSING'.format(T=taxid)
-        taxid = next(iter(self.taxid2asscs.keys()))
+        if len(self.taxid2asscs) == 1:
+            taxid = next(iter(self.taxid2asscs.keys()))
+            return self._get_id2gos(self.taxid2asscs[taxid], **kws)
+        assert 'taxid' in kws, "**FATAL: 'taxid' NOT FOUND IN Gene2GoReader::get_id2gos({KW})".format(KW=kws)
+        taxid = kws['taxid']
+        assert taxid in self.taxid2asscs, '**FATAL: TAXID({T}) DATA MISSING'.format(T=taxid)
         return self._get_id2gos(self.taxid2asscs[taxid], **kws)
-
-    def prt_summary_anno2ev(self, prt=sys.stdout):
-        """Print a summary of all Evidence Codes seen across all taxids loaded"""
-        self.evobj.prt_summary_anno2ev(self.associations, prt)
-
-    def get_annotations_taxid2dct(self, options, taxids=None):
-        """Read Gene Association File (GAF). Return data."""
-        taxids_stored = set(self.taxid2asscs.keys())
-        if taxids is None:
-            taxids = taxids_stored
-        else:
-            taxids = set(taxids).intersection(taxids_stored)
-        keep = options.keep
-        taxid2asscs = cx.defaultdict(lambda: cx.defaultdict(lambda: cx.defaultdict(set)))
-        for taxid in taxids:
-            for ntd in self.taxid2asscs[taxid]:
-                if keep(ntd.Qualifier, ntd.Evidence_Code):
-                    geneid = ntd.DB_ID
-                    go_id = ntd.GO_ID
-                    if taxid:
-                        taxid2asscs[taxid]['ID2GOs'][geneid].add(go_id)
-                        taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
-        return taxid2asscs
-
-    @staticmethod
-    def fill_taxid2asscs(taxid2asscs_usr, taxid2asscs_ret):
-        """Fill user taxid2asscs for backward compatibility."""
-        for taxid, ab_ret in taxid2asscs_ret.items():
-            taxid2asscs_usr[taxid]['ID2GOs'] = ab_ret['ID2GOs']
-            taxid2asscs_usr[taxid]['GO2IDs'] = ab_ret['GO2IDs']
 
     def get_name(self):
         """Get name using taxid"""
@@ -82,8 +45,28 @@ class Gene2GoReader(AnnoReaderBase):
         return '{BASE}_various'.format(BASE=self.name)
 
     def get_taxid(self):
-        """Return taxid, if one was provided"""
+        """Return taxid, if one was provided. Other wise return True representing all taxids"""
         return next(iter(self.taxid2asscs.keys())) if len(self.taxid2asscs) == 1 else True
+
+    # -- taxids2asscs -------------------------------------------------------------------------
+    def get_taxid2asscs(self, taxids=None, **kws):
+        """Read Gene Association File (GAF). Return data."""
+        # WAS: get_annotations_taxid2dct
+        taxid2asscs = cx.defaultdict(lambda: cx.defaultdict(lambda: cx.defaultdict(set)))
+        options = AnnoOptions(**kws)
+        for taxid in self._get_taxids(taxids):
+            nts = self.taxid2asscs[taxid]
+            assc = self.reduce_annotations(nts, options)
+            taxid2asscs[taxid]['ID2GOs'] = self._get_dbid2goids(assc)
+            taxid2asscs[taxid]['GO2IDs'] = self._get_goid2dbids(assc)
+        return taxid2asscs
+
+    @staticmethod
+    def fill_taxid2asscs(taxid2asscs_usr, taxid2asscs_ret):
+        """Fill user taxid2asscs for backward compatibility."""
+        for taxid, ab_ret in taxid2asscs_ret.items():
+            taxid2asscs_usr[taxid]['ID2GOs'] = ab_ret['ID2GOs']
+            taxid2asscs_usr[taxid]['GO2IDs'] = ab_ret['GO2IDs']
 
     @staticmethod
     def get_id2gos_all(taxid2asscs_a2b):
@@ -94,21 +77,31 @@ class Gene2GoReader(AnnoReaderBase):
                 id2gos_all[geneid] = gos
         return id2gos_all
 
-    # - initialization -------------------------------------------------------------------------
+    def _get_taxids(self, taxids=None):
+        """Return user-specified taxids or taxids in self.taxid2asscs"""
+        taxid_keys = set(self.taxid2asscs.keys())
+        return taxid_keys if taxids is None else set(taxids).intersection(taxid_keys)
+
+    # -- initialization -----------------------------------------------------------------------
     @staticmethod
-    def _init_taxid2asscs(associations):
+    def _init_associations(fin_anno, taxid=None, taxids=None):
+        """Read annotation file and store a list of namedtuples."""
+        return _InitAssc(taxid, taxids).init_associations(fin_anno, taxids)
+
+    def _init_taxid2asscs(self):
         """Create dict with taxid keys and annotation namedtuple list."""
         taxid2asscs = cx.defaultdict(list)
-        for ntanno in associations:
+        for ntanno in self.associations:
             taxid2asscs[ntanno.tax_id].append(ntanno)
+        assert len(taxid2asscs) != 0, "**FATAL: NO TAXIDS: {F}".format(F=self.filename)
+        # """Print the number of taxids stored."""
+        prt = sys.stdout
+        num_taxids = len(taxid2asscs)
+        prt.write('{N} taxids stored'.format(N=num_taxids))
+        if num_taxids < 5:
+            prt.write(': {Ts}'.format(Ts=' '.join(sorted(str(t) for t in taxid2asscs))))
+        prt.write('\n')
         return dict(taxid2asscs)
-
-    def _init_associations(self, fin_anno, taxid=None, taxids=None):
-        """Read annotation file and store a list of namedtuples."""
-        ini = _InitAssc(taxid, taxids)
-        nts = ini.init_associations(fin_anno, taxids)
-        self.hdr = ini.hdr
-        return nts
 
 
 class _InitAssc(object):
@@ -123,7 +116,6 @@ class _InitAssc(object):
     flds = ['tax_id', 'DB_ID', 'GO_ID', 'Evidence_Code', 'Qualifier', 'GO_term', 'DB_Reference', 'NS']
 
     def __init__(self, taxid=None, taxids=None):
-        self.hdr = None
         self.taxids = self._init_taxids(taxid, taxids)
 
     @staticmethod
