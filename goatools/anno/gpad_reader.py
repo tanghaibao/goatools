@@ -10,8 +10,7 @@ import sys
 import re
 import collections as cx
 from goatools.base import nopen
-from goatools.anno.extensions.extensions import AnnotationExtensions
-from goatools.anno.extensions.extension import AnnotationExtension
+from goatools.anno.extensions.factory import get_extensions
 from goatools.anno.eco2group import ECO2GRP
 from goatools.anno.annoreader_base import AnnoReaderBase
 GET_DATE_YYYYMMDD = AnnoReaderBase.get_date_yyyymmdd
@@ -102,7 +101,6 @@ class _InitAssc(object):
         taxons = self._get_taxon(flds[7])
         assert flds[8].isdigit(), 'UNRECOGNIZED DATE({D})'.format(D=flds[8])
         assert flds[9], '"Assigned By" VALUE WAS NOT FOUND'
-        exten = self._get_extensions(flds[10])
         props = self._get_properties(flds[11])
         self._chk_qty_eq_1(flds, [0, 1, 3, 5, 8, 9])
         # Additional Formatting
@@ -121,7 +119,7 @@ class _InitAssc(object):
             taxons,       # 12 Taxon
             GET_DATE_YYYYMMDD(flds[8]),      # 13 Date
             flds[9],      # 14 Assigned_By
-            exten,        # 12 Extension
+            get_extensions(flds[10]),        # 12 Extension
             props]        # 12 Annotation_Properties
         return ntgpadobj._make(gpadvals)
 
@@ -176,27 +174,6 @@ class _InitAssc(object):
         if go_evidence is not None:
             prop2val['go_evidence'] = go_evidence
         return prop2val
-
-    def _get_extensions(self, extline):
-        """Return zero or greater Annotation Extensions, given a line of text."""
-        # Extension examples:
-        #   has_direct_input(UniProtKB:P37840),occurs_in(GO:0005576)
-        #   part_of(UBERON:0006618),part_of(UBERON:0002302)
-        #   occurs_in(CL:0000988)|occurs_in(CL:0001021)
-        if not extline:
-            return None
-        exts = []
-        for ext_lst in extline.split('|'):
-            grp = []
-            for ext in ext_lst.split(','):
-                idx = ext.find('(')
-                if idx != -1 and ext[-1] == ')':
-                    grp.append(AnnotationExtension(ext[:idx], ext[idx+1:-1]))
-                else:
-                    # Ignore improperly formatted Extensions
-                    sys.stdout.write('{F}: BAD Extension({E})\n'.format(F=self.filename, E=ext))
-            exts.append(grp)
-        return AnnotationExtensions(exts)
 
     # pylint: disable=too-many-locals
     def init_associations(self, hdr_only=False, prt=sys.stdout):

@@ -4,7 +4,7 @@
 
 """
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 # pylint: disable=too-few-public-methods
@@ -21,4 +21,4 @@ class AnnotationExtension(object):
         return "{R}({E})".format(R=self.relation, E=self.entity)
 
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."

@@ -13,6 +13,7 @@ import re
 import collections as cx
 import datetime
 from goatools.anno.annoreader_base import AnnoReaderBase
+from goatools.anno.extensions.factory import get_extensions
 GET_DATE_YYYYMMDD = AnnoReaderBase.get_date_yyyymmdd
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
@@ -29,47 +30,6 @@ class GafReader(AnnoReaderBase):
     def read_gaf(self, **kws):
         """Read Gene Association File (GAF). Return associations."""
         return self.get_id2gos(**kws)
-    ####    # Simple associations
-    ####    id2gos = cx.defaultdict(set)
-    ####    # keyword arguments for choosing which GO IDs to keep
-    ####    # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
-    ####    taxid2asscs = kws.get('taxid2asscs', None)
-    ####    b_geneid2gos = not kws.get('go2geneids', False)
-    ####    evs = kws.get('evidence_set', None)
-    ####    eval_nd = self._get_nd(kws.get('keep_ND', False))
-    ####    eval_not = self._get_not(kws.get('keep_NOT', False))
-    ####    # Optionally specify a subset of GOs based on their evidence.
-    ####    # By default, return id2gos. User can cause go2geneids to be returned by:
-    ####    #   >>> read_ncbi_gene2go(..., go2geneids=True
-    ####    for ntgaf in self.associations:
-    ####        if eval_nd(ntgaf) and eval_not(ntgaf):
-    ####            if evs is None or ntgaf.Evidence_Code in evs:
-    ####                geneid = ntgaf.DB_ID
-    ####                go_id = ntgaf.GO_ID
-    ####                if b_geneid2gos:
-    ####                    id2gos[geneid].add(go_id)
-    ####                else:
-    ####                    id2gos[go_id].add(geneid)
-    ####                if taxid2asscs is not None:
-    ####                    if ntgaf.Taxon:
-    ####                        taxid = ntgaf.Taxon[0]
-    ####                        taxid2asscs[taxid]['ID2GOs'][geneid].add(go_id)
-    ####                        taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
-    ####    return id2gos # return simple associations
-
-    #### @staticmethod
-    #### def _get_nd(keep_nd):
-    ####     """Allow GAF values always or never."""
-    ####     if keep_nd:
-    ####         return lambda nt: True
-    ####     return lambda nt: nt.Evidence_Code != 'ND'
-
-    #### @staticmethod
-    #### def _get_not(keep_not):
-    ####     """Allow GAF values always or never."""
-    ####     if keep_not:
-    ####         return lambda nt: True
-    ####     return lambda nt: 'NOT' not in nt.Qualifier
 
     def chk_associations(self, fout_err="gaf.err"):
         """Check that fields are legal in GAF"""
@@ -81,7 +41,6 @@ class GafReader(AnnoReaderBase):
         ini = _InitAssc()
         nts = ini.init_associations(fin_gaf, hdr_only, prt, allow_missing_symbol)
         self.hdr = ini.hdr
-        self.datobj = ini.datobj
         return nts
 
 
@@ -187,7 +146,7 @@ class GafData(object):
 
     #                            Col Required Cardinality  Example
     gafhdr2 = [ #                --- -------- ------------ -------------------
-        'Annotation_Extension', # 15 optional 0 or greater part_of(CL:0000576)
+        'Extension', # 15 optional 0 or greater part_of(CL:0000576)
         'Gene_Product_Form_ID', # 16 optional 0 or 1       UniProtKB:P12345-2
     ]
 
@@ -247,7 +206,7 @@ class GafData(object):
 
         # Version 2.x has these additional fields not found in v1.0
         if self.is_long:
-            flds[15] = self._get_set(flds[15])
+            flds[15] = get_extensions(flds[15])  # Extensions (or Annotation_Extension)
             flds[16] = self._get_set(flds[16].rstrip())
         else:
             flds[14] = self._get_set(flds[14].rstrip())

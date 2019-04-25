@@ -25,6 +25,8 @@ def test_anno_read():
         print('>>>>> {I} >>>>> prt_summary_anno2ev {ANNO}'.format(I=idx, ANNO=obj.name))
         obj.prt_summary_anno2ev()
         obj.chk_associations()
+        if obj.name in {'gaf', 'gpad'}:
+            _prt_fld(obj, 'Extension')
 
     print('- get_id2gos ------------------------------------------------------')
     for idx, obj in enumerate(annoobjs):
@@ -35,6 +37,17 @@ def test_anno_read():
         if obj.filename[-16:] == 'data/association':
             assert num_ids == 34284
 
+
+def _prt_fld(obj, fld):
+    """Print examples of field values"""
+    idx = 0
+    for ntd in obj.associations:
+        val = getattr(ntd, fld)
+        if val:
+            print(obj.name, str(val))
+            idx += 1
+            if idx == 10:
+                break
 
 def _get_objanno(fin_anno, anno_type=None, **kws):
     """Get association object"""

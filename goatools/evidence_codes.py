@@ -80,7 +80,7 @@ class EvidenceCodes(object):
                 prt.write('        {CODE:>3} {NAME}\n'.format(CODE=code, NAME=ntd.name))
 
     def get_evcodes(self, inc_set=None, exc_set=None):
-        """Get evidence code for all but 'No biological data'"""
+        """Get evidence code for all but NOT 'No biological data'"""
         codes = self.get_evcodes_all(inc_set, exc_set)
         codes.discard('ND')
         return codes

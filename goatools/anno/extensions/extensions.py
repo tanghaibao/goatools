@@ -16,7 +16,7 @@
 
 import collections as cx
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
@@ -42,4 +42,4 @@ class AnnotationExtensions(object):
         return cx.Counter([e.relation for es in self.exts for e in es])
 
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
