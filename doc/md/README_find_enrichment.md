@@ -9,8 +9,9 @@
      * GPAD file    
      * NCBI's gene2go file
   2. **Exclude or include annotations by evidence code** Use with GAF, GPAD, or NCBI's gene2go files:
-     * [**Exclude annotations inferred from Electronic Annotation (IEA)**]()
-     * [**Include only annotations inferred from experimental evidence**]()
+     * [**Exclude annotations inferred from Electronic Annotation (IEA)**](#2a-exclude-annotations-inferred-from-electronic-annotation-iea)
+     * [**Include only annotations inferred from experimental evidence**](#2b-include-only-annotations-inferred-from-experimental-evidence)
+     * [Get **list of evidence codes**](#2c-Get-list-of-evidence-codes)
   3. [with **uncorrected pvalues < 0.05** to the screen](#3-print-go-terms-with-uncorrected-pvalues--005-to-the-screen-default):
     (default)
   4. [with **uncorrected pvalues < 0.05** to the screen, **grouped**](#4-print-go-terms-with-uncorrected-pvalues--005-to-the-screen-grouped):    
@@ -70,6 +71,7 @@ python3 scripts/find_enrichment.py ids_stu_gene2go_10090.txt ids_pop_gene2go_100
 
 #### 2a) Exclude annotations inferred from Electronic Annotation (IEA)
 #### 2b) Include only annotations inferred from experimental evidence
+#### 2c) Get list of evidence codes
 
 
 ### 3) Print GO terms with uncorrected pvalues < 0.05 to the screen (default)
