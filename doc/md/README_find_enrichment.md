@@ -70,8 +70,27 @@ python3 scripts/find_enrichment.py ids_stu_gene2go_10090.txt ids_pop_gene2go_100
 ### 2) Exclude or include annotations by evidence code
 
 #### 2a) Exclude annotations inferred from Electronic Annotation (IEA)
+```
+--ev_exc=IEA  # Evidence codes with IEA are excluded
+```
+```
+python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_exc=IEA --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx
+```
 
 #### 2b) Include only annotations inferred from experimental evidence
+```
+--ev_inc=Experimental             # Include only codes in the 'Experimental' group
+--ev_inc=EXP,IDA,IPI,IMP,IGI,IEP  # List all the Experimental codes
+```
+**Specify the experimental evidence codes by their group namej:**
+```
+python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_inc=Experimental --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx
+```
+
+**Specify the experimental evidence codes explicitly:**    
+```
+python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_inc=EXP,IDA,IPI,IMP,IGI,IEP --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx
+```
 
 #### 2c) Get list of evidence codes
 The argument, --ev_help, will cause the Evidence codes to be printed:
