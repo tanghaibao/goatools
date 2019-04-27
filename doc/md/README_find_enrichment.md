@@ -8,19 +8,22 @@
      * GAF file    
      * GPAD file    
      * NCBI's gene2go file
-  2. [with **uncorrected pvalues < 0.05** to the screen](#2-print-go-terms-with-uncorrected-pvalues--005-to-the-screen-default):
+  2. **Exclude or include annotations by evidence code** Use with GAF, GPAD, or NCBI's gene2go files:
+     * [**Exclude annotations inferred from Electronic Annotation (IEA)**]()
+     * [**Include only annotations inferred from experimental evidence**]()
+  3. [with **uncorrected pvalues < 0.05** to the screen](#3-print-go-terms-with-uncorrected-pvalues--005-to-the-screen-default):
     (default)
-  3. [with **uncorrected pvalues < 0.05** to the screen, **grouped**](#3-print-go-terms-with-uncorrected-pvalues--005-to-the-screen-grouped):    
+  4. [with **uncorrected pvalues < 0.05** to the screen, **grouped**](#4-print-go-terms-with-uncorrected-pvalues--005-to-the-screen-grouped):    
      **--sections=...**
-  4. [with **uncorrected pvalues < 0.05** to files](#4-print-go-terms-with-uncorrected-pvalues--005-to-an-xlsx-file):    
+  5. [with **uncorrected pvalues < 0.05** to files](#5-print-go-terms-with-uncorrected-pvalues--005-to-an-xlsx-file):    
     **--outfile=goea.xlsx**
-  5. [with **Benjamini-Hochberg pvalues < 0.05** (plus bonferroni, sidak, holm)](#5-print-go-terms-with-benjamini-hochberg-pvalues--005) 
+  6. [with **Benjamini-Hochberg pvalues < 0.05** (plus bonferroni, sidak, holm)](#6-print-go-terms-with-benjamini-hochberg-pvalues--005) 
     **--pval_field=fdr_bh**    
-  6. [with **Benjamini-Hochberg pvalues < 0.05** to an **xlsx** file](#6-print-go-terms-with-benjamini-hochberg-only-pvalues--005-to-an-xlsx-file)     
+  7. [with **Benjamini-Hochberg pvalues < 0.05** to an **xlsx** file](#7-print-go-terms-with-benjamini-hochberg-only-pvalues--005-to-an-xlsx-file)     
     **--method=fdr_bh --outfile=goea_fdr_bh_flat.xlsx**    
-  7. [with **Benjamini-Hochberg pvalues < 0.05** to an **xlsx** file, **grouped**](#7-print-go-terms-with-benjamini-hochberg-only-pvalues--005-to-an-xlsx-file-grouped)     
+  8. [with **Benjamini-Hochberg pvalues < 0.05** to an **xlsx** file, **grouped**](#8-print-go-terms-with-benjamini-hochberg-only-pvalues--005-to-an-xlsx-file-grouped)     
     **--method=fdr_bh --outfile=goea_fdr_bh_grpd.xlsx --sections...**    
-  8. [regardless of pvalue **(ALL GO terms)**](#8-print-all-go-terms-regardless-of-pvalue)
+  9. [regardless of pvalue **(ALL GO terms)**](#8-print-all-go-terms-regardless-of-pvalue)
     **--pval=-1**    
 
 ## Example Details
@@ -63,9 +66,13 @@ python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606
 python3 scripts/find_enrichment.py ids_stu_gene2go_10090.txt ids_pop_gene2go_10090.txt gene2go --taxid=10090 --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_10090.xlsx
 ```
 
+### 2) Exclude or include annotations by evidence code
+
+#### 2a) Exclude annotations inferred from Electronic Annotation (IEA)
+#### 2b) Include only annotations inferred from experimental evidence
 
 
-### 2) Print GO terms with uncorrected pvalues < 0.05 to the screen (default)
+### 3) Print GO terms with uncorrected pvalues < 0.05 to the screen (default)
 The default is to print all GO terms with uncorrected P-values < 0.05 (default)
 
 ```
@@ -78,7 +85,7 @@ python scripts/find_enrichment.py data/study data/population data/association
 |GO:0036211|BP|e|protein modification process|33/276|1725/33239|8.070e-06|5|33|0.0491|0.04789|0.04910|0.00982|AT1G13580...
 |GO:0006464|BP|e|cellular protein modification process|33/276|1725/33239|8.070e-06|6|33|0.0491|0.04789|0.04910|0.00982|AT1G13580...
 
-### 3) Print GO terms with uncorrected pvalues < 0.05 to the screen, grouped 
+### 4) Print GO terms with uncorrected pvalues < 0.05 to the screen, grouped 
 optional attribute: **--sections=goatools.test_data.sections.data2018_07_find_enrichment**
 
 Acceptable values for **--sections** are:
@@ -104,7 +111,7 @@ GO:0016301 MF e 4.64e-02   355  4.87 D04  25/276  1310/33239 kinase activity ...
 
 ```
 
-### 4) Print GO terms with uncorrected pvalues < 0.05 to an xlsx file
+### 5) Print GO terms with uncorrected pvalues < 0.05 to an xlsx file
 optional attribute: **--outfile=goea_uncorr.xlsx**    
 
 ```
@@ -113,7 +120,7 @@ $ python scripts/find_enrichment.py data/study data/population data/association 
     253 items WROTE: goea.xlsx
 ```
 
-### 5) Print GO terms with Benjamini-Hochberg pvalues < 0.05
+### 6) Print GO terms with Benjamini-Hochberg pvalues < 0.05
 optional attribute: **--pval_field=fdr_bh**     
 optional attribute: **----outfile=goea_fdr_bh.xlsx,goea_fdr_bh.tsv**    
 
@@ -123,7 +130,7 @@ $ python scripts/find_enrichment.py data/study data/population data/association 
      17 items WROTE: goea.tsv
 ```
 
-### 6) Print GO terms with Benjamini-Hochberg (only) pvalues < 0.05 to an xlsx file
+### 7) Print GO terms with Benjamini-Hochberg (only) pvalues < 0.05 to an xlsx file
 optional attribute: **--method=fdr_bh**    
 optional attribute: **--outfile=goea_fdr_bh_flat.xlsx**    
 
@@ -132,7 +139,7 @@ $ python scripts/find_enrichment.py data/study data/population data/association 
      17 items WROTE: goea_fdr_bh_flat.xlsx
 ```
 
-### 7) Print GO terms with Benjamini-Hochberg (only) pvalues < 0.05 to an xlsx file, grouped
+### 8) Print GO terms with Benjamini-Hochberg (only) pvalues < 0.05 to an xlsx file, grouped
 optional attribute: **--method=fdr_bh**    
 optional attribute: **--outfile=goea_fdr_bh_grpd.xlsx**    
 optional attribute: **--sections=goatools.test_data.sections.data2018_07_find_enrichment**    
@@ -142,7 +149,7 @@ $ python scripts/find_enrichment.py data/study data/population data/association 
      17 items WROTE: goea_fdr_bh_grpd.xlsx
 ```
 
-### 8) Print all GO terms, regardless of pvalue
+### 9) Print all GO terms, regardless of pvalue
 optional attribute: **--pval=-1**
 
 ```
