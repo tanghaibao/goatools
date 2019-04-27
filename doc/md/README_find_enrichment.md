@@ -71,7 +71,8 @@ python3 scripts/find_enrichment.py ids_stu_gene2go_10090.txt ids_pop_gene2go_100
 
 #### 2a) Exclude annotations inferred from Electronic Annotation (IEA)
 ```
---ev_exc=IEA  # Evidence codes with IEA are excluded
+EXCLUDE all IEA annotations:
+  --ev_exc=IEA  # Evidence codes with IEA are excluded
 ```
 ```
 python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_exc=IEA --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx
@@ -79,8 +80,9 @@ python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.g
 
 #### 2b) Include only annotations inferred from experimental evidence
 ```
---ev_inc=Experimental             # Include only codes in the 'Experimental' group
---ev_inc=EXP,IDA,IPI,IMP,IGI,IEP  # List all the Experimental codes
+Two ways to INCLUDE only experimental evidence codes:
+  --ev_inc=Experimental             # By group name
+  --ev_inc=EXP,IDA,IPI,IMP,IGI,IEP  # List all the Experimental codes
 ```
 **Specify the experimental evidence codes by their group namej:**
 ```
