@@ -70,8 +70,68 @@ python3 scripts/find_enrichment.py ids_stu_gene2go_10090.txt ids_pop_gene2go_100
 ### 2) Exclude or include annotations by evidence code
 
 #### 2a) Exclude annotations inferred from Electronic Annotation (IEA)
+
 #### 2b) Include only annotations inferred from experimental evidence
+
 #### 2c) Get list of evidence codes
+The argument, --ev_help, will cause the Evidence codes to be printed:
+```
+python3 scripts/find_enrichment.py --ev_help
+```
+##### Detailed list of Evidence Codes
+```
+EVIDENCE CODES:
+    Experimental:
+        EXP Inferred from Experiment
+        IDA Inferred from Direct Assay
+        IPI Inferred from Physical Interaction
+        IMP Inferred from Mutant Phenotype
+        IGI Inferred from Genetic Interaction
+        IEP Inferred from Expression Pattern
+    Similarity:
+        ISS Inferred from Sequence or structural Similarity
+        ISO Inferred from Sequence Orthology
+        ISA Inferred from Sequence Alignment
+        ISM Inferred from Sequence Model used in manual assertion
+        IGC Inferred from Genomic Context
+        IBA Inferred from Biological aspect of Ancestor
+        IBD Inferred from Biological aspect of Descendant
+        IKR Inferred from phylogenetic determination of loss of key residues (manual assertion)
+        IRD Inferred from Rapid Divergence from ancestral sequence (manual assertion)
+        IMR Phylogenetic determination of loss of key residues in manual assertion
+    Combinatorial:
+        RCA Inferred from Reviewed Computational Analysis
+    High_Throughput:
+        HTP Inferred from High Throughput Experimental
+        HDA Inferred from High Throughput Direct Assay
+        HMP Inferred from High Throughput Mutant Phenotype
+        HGI Inferred from High Throughput Genetic Interaction
+        HEP Inferred from High Throughput Expression Pattern
+    Author:
+        TAS Traceable Author Statement used in manual assertion
+        NAS Non-traceable Author Statement used in manual assertion
+    Curatorial:
+         IC Inferred by Curator
+    No biological data:
+         ND No biological Data available
+    Automatic:
+        IEA Inferred from Electronic Annotation
+```
+##### Summarized list of Evidence Groups and Codes 
+```
+-------------------------------------------------------------------------
+Use any of these group names or evidence codes in --ev_exc or --ev_inc:
+
+EVIDENCE GROUP AND CODES:
+    Experimental       : EXP IDA IPI IMP IGI IEP
+    Similarity         : ISS ISO ISA ISM IGC IBA IBD IKR IRD IMR
+    Combinatorial      : RCA
+    High_Throughput    : HTP HDA HMP HGI HEP
+    Author             : TAS NAS
+    Curatorial         : IC
+    No biological data : ND
+    Automatic          : IEA
+```
 
 
 ### 3) Print GO terms with uncorrected pvalues < 0.05 to the screen (default)
