@@ -125,6 +125,8 @@ class GafData(object):
     req_str = ["REQ", "REQ", "REQ", "", "REQ", "REQ", "REQ", "", "REQ", "", "",
                "REQ", "REQ", "REQ", "REQ", "", ""]
 
+    aspect2ns = {'P':'BP', 'F':'MF', 'C':'CC'}
+
     gafhdr = [ #           Col Req?     Cardinality    Example
         #                  --- -------- -------------- -----------------
         'DB',             #  0 required 1              UniProtKB
@@ -135,7 +137,7 @@ class GafData(object):
         'DB_Reference',   #  5 required 1 or greater   PMID:2676709
         'Evidence_Code',  #  6 required 1              IMP
         'With_From',      #  7 optional 0 or greater   GO:0000346
-        'Aspect',         #  8 required 1              F
+        'NS',             #  8 required 1              P->BP  F->MF  C->CC
         'DB_Name',        #  9 optional 0 or 1         Toll-like receptor 4
         'DB_Synonym',     # 10 optional 0 or greater   hToll|Tollbooth
         'DB_Type',        # 11 required 1              protein
@@ -181,7 +183,7 @@ class GafData(object):
             self._chk_fld(ntd, "Taxon", 1, 2)
             flds = list(ntd)
             self._chk_qty_eq_1(flds)
-            self._chk_qualifier(ntd.Qualifier, flds, idx)
+            # self._chk_qualifier(ntd.Qualifier, flds, idx)
             if not ntd.Taxon or len(ntd.Taxon) not in {1, 2}:
                 self.illegal_lines['BAD TAXON'].append((idx, '**{I}) TAXON: {NT}'.format(I=idx, NT=ntd)))
         if self.illegal_lines:
@@ -196,9 +198,10 @@ class GafData(object):
         """Convert fields from string to preferred format for GAF ver 2.1 and 2.0."""
         flds = line.split('\t')
 
-        flds[3] = set(t.lower() for t in self._get_set(flds[3]))  # 3  Qualifier
+        flds[3] = self._get_qualifier(flds[3])  # 3  Qualifier
         flds[5] = self._get_set(flds[5])     # 5  DB_Reference
         flds[7] = self._get_set(flds[7])     # 7  With_From
+        flds[8] = self.aspect2ns[flds[8]]    # 8 GAF Aspect field converted to BP, MF, or CC
         flds[9] = self._get_set(flds[9])     # 9  DB_Name
         flds[10] = self._get_set(flds[10])   # 10 DB_Synonym
         flds[12] = self._do_taxons(flds[12])  # 12 Taxon
@@ -211,6 +214,17 @@ class GafData(object):
         else:
             flds[14] = self._get_set(flds[14].rstrip())
         return flds
+
+    @staticmethod
+    def _get_qualifier(val):
+        """Get qualifiers. Correct for inconsistent capitalization in GAF files"""
+        quals = set()
+        if val == '':
+            return quals
+        for val in val.split('|'):
+            val = val.lower()
+            quals.add(val if val != 'not' else 'NOT')
+        return quals
 
     @staticmethod
     def _get_set(val):

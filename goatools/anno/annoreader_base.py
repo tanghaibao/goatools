@@ -88,6 +88,11 @@ class AnnoReaderBase(object):
         assc = self.reduce_annotations(associations, options)
         return self._get_dbid2goids(assc) if options.b_geneid2gos else self._get_goid2dbids(assc)
 
+    # Qualifier (column 4)
+    # Flags that modify the interpretation of an annotation one (or more) of NOT, contributes_to, colocalizes_with
+    # This field is not mandatory;
+    #     * cardinality 0, 1, >1;
+    #     * for cardinality >1 use a pipe to separate entries (e.g. NOT|contributes_to)
     def prt_qualifiers(self, prt=sys.stdout):
         """Print Qualifiers: 1,462 colocalizes_with; 1,454 contributes_to; 1,157 not"""
         # 13 not colocalizes_with   (TBD: CHK - Seen in gene2go, but not gafs)
@@ -110,8 +115,8 @@ class AnnoReaderBase(object):
 
     def reduce_annotations(self, annotations, options):
         """Reduce annotations to ones used to identify enrichment (normally exclude ND and NOT)."""
-        keep = options.keep
-        return [nt for nt in annotations if keep(nt.Qualifier, nt.Evidence_Code)]
+        getfnc_qual_ev = options.getfnc_qual_ev()
+        return [nt for nt in annotations if getfnc_qual_ev(nt.Qualifier, nt.Evidence_Code)]
 
     @staticmethod
     def _get_dbid2goids(associations):
@@ -146,6 +151,38 @@ class AnnoReaderBase(object):
     def chk_associations(self, fout_err=None):
         """Check that associations are in expected format."""
         pass
+
+    def nts_ev_nd(self):
+        """Get annotations where Evidence_code == 'ND' (No biological data)"""
+        return [nt for nt in self.associations if nt.Evidence_Code == 'ND']
+
+    def nts_qual_not(self):
+        """Get annotations having Qualifiers containing NOT"""
+        return [nt for nt in self.associations if self._has_not_qual(nt)]
+
+    def chk_qualifiers(self):
+        """Check format of qualifier"""
+        if self.name == 'id2gos':
+            return
+        for ntd in self.associations:
+            # print(ntd)
+            qual = ntd.Qualifier
+            assert isinstance(qual, set), '{NAME}: QUALIFIER MUST BE A LIST: {NT}'.format(
+                NAME=self.name, NT=ntd)
+            assert qual != set(['']), ntd
+            assert qual != set(['-']), ntd
+            assert 'always' not in qual, 'SPEC SAID IT WOULD BE THERE'
+
+    @staticmethod
+    def _has_not_qual(ntd):
+        """Return True if the qualifiers contain a 'NOT'"""
+        for qual in ntd.Qualifier:
+            if 'not' in qual:
+                return True
+            if 'NOT' in qual:
+                return True
+        return False
+
 
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."

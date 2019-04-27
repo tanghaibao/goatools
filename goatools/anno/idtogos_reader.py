@@ -29,6 +29,14 @@ class IdToGosReader(AnnoReaderBase):
         """Return full annotations due to lack of Evidence_code or Qualifier in this format"""
         return self.associations
 
+    def nts_ev_nd(self):
+        """Get annotations where Evidence_code == 'ND' (No biological data)"""
+        return []
+
+    def nts_qual_not(self):
+        """Get annotations having Qualifiers containing NOT"""
+        return []
+
     def _init_associations(self, fin_anno):
         """Read annotation file and store a list of namedtuples."""
         ini = _InitAssc(fin_anno)

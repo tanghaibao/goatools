@@ -34,7 +34,9 @@ def test_anno_read():
     print('\nTEST GETTING ASSOCIATIONS FOR ONE SPECIES')
     print("\nTEST read_ncbi_gene2go_old: [9606]")
     old_g2go_hsa = read_ncbi_gene2go_old(fin_anno, [9606])
-    assert old_g2go_hsa == read_ncbi_gene2go(fin_anno, [9606])
+    new_g2go_hsa = read_ncbi_gene2go(fin_anno, [9606])
+    assert old_g2go_hsa == new_g2go_hsa, \
+      'OLD({O}) != NEW({N})'.format(O=len(old_g2go_hsa), N=len(new_g2go_hsa))
     print("\nTEST read_ncbi_gene2go_old: 9606")
     assert old_g2go_hsa == read_ncbi_gene2go(fin_anno, 9606)
     print("\nTEST read_ncbi_gene2go_old: None")
@@ -47,7 +49,8 @@ def test_anno_read():
     new_go2gs_hsa = read_ncbi_gene2go(fin_anno, 9606, go2geneids=go2geneids)
     print('OLD:', next(iter(old_go2gs_hsa.items())))
     print('NEW:', next(iter(new_go2gs_hsa.items())))
-    assert old_go2gs_hsa == new_go2gs_hsa
+    assert old_go2gs_hsa == new_go2gs_hsa, \
+       'OLD({O}) != NEW({N})'.format(O=len(old_go2gs_hsa), N=len(new_go2gs_hsa))
 
     print('\nTEST RETURNING ASSOCIATIONS FOR SELECTED EVIDENCE CODES')
     evcodes = set(['ISO', 'IKR'])
@@ -94,7 +97,8 @@ def read_ncbi_gene2go_old(fin_gene2go, taxids=None, **kws):
                     taxid_curr = int(taxid_curr)
                     # NOT: Used when gene is expected to have function F, but does NOT.
                     # ND : GO function not seen after exhaustive annotation attempts to the gene.
-                    if taxid_curr in taxids and qualifier != 'NOT' and evidence != 'ND':
+                    ## if taxid_curr in taxids and qualifier != 'NOT' and evidence != 'ND':
+                    if taxid_curr in taxids and 'NOT' not in qualifier and evidence != 'ND':
                         # Optionally specify a subset of GOs based on their evidence.
                         if evs is None or evidence in evs:
                             geneid = int(geneid)

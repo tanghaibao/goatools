@@ -189,10 +189,7 @@ class _InitAssc(object):
     @staticmethod
     def _get_qualifiers(qualifier):
         """Return a list of qualifiers if they exist."""
-        if qualifier == '-':
-            return {}
-        # TBD: Separator '|' or ' '
-        return {q.lower() for q in qualifier.split('|')}
+        return set(qualifier.split(' ')) if qualifier != '-' else set()
 
     @staticmethod
     def _get_pmids(pmidstr):

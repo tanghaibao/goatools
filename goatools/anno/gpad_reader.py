@@ -93,7 +93,7 @@ class _InitAssc(object):
     def _get_ntgpad(self, ntgpadobj, flds):
         """Convert fields from string to preferred format for GPAD ver 2.1 and 2.0."""
         is_set = False
-        qualifiers = self._rd_fld_vals("Qualifier", flds[2], is_set)
+        qualifiers = self._get_qualifier(flds[2])
         assert flds[3][:3] == 'GO:', 'UNRECOGNIZED GO({GO})'.format(GO=flds[3])
         db_reference = self._rd_fld_vals("DB_Reference", flds[4], is_set, 1)
         assert flds[5][:4] == 'ECO:', 'UNRECOGNIZED ECO({ECO})'.format(ECO=flds[3])
@@ -122,6 +122,17 @@ class _InitAssc(object):
             get_extensions(flds[10]),        # 12 Extension
             props]        # 12 Annotation_Properties
         return ntgpadobj._make(gpadvals)
+
+    @staticmethod
+    def _get_qualifier(val):
+        """Get qualifiers. Correct for inconsistent capitalization in GAF files"""
+        quals = set()
+        if val == '':
+            return quals
+        for val in val.split('|'):
+            val = val.lower()
+            quals.add(val if val != 'not' else 'NOT')
+        return quals
 
     @staticmethod
     def _rd_fld_vals(name, val, set_list_ft=True, qty_min=0, qty_max=None):

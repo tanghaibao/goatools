@@ -262,6 +262,7 @@ clobber:
 	rm -f gaf-eco-mapping-derived.txt
 	rm -f *.gpad
 	rm -f tmp*
+	rm -f ids_stu_*.txt ids_pop_*.txt
 
 ANNO = gaf
 ANNO_HTTP = http://current.geneontology.org/annotations
