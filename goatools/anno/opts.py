@@ -4,17 +4,21 @@ __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights re
 __author__ = "DV Klopfenstein"
 
 
+# pylint: disable=too-few-public-methods
 class AnnoOptions(object):
     """Keyword args for selecting annotation lines."""
 
-    keys_exp = set(['evidence_set',
+    keys_exp = set(['ev_include', 'ev_exclude',
                     'b_geneid2gos', 'go2geneids',
                     'keep_ND', 'keep_NOT'])
 
-    def __init__(self, **kws):
+    def __init__(self, evobj, **kws):
         # Get associations only for specified Evidence_Codes
-        # kws: evidence_set keep_ND keep_NOT b_geneid2gos go2geneids
-        self.evidence_set = kws.get('evidence_set', None)
+        # kws: ev_include ev_exclude keep_ND keep_NOT b_geneid2gos go2geneids
+        self.evobj = evobj
+        _incexc2codes = evobj.get_min_inc_exc(kws.get('ev_include'), kws.get('ev_exclude'))
+        self.include_evcodes = _incexc2codes.get('inc')
+        self.exclude_evcodes = _incexc2codes.get('exc')
         # Associations are normally gene2gos
         # Return go2genes, if desired
         self.b_geneid2gos = self._init_b_geneid2gos(kws)
@@ -23,46 +27,51 @@ class AnnoOptions(object):
         self._keep_nd = kws.get('keep_ND', False)
         #   * Qualifiers contain NOT
         self._keep_not = kws.get('keep_NOT', False)
-        self._keep_qualified = not self._keep_nd and not self._keep_not
-        self._keep_unqualified = self._keep_nd and self._keep_not
 
-        # keep_qualified keep_unqualified keep_nd keep_not evidence_set
-        # pylint: disable=bad-whitespace
+        # keep_qualified keep_unqualified keep_nd keep_not ev_include ev_exclude
         self.param2fnc = {
-            ('keep_qualified',    True):  self._qual_0,
-            ('keep_qualified',    False): self._qual_1,
-            ('keep_unqualified',  True):  self._all_0,
-            ('keep_unqualified',  False): self._all_1,
-            ('keep_nd',           True):  self._nd_0,
-            ('keep_nd',           False): self._nd_1,
-            ('keep_not',          True):  self._not_0,
-            ('keep_not',          False): self._not_0,
+            ('keep_qualified', 0): self._qual_0,
+            ('keep_qualified', 1): self._qual_inc,
+            ('keep_qualified', -1): self._qual_exc,
+
+            ('keep_unqualified', 0): self._all_0,
+            ('keep_unqualified', 1): self._all_inc,
+            ('keep_unqualified', -1): self._all_exc,
+
+            ('keep_ND', 0): self._nd_0,
+            ('keep_ND', 1): self._nd_inc,
+            ('keep_ND', -1): self._nd_exc,
+
+            ('keep_NOT', 0): self._not_0,
+            ('keep_NOT', 1): self._not_inc,
+            ('keep_NOT', -1): self._not_exc,
         }
+
+    # pylint: disable=bad-whitespace
+    nd_not2desc = {
+        # Keep ND  Keep NOT
+        (False, False): 'keep_qualified',
+        (True,  True):  'keep_unqualified',
+        (True,  False): 'keep_ND',
+        (False, True):  'keep_NOT',
+    }
+
+    incexc2num = {
+        (False, False): 0,  # Default evidence codes
+        (True,  False): 1,  # Include user-specified Evidence codes
+        (False, True): -1,  # Exclude user-specified Evidence codes
+    }
 
     def getfnc_qual_ev(self):
         """Keep annotaion if it passes potentially modified selection."""
         fnc_key = (
-            self._get_keep_key(),
-            self.evidence_set is None,
+            self.nd_not2desc[(self._keep_nd, self._keep_not)],
+            self.incexc2num[(
+                self.include_evcodes is not None,
+                self.exclude_evcodes is not None)],
         )
         return self.param2fnc[fnc_key]
 
-    def _get_keep_key(self):
-        """Normally keeps qualified associations, but can keep more."""
-        # NOT: Used when gene is expected to have function F, but does NOT.
-        # ND : GO function not seen after exhaustive annotation attempts to the gene.
-        # print('------------------------- AnnoOptions::keep_qualified(', qualifiers, evidence_code)
-        if self._keep_qualified:
-            # Keep everything but these:
-            #     Qualifiers contain NOT
-            #     Evidence_Code == ND -> No biological data No biological Data available
-            return 'keep_qualified'
-        if self._keep_unqualified:
-            return 'keep_unqualified'
-        if self._keep_nd:
-            return 'keep_nd'
-        if self._keep_not:
-            return 'keep_not'
 
     # - Filter by Evidence_code or Qualifier ----------------------------------------
     # pylint: disable=unused-argument
@@ -71,37 +80,54 @@ class AnnoOptions(object):
         """Keep qualified; NO evidence filter"""
         return 'NOT' not in qualifiers and evidence_code != 'ND'
 
-    def _qual_1(self, qualifiers, evidence_code):
+    def _qual_inc(self, qualifiers, evidence_code):
         """Keep qualified; IN evidence filter"""
         return 'NOT' not in qualifiers and evidence_code != 'ND' and \
-            evidence_code in self.evidence_set
+            evidence_code in self.include_evcodes
+
+    def _qual_exc(self, qualifiers, evidence_code):
+        """Keep qualified; IN evidence filter"""
+        return 'NOT' not in qualifiers and evidence_code != 'ND' and \
+            evidence_code not in self.exclude_evcodes
 
     @staticmethod
     def _all_0(qualifiers, evidence_code):
         """Keep unqualified: NOT in Qualifiers AND ND in Evidence code; NO evidence filter"""
         return True
 
-    def _all_1(self, qualifiers, evidence_code):
+    def _all_inc(self, qualifiers, evidence_code):
         """Keep unqualified: NOT in Qualifier AND ND in Evidence code; IN evidence filter"""
-        return evidence_code in self.evidence_set
+        return evidence_code in self.include_evcodes
+
+    def _all_exc(self, qualifiers, evidence_code):
+        """Keep unqualified: NOT in Qualifier AND ND in Evidence code; IN evidence filter"""
+        return evidence_code not in self.exclude_evcodes
 
     @staticmethod
     def _nd_0(qualifiers, evidence_code):
         """Keep ND; NO evidence filter"""
         return 'NOT' not in qualifiers
 
-    def _nd_1(self, qualifiers, evidence_code):
+    def _nd_inc(self, qualifiers, evidence_code):
         """Keep ND; IN evidence filter"""
-        return 'NOT' not in qualifiers and evidence_code in self.evidence_set
+        return 'NOT' not in qualifiers and evidence_code in self.include_evcodes
+
+    def _nd_exc(self, qualifiers, evidence_code):
+        """Keep ND; IN evidence filter"""
+        return 'NOT' not in qualifiers and evidence_code not in self.exclude_evcodes
 
     @staticmethod
     def _not_0(qualifiers, evidence_code):
         """Keep NOT; NO evidence filter"""
         return evidence_code != 'ND'
 
-    def _not_1(self, qualifiers, evidence_code):
+    def _not_inc(self, qualifiers, evidence_code):
         """Keep NOT; IN evidence filter"""
-        return evidence_code != 'ND' and evidence_code in self.evidence_set
+        return evidence_code != 'ND' and evidence_code in self.include_evcodes
+
+    def _not_exc(self, qualifiers, evidence_code):
+        """Keep NOT; IN evidence filter"""
+        return evidence_code != 'ND' and evidence_code not in self.exclude_evcodes
 
     # -------------------------------------------------------------------------------
     @staticmethod

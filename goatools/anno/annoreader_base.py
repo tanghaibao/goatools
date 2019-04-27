@@ -81,7 +81,7 @@ class AnnoReaderBase(object):
 
     def _get_id2gos(self, associations, **kws):
         """Return given associations in a dict, id2gos"""
-        options = AnnoOptions(**kws)
+        options = AnnoOptions(self.evobj, **kws)
         # Default reduction is to remove. For all options, see goatools/anno/opts.py:
         #   * Evidence_Code == ND -> No biological data No biological Data available
         #   * Qualifiers contain NOT

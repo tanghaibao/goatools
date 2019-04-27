@@ -1,6 +1,6 @@
 """Defaults for find_enrichment parseargs to be used in tests."""
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import os
@@ -35,8 +35,10 @@ class ArgsDict(object):
             'pvalcalc' : 'fisher',
             'ratio' : None,
             'sections' : None,
+            'ev_inc': None,
+            'ev_exc': None,
         }
         self.ntobj = cx.namedtuple("Namespace", " ".join(self.namespace.keys()))
 
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.

@@ -55,8 +55,8 @@ def test_anno_read():
     print('\nTEST RETURNING ASSOCIATIONS FOR SELECTED EVIDENCE CODES')
     evcodes = set(['ISO', 'IKR'])
     print("\nTEST read_ncbi_gene2go_old: 9606 evcodes=True")
-    old_gene2gos_evc = read_ncbi_gene2go_old(fin_anno, [9606], evidence_set=evcodes)
-    new_gene2gos_evc = read_ncbi_gene2go(fin_anno, 9606, evidence_set=evcodes)
+    old_gene2gos_evc = read_ncbi_gene2go_old(fin_anno, [9606], ev_include=evcodes)
+    new_gene2gos_evc = read_ncbi_gene2go(fin_anno, 9606, ev_include=evcodes)
     print('OLD:', next(iter(old_gene2gos_evc.items())))
     print('NEW:', next(iter(new_gene2gos_evc.items())))
     assert old_gene2gos_evc == new_gene2gos_evc
@@ -74,13 +74,13 @@ def _dnld_anno(file_anno):
 # Fomerly in goatools/associations.py file
 def read_ncbi_gene2go_old(fin_gene2go, taxids=None, **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
-    # kws: taxid2asscs evidence_set
+    # kws: taxid2asscs ev_include
     # Simple associations
     id2gos = defaultdict(set)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
     # e.g., taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set))
     taxid2asscs = kws.get('taxid2asscs', None)
-    evs = kws.get('evidence_set', None)
+    evs = kws.get('ev_include', None)
     # By default, return id2gos. User can cause go2geneids to be returned by:
     #   >>> read_ncbi_gene2go(..., go2geneids=True
     b_geneid2gos = not kws.get('go2geneids', False)

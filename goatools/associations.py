@@ -50,7 +50,7 @@ def read_associations(assoc_fn, anno_type='id2gos', **kws):
     """Return associatinos in id2gos format"""
     # kws get_objanno: taxids hdr_only prt allow_missing_symbol
     obj = get_objanno(assoc_fn, anno_type, **kws)
-    # kws get_id2gos: evidence_set keep_ND keep_NOT b_geneid2gos go2geneids
+    # kws get_id2gos: ev_include ev_exclude keep_ND keep_NOT b_geneid2gos go2geneids
     return obj.get_id2gos(**kws)
 
 def get_assoc_ncbi_taxids(taxids, force_dnld=False, loading_bar=True, **kws):
@@ -107,8 +107,6 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
             return obj.get_id2gos(**kws_ncbi)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
     # e.g., taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set))
-    #### opt = AnnoOptions(**kws)
-    #### t2asscs_ret = obj.get_annotations_taxid2dct(opt)
     t2asscs_ret = obj.get_taxid2asscs(taxids, **kws)
     t2asscs_usr = kws.get('taxid2asscs', defaultdict(lambda: defaultdict(lambda: defaultdict(set))))
     if 'taxid2asscs' in kws:

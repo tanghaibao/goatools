@@ -32,7 +32,7 @@ def test_find_enrichment():
 
     pat = ('python3 scripts/find_enrichment.py {STU} {POP} {ASSC} '
            '--pval=0.05 --method=fdr_bh --pval_field=fdr_bh '
-           '--taxid={TAXID} --outfile=results_{NAME}.xlsx')
+           '--taxid={TAXID} {INC} {EXC} --outfile=results_{NAME}.xlsx')
     cmds = []
     for obj in annoobjs:
         pop = obj.get_population()
@@ -42,7 +42,8 @@ def test_find_enrichment():
         _wr(fout_pop, pop)
         _wr(fout_stu, list(enriched)[:100])
         cmd = pat.format(STU=fout_stu, POP=fout_pop, ASSC=obj.filename,
-                         TAXID=obj.get_taxid(), NAME=obj.get_name())
+                         TAXID=obj.get_taxid(), NAME=obj.get_name(),
+                         INC='', EXC='')
         cmds.append(cmd)
         print('\nRUNNING {NAME}: {CMD}\n'.format(CMD=cmd, NAME=obj.get_name()))
         assert os.system(cmd) == 0

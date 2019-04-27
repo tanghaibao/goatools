@@ -4,8 +4,6 @@
 from __future__ import print_function
 
 import os
-import sys
-import timeit
 import collections as cx
 from goatools.anno.gaf_reader import GafReader
 from goatools.associations import dnld_annofile
@@ -22,16 +20,19 @@ def test_anno_read():
     obj = GafReader(fin_anno)
     obj.prt_summary_anno2ev()
     new = obj.read_gaf()
-    old = read_gaf(obj) 
+    old = read_gaf(obj)
     _prt_differences(new, old, obj)
+    print('{N} NEW'.format(N=len(new)))
+    print('{N} OLD'.format(N=len(old)))
     assert len(new) == len(old), 'new({N}) != old({O})'.format(N=len(new), O=len(old))
 
     print('\nTEST KWS: keep_ND and keep_NOT')
+    # pylint: disable=bad-whitespace
     kws_lst = [
-        {'keep_ND':False, 'keep_NOT':False},
-        {'keep_ND':False, 'keep_NOT':True},
-        {'keep_ND':True,  'keep_NOT':False},
-        {'keep_ND':True,  'keep_NOT':True},
+        {'keep_ND': False, 'keep_NOT': False},
+        {'keep_ND': False, 'keep_NOT': True},
+        {'keep_ND': True,  'keep_NOT': False},
+        {'keep_ND': True,  'keep_NOT': True},
     ]
     for kws in kws_lst:
         print('\nTEST KWS:', kws)
@@ -42,22 +43,23 @@ def test_anno_read():
 
     print('\nTEST GETTING REVERSE ASSOCIATIONS: GO2GENES')
     new = obj.read_gaf(go2geneids=True)
-    old = read_gaf(obj, go2geneids=True) 
+    old = read_gaf(obj, go2geneids=True)
     _prt_differences(new, old, obj)
     assert len(new) == len(old), 'new({N}) != old({O})'.format(N=len(new), O=len(old))
 
-    ## print('\nTEST RETURNING ASSOCIATIONS FOR SELECTED EVIDENCE CODES')
-    ## evcodes = set(['ISO', 'IKR'])
-    ## print("\nTEST read_ncbi_gene2go_old: 9606 evcodes=True")
-    ## old_gene2gos_evc = read_ncbi_gene2go_old(fin_anno, [9606], evidence_set=evcodes)
-    ## new_gene2gos_evc = read_ncbi_gene2go(fin_anno, 9606, evidence_set=evcodes)
-    ## print('OLD:', next(iter(old_gene2gos_evc.items())))
-    ## print('NEW:', next(iter(new_gene2gos_evc.items())))
-    ## assert old_gene2gos_evc == new_gene2gos_evc
+    print('\nTEST RETURNING ASSOCIATIONS FOR SELECTED EVIDENCE CODES')
+    evcodes = set(['ISO', 'IKR'])
+    print("\nTEST 9606 ev_include={CODES}".format(CODES=' '.join(evcodes)))
+    new = obj.read_gaf(ev_include=evcodes)
+    old = read_gaf(obj, ev_include=evcodes)
+    _prt_differences(new, old, obj)
+    assert new == old
 
 def _prt_differences(new, old, obj):
     """Print differences between the new and old associations"""
     ids_diff = set(new.keys()).symmetric_difference(old.keys())
+    print('{N} NEW'.format(N=len(new)))
+    print('{N} OLD'.format(N=len(old)))
     for db_id in ids_diff:
         print('NEW: ', new.get(db_id))
         print('OLD: ', old.get(db_id))
@@ -68,14 +70,13 @@ def _prt_differences(new, old, obj):
 # Formerly was in goatools/anno/gaf_reader.py
 def read_gaf(obj, **kws):
     """Read Gene Association File (GAF). Return data."""
-    tic = timeit.default_timer()
     # Simple associations
     id2gos = cx.defaultdict(set)
     # keyword arguments for choosing which GO IDs to keep
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
     taxid2asscs = kws.get('taxid2asscs', None)
     b_geneid2gos = not kws.get('go2geneids', False)
-    evs = kws.get('evidence_set', None)
+    evs = kws.get('ev_include', None)
     eval_nd = _get_nd(kws.get('keep_ND', False))
     eval_not = _get_not(kws.get('keep_NOT', False))
     # Optionally specify a subset of GOs based on their evidence.
@@ -95,7 +96,7 @@ def read_gaf(obj, **kws):
                         taxid = ntgaf.Taxon[0]
                         taxid2asscs[taxid]['ID2GOs'][geneid].add(go_id)
                         taxid2asscs[taxid]['GO2IDs'][go_id].add(geneid)
-    obj.hms(str(kws)) 
+    obj.hms('OLD SLOW read_gaf(kws={KWS})'.format(KWS=str(kws)))
     return dict(id2gos) # return simple associations
 
 def _get_nd(keep_nd):

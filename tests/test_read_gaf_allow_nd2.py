@@ -45,22 +45,25 @@ def _run(obj):
     num_assc = len(assc)
 
     tic = timeit.default_timer()
-    assc_dflt = obj.reduce_annotations(assc, AnnoOptions())
+    _ev = obj.evobj
+    assc_dflt = obj.reduce_annotations(assc, AnnoOptions(_ev))
     tic = obj.hms('Default', tic)
-    assc_nd0_not0 = obj.reduce_annotations(assc, AnnoOptions(keep_ND=False, keep_NOT=False))
-    tic = obj.hms('assc_nd0_not0', tic)
-    assc_nd0_not1 = obj.reduce_annotations(assc, AnnoOptions(keep_ND=False, keep_NOT=True))
-    tic = obj.hms('assc_nd0_not1', tic)
-    assc_nd1_not0 = obj.reduce_annotations(assc, AnnoOptions(keep_ND=True, keep_NOT=False))
-    tic = obj.hms('assc_nd1_not0', tic)
-    assc_nd1_not1 = obj.reduce_annotations(assc, AnnoOptions(keep_ND=True, keep_NOT=True))
-    tic = obj.hms('assc_nd1_not1', tic)
+    assc_nd0_not0 = obj.reduce_annotations(assc, AnnoOptions(_ev, keep_ND=False, keep_NOT=False))
+    tic = obj.hms('{N:6,} assc_nd0_not0'.format(N=len(assc_nd0_not0)), tic)
+    assc_nd0_not1 = obj.reduce_annotations(assc, AnnoOptions(_ev, keep_ND=False, keep_NOT=True))
+    tic = obj.hms('{N:6,} assc_nd0_not1'.format(N=len(assc_nd0_not1)), tic)
+    assc_nd1_not0 = obj.reduce_annotations(assc, AnnoOptions(_ev, keep_ND=True, keep_NOT=False))
+    tic = obj.hms('{N:6,} assc_nd1_not0'.format(N=len(assc_nd1_not0)), tic)
+    assc_nd1_not1 = obj.reduce_annotations(assc, AnnoOptions(_ev, keep_ND=True, keep_NOT=True))
+    tic = obj.hms('{N:6,} assc_nd1_not1'.format(N=len(assc_nd1_not1)), tic)
 
-    print('{TYPE} {N:,} Original'.format(TYPE=obj.name, N=num_assc))
-    print('{TYPE} {N:,} ND=1 NOT=1 <- Inc. everything'.format(TYPE=obj.name, N=len(assc_nd1_not1)))
-    print('{TYPE} {N:,} ND=1 NOT=0'.format(TYPE=obj.name, N=len(assc_nd1_not0)))
-    print('{TYPE} {N:,} ND=0 NOT=1'.format(TYPE=obj.name, N=len(assc_nd0_not1)))
-    print('{TYPE} {N:,} ND=0 NOT=0'.format(TYPE=obj.name, N=len(assc_nd0_not0)))
+    _red = obj.reduce_annotations
+    inc = set(_ev.code2nt.keys()).difference({'IEA'})
+    # pylint: disable=line-too-long
+    assert _red(assc, AnnoOptions(obj.evobj, ev_exclude={'IEA'})) == _red(assc, AnnoOptions(obj.evobj, ev_include=inc))
+    inc = _ev.grp2codes['High_Throughput']
+    assert _red(assc, AnnoOptions(obj.evobj, ev_include={'High_Throughput'})) == _red(assc, AnnoOptions(obj.evobj, ev_include=inc))
+
 
     assert len(assc_dflt) == len(assc_nd0_not0)
     assert len(assc_nd1_not1) == num_assc

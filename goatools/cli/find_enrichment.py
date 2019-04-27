@@ -23,6 +23,8 @@ import sys
 import re
 import argparse
 
+from goatools.evidence_codes import EvidenceCodes
+
 from goatools.obo_parser import GODag
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.multiple_testing import Methods
@@ -51,7 +53,7 @@ class GoeaCliArgs(object):
 
     def __init__(self):
         self.args = self._init_args()
-        print(self.args)
+        # print(self.args)
 
     def _init_args(self):
         """Get enrichment arg parser."""
@@ -115,13 +117,23 @@ class GoeaCliArgs(object):
                        help="Check that a minimum amount of study genes are in the population")
         p.add_argument('--goslim', default='goslim_generic.obo', type=str,
                        help="The GO slim file is used when grouping GO terms.")
-        p.add_argument('--ev_inc', default='all', type=str,
+        p.add_argument('--ev_inc', type=str,
                        help="Include specified evidence codes and groups separated by commas")
-        p.add_argument('--ev_exc', default='ND', type=str,
+        p.add_argument('--ev_exc', type=str,
                        help="Exclude specified evidence codes and groups separated by commas")
+        p.add_argument('--ev_help', dest='ev_help', action='store_false',
+                       help="Print all Evidence codes")
 
         if len(sys.argv) == 1:
             sys.exit(not p.print_help())
+        if '--ev_help' in sys.argv:
+            print('\nEVIDENCE CODE HELP: --ev_exc --ev_inc')
+            print('Use any of these group names, ')
+            print('like Experimental or Similarity or Experimental,Similarity,')
+            print('or evidence codes, like IEA or ISS,ISO,ISA in --ev_exc or --ev_inc:\n')
+            obj = EvidenceCodes()
+            obj.prt_details()
+            sys.exit(0)
 
         args = p.parse_args()  # Namespace object from argparse
         self._check_input_files(args, p)
@@ -170,6 +182,10 @@ class GoeaCliFnc(object):
     def _get_id2gos(self):
         """Return annotations as id2gos"""
         kws = {}
+        if self.args.ev_inc is not None:
+            kws['ev_include'] = set(self.args.ev_inc.split(','))
+        if self.args.ev_exc is not None:
+            kws['ev_exclude'] = set(self.args.ev_exc.split(','))
         return self.objanno.get_id2gos(**kws)
 
     def _get_objanno(self, assoc_fn):

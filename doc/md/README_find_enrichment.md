@@ -72,6 +72,7 @@ python3 scripts/find_enrichment.py ids_stu_gene2go_10090.txt ids_pop_gene2go_100
 #### 2a) Exclude annotations inferred from Electronic Annotation (IEA)
 ```
 EXCLUDE all IEA annotations:
+
   --ev_exc=IEA  # Evidence codes with IEA are excluded
 ```
 ```
@@ -80,11 +81,13 @@ python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.g
 
 #### 2b) Include only annotations inferred from experimental evidence
 ```
-Two ways to INCLUDE only experimental evidence codes:
-  --ev_inc=Experimental             # By group name
-  --ev_inc=EXP,IDA,IPI,IMP,IGI,IEP  # List all the Experimental codes
+INCLUDE evidence codes by group of by code:
+
+  1) --ev_inc=Experimental             # By group name
+  1) --ev_inc=Experimental,Similarity  # By group names
+  2) --ev_inc=EXP,IDA,IPI,IMP,IGI,IEP  # List all the Experimental codes
 ```
-**Specify the experimental evidence codes by their group namej:**
+**Specify the experimental evidence codes by their group name:**
 ```
 python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_inc=Experimental --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx
 ```
@@ -95,11 +98,12 @@ python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.g
 ```
 
 #### 2c) Get list of evidence codes
-The argument, --ev_help, will cause the Evidence codes to be printed:
+The argument, **--ev_help**, will cause the Evidence codes to be printed:
 ```
 python3 scripts/find_enrichment.py --ev_help
 ```
-##### Detailed list of Evidence Codes
+##### Evidence Code Help
+You can use either group names, like Experimental, or codes on the commandline:    
 ```
 EVIDENCE CODES:
     Experimental:
@@ -138,22 +142,6 @@ EVIDENCE CODES:
     Automatic:
         IEA Inferred from Electronic Annotation
 ```
-##### Summarized list of Evidence Groups and Codes 
-```
--------------------------------------------------------------------------
-Use any of these group names or evidence codes in --ev_exc or --ev_inc:
-
-EVIDENCE GROUP AND CODES:
-    Experimental       : EXP IDA IPI IMP IGI IEP
-    Similarity         : ISS ISO ISA ISM IGC IBA IBD IKR IRD IMR
-    Combinatorial      : RCA
-    High_Throughput    : HTP HDA HMP HGI HEP
-    Author             : TAS NAS
-    Curatorial         : IC
-    No biological data : ND
-    Automatic          : IEA
-```
-
 
 ### 3) Print GO terms with uncorrected pvalues < 0.05 to the screen (default)
 The default is to print all GO terms with uncorrected P-values < 0.05 (default)
@@ -241,4 +229,4 @@ $ python scripts/find_enrichment.py data/study data/population data/association 
    6088 items WROTE: goea.tsv
 ```
 
-Copyright (C) 2010-2018, DV Klopfenstein, Haibao Tang, et al. All rights reserved.
+Copyright (C) 2010-2019, DV Klopfenstein, Haibao Tang, et al. All rights reserved.

@@ -53,7 +53,7 @@ class Gene2GoReader(AnnoReaderBase):
         """Read Gene Association File (GAF). Return data."""
         # WAS: get_annotations_taxid2dct
         taxid2asscs = cx.defaultdict(lambda: cx.defaultdict(lambda: cx.defaultdict(set)))
-        options = AnnoOptions(**kws)
+        options = AnnoOptions(self.evobj, **kws)
         for taxid in self._get_taxids(taxids):
             nts = self.taxid2asscs[taxid]
             assc = self.reduce_annotations(nts, options)

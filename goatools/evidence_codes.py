@@ -79,6 +79,14 @@ class EvidenceCodes(object):
             for code, ntd in code2nt.items():
                 prt.write('        {CODE:>3} {NAME}\n'.format(CODE=code, NAME=ntd.name))
 
+    def get_min_inc_exc(self, inc_set=None, exc_set=None):
+        """Get the user-specified Evidence codes. Return smaller set: include/exclude"""
+        if inc_set is None and exc_set is None:
+            return {}
+        inc = self.get_evcodes(inc_set, exc_set)
+        exc = set(self.code2nt.keys()).difference(inc)
+        return {'inc':inc} if len(inc) <= len(exc) else {'exc': exc}
+
     def get_evcodes(self, inc_set=None, exc_set=None):
         """Get evidence code for all but NOT 'No biological data'"""
         codes = self.get_evcodes_all(inc_set, exc_set)
@@ -109,7 +117,7 @@ class EvidenceCodes(object):
 
     def get_grp_name(self, code):
         """Return group and name for an evidence code."""
-        nt_code = self.code2nt.get(code, None)
+        nt_code = self.code2nt.get(code.strip(), None)
         if nt_code is not None:
             return nt_code.group, nt_code.name
         return "", ""

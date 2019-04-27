@@ -4,6 +4,7 @@
 import os
 from goatools.associations import dnld_annofile
 from goatools.anno.factory import get_objanno
+from goatools.evidence_codes import EvidenceCodes
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
@@ -31,6 +32,8 @@ def test_anno_read():
     print('- get_id2gos ------------------------------------------------------')
     for idx, obj in enumerate(annoobjs):
         id2gos = obj.get_id2gos()
+        inc = set(EvidenceCodes.code2nt.keys()).difference({'IEA'})
+        assert obj.get_id2gos(ev_include=inc) == obj.get_id2gos(ev_exclude={'IEA'})
         num_ids = len(id2gos)
         print('>>>>> {I} >>>>> get_id2gos {N:6,} {ANNO}'.format(I=idx, N=num_ids, ANNO=obj.name))
         assert next(iter(next(iter(id2gos.values()))))[:3] == "GO:"
