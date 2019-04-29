@@ -45,6 +45,7 @@ setup(
         NAME + ".cli",
         NAME + ".rpt",
         NAME + ".anno",
+        NAME + ".anno.init",
         NAME + ".anno.extensions",
         NAME + ".grouper",
         NAME + ".parsers"],
