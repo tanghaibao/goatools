@@ -34,10 +34,11 @@ class AnnoReaderBase(object):
         #     'enables', 'involved_in', 'part_of',
     ])
 
-    def __init__(self, name, filename=None, **kws):
+    def __init__(self, name, filename=None, godag=None, **kws):
         # kws: allow_missing_symbol
         self.name = name
         self.filename = filename
+        self.godag = godag
         self.evobj = EvidenceCodes()
         # Read anotation file, store namedtuples:
         #     Gene2GoReader(filename=None, taxids=None):

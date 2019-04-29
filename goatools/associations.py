@@ -119,7 +119,8 @@ def get_gaf_hdr(fin_gaf):
 
 def read_gaf(fin_gaf, prt=sys.stdout, hdr_only=False, allow_missing_symbol=False, **kws):
     """Read Gene Association File (GAF). Return data."""
-    return GafReader(fin_gaf, hdr_only, prt, allow_missing_symbol).get_id2gos(**kws)
+    return GafReader(fin_gaf, hdr_only,
+                     prt=prt, allow_missing_symbol=allow_missing_symbol).get_id2gos(**kws)
 
 def get_b2aset(a2bset):
     """Given gene2gos, return go2genes. Given go2genes, return gene2gos."""

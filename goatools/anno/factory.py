@@ -19,10 +19,10 @@ def get_objanno(fin_anno, anno_type=None, **kws):
             # kws: taxid taxids
             return Gene2GoReader(fin_anno, **kws)
         if anno_type == 'gaf':
-            hdr_only = kws.get('hdr_only', False)
-            prt = kws.get('prt', sys.stdout)
-            allow_missing_symbol = kws.get('allow_missing_symbol', False)
-            return GafReader(fin_anno, hdr_only, prt, allow_missing_symbol)
+            return GafReader(fin_anno,
+                             hdr_only=kws.get('hdr_only', False),
+                             prt=kws.get('prt', sys.stdout),
+                             allow_missing_symbol=kws.get('allow_missing_symbol', False))
         if anno_type == 'gpad':
             hdr_only = kws.get('hdr_only', False)
             return GpadReader(fin_anno, hdr_only)

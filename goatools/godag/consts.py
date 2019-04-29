@@ -1,6 +1,6 @@
 """GO-DAG constants."""
 
-__copyright__ = "Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2010-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
@@ -26,4 +26,4 @@ class Consts(object):
         self.relationships = set(self.RELATIONSHIP_LIST)
 
 
-# Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2010-2019, DV Klopfenstein, H Tang, All rights reserved.
