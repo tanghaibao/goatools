@@ -4,9 +4,10 @@ import sys
 import os
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.associations import read_associations
+from goatools.godag.prtfncs import GoeaPrintFunctions
 from goatools.base import get_godag
 
-__copyright__ = "Copyright (C) 2010-2018, H Tang et al., All rights reserved."
+__copyright__ = "Copyright (C) 2010-2019, H Tang et al., All rights reserved."
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
@@ -27,8 +28,9 @@ def test_goea_fdr_dflt():
     study_fin = "{REPO}/tests/data/small_study".format(REPO=REPO)
     study_ids = [line.rstrip() for line in open(study_fin)]
     goea_results = goeaobj.run_study(study_ids)
-    goeaobj.print_results(goea_results)
-    goeaobj.print_date()
+    objprtres = GoeaPrintFunctions()
+    objprtres.print_results(goea_results)
+    objprtres.print_date()
 
 def test_goea_local(log=sys.stdout):
     """Test GOEA with local multipletest correction methods for local."""
@@ -96,4 +98,4 @@ def run_all():
 if __name__ == '__main__':
     run_all()
 
-# Copyright (C) 2010-2018, H Tang et al., All rights reserved.
+# Copyright (C) 2010-2019, H Tang et al., All rights reserved.

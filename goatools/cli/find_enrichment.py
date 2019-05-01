@@ -33,6 +33,7 @@ from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
 from goatools.rpt.prtfmt import PrtFmt
 from goatools.semantic import TermCounts
 from goatools.wr_tbl import prt_tsv_sections
+from goatools.godag.prtfncs import GoeaPrintFunctions
 from goatools.anno.factory import get_anno_desc
 from goatools.anno.factory import get_objanno
 
@@ -45,6 +46,7 @@ from goatools.grouper.sorter import Sorter
 from goatools.grouper.aart_geneproducts_all import AArtGeneProductSetsAll
 from goatools.grouper.wr_sections import WrSectionsTxt
 from goatools.grouper.wrxlsx import WrXlsxSortedGos
+OBJPRTRES = GoeaPrintFunctions()
 
 
 # pylint: disable=too-few-public-methods
@@ -243,11 +245,11 @@ class GoeaCliFnc(object):
         min_ratio = self.args.ratio
         if min_ratio is not None:
             assert 1 <= min_ratio <= 2
-        self.objgoea.print_date(min_ratio=min_ratio, pval=self.args.pval)
-        results_adj = self.objgoea.get_adj_records(goea_results, min_ratio, self.args.pval)
+        results_adj = OBJPRTRES.get_adj_records(goea_results, min_ratio, self.args.pval)
+        OBJPRTRES.print_date(min_ratio=min_ratio, pval=self.args.pval)
         if results_adj:
             if not self.prepgrp:
-                self.objgoea.print_results_adj(results_adj, indent=self.args.indent)
+                OBJPRTRES.print_results_adj(results_adj, indent=self.args.indent)
             else:
                 grpwr = self.prepgrp.get_objgrpwr(results_adj)
                 grpwr.prt_txt(sys.stdout)
@@ -409,11 +411,12 @@ class GroupItems(object):
 class GrpWr(object):
     """Write GO term GOEA information, grouped."""
 
+    objprtfmt = PrtFmt()
+
     def __init__(self, sortobj, pval_fld, ver_list):
         self.sortobj = sortobj
         self.pval_fld = pval_fld
         self.ver_list = ver_list
-        self.objprt = PrtFmt()
         self.flds_all = next(iter(self.sortobj.grprobj.go2nt.values()))._fields
         self.flds_cur = self._init_flds_cur()
         self.desc2nts = self.sortobj.get_desc2nts(hdrgo_prt=False)
@@ -466,13 +469,13 @@ class GrpWr(object):
 
     def prt_tsv(self, prt=sys.stdout):
         """Print an ASCII text format."""
-        prtfmt = self.objprt.get_prtfmt_str(self.flds_cur)
+        prtfmt = self.objprtfmt.get_prtfmt_str(self.flds_cur)
         prt.write("{FLDS}\n".format(FLDS=" ".join(self.flds_cur)))
         WrSectionsTxt.prt_sections(prt, self.desc2nts['sections'], prtfmt, secspc=True)
 
     def prt_txt(self, prt=sys.stdout):
         """Print an ASCII text format."""
-        prtfmt = self.objprt.get_prtfmt_str(self.flds_cur)
+        prtfmt = self.objprtfmt.get_prtfmt_str(self.flds_cur)
         prt.write("{FLDS}\n".format(FLDS=" ".join(self.flds_cur)))
         WrSectionsTxt.prt_sections(prt, self.desc2nts['sections'], prtfmt, secspc=True)
 

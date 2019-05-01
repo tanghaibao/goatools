@@ -83,7 +83,7 @@ def _tst_ns2(obj, idx):
             IDX=idx, NS=nspc, ALL=num_nts_all, N=num_nts_orig, R=num_nts_redu, TYPE=obj.name))
         ns2anno_exp[nspc] = obj.get_dbid2goids(nts_redu)
 
-        assert nts_all >= num_nts_orig
+        assert num_nts_all >= num_nts_orig
         if obj.name == 'id2gos':
             assert num_nts_orig == num_nts_redu
         else:
