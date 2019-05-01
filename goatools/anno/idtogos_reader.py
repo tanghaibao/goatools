@@ -29,7 +29,7 @@ class IdToGosReader(AnnoReaderBase):
     # pylint: disable=unused-argument
     def reduce_annotations(self, associations, options):
         """Return full annotations due to lack of Evidence_code or Qualifier in this format"""
-        return self.associations
+        return associations
 
     def nts_ev_nd(self):
         """Get annotations where Evidence_code == 'ND' (No biological data)"""

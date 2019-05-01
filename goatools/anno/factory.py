@@ -25,9 +25,9 @@ def get_objanno(fin_anno, anno_type=None, **kws):
                              allow_missing_symbol=kws.get('allow_missing_symbol', False))
         if anno_type == 'gpad':
             hdr_only = kws.get('hdr_only', False)
-            return GpadReader(fin_anno, hdr_only)
+            return GpadReader(fin_anno, hdr_only, kws.get('godag'))
         if anno_type == 'id2gos':
-            return IdToGosReader(fin_anno)
+            return IdToGosReader(fin_anno, kws.get('godag'))
     raise RuntimeError('UNEXPECTED ANNOTATION FILE FORMAT: {F} {D}'.format(
         F=fin_anno, D=anno_type))
 

@@ -25,16 +25,28 @@ class Gene2GoReader(AnnoReaderBase):
         # Initialize associations and header information
         self.taxid2asscs = self._init_taxid2asscs()
 
+    def get_ns2ntsanno(self, taxid=None):
+        """Return all associations in three (one for BP MF CC) dicts, id2gos"""
+        # kws1: taxid
+        ntsanno = self.get_associations(taxid)
+        # kws2: ev_include ev_exclude ...
+        return self._get_ns2ntsanno(ntsanno)
+
     def get_id2gos(self, **kws):
-    #### def get_annotations_dct(self, taxid, options):
         """Return geneid2gos, or optionally go2geneids."""
+        # kws1: taxid
+        ntsanno = self.get_associations(kws.get('taxids'))
+        # kws2: ev_include ev_exclude
+        return self._get_id2gos(ntsanno, **kws)
+
+    def get_associations(self, taxid=None):
+        """Return annotations"""
+        # kws: taxid
         if len(self.taxid2asscs) == 1:
             taxid = next(iter(self.taxid2asscs.keys()))
-            return self._get_id2gos(self.taxid2asscs[taxid], **kws)
-        assert 'taxid' in kws, "**FATAL: 'taxid' NOT FOUND IN Gene2GoReader::get_id2gos({KW})".format(KW=kws)
-        taxid = kws['taxid']
+            return self.taxid2asscs[taxid]
         assert taxid in self.taxid2asscs, '**FATAL: TAXID({T}) DATA MISSING'.format(T=taxid)
-        return self._get_id2gos(self.taxid2asscs[taxid], **kws)
+        return self.taxid2asscs[taxid]
 
     def get_name(self):
         """Get name using taxid"""
@@ -56,8 +68,8 @@ class Gene2GoReader(AnnoReaderBase):
         for taxid in self._get_taxids(taxids):
             nts = self.taxid2asscs[taxid]
             assc = self.reduce_annotations(nts, options)
-            taxid2asscs[taxid]['ID2GOs'] = self._get_dbid2goids(assc)
-            taxid2asscs[taxid]['GO2IDs'] = self._get_goid2dbids(assc)
+            taxid2asscs[taxid]['ID2GOs'] = self.get_dbid2goids(assc)
+            taxid2asscs[taxid]['GO2IDs'] = self.get_goid2dbids(assc)
         return taxid2asscs
 
     @staticmethod

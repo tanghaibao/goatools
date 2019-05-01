@@ -62,15 +62,32 @@ class AnnoOptions(object):
         (False, True): -1,  # Exclude user-specified Evidence codes
     }
 
+    def __str__(self):
+        pat = (
+            'EVIDENCE CODE ARGS: '
+            '{DESC}(keep_nd={ND}, keep_not={NOT}) CODES(include[{I}], exclude[{E}])\n'
+            'ASSOCIATIONS: {A2Bs}'
+        )
+        return pat.format(
+            DESC=self._get_desc(), ND=self._keep_nd, NOT=self._keep_not,
+            I='-' if self.include_evcodes is None else len(self.include_evcodes),
+            E='-' if self.exclude_evcodes is None else len(self.exclude_evcodes),
+            A2Bs='NORMAL(id2gos)' if self.b_geneid2gos else 'REVERSED(go2ids)',
+        )
+
     def getfnc_qual_ev(self):
         """Keep annotaion if it passes potentially modified selection."""
         fnc_key = (
-            self.nd_not2desc[(self._keep_nd, self._keep_not)],
+            self._get_desc(),
             self.incexc2num[(
                 self.include_evcodes is not None,
                 self.exclude_evcodes is not None)],
         )
         return self.param2fnc[fnc_key]
+
+    def _get_desc(self):
+        """Get desc: qualified, unqualified; ND and NOT"""
+        return self.nd_not2desc[(self._keep_nd, self._keep_not)]
 
 
     # - Filter by Evidence_code or Qualifier ----------------------------------------

@@ -50,6 +50,12 @@ class AnnoReaderBase(object):
         self.associations = self._init_associations(filename, **kws)
         # assert self.associations, 'NO ANNOTATIONS FOUND: {ANNO}'.format(ANNO=filename)
 
+    # pylint: disable=unused-argument
+    def get_associations(self, taxid=None):
+        """Get associations"""
+        # taxid is for NCBI's gene2gos
+        return self.associations
+
     def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print annotation/evidence code summary."""
         self.evobj.prt_summary_anno2ev(self.associations, prt)
@@ -76,6 +82,27 @@ class AnnoReaderBase(object):
         """Get all IDs in the associations"""
         return set(nt.DB_ID for nt in associations)
 
+    def get_ns2assc(self, **kws):
+        """Return given associations into 3 (BP, MF, CC) dicts, id2gos"""
+        return {ns:self._get_id2gos(nts, **kws) for ns, nts in self.get_ns2ntsanno(kws.get('taxid')).items()}
+
+    # pylint: disable=unused-argument
+    def get_ns2ntsanno(self, taxid=None):
+        """Split list of annotations into 3 lists: BP, MF, CC"""
+        return self._get_ns2ntsanno(self.associations)
+
+    def _get_ns2ntsanno(self, annotations):
+        """Split list of annotations into 3 lists: BP, MF, CC"""
+        if self.name in {'gpad', 'id2gos'}:
+            assert self.godag is not None, "{T}: LOAD godag TO USE {C}::ns2ntsanno".format(
+                C=self.__class__.__name__, T=self.name)
+        ns2nts = cx.defaultdict(list)
+        for nta in annotations:
+            ### if self.name == 'id2gos':
+            ###     print('BBBBBBBBBBBBBBBBBBBBBBB', nta)
+            ns2nts[nta.NS].append(nta)
+        return {ns:ns2nts[ns] for ns in set(['BP', 'MF', 'CC']).intersection(ns2nts)}
+
     def get_id2gos(self, **kws):
         """Return all associations in a dict, id2gos"""
         return self._get_id2gos(self.associations, **kws)
@@ -87,7 +114,7 @@ class AnnoReaderBase(object):
         #   * Evidence_Code == ND -> No biological data No biological Data available
         #   * Qualifiers contain NOT
         assc = self.reduce_annotations(associations, options)
-        return self._get_dbid2goids(assc) if options.b_geneid2gos else self._get_goid2dbids(assc)
+        return self.get_dbid2goids(assc) if options.b_geneid2gos else self.get_goid2dbids(assc)
 
     # Qualifier (column 4)
     # Flags that modify the interpretation of an annotation one (or more) of NOT, contributes_to, colocalizes_with
@@ -120,7 +147,7 @@ class AnnoReaderBase(object):
         return [nt for nt in annotations if getfnc_qual_ev(nt.Qualifier, nt.Evidence_Code)]
 
     @staticmethod
-    def _get_dbid2goids(associations):
+    def get_dbid2goids(associations):
         """Return gene2go data for user-specified taxids."""
         id2gos = cx.defaultdict(set)
         for ntd in associations:
@@ -128,7 +155,7 @@ class AnnoReaderBase(object):
         return dict(id2gos)
 
     @staticmethod
-    def _get_goid2dbids(associations):
+    def get_goid2dbids(associations):
         """Return gene2go data for user-specified taxids."""
         go2ids = cx.defaultdict(set)
         for ntd in associations:
