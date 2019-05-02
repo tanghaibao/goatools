@@ -125,21 +125,31 @@ class GoeaCliArgs(object):
                        help="Exclude specified evidence codes and groups separated by commas")
         p.add_argument('--ev_help', dest='ev_help', action='store_false',
                        help="Print all Evidence codes")
+        p.add_argument('--ev_help_short', dest='ev_help_short', action='store_false',
+                       help="Print all Evidence codes")
 
         if len(sys.argv) == 1:
             sys.exit(not p.print_help())
-        if '--ev_help' in sys.argv:
-            print('\nEVIDENCE CODE HELP: --ev_exc --ev_inc')
-            print('Use any of these group names, ')
-            print('like Experimental or Similarity or Experimental,Similarity,')
-            print('or evidence codes, like IEA or ISS,ISO,ISA in --ev_exc or --ev_inc:\n')
-            obj = EvidenceCodes()
-            obj.prt_details()
-            sys.exit(0)
-
+        self._prt_evidence_codes(set(sys.argv[1:]))
         args = p.parse_args()  # Namespace object from argparse
         self._check_input_files(args, p)
         return args
+
+    @staticmethod
+    def _prt_evidence_codes(args):
+        if not {'--ev_help', '--ev_help_short'}.isdisjoint(args):
+            print('\nEVIDENCE CODE HELP: --ev_exc --ev_inc')
+            print('Use any of these group names, ')
+            print('like Experimental or Similarity or Experimental,Similarity,')
+            print('or evidence codes, like IEA or ISS,ISO,ISA in --ev_exc or --ev_inc:')
+            obj = EvidenceCodes()
+            if '--ev_help' in args:
+                print('')
+                obj.prt_details()
+            if '--ev_help_short' in args:
+                print('')
+                obj.prt_summary_code()
+            sys.exit(0)
 
     @staticmethod
     def _check_input_files(nspc, parser):
