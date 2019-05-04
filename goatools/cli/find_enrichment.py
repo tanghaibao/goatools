@@ -57,7 +57,7 @@ class GoeaCliArgs(object):
 
     def __init__(self):
         self.args = self._init_args()
-        # print(self.args)
+        ## print(self.args)
 
     def _init_args(self):
         """Get enrichment arg parser."""
@@ -82,6 +82,11 @@ class GoeaCliArgs(object):
                        help='Only print results when PVAL_FIELD < PVAL.')
         p.add_argument('--outfile', default=None, type=str,
                        help='Write enrichment results into xlsx or tsv file')
+        p.add_argument('--ns', default='BP,MF,CC', type=str,
+                       help='Limit GOEA to specified branch categories. '
+                            'BP=Biological Process; '
+                            'MF=Molecular Function; '
+                            'CC=Cellular Component')
         p.add_argument('--id2sym', default=None, type=str,
                        help='ASCII file containing one geneid and its symbol per line')
         p.add_argument('--sections', default=None, type=str,
@@ -126,7 +131,7 @@ class GoeaCliArgs(object):
         p.add_argument('--ev_exc', type=str,
                        help="Exclude specified evidence codes and groups separated by commas")
         p.add_argument('--ev_help', dest='ev_help', action='store_false',
-                       help="Print all Evidence codes")
+                       help="Print all Evidence codes, with descriptions")
         p.add_argument('--ev_help_short', dest='ev_help_short', action='store_false',
                        help="Print all Evidence codes")
 
@@ -180,7 +185,7 @@ class GoeaCliFnc(object):
         _optional_attrs = ['relationship'] if self.sections else None
         self.godag = GODag(obo_file=self.args.obo, optional_attrs=_optional_attrs)
         # Get GOEnrichmentStudy
-        self.objanno = self._get_objanno(self.args.filenames[2])
+        self.objanno = self._get_objanno(self.args.filenames[2], self.args.ns.split(','))
         #### _assoc = self._get_id2gos()
         _ns2assoc = self.objanno.get_ns2assc(**self._get_anno_kws())
         _study, _pop = self.rd_files(*self.args.filenames[:2])
@@ -205,8 +210,9 @@ class GoeaCliFnc(object):
         return kws
         #### return self.objanno.get_id2gos(**kws)
 
-    def _get_objanno(self, assoc_fn):
+    def _get_objanno(self, assoc_fn, namespaces):
         """Get an annotation object"""
+        ## print('NNNNNNNNNNNNNNNNNNNNNNNNNNNNN', namespaces)
         # Determine annotation file format from filename, if possible
         anno_type = get_anno_desc(assoc_fn, None)
         # Default annotation file format is id2gos

@@ -32,7 +32,7 @@ from goatools.pvalcalc import FisherFactory
 from goatools.godag.prtfncs import GoeaPrintFunctions
 from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
 from goatools.rpt.prtfmt import PrtFmt
-from goatools.goea.results import GoeaResults
+# from goatools.goea.results import GoeaResults
 
 class GOEnrichmentRecord(object):
     """Represents one result (from a single GOTerm) in the GOEnrichmentStudy
@@ -71,12 +71,6 @@ class GOEnrichmentRecord(object):
         # Ex: ratio_in_pop ratio_in_study study_items p_uncorrected pop_items
         for key, val in kwargs.items():
             setattr(self, key, val)
-            #### if key == 'ratio_in_study':
-            ####     setattr(self, 'study_count', val[0])
-            ####     setattr(self, 'study_n', val[1])
-            #### if key == 'ratio_in_pop':
-            ####     setattr(self, 'pop_count', val[0])
-            ####     setattr(self, 'pop_n', val[1])
         _stucnt = kwargs.get('ratio_in_study', (0, 0))
         self.study_count = _stucnt[0]
         self.study_n = _stucnt[1]
@@ -276,11 +270,11 @@ class GOEnrichmentStudy(object):
             obo_dag.update_association(assoc)
         self.go2popitems = get_terms("population", pop, assoc, obo_dag, self.log)
 
-    def get_objresults(self, name, study, **kws):
-        """Run GOEA, return results in an object"""
-        results = self.run_study(study, **kws)
-        study_in_pop = self.pop.intersection(study)
-        return GoeaResults(study_in_pop, results, self, name)
+    # def get_objresults(self, name, study, **kws):
+    #     """Run GOEA, return results in an object"""
+    #     results = self.run_study(study, **kws)
+    #     study_in_pop = self.pop.intersection(study)
+    #     return GoeaResults(study_in_pop, results, self, name)
 
     def run_study(self, study, **kws):
         """Run Gene Ontology Enrichment Study (GOEA) on study ids."""
