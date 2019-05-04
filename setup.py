@@ -47,6 +47,7 @@ setup(
         NAME + ".anno",
         NAME + ".anno.init",
         NAME + ".anno.extensions",
+        NAME + ".goea",
         NAME + ".grouper",
         NAME + ".parsers"],
     include_package_data=True,

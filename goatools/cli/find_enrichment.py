@@ -22,11 +22,13 @@ import os
 import sys
 import re
 import argparse
+import itertools
 
 from goatools.evidence_codes import EvidenceCodes
 
 from goatools.obo_parser import GODag
-from goatools.go_enrichment import GOEnrichmentStudy
+#### from goatools.go_enrichment import GOEnrichmentStudy
+from goatools.goea.go_enrichment_ns import GOEnrichmentStudyNS
 from goatools.multiple_testing import Methods
 from goatools.pvalcalc import FisherFactory
 from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
@@ -179,26 +181,29 @@ class GoeaCliFnc(object):
         self.godag = GODag(obo_file=self.args.obo, optional_attrs=_optional_attrs)
         # Get GOEnrichmentStudy
         self.objanno = self._get_objanno(self.args.filenames[2])
-        _assoc = self._get_id2gos()
+        #### _assoc = self._get_id2gos()
+        _ns2assoc = self.objanno.get_ns2assc(**self._get_anno_kws())
         _study, _pop = self.rd_files(*self.args.filenames[:2])
         if not self.args.compare:  # sanity check
-            self.chk_genes(_study, _pop, _assoc)
+            self.chk_genes(_study, _pop, self.objanno.associations)
         self.methods = self.args.method.split(",")
         self.itemid2name = self._init_itemid2name()
-        self.objgoea = self._init_objgoea(_pop, _assoc)
+        self.objgoeans = self._init_objgoeans(_pop, _ns2assoc)
         # Run GOEA
-        self.results_all = self.objgoea.run_study(_study)
+        self.results_all = self.objgoeans.run_study(_study)
         # Prepare for grouping, if user-specified. Create GroupItems
-        self.prepgrp = GroupItems(_assoc, self, self.godag.version) if self.sections else None
+        self.prepgrp = GroupItems(self, self.godag.version) if self.sections else None
 
-    def _get_id2gos(self):
-        """Return annotations as id2gos"""
+    #### def _get_id2gos(self):
+    def _get_anno_kws(self):
+        """Return keyword options to obtain id2gos"""
         kws = {}
         if self.args.ev_inc is not None:
             kws['ev_include'] = set(self.args.ev_inc.split(','))
         if self.args.ev_exc is not None:
             kws['ev_exclude'] = set(self.args.ev_exc.split(','))
-        return self.objanno.get_id2gos(**kws)
+        return kws
+        #### return self.objanno.get_id2gos(**kws)
 
     def _get_objanno(self, assoc_fn):
         """Get an annotation object"""
@@ -207,8 +212,16 @@ class GoeaCliFnc(object):
         # Default annotation file format is id2gos
         if anno_type is None:
             anno_type = self.args.annofmt if self.args.annofmt else 'id2gos'
-        kws = {'taxid': self.args.taxid} if anno_type == 'gene2go' else {}
+        kws = self._get_kws_objanno(anno_type)
         return get_objanno(assoc_fn, anno_type, **kws)
+
+    def _get_kws_objanno(self, anno_type):
+        """Get keyword-args for creating an Annotation object"""
+        if anno_type == 'gene2go':
+            return {'taxid': self.args.taxid}
+        if anno_type in {'gpad', 'id2gos'}:
+            return {'godag': self.godag}
+        return {}
 
     def _init_itemid2name(self):
         """Print gene symbols instead of gene IDs, if provided."""
@@ -244,11 +257,11 @@ class GoeaCliFnc(object):
         kws = {'indent':self.args.indent, 'itemid2name':self.itemid2name}
         for outfile in outfiles:
             if outfile.endswith(".xlsx"):
-                self.objgoea.wr_xlsx(outfile, goea_results, **kws)
+                self.objgoeans.wr_xlsx(outfile, goea_results, **kws)
             #elif outfile.endswith(".txt"):  # TBD
             #    pass
             else:
-                self.objgoea.wr_tsv(outfile, goea_results, **kws)
+                self.objgoeans.wr_tsv(outfile, goea_results, **kws)
 
     def _prt_results(self, goea_results):
         """Print GOEA results to the screen."""
@@ -268,17 +281,17 @@ class GoeaCliFnc(object):
         """Given all GOEA results, return the significant results (< pval)."""
         return self.get_results_sig() if self.args.pval != -1.0 else self.results_all
 
-    def _init_objgoea(self, pop, assoc):
+    def _init_objgoeans(self, pop, ns2assoc):
         """Run gene ontology enrichment analysis (GOEA)."""
         propagate_counts = not self.args.no_propagate_counts
-        return GOEnrichmentStudy(pop, assoc, self.godag,
-                                 propagate_counts=propagate_counts,
-                                 relationships=False,
-                                 alpha=self.args.alpha,
-                                 pvalcalc=self.args.pvalcalc,
-                                 methods=self.methods)
+        return GOEnrichmentStudyNS(pop, ns2assoc, self.godag,
+                                   propagate_counts=propagate_counts,
+                                   relationships=False,
+                                   alpha=self.args.alpha,
+                                   pvalcalc=self.args.pvalcalc,
+                                   methods=self.methods)
 
-    def chk_genes(self, study, pop, assoc=None):
+    def chk_genes(self, study, pop, ntsassoc=None):
         """Check gene sets."""
         if len(pop) < len(study):
             exit("\nERROR: The study file contains more elements than the population file. "
@@ -292,13 +305,15 @@ class GoeaCliFnc(object):
             exit("\nERROR: only {} of genes/proteins in the study are found in the "
                  "background population. Please check.\n".format(overlap))
         # Population and associations
-        if assoc is not None and pop.isdisjoint(assoc.keys()):
-            if self.objanno.name == 'gene2go':
-                err = ('**FATAL: NO POPULATION ITEMS SEEN IN THE NCBI gene2go ANNOTATIONS '
-                       'FOR taxid({T}). TRY: --taxid=<taxid number>')
-                exit(err.format(T=next(iter(self.objanno.taxid2asscs.keys()))))
-            else:
-                exit('**FATAL: NO POPULATION ITEMS SEEN IN THE ANNOTATIONS')
+        if ntsassoc is not None:
+            assc_ids = set(nt.DB_ID for nt in ntsassoc)
+            if pop.isdisjoint(assc_ids):
+                if self.objanno.name == 'gene2go':
+                    err = ('**FATAL: NO POPULATION ITEMS SEEN IN THE NCBI gene2go ANNOTATIONS '
+                           'FOR taxid({T}). TRY: --taxid=<taxid number>')
+                    exit(err.format(T=next(iter(self.objanno.taxid2asscs.keys()))))
+                else:
+                    exit('**FATAL: NO POPULATION ITEMS SEEN IN THE ANNOTATIONS')
 
     def get_results_sig(self):
         """Get significant results."""
@@ -365,10 +380,11 @@ class GoeaCliFnc(object):
 class GroupItems(object):
     """Prepare for grouping, if specified by the user."""
 
-    def __init__(self, gene2gos, objcli, godag_version):
+    def __init__(self, objcli, godag_version):
         # _goids = set(o.id for o in godag.values() if not o.children)
         _goids = set(r.GO for r in objcli.results_all)
-        _tobj = TermCounts(objcli.godag, gene2gos)
+        assoc_values = objcli.objgoeans.get_list_gosets()
+        _tobj = TermCounts(objcli.godag, None, assoc_values)
         # pylint: disable=line-too-long
         self.gosubdag = GoSubDag(_goids, objcli.godag, relationships=True, tcntobj=_tobj, prt=sys.stdout)
         self.grprdflt = GrouperDflts(self.gosubdag, objcli.args.goslim)

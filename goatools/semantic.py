@@ -17,7 +17,7 @@ class TermCounts(object):
     '''
         TermCounts counts the term counts for each
     '''
-    def __init__(self, go2obj, annots):
+    def __init__(self, go2obj, annots, anno_values=None):
         '''
             Initialise the counts and
         '''
@@ -29,18 +29,18 @@ class TermCounts(object):
         self.aspect_counts = Counter()
 
         # Fill the counters...
-        self._init_termcounts(annots)
+        self._init_termcounts(annots.values() if anno_values is None else anno_values)
 
 
-    def _init_termcounts(self, annots):
+    def _init_termcounts(self, annots_values):
         '''
             Fill aspect_counts. Find alternate GO IDs that may not be on gocnts.
         '''
-        self._init_count_terms(annots)
+        self._init_count_terms(annots_values)
         self._init_add_goid_alt()
 
 
-    def _init_count_terms(self, annots):
+    def _init_count_terms(self, annots_values):
         '''
             Fills in the counts and overall aspect counts.
         '''
@@ -48,7 +48,7 @@ class TermCounts(object):
         gocnts = self.gocnts
         go2obj = self.go2obj
         # Fill gocnts with GO IDs in annotations and their corresponding counts
-        for terms in annots.values(): # key is 'gene'
+        for terms in annots_values: # key is 'gene'
             # Make a union of all the terms for a gene, if term parents are
             # propagated but they won't get double-counted for the gene
             allterms = set()

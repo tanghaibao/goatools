@@ -27,7 +27,8 @@ def test_find_enrichment():
     objcli = GoeaCliFnc(args)
 
     # Check results
-    expected_cnts = {'fdr_bh': 17, 'sidak': 5, 'holm': 5, 'bonferroni': 5}
+    ## expected_cnts = {'fdr_bh': 17, 'sidak': 5, 'holm': 5, 'bonferroni': 5}
+    expected_cnts = {'fdr_bh': 19, 'sidak': 9, 'holm': 9, 'bonferroni': 9}
     _chk_results(objcli.results_all, expected_cnts, objcli)
     print("TEST PASSED")
 
@@ -40,7 +41,8 @@ def _chk_results(results, expected_cnts, objcli):
         for method in objcli.methods:
             ctr[method] += getattr(ntres, "p_{METHOD}".format(METHOD=method)) < alpha
     for method, num_sig in ctr.most_common():
-        assert num_sig == expected_cnts[method]
+        assert num_sig == expected_cnts[method], '{EXP} {ACT}'.format(
+            EXP=expected_cnts, ACT=ctr.most_common())
 
 
 
