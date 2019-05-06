@@ -146,7 +146,7 @@ EVIDENCE CODES:
         IEA Inferred from Electronic Annotation
 ```
 
-### 3) Limit the GOEA to biological process, molecular function, and/or cellular compartment
+### 3) Limit the GOEA to _biological process_, _molecular function_, and/or _cellular compartment_
 Use the --ns option to limit the GOEA to any of:
 
 | NS | Namespace |
@@ -164,22 +164,22 @@ Namespace examples:
 --ns=CC      # Only run one GOEA on the Molecular Function branch
 ```
 
-Without --ns, all three branches will be analyzed:
+#### Without --ns, all three branches will be analyzed:
 ```
 python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
 ```
 
-With **--ns=MF**, only the _**molecular function**_ branch will be analyzed:
+#### With **--ns=MF**, only the _**molecular function**_ branch will be analyzed:
 ```
 python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --ns=MF --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
 ```
 
-With **--ns=BP,MF**, run GOEAs on both the _**biological process**_ and the _**molecular function**_ branches:
+#### With **--ns=BP,MF**, run GOEAs on both the _**biological process**_ and the _**molecular function**_ branches:
 ```
 python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --ns=BP,MF --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
 ```
 
-With **--ns=MF** and **--ev_inc=IPI**, to run a GOEA on the _**molecular function**_ branch for just the evidence code **IPI**, which is
+#### With **--ns=MF** and **--ev_inc=IPI**, to run a GOEA on the _**molecular function**_ branch for just the evidence code **IPI**, which is
 evidence codes which are inferred from Physical Interaction
 ```
 python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt -ns=MF --ev_inc=IPI gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
