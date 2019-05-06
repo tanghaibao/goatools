@@ -24,6 +24,12 @@ def test_evcode_picker():
     act = obj.get_evcodes({'Experimental'}, {'IEP'})
     assert act == set(['EXP', 'IDA', 'IPI', 'IMP', 'IGI']), act
     #
+    act = obj.get_evcodes({'Experimental', 'Similarity'}, {'IEP', 'IMR'})
+    exp = {
+        'EXP', 'IDA', 'IPI', 'IMP', 'IGI',
+        'ISS', 'ISO', 'ISA', 'ISM', 'IGC', 'IBA', 'IBD', 'IKR', 'IRD'}
+    assert act == exp, act
+    #
     act = obj.get_evcodes(None, {'IEA'})
     exp = set(obj.code2nt)
     exp.difference_update({'IEA', 'ND'})

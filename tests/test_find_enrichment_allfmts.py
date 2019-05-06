@@ -40,6 +40,11 @@ def test_find_enrichment():
         objgoeans = _get_objgoeans(pop, ns2assc, godag)
         results = objgoeans.run_study(enriched)
         print('{N} results'.format(N=len(results)))
+        # Run one branch
+        bp2assc = {'BP': ns2assc['BP']}
+        objgoeabp = _get_objgoeans(pop, bp2assc, godag)
+        results_bp = objgoeabp.run_study(enriched)
+        print('{N} results'.format(N=len(results_bp)))
     print("TEST PASSED")
 
 
