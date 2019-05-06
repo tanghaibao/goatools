@@ -76,7 +76,6 @@ EXCLUDE all IEA annotations:
 
   --ev_exc=IEA  # Evidence codes with IEA are excluded
 ```
-```
 python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_exc=IEA --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx
 ```
 
@@ -167,17 +166,17 @@ Without --ns, all three branches will be analyzed:
 python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
 ```
 
-With **--ns=MF**, only the _molecular function_ branch will be analyzed:
+With **--ns=MF**, only the _**molecular function**_ branch will be analyzed:
 ```
 python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --ns=MF --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
 ```
 
-With **--ns=BP,MF**, run GOEAs on both the _biological process_ and the _molecular function_:
+With **--ns=BP,MF**, run GOEAs on both the _**biological process**_ and the _**molecular function**_:
 ```
 python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --ns=BP,MF --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
 ```
 
-With **-ns=MF** and **--ev_inc=IPI**, to run a GOEA on the _molecular function_ branch for just the evidence code **IPI**, which is
+With **--ns=MF** and **--ev_inc=IPI**, to run a GOEA on the _**molecular functioni**_ branch for just the evidence code **IPI**, which is
 evidence codes which are inferred from Physical Interaction
 ```
 python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt -ns=MF --ev_inc=IPI gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
