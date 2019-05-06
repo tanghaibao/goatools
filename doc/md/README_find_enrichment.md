@@ -13,6 +13,7 @@
      * [**Exclude annotations inferred from Electronic Annotation (IEA)**](#2a-exclude-annotations-inferred-from-electronic-annotation-iea)
      * [**Include only annotations inferred from experimental evidence**](#2b-include-only-annotations-inferred-from-experimental-evidence)
      * [Get **list of evidence codes**](#2c-Get-list-of-evidence-codes)
+  3. **Limit the GOEA to _biological process_, _molecular function_, and/or _cellular compartment_**
   4. [with **uncorrected pvalues < 0.05** to the screen](#4-print-go-terms-with-uncorrected-pvalues--005-to-the-screen-default):
     (default)
   5. [with **uncorrected pvalues < 0.05** to the screen, **grouped**](#5-print-go-terms-with-uncorrected-pvalues--005-to-the-screen-grouped):    
