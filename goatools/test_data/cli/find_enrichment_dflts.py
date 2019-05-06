@@ -30,6 +30,7 @@ class ArgsDict(object):
             'obo' : '{REPO}/go-basic.obo'.format(REPO=self.repo),
             'outfile' : '{REPO}/goea.txt'.format(REPO=self.repo),
             'outfile_detail' : None,
+            'ns': 'BP,MF,CC',
             'pval' : 0.05,
             'pval_field' : 'uncorrected',
             'pvalcalc' : 'fisher',

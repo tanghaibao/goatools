@@ -7,6 +7,7 @@
 
 import sys
 import collections as cx
+from itertools import chain
 from goatools.anno.init.reader_genetogo import InitAssc
 from goatools.anno.annoreader_base import AnnoReaderBase
 from goatools.anno.opts import AnnoOptions
@@ -19,9 +20,11 @@ __author__ = "DV Klopfenstein"
 class Gene2GoReader(AnnoReaderBase):
     """Reads a Gene Annotation File (GAF). Returns a Python object."""
 
+    exp_kws = {'taxids', 'taxid'}
+
     def __init__(self, filename=None, **kws):
         # kws: taxids or taxid
-        super(Gene2GoReader, self).__init__('gene2go', filename, kws.get('godag'), **kws)
+        super(Gene2GoReader, self).__init__('gene2go', filename, **kws)
         # Initialize associations and header information
         self.taxid2asscs = self._init_taxid2asscs()
 
@@ -32,21 +35,31 @@ class Gene2GoReader(AnnoReaderBase):
         # kws2: ev_include ev_exclude ...
         return self._get_ns2ntsanno(ntsanno)
 
-    def get_id2gos(self, **kws):
+    def get_id2gos(self, namespace='BP', taxid=None, **kws):
         """Return geneid2gos, or optionally go2geneids."""
         # kws1: taxid
-        ntsanno = self.get_associations(kws.get('taxids'))
+        ntsanno = [nt for nt in self.get_associations(taxid) if nt.NS == namespace]
         # kws2: ev_include ev_exclude
-        return self._get_id2gos(ntsanno, **kws)
+        id2gos = self._get_id2gos(ntsanno, **kws)
+        # pylint: disable=superfluous-parens
+        print('{N} IDs in association branch, {NS}'.format(N=len(id2gos), NS=namespace))
+        return id2gos
 
     def get_associations(self, taxid=None):
         """Return annotations"""
         # kws: taxid
         if len(self.taxid2asscs) == 1:
-            taxid = next(iter(self.taxid2asscs.keys()))
-            return self.taxid2asscs[taxid]
+            taxid_cur = next(iter(self.taxid2asscs.keys()))
+            return self.taxid2asscs[taxid_cur]
         assert taxid in self.taxid2asscs, '**FATAL: TAXID({T}) DATA MISSING'.format(T=taxid)
         return self.taxid2asscs[taxid]
+
+    def get_id2gos_nss(self, **kws):
+        """Return all associations in a dict, id2gos, regardless of namespace"""
+        taxids = self._get_taxids(kws.get('taxids'), kws.get('taxid'))
+        assert taxids, "NO TAXIDS FOUND"
+        assc = list(chain.from_iterable([self.taxid2asscs[t] for t in taxids]))
+        return self._get_id2gos(assc, **kws)
 
     def get_name(self):
         """Get name using taxid"""
@@ -58,6 +71,10 @@ class Gene2GoReader(AnnoReaderBase):
     def get_taxid(self):
         """Return taxid, if one was provided. Other wise return True representing all taxids"""
         return next(iter(self.taxid2asscs.keys())) if len(self.taxid2asscs) == 1 else True
+
+    def has_ns(self):
+        """Return True if namespace field, NS exists on annotation namedtuples"""
+        return True
 
     # -- taxids2asscs -------------------------------------------------------------------------
     def get_taxid2asscs(self, taxids=None, **kws):
@@ -88,16 +105,18 @@ class Gene2GoReader(AnnoReaderBase):
                 id2gos_all[geneid] = gos
         return id2gos_all
 
-    def _get_taxids(self, taxids=None):
+    def _get_taxids(self, taxids=None, taxid=None):
         """Return user-specified taxids or taxids in self.taxid2asscs"""
         taxid_keys = set(self.taxid2asscs.keys())
+        if taxids is None and taxid is not None:
+            taxids = [taxid]
         return taxid_keys if taxids is None else set(taxids).intersection(taxid_keys)
 
     # -- initialization -----------------------------------------------------------------------
     @staticmethod
-    def _init_associations(fin_anno, taxid=None, taxids=None):
+    def _init_associations(fin_anno, taxid=None, taxids=None, namespaces=None):
         """Read annotation file and store a list of namedtuples."""
-        return InitAssc(taxid, taxids).init_associations(fin_anno, taxids)
+        return InitAssc(taxid, taxids).init_associations(fin_anno, taxids, namespaces)
 
     def _init_taxid2asscs(self):
         """Create dict with taxid keys and annotation namedtuple list."""

@@ -8,8 +8,6 @@ import sys
 from collections import defaultdict
 from goatools.associations import dnld_ncbi_gene_file
 from goatools.anno.genetogo_reader import Gene2GoReader
-from goatools.associations import read_ncbi_gene2go
-## from goatools.associations import read_ncbi_gene2go_old
 
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -34,19 +32,20 @@ def test_anno_read():
     print('\nTEST GETTING ASSOCIATIONS FOR ONE SPECIES')
     print("\nTEST read_ncbi_gene2go_old: [9606]")
     old_g2go_hsa = read_ncbi_gene2go_old(fin_anno, [9606])
-    new_g2go_hsa = read_ncbi_gene2go(fin_anno, [9606])
+    ## new_g2go_hsa = read_ncbi_gene2go(fin_anno, [9606])
+    new_g2go_hsa = obj.get_id2gos_nss(taxids=[9606])
     assert old_g2go_hsa == new_g2go_hsa, \
       'OLD({O}) != NEW({N})'.format(O=len(old_g2go_hsa), N=len(new_g2go_hsa))
     print("\nTEST read_ncbi_gene2go_old: 9606")
-    assert old_g2go_hsa == read_ncbi_gene2go(fin_anno, 9606)
-    print("\nTEST read_ncbi_gene2go_old: None")
-    assert old_g2go_hsa == read_ncbi_gene2go(fin_anno, None)
+    ## assert old_g2go_hsa == read_ncbi_gene2go(fin_anno, 9606)
+    assert old_g2go_hsa == obj.get_id2gos_nss(taxid=9606)
 
     print('\nTEST GETTING REVERSE ASSOCIATIONS: GO2GENES')
     go2geneids = True
     print("\nTEST read_ncbi_gene2go_old: 9606 go2geneids=True")
     old_go2gs_hsa = read_ncbi_gene2go_old(fin_anno, [9606], go2geneids=go2geneids)
-    new_go2gs_hsa = read_ncbi_gene2go(fin_anno, 9606, go2geneids=go2geneids)
+    ## new_go2gs_hsa = read_ncbi_gene2go(fin_anno, 9606, go2geneids=go2geneids)
+    new_go2gs_hsa = obj.get_id2gos_nss(taxid=9606, go2geneids=go2geneids)
     print('OLD:', next(iter(old_go2gs_hsa.items())))
     print('NEW:', next(iter(new_go2gs_hsa.items())))
     assert old_go2gs_hsa == new_go2gs_hsa, \
@@ -55,8 +54,9 @@ def test_anno_read():
     print('\nTEST RETURNING ASSOCIATIONS FOR SELECTED EVIDENCE CODES')
     evcodes = set(['ISO', 'IKR'])
     print("\nTEST read_ncbi_gene2go_old: 9606 evcodes=True")
-    old_gene2gos_evc = read_ncbi_gene2go_old(fin_anno, [9606], ev_include=evcodes)
-    new_gene2gos_evc = read_ncbi_gene2go(fin_anno, 9606, ev_include=evcodes)
+    old_gene2gos_evc = read_ncbi_gene2go_old(fin_anno, taxids=[9606], ev_include=evcodes)
+    ## new_gene2gos_evc = read_ncbi_gene2go(fin_anno, 9606, ev_include=evcodes)
+    new_gene2gos_evc = obj.get_id2gos_nss(taxid=9606, ev_include=evcodes)
     print('OLD:', next(iter(old_gene2gos_evc.items())))
     print('NEW:', next(iter(new_gene2gos_evc.items())))
     assert old_gene2gos_evc == new_gene2gos_evc

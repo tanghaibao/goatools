@@ -14,17 +14,17 @@ __author__ = "DV Klopfenstein"
 class IdToGosReader(AnnoReaderBase):
     """Reads a Annotation File in text format with data in id2gos line"""
 
-    def __init__(self, filename=None, godag=None):
-        self.id2gos = None
-        super(IdToGosReader, self).__init__('id2gos', filename, godag)
+    exp_kws = {'godag', 'namespaces'}
+
+    def __init__(self, filename=None, **kws):
+        self.id2gos = None  # ID to GO ID set as loaded from annotations file
+        super(IdToGosReader, self).__init__('id2gos', filename,
+                                            godag=kws.get('godag'),
+                                            namespaces=kws.get('namespaces'))
 
     def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print a summary of all Evidence Codes seen in annotations"""
         prt.write('**NOTE: No evidence codes in associations: {F}\n'.format(F=self.filename))
-
-    def get_id2gos(self, **kws):
-        """Return associations as a dict: id2gos"""
-        return self._get_id2gos(self.associations, **kws) if kws else self.id2gos
 
     # pylint: disable=unused-argument
     def reduce_annotations(self, associations, options):
@@ -39,10 +39,9 @@ class IdToGosReader(AnnoReaderBase):
         """Get annotations having Qualifiers containing NOT"""
         return []
 
-    def _init_associations(self, fin_anno):
+    def _init_associations(self, fin_anno, **kws):
         """Read annotation file and store a list of namedtuples."""
-        ini = InitAssc(fin_anno, self.godag)
-        # self.hdr = ini.flds
+        ini = InitAssc(fin_anno, kws['godag'], kws['namespaces'])
         self.id2gos = ini.id2gos
         return ini.nts
 

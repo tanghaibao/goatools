@@ -11,10 +11,9 @@ import re
 import collections as cx
 from goatools.base import nopen
 from goatools.godag.consts import Consts
-from goatools.anno.annoreader_base import AnnoReaderBase
+from goatools.anno.init.utils import get_date_yyyymmdd
 from goatools.anno.extensions.factory import get_extensions
 from goatools.anno.eco2group import ECO2GRP
-GET_DATE_YYYYMMDD = AnnoReaderBase.get_date_yyyymmdd
 NAMESPACE2NS = Consts.NAMESPACE2NS
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
@@ -71,7 +70,7 @@ class InitAssc(object):
         self.hdr = None
         self.godag = godag
 
-    def _get_ntgpadvals(self, flds, add_ns):
+    def _get_ntgpadvals(self, flds, goid, nspc, add_ns):
         """Convert fields from string to preferred format for GPAD ver 2.1 and 2.0."""
         is_set = False
         qualifiers = self._get_qualifier(flds[2])
@@ -93,20 +92,24 @@ class InitAssc(object):
             flds[0],      #  0  DB
             flds[1],      #  1  DB_ID
             qualifiers,   #  3  Qualifier
-            flds[3],      #  4  GO_ID
+            goid,         #  4  GO_ID
             db_reference, #  5  DB_Reference
             eco,          #  6  ECO
             ECO2GRP[eco],
             with_from,    #  7  With_From
             taxons,       # 12 Taxon
-            GET_DATE_YYYYMMDD(flds[8]),      # 13 Date
+            get_date_yyyymmdd(flds[8]),      # 13 Date
             flds[9],      # 14 Assigned_By
             get_extensions(flds[10]),        # 12 Extension
             props]        # 12 Annotation_Properties
         if add_ns:
-            goobj = self.godag.get(goid, '')
-            gpadvals.append(NAMESPACE2NS[goobj.namespace] if goobj else '')
+            gpadvals.append(nspc)
         return gpadvals
+
+    def _get_namespace(self, goid):
+        """Get the namespace of the GO ID"""
+        goobj = self.godag.get(goid, '')
+        return NAMESPACE2NS[goobj.namespace] if goobj else ''
 
     @staticmethod
     def _get_qualifier(val):
@@ -140,11 +143,7 @@ class InitAssc(object):
         """Return Interacting taxon ID | optional | 0 or 1 | gaf column 13."""
         if not taxon:
             return None
-        ## assert taxon[:6] == 'taxon:', 'UNRECOGNIZED Taxon({Taxon})'.format(Taxon=taxon)
-        ## taxid = taxon[6:]
-        ## assert taxon[:10] == 'NCBITaxon:', 'UNRECOGNIZED Taxon({Taxon})'.format(Taxon=taxon)
-        ## taxid = taxon[10:]
-        # Get tzxon number: taxon:9606 NCBITaxon:9606
+        # Get taxon number: taxon:9606 NCBITaxon:9606
         sep = taxon.find(':')
         taxid = taxon[sep + 1:]
         assert taxid.isdigit(), "UNEXPECTED TAXON({T})".format(T=taxid)
@@ -172,7 +171,7 @@ class InitAssc(object):
         return prop2val
 
     # pylint: disable=too-many-locals
-    def init_associations(self, hdr_only=False, prt=sys.stdout):
+    def init_associations(self, hdr_only=False, namespaces=None, prt=sys.stdout):
         """Read GPAD file. HTTP address okay. GZIPPED/BZIPPED file okay."""
         import timeit
         import datetime
@@ -186,14 +185,18 @@ class InitAssc(object):
         ifstrm = nopen(self.filename)
         _add_ns = self.godag is not None
         _get_ntgpadvals = self._get_ntgpadvals
+        get_all_nss = self._get_b_all_nss(namespaces)
         for lnum, line in enumerate(ifstrm, 1):
             # Read data
             if ntgpadobj_make:
                 flds = self._split_line(line)
                 try:
                     # pylint: disable=not-callable
-                    ntgpad = ntgpadobj_make(_get_ntgpadvals(flds, _add_ns))
-                    associations.append(ntgpad)
+                    goid = flds[3]
+                    nspc = self._get_namespace(goid) if _add_ns else None
+                    if get_all_nss or nspc in namespaces:
+                        ntgpad = ntgpadobj_make(_get_ntgpadvals(flds, goid, nspc, _add_ns))
+                        associations.append(ntgpad)
                 # pylint: disable=broad-except
                 except Exception as inst:
                     import traceback
@@ -218,10 +221,18 @@ class InitAssc(object):
                         return associations
                     ntgpadobj_make = self._get_ntgpadnt(ver, _add_ns)._make
         # GPAD file has been read
-        prt.write('HMS:{HMS} {N:7,} annotations READ: {ANNO}\n'.format(
+        prt.write('HMS:{HMS} {N:7,} annotations READ: {ANNO} {NSs}\n'.format(
             N=len(associations), ANNO=self.filename,
+            NSs=','.join(namespaces) if namespaces else '',
             HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
         return associations
+
+    def _get_b_all_nss(self, namespaces):
+        """Get all namespaces"""
+        if namespaces is not None and self.godag is None:
+            # pylint: disable=superfluous-parens
+            print('**WARNING: GODAG NOT LOADED. IGNORING namespaces={NS}'.format(NS=namespaces))
+        return self.godag is None or namespaces is None or namespaces == {'BP', 'MF', 'CC'}
 
     def _get_ntgpadnt(self, ver, add_ns):
         """Create a namedtuple object for each annotation"""

@@ -16,18 +16,25 @@ class InitAssc(object):
 
     flds = ['DB_ID', 'GO_ID']
 
-    def __init__(self, fin_anno, godag):
+    def __init__(self, fin_anno, godag, namespaces):
         tic = timeit.default_timer()
         self.godag = godag
         self.id2gos = self._init_id2gos(fin_anno)
-        self.nts = self.init_associations()
-        print('HMS:{HMS} {N:7,} annotations READ: {ANNO}'.format(
+        self.nts = self.init_associations(namespaces)
+        print('HMS:{HMS} {N:7,} annotations READ: {ANNO} {NSs}'.format(
             N=len(self.nts), ANNO=fin_anno,
+            NSs=','.join(namespaces) if namespaces else '',
             HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
 
-    def init_associations(self):
+    def init_associations(self, namespaces):
         """Get a list of namedtuples, one for each annotation."""
-        return self._init_w_godag() if self.godag else self._init_dflt()
+        # _get_b_all_nss(namespaces)
+        if namespaces is not None and self.godag is None:
+            # pylint: disable=superfluous-parens
+            print('**WARNING: GODAG NOT LOADED. IGNORING namespaces={NS}'.format(NS=namespaces))
+        get_all_nss = self.godag is None or namespaces is None or namespaces == {'BP', 'MF', 'CC'}
+        nts = self._init_w_godag() if self.godag else self._init_dflt()
+        return nts if get_all_nss else [nt for nt in nts if nt.NS in namespaces]
 
     def _init_dflt(self):
         """Get a list of namedtuples, one for each annotation."""
@@ -45,10 +52,8 @@ class InitAssc(object):
         for itemid, gos in self.id2gos.items():
             for goid in gos:
                 goobj = self.godag.get(goid, '')
-                nts.append(ntobj(
-                    DB_ID=itemid,
-                    GO_ID=goid,
-                    NS=NAMESPACE2NS[goobj.namespace] if goobj else ''))
+                nspc = NAMESPACE2NS[goobj.namespace] if goobj else ''
+                nts.append(ntobj(DB_ID=itemid, GO_ID=goid, NS=nspc))
         return nts
 
     @staticmethod

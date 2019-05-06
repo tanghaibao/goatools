@@ -29,6 +29,10 @@ class GOEnrichmentStudyNS(object):
         """Write to spreadsheet format"""
         next(iter(self.ns2objgoea.values())).wr_tsv(fout_tsv, goea_results, **kws)
 
+    def wr_txt(self, fout_tsv, goea_results, **kws):
+        """Write to spreadsheet format"""
+        next(iter(self.ns2objgoea.values())).wr_txt(fout_tsv, goea_results, **kws)
+
     @staticmethod
     def _ns2o(pop, ns2assoc, godag, propagate_counts, alpha, methods, **kws):
         return {

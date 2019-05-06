@@ -36,15 +36,17 @@ def test_semantic_similarity():
     for species, assc_name in associations:  # Limit test numbers for speed
         print()
         # Get all the annotations for the current species
-        assc_gene2gos = dnld_assc(os.path.join(REPO, assc_name), godag, prt=None)
+        fin_assc = os.path.join(REPO, assc_name)
+        assc_gene2gos = dnld_assc(fin_assc, godag, namespace='MF', prt=None)
         # Calculate the information content of the single term, GO:0048364
         termcounts = TermCounts(godag, assc_gene2gos)
 
         # Print information values for each GO term
         for goid in sorted(goids):
             infocontent = get_info_content(goid, termcounts)
-            print('{SPECIES} Information content {INFO:8.6f} {GO} {NAME}'.format(
-                SPECIES=species, GO=goid, INFO=infocontent, NAME=godag[goid].name))
+            term = godag[goid]
+            print('{SPECIES} Information content {INFO:8.6f} {NS} {GO} {NAME}'.format(
+                SPECIES=species, GO=goid, INFO=infocontent, NS=term.namespace, NAME=term.name))
 
         # Print semantic similarities between each pair of GO terms
         print("GO #1      GO #2      Resnik Lin")

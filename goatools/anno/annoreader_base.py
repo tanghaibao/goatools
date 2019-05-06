@@ -3,9 +3,6 @@
 import sys
 import timeit
 import datetime
-from datetime import date
-# import os
-# import re
 import collections as cx
 from goatools.evidence_codes import EvidenceCodes
 from goatools.anno.opts import AnnoOptions
@@ -14,9 +11,9 @@ __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights re
 __author__ = "DV Klopfenstein"
 
 
-# pylint: disable=broad-except,too-few-public-methods,line-too-long
 class AnnoReaderBase(object):
     """Reads a Gene Association File. Returns a Python object."""
+    # pylint: disable=broad-except,line-too-long,too-many-instance-attributes
 
     tic = timeit.default_timer()
 
@@ -24,21 +21,15 @@ class AnnoReaderBase(object):
     exp_qualifiers = set([
         # Seen in both GAF and gene2go
         'not', 'contributes_to', 'colocalizes_with',
-        # Seen in gene2go
-        # TBD: resolve gaf(not|contributes_to) v gene2go(contributes_to)
-        #'not contributes_to', 'not colocalizes_with',
-        #
-        # Although thee go not appear in:
-        #     http://geneontology.org/page/go-annotation-conventions#qual
-        # they do appear in more than one July 2018 GAFs:
-        #     'enables', 'involved_in', 'part_of',
     ])
 
-    def __init__(self, name, filename=None, godag=None, **kws):
+    # pylint: disable=too-many-instance-attributes
+    def __init__(self, name, filename=None, **kws):
         # kws: allow_missing_symbol
         self.name = name
         self.filename = filename
-        self.godag = godag
+        self.godag = kws.get('godag')
+        self.namespaces = kws.get('namespaces')
         self.evobj = EvidenceCodes()
         # Read anotation file, store namedtuples:
         #     Gene2GoReader(filename=None, taxids=None):
@@ -49,6 +40,14 @@ class AnnoReaderBase(object):
         # pylint: disable=no-member
         self.associations = self._init_associations(filename, **kws)
         # assert self.associations, 'NO ANNOTATIONS FOUND: {ANNO}'.format(ANNO=filename)
+        assert self.namespaces is None or isinstance(self.namespaces, set)
+
+    def get_desc(self):
+        """Get description"""
+        return '{NAME} {NSs} {GODAG}'.format(
+            NAME=self.name,
+            NSs='' if self.namespaces is None else ','.join(self.namespaces),
+            GODAG='' if self.godag is None else 'godag')
 
     # pylint: disable=unused-argument
     def get_associations(self, taxid=None):
@@ -69,19 +68,6 @@ class AnnoReaderBase(object):
         """Return taxid, if one was provided, otherwise return -1"""
         return -1
 
-    def get_population(self):
-        """Get population IDs (all DB_IDs)"""
-        return self._get_population(self.associations)
-
-    def get_ids_g_goids(self, goids):
-        """Get database IDs (DB_IDs), given a set of GO IDs."""
-        return set(nt.DB_ID for nt in self.associations if nt.GO_ID in goids)
-
-    @staticmethod
-    def _get_population(associations):
-        """Get all IDs in the associations"""
-        return set(nt.DB_ID for nt in associations)
-
     def get_ns2assc(self, **kws):
         """Return given associations into 3 (BP, MF, CC) dicts, id2gos"""
         return {ns:self._get_id2gos(nts, **kws) for ns, nts in self.get_ns2ntsanno(kws.get('taxid')).items()}
@@ -98,14 +84,29 @@ class AnnoReaderBase(object):
                 C=self.__class__.__name__, T=self.name)
         ns2nts = cx.defaultdict(list)
         for nta in annotations:
-            ### if self.name == 'id2gos':
-            ###     print('BBBBBBBBBBBBBBBBBBBBBBB', nta)
             ns2nts[nta.NS].append(nta)
         return {ns:ns2nts[ns] for ns in set(['BP', 'MF', 'CC']).intersection(ns2nts)}
 
-    def get_id2gos(self, **kws):
-        """Return all associations in a dict, id2gos"""
+    def get_id2gos_nss(self, **kws):
+        """Return all associations in a dict, id2gos, regardless of namespace"""
         return self._get_id2gos(self.associations, **kws)
+
+    def get_id2gos(self, namespace='BP', **kws):
+        """Return associations from specified namespace in a dict, id2gos"""
+        # pylint: disable=superfluous-parens
+        if self.has_ns():
+            assoc = [nt for nt in self.associations if nt.NS == namespace]
+            id2gos = self._get_id2gos(assoc, **kws)
+            print('{N} IDs in association branch, {NS}'.format(N=len(id2gos), NS=namespace))
+            return id2gos
+        print('**ERROR: GODAG NOT LOADED. IGNORING namespace({NS})'.format(NS=namespace))
+        id2gos = self._get_id2gos(self.associations, **kws)
+        print('{N} IDs in association branch, {NS}'.format(N=len(id2gos), NS=namespace))
+        return id2gos
+
+    def has_ns(self):
+        """Return True if namespace field, NS exists on annotation namedtuples"""
+        return hasattr(next(iter(self.associations)), 'NS')
 
     def _get_id2gos(self, associations, **kws):
         """Return given associations in a dict, id2gos"""
@@ -115,6 +116,10 @@ class AnnoReaderBase(object):
         #   * Qualifiers contain NOT
         assc = self.reduce_annotations(associations, options)
         return self.get_dbid2goids(assc) if options.b_geneid2gos else self.get_goid2dbids(assc)
+
+    def _get_namespaces(self, nts):
+        """Get the set of namespaces seen in the namedtuples."""
+        return set(nt.NS for nt in nts) if self.has_ns() else set()
 
     # Qualifier (column 4)
     # Flags that modify the interpretation of an annotation one (or more) of NOT, contributes_to, colocalizes_with
@@ -161,11 +166,6 @@ class AnnoReaderBase(object):
         for ntd in associations:
             go2ids[ntd.GO_ID].add(ntd.DB_ID)
         return dict(go2ids)
-
-    @staticmethod
-    def get_date_yyyymmdd(yyyymmdd):
-        """Return datetime.date given string."""
-        return date(int(yyyymmdd[:4]), int(yyyymmdd[4:6], base=10), int(yyyymmdd[6:], base=10))
 
     def hms(self, msg, tic=None, prt=sys.stdout):
         """Print elapsed time and message."""

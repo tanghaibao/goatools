@@ -12,9 +12,7 @@ def test_missingsym():
     # Original gaf file (mgi.gaf) was reduced
     fin_gaf = "tests/data/gaf_missingsym.mgi"
     # Test that gene products that are missing the required DB_Symbol are ignored
-    # gene2gos = read_gaf(os.path.join(REPO, fin_gaf))
     gafobj = GafReader(fin_gaf, hdr_only=False)
-    # gene2gos = gafobj.read_gaf()  # Read associations
     assert not gafobj.chk_associations('gaf_missingsym.err')
 
     # assert len(gene2gos) == 16, len(gene2gos)

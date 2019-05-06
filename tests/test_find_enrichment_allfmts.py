@@ -6,11 +6,12 @@ from __future__ import print_function
 __copyright__ = "Copyright (C) 2010-2019, DV Klopfenstein, H Tang. All rights reserved."
 
 import os
+import itertools
 from goatools.base import get_godag
 from goatools.associations import dnld_annofile
 from goatools.anno.factory import get_objanno
 from goatools.gosubdag.gosubdag import GoSubDag
-from goatools.go_enrichment import GOEnrichmentStudy
+from goatools.goea.go_enrichment_ns import GOEnrichmentStudyNS
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
@@ -27,27 +28,28 @@ def test_find_enrichment():
         _get_objanno('gene2go', taxid=10090),
         _get_objanno('gene2go', taxid=9606),
         _get_objanno('goa_human.gaf'),
-        _get_objanno('goa_human.gpad'),
-        _get_objanno('data/association', anno_type='id2gos'),
+        _get_objanno('goa_human.gpad', godag=godag),
+        _get_objanno('data/association', anno_type='id2gos', godag=godag),
     ]
 
     for obj in annoobjs:
-        assc = obj.get_id2gos()
-        pop = obj.get_population()
-        enriched = obj.get_ids_g_goids(gos)
-        objgoea = _get_objgoea(pop, assc, godag)
-        results = objgoea.run_study(enriched)
+        ns2assc = obj.get_ns2assc()
+        pop = list(itertools.chain.from_iterable(ns2assc.values()))
+        print('{N:6,} population IDs'.format(N=len(pop)))
+        enriched = set(nt.DB_ID for nt in obj.associations if nt.GO_ID in gos)
+        objgoeans = _get_objgoeans(pop, ns2assc, godag)
+        results = objgoeans.run_study(enriched)
         print('{N} results'.format(N=len(results)))
     print("TEST PASSED")
 
 
-def _get_objgoea(pop, assoc, godag):
+def _get_objgoeans(pop, ns2assoc, godag):
     """Run gene ontology enrichment analysis (GOEA)."""
-    return GOEnrichmentStudy(pop, assoc, godag,
-                             propagate_counts=True,
-                             relationships=False,
-                             alpha=0.05,
-                             methods={'fdr_bh'})
+    return GOEnrichmentStudyNS(pop, ns2assoc, godag,
+                               propagate_counts=True,
+                               relationships=False,
+                               alpha=0.05,
+                               methods={'fdr_bh'})
 
 def _get_enriched_goids(top, godag):
     """Get a set of GO IDs related to specified top term"""

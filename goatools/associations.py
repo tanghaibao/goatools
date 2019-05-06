@@ -17,7 +17,7 @@ from goatools.anno.gaf_reader import GafReader
 from goatools.anno.genetogo_reader import Gene2GoReader
 from goatools.anno.opts import AnnoOptions
 
-def dnld_assc(assc_name, go2obj=None, prt=sys.stdout):
+def dnld_assc(assc_name, go2obj=None, namespace='BP', prt=sys.stdout):
     """Download association from http://geneontology.org/gene-associations."""
     # Example assc_name: "tair.gaf"
     # Download the Association
@@ -26,8 +26,8 @@ def dnld_assc(assc_name, go2obj=None, prt=sys.stdout):
         dirloc = os.getcwd()
     assc_locfile = os.path.join(dirloc, assc_base) if not dirloc else assc_name
     dnld_annotation(assc_locfile, prt)
-    # Read the downloaded association
-    assc_orig = read_gaf(assc_locfile, prt)
+    # Read the downloaded nt120GV)association
+    assc_orig = read_gaf(assc_locfile, namespace=namespace, prt=prt)
     if go2obj is None:
         return assc_orig
     # If a GO DAG is provided, use only GO IDs present in the GO DAG
@@ -46,12 +46,12 @@ def dnld_annotation(assc_file, prt=sys.stdout):
         src = os.path.join(assc_http, "{ASSC}.gz".format(ASSC=assc_base))
         dnld_file(src, assc_file, prt, loading_bar=None)
 
-def read_associations(assoc_fn, anno_type='id2gos', **kws):
+def read_associations(assoc_fn, anno_type='id2gos', namespace='BP', **kws):
     """Return associatinos in id2gos format"""
     # kws get_objanno: taxids hdr_only prt allow_missing_symbol
     obj = get_objanno(assoc_fn, anno_type, **kws)
     # kws get_id2gos: ev_include ev_exclude keep_ND keep_NOT b_geneid2gos go2geneids
-    return obj.get_id2gos(**kws)
+    return obj.get_id2gos(namespace, **kws)
 
 def get_assoc_ncbi_taxids(taxids, force_dnld=False, loading_bar=True, **kws):
     """Download NCBI's gene2go. Return annotations for user-specified taxid(s)."""
@@ -59,6 +59,7 @@ def get_assoc_ncbi_taxids(taxids, force_dnld=False, loading_bar=True, **kws):
     dnld_ncbi_gene_file(fin, force_dnld, loading_bar=loading_bar)
     return read_ncbi_gene2go(fin, taxids, **kws)
 
+# pylint: disable=unused-argument
 def dnld_ncbi_gene_file(fin, force_dnld=False, log=sys.stdout, loading_bar=True):
     """Download a file from NCBI Gene's ftp server."""
     if not os.path.exists(fin) or force_dnld:
@@ -94,7 +95,7 @@ def dnld_annofile(fin_anno, anno_type):
     if anno_type in {'gaf', 'gpad'}:
         dnld_annotation(fin_anno)
 
-def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
+def read_ncbi_gene2go(fin_gene2go, taxids=None, namespace='BP', **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
     obj = Gene2GoReader(fin_gene2go, taxids=taxids)
     # By default, return id2gos. User can cause go2geneids to be returned by:
@@ -104,7 +105,7 @@ def read_ncbi_gene2go(fin_gene2go, taxids=None, **kws):
             taxid = next(iter(obj.taxid2asscs))
             kws_ncbi = {k:v for k, v in kws.items() if k in AnnoOptions.keys_exp}
             kws_ncbi['taxid'] = taxid
-            return obj.get_id2gos(**kws_ncbi)
+            return obj.get_id2gos(namespace, **kws_ncbi)
     # Optional detailed associations split by taxid and having both ID2GOs & GO2IDs
     # e.g., taxid2asscs = defaultdict(lambda: defaultdict(lambda: defaultdict(set))
     t2asscs_ret = obj.get_taxid2asscs(taxids, **kws)
@@ -117,10 +118,12 @@ def get_gaf_hdr(fin_gaf):
     """Read Gene Association File (GAF). Return GAF version and data info."""
     return GafReader(fin_gaf, hdr_only=True).hdr
 
-def read_gaf(fin_gaf, prt=sys.stdout, hdr_only=False, allow_missing_symbol=False, **kws):
+# pylint: disable=line-too-long
+def read_gaf(fin_gaf, prt=sys.stdout, hdr_only=False, namespace='BP', allow_missing_symbol=False, **kws):
     """Read Gene Association File (GAF). Return data."""
-    return GafReader(fin_gaf, hdr_only,
-                     prt=prt, allow_missing_symbol=allow_missing_symbol).get_id2gos(**kws)
+    return GafReader(
+        fin_gaf, hdr_only=hdr_only, prt=prt, allow_missing_symbol=allow_missing_symbol).get_id2gos(
+            namespace, **kws)
 
 def get_b2aset(a2bset):
     """Given gene2gos, return go2genes. Given go2genes, return gene2gos."""
@@ -164,9 +167,10 @@ def read_annotations(**kws):
     """Read annotations from either a GAF file or NCBI's gene2go file."""
     if 'gaf' not in kws and 'gene2go' not in kws:
         return
+    namespace = kws.get('namespace', 'BP')
     gene2gos = None
     if 'gaf' in kws:
-        gene2gos = read_gaf(kws['gaf'], prt=sys.stdout)
+        gene2gos = read_gaf(kws['gaf'], namespace=namespace, prt=sys.stdout)
         if not gene2gos:
             raise RuntimeError("NO ASSOCIATIONS LOADED FROM {F}".format(F=kws['gaf']))
     elif 'gene2go' in kws:

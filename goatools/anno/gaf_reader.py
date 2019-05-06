@@ -20,25 +20,34 @@ __author__ = "DV Klopfenstein"
 class GafReader(AnnoReaderBase):
     """Reads a Gene Annotation File (GAF). Returns a Python object."""
 
-    def __init__(self, filename=None, hdr_only=False, **kws):
+    exp_kws = {'hdr_only', 'prt', 'namespaces', 'allow_missing_symbol'}
+
+    def __init__(self, filename=None, **kws):
         super(GafReader, self).__init__(
-            'gaf', filename, kws.get('godag'), hdr_only=hdr_only,
+            'gaf', filename,
+            hdr_only=kws.get('hdr_only', False),
             prt=kws.get('prt', sys.stdout),
+            namespaces=kws.get('namespaces'),
             allow_missing_symbol=kws.get('allow_missing_symbol', False))
 
-    def read_gaf(self, **kws):
+    def read_gaf(self, namespace='BP', **kws):
         """Read Gene Association File (GAF). Return associations."""
-        return self.get_id2gos(**kws)
+        return self.get_id2gos(namespace, **kws)
 
     def chk_associations(self, fout_err="gaf.err"):
         """Check that fields are legal in GAF"""
         obj = GafData("2.1")
         return obj.chk(self.associations, fout_err)
 
-    def _init_associations(self, fin_gaf, hdr_only, prt, allow_missing_symbol):
+    def has_ns(self):
+        """Return True if namespace field, NS exists on annotation namedtuples"""
+        return True
+
+    # def _init_associations(self, fin_gaf, hdr_only, prt, namespaces, allow_missing_symbol):
+    def _init_associations(self, fin_gaf, **kws):
         """Read annotation file and store a list of namedtuples."""
-        ini = InitAssc()
-        nts = ini.init_associations(fin_gaf, hdr_only, prt, allow_missing_symbol)
+        ini = InitAssc(fin_gaf)
+        nts = ini.init_associations(kws['hdr_only'], kws['prt'], kws['namespaces'], kws['allow_missing_symbol'])
         self.hdr = ini.hdr
         return nts
 

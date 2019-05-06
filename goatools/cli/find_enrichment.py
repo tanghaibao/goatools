@@ -22,7 +22,6 @@ import os
 import sys
 import re
 import argparse
-import itertools
 
 from goatools.evidence_codes import EvidenceCodes
 
@@ -185,8 +184,8 @@ class GoeaCliFnc(object):
         _optional_attrs = ['relationship'] if self.sections else None
         self.godag = GODag(obo_file=self.args.obo, optional_attrs=_optional_attrs)
         # Get GOEnrichmentStudy
-        self.objanno = self._get_objanno(self.args.filenames[2], self.args.ns.split(','))
-        #### _assoc = self._get_id2gos()
+        print('ARGS GoeaCliFnc', self.args)
+        self.objanno = self._get_objanno(self.args.filenames[2])
         _ns2assoc = self.objanno.get_ns2assc(**self._get_anno_kws())
         _study, _pop = self.rd_files(*self.args.filenames[:2])
         if not self.args.compare:  # sanity check
@@ -199,7 +198,6 @@ class GoeaCliFnc(object):
         # Prepare for grouping, if user-specified. Create GroupItems
         self.prepgrp = GroupItems(self, self.godag.version) if self.sections else None
 
-    #### def _get_id2gos(self):
     def _get_anno_kws(self):
         """Return keyword options to obtain id2gos"""
         kws = {}
@@ -208,11 +206,9 @@ class GoeaCliFnc(object):
         if self.args.ev_exc is not None:
             kws['ev_exclude'] = set(self.args.ev_exc.split(','))
         return kws
-        #### return self.objanno.get_id2gos(**kws)
 
-    def _get_objanno(self, assoc_fn, namespaces):
+    def _get_objanno(self, assoc_fn):
         """Get an annotation object"""
-        ## print('NNNNNNNNNNNNNNNNNNNNNNNNNNNNN', namespaces)
         # Determine annotation file format from filename, if possible
         anno_type = get_anno_desc(assoc_fn, None)
         # Default annotation file format is id2gos
@@ -221,13 +217,22 @@ class GoeaCliFnc(object):
         kws = self._get_kws_objanno(anno_type)
         return get_objanno(assoc_fn, anno_type, **kws)
 
+    def _get_ns(self):
+        """Return namespaces."""
+        exp_nss = {'BP', 'MF', 'CC'}
+        act_nss = set(self.args.ns.split(','))
+        assert not act_nss.difference(exp_nss), 'EXPECTED NAMESPACES({E}); GOT({A})'.format(
+            E=','.join(exp_nss), A=','.join(act_nss.difference(exp_nss)))
+        return None if act_nss == exp_nss else act_nss
+
     def _get_kws_objanno(self, anno_type):
         """Get keyword-args for creating an Annotation object"""
+        kws = {'namespaces': self._get_ns()}
         if anno_type == 'gene2go':
-            return {'taxid': self.args.taxid}
+            kws['taxid'] = self.args.taxid
         if anno_type in {'gpad', 'id2gos'}:
-            return {'godag': self.godag}
-        return {}
+            kws['godag'] = self.godag
+        return kws
 
     def _init_itemid2name(self):
         """Print gene symbols instead of gene IDs, if provided."""

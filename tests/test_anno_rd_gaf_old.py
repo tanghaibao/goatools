@@ -19,7 +19,8 @@ def test_anno_read():
     print('\nTEST STORING ONLY ONE SPECIES')
     obj = GafReader(fin_anno)
     obj.prt_summary_anno2ev()
-    new = obj.read_gaf()
+    ## new = obj.read_gaf()
+    new = obj.get_id2gos_nss()
     old = read_gaf(obj)
     _prt_differences(new, old, obj)
     print('{N} NEW'.format(N=len(new)))
@@ -36,13 +37,15 @@ def test_anno_read():
     ]
     for kws in kws_lst:
         print('\nTEST KWS:', kws)
-        new = obj.read_gaf(**kws)
+        ## new = obj.read_gaf(namespace='BP', **kws)
+        new = obj.get_id2gos_nss(**kws)
         old = read_gaf(obj, **kws)
         _prt_differences(new, old, obj)
         assert len(new) == len(old), 'new({N}) != old({O})'.format(N=len(new), O=len(old))
 
     print('\nTEST GETTING REVERSE ASSOCIATIONS: GO2GENES')
-    new = obj.read_gaf(go2geneids=True)
+    ## new = obj.read_gaf(go2geneids=True)
+    new = obj.get_id2gos_nss(go2geneids=True)
     old = read_gaf(obj, go2geneids=True)
     _prt_differences(new, old, obj)
     assert len(new) == len(old), 'new({N}) != old({O})'.format(N=len(new), O=len(old))
@@ -50,7 +53,8 @@ def test_anno_read():
     print('\nTEST RETURNING ASSOCIATIONS FOR SELECTED EVIDENCE CODES')
     evcodes = set(['ISO', 'IKR'])
     print("\nTEST 9606 ev_include={CODES}".format(CODES=' '.join(evcodes)))
-    new = obj.read_gaf(ev_include=evcodes)
+    ## new = obj.read_gaf(ev_include=evcodes)
+    new = obj.get_id2gos_nss(ev_include=evcodes)
     old = read_gaf(obj, ev_include=evcodes)
     _prt_differences(new, old, obj)
     assert new == old

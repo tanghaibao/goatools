@@ -17,8 +17,13 @@ __author__ = "DV Klopfenstein"
 class GpadReader(AnnoReaderBase):
     """dRead a Gene Product Association Data (GPAD) and store the data in a Python object."""
 
-    def __init__(self, filename=None, hdr_only=False, godag=None):
-        super(GpadReader, self).__init__('gpad', filename, godag, hdr_only=hdr_only)
+    exp_kws = {'hdr_only', 'godag', 'namespaces'}
+
+    def __init__(self, filename=None, **kws):
+        super(GpadReader, self).__init__('gpad', filename,
+                                         hdr_only=kws.get('hdr_only', False),
+                                         godag=kws.get('godag'),
+                                         namespaces=kws.get('namespaces'))
         self.qty = len(self.associations)
 
     def get_relation_cnt(self):
@@ -29,10 +34,10 @@ class GpadReader(AnnoReaderBase):
                 ctr += ntgpad.Extension.get_relations_cnt()
         return ctr
 
-    def _init_associations(self, fin_gpad, hdr_only=False):
+    def _init_associations(self, fin_gpad, **kws):
         """Read annotation file and store a list of namedtuples."""
-        ini = InitAssc(fin_gpad, self.godag)
-        nts = ini.init_associations(hdr_only)
+        ini = InitAssc(fin_gpad, kws['godag'])
+        nts = ini.init_associations(kws['hdr_only'], kws['namespaces'])
         self.hdr = ini.hdr
         return nts
 

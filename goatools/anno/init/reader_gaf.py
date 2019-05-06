@@ -13,39 +13,43 @@ import re
 import collections as cx
 import datetime
 from goatools.anno.annoreader_base import AnnoReaderBase
+from goatools.anno.init.utils import get_date_yyyymmdd
 from goatools.anno.extensions.factory import get_extensions
-GET_DATE_YYYYMMDD = AnnoReaderBase.get_date_yyyymmdd
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
+# pylint: disable=too-few-public-methods
 class InitAssc(object):
     """Read annotation file and store a list of namedtuples."""
 
-    def __init__(self):
+    def __init__(self, fin_gaf):
+        self.fin_gaf = fin_gaf
         self.hdr = None
         self.datobj = None
 
-    def init_associations(self, fin_gaf, hdr_only, prt, allow_missing_symbol):
+    # pylint: disable=too-many-arguments
+    def init_associations(self, hdr_only, prt, namespaces, allow_missing_symbol):
         """Read GAF file. Store annotation data in a list of namedtuples."""
         import timeit
         tic = timeit.default_timer()
-        nts = self._read_gaf_nts(fin_gaf, hdr_only, allow_missing_symbol)
+        nts = self._read_gaf_nts(hdr_only, namespaces, allow_missing_symbol)
         # GAF file has been read
         if prt:
-            prt.write('HMS:{HMS} {N:7,} annotations READ: {ANNO}\n'.format(
-                N=len(nts), ANNO=fin_gaf,
+            prt.write('HMS:{HMS} {N:7,} annotations READ: {ANNO} {NSs}\n'.format(
+                N=len(nts), ANNO=self.fin_gaf,
+                NSs=','.join(namespaces) if namespaces else '',
                 HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
         # If there are illegal GAF lines ...
         if self.datobj:
             if self.datobj.ignored or self.datobj.illegal_lines:
-                self.datobj.prt_error_summary(fin_gaf)
+                self.datobj.prt_error_summary(self.fin_gaf)
         return nts
         #### return self.evobj.sort_nts(nts, 'Evidence_Code')
 
     # pylint: disable=too-many-locals
-    def _read_gaf_nts(self, fin_gaf, hdr_only, allow_missing_symbol):
+    def _read_gaf_nts(self, hdr_only, namespaces, allow_missing_symbol):
         """Read GAF file. Store annotation data in a list of namedtuples."""
         nts = []
         ver = None
@@ -56,17 +60,21 @@ class InitAssc(object):
         get_gafvals = None
         lnum = -1
         line = ''
+        get_all_nss = namespaces is None or namespaces == {'BP', 'MF', 'CC'}
         try:
-            with open(fin_gaf) as ifstrm:
+            with open(self.fin_gaf) as ifstrm:
                 for lnum, line in enumerate(ifstrm, 1):
                     # Read data
                     if get_gafvals:
                         # print(lnum, line)
-                        gafvals = get_gafvals(line)
-                        if gafvals:
-                            nts.append(ntobj_make(gafvals))
-                        else:
-                            datobj.ignored.append((lnum, line))
+                        flds = line.split('\t')
+                        nspc = GafData.aspect2ns[flds[8]]  # 8 GAF Aspect -> BP, MF, or CC
+                        if get_all_nss or nspc in namespaces:
+                            gafvals = get_gafvals(flds, nspc)
+                            if gafvals:
+                                nts.append(ntobj_make(gafvals))
+                            else:
+                                datobj.ignored.append((lnum, line))
                     # Read header
                     elif datobj is None:
                         if line[0] == '!':
@@ -80,11 +88,13 @@ class InitAssc(object):
                             datobj = GafData(ver, allow_missing_symbol)
                             get_gafvals = datobj.get_gafvals
                             ntobj_make = datobj.get_ntobj()._make
+        # pylint: disable=broad-except
         except Exception as inst:
             import traceback
             traceback.print_exc()
             sys.stderr.write("\n  **FATAL-gaf: {MSG}\n\n".format(MSG=str(inst)))
-            sys.stderr.write("**FATAL-gaf: {FIN}[{LNUM}]:\n{L}".format(FIN=fin_gaf, L=line, LNUM=lnum))
+            sys.stderr.write("**FATAL-gaf: {FIN}[{LNUM}]:\n{L}".format(
+                FIN=self.fin_gaf, L=line, LNUM=lnum))
             if datobj is not None:
                 datobj.prt_line_detail(sys.stdout, line)
             sys.exit(1)
@@ -143,6 +153,7 @@ class GafData(object):
         self.ver = ver
         self.is_long = ver[0] == '2'
         self.flds = self.gaf_columns[ver]
+        # pylint: disable=line-too-long
         self.req1 = self.spec_req1 if not allow_missing_symbol else [i for i in self.spec_req1 if i != 2]
         # Store information about illegal lines seen in a GAF file from the field
         self.ignored = []  # Illegal GAF lines that are ignored (e.g., missing an ID)
@@ -161,7 +172,8 @@ class GafData(object):
             self._chk_qty_eq_1(flds)
             # self._chk_qualifier(ntd.Qualifier, flds, idx)
             if not ntd.Taxon or len(ntd.Taxon) not in {1, 2}:
-                self.illegal_lines['BAD TAXON'].append((idx, '**{I}) TAXON: {NT}'.format(I=idx, NT=ntd)))
+                self.illegal_lines['BAD TAXON'].append(
+                    (idx, '**{I}) TAXON: {NT}'.format(I=idx, NT=ntd)))
         if self.illegal_lines:
             self.prt_error_summary(fout_err)
         return not self.illegal_lines
@@ -170,18 +182,16 @@ class GafData(object):
         """Get namedtuple object specific to version"""
         return cx.namedtuple("ntgafobj", " ".join(self.flds))
 
-    def get_gafvals(self, line):
+    def get_gafvals(self, flds, nspc):
         """Convert fields from string to preferred format for GAF ver 2.1 and 2.0."""
-        flds = line.split('\t')
-
-        flds[3] = self._get_qualifier(flds[3])  # 3  Qualifier
-        flds[5] = self._get_set(flds[5])     # 5  DB_Reference
-        flds[7] = self._get_set(flds[7])     # 7  With_From
-        flds[8] = self.aspect2ns[flds[8]]    # 8 GAF Aspect field converted to BP, MF, or CC
-        flds[9] = self._get_set(flds[9])     # 9  DB_Name
+        flds[3] = self._get_qualifier(flds[3])  # 3 Qualifier
+        flds[5] = self._get_set(flds[5])     #  5 DB_Reference
+        flds[7] = self._get_set(flds[7])     #  7 With_From
+        flds[8] = nspc                       #  8 GAF Aspect field converted to BP, MF, or CC
+        flds[9] = self._get_set(flds[9])     #  9 DB_Name
         flds[10] = self._get_set(flds[10])   # 10 DB_Synonym
-        flds[12] = self._do_taxons(flds[12])  # 12 Taxon
-        flds[13] = GET_DATE_YYYYMMDD(flds[13]) # self.strptime(flds[13], '%Y%m%d').date(),  # 13 Date   20190406
+        flds[12] = self._do_taxons(flds[12])   # 12 Taxon
+        flds[13] = get_date_yyyymmdd(flds[13]) # 13 Date   20190406
 
         # Version 2.x has these additional fields not found in v1.0
         if self.is_long:
@@ -218,7 +228,8 @@ class GafData(object):
         num_vals = len(vals)
         if num_vals < qty_min:
             self.illegal_lines['MIN QTY'].append(
-                (-1, "FIELD({F}): MIN QUANTITY({Q}) WASN'T MET: {V}".format(F=name, Q=qty_min, V=vals)))
+                (-1, "FIELD({F}): MIN QUANTITY({Q}) WASN'T MET: {V}".format(
+                    F=name, Q=qty_min, V=vals)))
         if qty_max is not None:
             if num_vals > qty_max:
                 self.illegal_lines['MAX QTY'].append(
@@ -240,9 +251,9 @@ class GafData(object):
 
     def _prt_line_detail(self, prt, values, lnum=""):
         """Print header and field values in a readable format."""
-        #### data = zip(self.req_str, self.ntgafobj._fields, values)
         data = zip(self.req_str, self.flds, values)
-        txt = ["{:2}) {:3} {:20} {}".format(i, req, hdr, val) for i, (req, hdr, val) in enumerate(data)]
+        pat = "{:2}) {:3} {:20} {}"
+        txt = [pat.format(i, req, hdr, val) for i, (req, hdr, val) in enumerate(data)]
         prt.write("{LNUM}\n{TXT}\n".format(LNUM=lnum, TXT="\n".join(txt)))
 
     def _chk_qty_eq_1(self, flds):

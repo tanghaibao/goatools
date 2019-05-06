@@ -3,7 +3,6 @@
 __copyright__ = "Copyright (C) 2018-2019, DV Klopfenstein. All rights reserved."
 __author__ = "DV Klopfenstein"
 
-import sys
 from goatools.anno.genetogo_reader import Gene2GoReader
 from goatools.anno.gaf_reader import GafReader
 from goatools.anno.gpad_reader import GpadReader
@@ -17,17 +16,17 @@ def get_objanno(fin_anno, anno_type=None, **kws):
     if anno_type is not None:
         if anno_type == 'gene2go':
             # kws: taxid taxids
+            kws_gaf = {k:kws[k] for k in Gene2GoReader.exp_kws.intersection(kws.keys())}
             return Gene2GoReader(fin_anno, **kws)
         if anno_type == 'gaf':
-            return GafReader(fin_anno,
-                             hdr_only=kws.get('hdr_only', False),
-                             prt=kws.get('prt', sys.stdout),
-                             allow_missing_symbol=kws.get('allow_missing_symbol', False))
+            kws_gaf = {k:kws[k] for k in GafReader.exp_kws.intersection(kws.keys())}
+            return GafReader(fin_anno, **kws_gaf)
         if anno_type == 'gpad':
-            hdr_only = kws.get('hdr_only', False)
-            return GpadReader(fin_anno, hdr_only, kws.get('godag'))
+            kws_gpad = {k:kws[k] for k in GpadReader.exp_kws.intersection(kws.keys())}
+            return GpadReader(fin_anno, **kws_gpad)
         if anno_type == 'id2gos':
-            return IdToGosReader(fin_anno, kws.get('godag'))
+            kws_id2go = {k:kws[k] for k in IdToGosReader.exp_kws.intersection(kws.keys())}
+            return IdToGosReader(fin_anno, **kws_id2go)
     raise RuntimeError('UNEXPECTED ANNOTATION FILE FORMAT: {F} {D}'.format(
         F=fin_anno, D=anno_type))
 

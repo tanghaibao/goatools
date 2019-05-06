@@ -10,7 +10,7 @@ class AnnoOptions(object):
 
     keys_exp = set(['ev_include', 'ev_exclude',
                     'b_geneid2gos', 'go2geneids',
-                    'keep_ND', 'keep_NOT'])
+                    'namespace', 'keep_ND', 'keep_NOT'])
 
     def __init__(self, evobj, **kws):
         # Get associations only for specified Evidence_Codes
@@ -27,6 +27,7 @@ class AnnoOptions(object):
         self._keep_nd = kws.get('keep_ND', False)
         #   * Qualifiers contain NOT
         self._keep_not = kws.get('keep_NOT', False)
+
 
         # keep_qualified keep_unqualified keep_nd keep_not ev_include ev_exclude
         self.param2fnc = {
@@ -65,14 +66,14 @@ class AnnoOptions(object):
     def __str__(self):
         pat = (
             'EVIDENCE CODE ARGS: '
-            '{DESC}(keep_nd={ND}, keep_not={NOT}) CODES(include[{I}], exclude[{E}])\n'
-            'ASSOCIATIONS: {A2Bs}'
+            '{DESC}(ND={ND:1}, NOT={NOT:1}) CODES(inc[{I}], exc[{E}]) '
+            '{A2Bs}'
         )
         return pat.format(
             DESC=self._get_desc(), ND=self._keep_nd, NOT=self._keep_not,
             I='-' if self.include_evcodes is None else len(self.include_evcodes),
             E='-' if self.exclude_evcodes is None else len(self.exclude_evcodes),
-            A2Bs='NORMAL(id2gos)' if self.b_geneid2gos else 'REVERSED(go2ids)',
+            A2Bs='id2gos' if self.b_geneid2gos else 'go2ids',
         )
 
     def getfnc_qual_ev(self):

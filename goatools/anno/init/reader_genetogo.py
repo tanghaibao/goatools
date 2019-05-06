@@ -50,7 +50,7 @@ class InitAssc(object):
         return ret
 
     # pylint: disable=too-many-locals
-    def init_associations(self, fin_anno, taxids=None):
+    def init_associations(self, fin_anno, taxids=None, namespaces=None):
         """Read annotation file. Store annotation data in a list of namedtuples."""
         nts = []
         if fin_anno is None:
@@ -63,14 +63,16 @@ class InitAssc(object):
                 category2ns = {'Process':'BP', 'Function':'MF', 'Component':'CC'}
                 ntobj = cx.namedtuple('ntanno', self.flds)
                 # Get: 1) Specified taxids, default taxid(human), or all taxids
-                get_all = taxids is True
+                get_all_taxids = taxids is True
+                get_all_nss = namespaces is None or namespaces == {'BP', 'MF', 'CC'}
                 taxids = self.taxids
                 for lnum, line in enumerate(ifstrm, 1):
                     # Read data
                     if line[0] != '#':
                         vals = line.split('\t')
                         taxid = int(vals[0])
-                        if get_all or taxid in taxids:
+                        nspc = category2ns[vals[7].rstrip()]
+                        if (get_all_taxids or taxid in taxids) and (get_all_nss or nspc in namespaces):
                             # assert len(vals) == 8
                             ntd = ntobj(
                                 tax_id=taxid,
@@ -80,7 +82,7 @@ class InitAssc(object):
                                 Qualifier=self._get_qualifiers(vals[4]),
                                 GO_term=vals[5],
                                 DB_Reference=self._get_pmids(vals[6]),
-                                NS=category2ns[vals[7].rstrip()])
+                                NS=nspc)
                             #self._chk_qualifiers(qualifiers, lnum, ntd)
                             nts.append(ntd)
                     # Read header
@@ -94,8 +96,9 @@ class InitAssc(object):
             sys.stderr.write("**FATAL: {FIN}[{LNUM}]:\n{L}".format(FIN=fin_anno, L=line, LNUM=lnum))
             self._prt_line_detail(sys.stdout, line, lnum)
             sys.exit(1)
-        print('HMS:{HMS} {N:7,} annotations READ: {ANNO}'.format(
+        print('HMS:{HMS} {N:7,} annotations READ: {ANNO} {NSs}'.format(
             N=len(nts), ANNO=fin_anno,
+            NSs=','.join(namespaces) if namespaces else '',
             HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
         return nts
 
