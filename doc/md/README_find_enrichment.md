@@ -180,8 +180,8 @@ python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606
 ```
 
 #### With **--ns=MF** and **--ev_inc=IPI**: 
-Run a GOEA on the _**molecular function**_ branch for just the evidence code **IPI**, which is
-evidence codes which are inferred from Physical Interaction
+Run a GOEA on the _**molecular function**_ branch for just the evidence code, **IPI**.     
+**IPI** includes evidence codes which are inferred from Physical Interaction    
 ```
 python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt -ns=MF --ev_inc=IPI gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
 ```
