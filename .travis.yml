@@ -1,14 +1,14 @@
 language: python
 env:
     global:
-        - OSX_PYTHON_VERSIONS='2.7 3.6'
+        - OSX_PYTHON_VERSIONS='2.7 3.6 3.7'
 matrix:
     include:
-        # Use the built in venv for linux builds
-        - os: linux
-          python: 2.7
-        - os: linux
-          python: 3.6
+        # Use the built in venv for linux builds (timing out upon downloading annotation files)
+        # - os: linux
+        #   python: 2.7
+        # - os: linux
+        #   python: 3.6
         # Use generic language for osx and install python by hand
         - os: osx
           language: generic
