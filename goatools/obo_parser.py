@@ -254,6 +254,7 @@ class GOTerm(object):
         """Returns a set containing parents and relationship GO Terms."""
         # Requires GODag is created with 'relationship' in optional_attrs argument
         # pylint: disable=no-member
+        # print('UPPER -------------------------------', self.relationship.keys())
         return set.union(self.parents, *self.relationship.values())
 
     def get_goterms_lower(self):
