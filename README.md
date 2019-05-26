@@ -3,7 +3,7 @@
 [![DIO](/doc/images/DOI.svg)](https://www.nature.com/articles/s41598-018-28948-z)
 [![Latest PyPI version](https://img.shields.io/pypi/v/goatools.svg)](https://pypi.python.org/pypi/goatools)
 [![bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools)
-[![travisCI](https://travis-ci.org/tanghaibao/goatools.svg?branch=master)](]https://travis-ci.org/tanghaibao/goatools)
+[![travisCI](https://travis-ci.org/tanghaibao/goatools.svg?branch=master)](https://travis-ci.org/tanghaibao/goatools)
 
 | | |
 |---|---|
@@ -60,23 +60,23 @@ This package contains a Python library to
 
 _Please cite the following research paper if you use GOATOOLS in your research_:
 
-Klopfenstein DV, Zhang L, Pedersen BS, ... Tang H [GOATOOLS: A Python library for Gene Ontology analyses](https://www.nature.com/articles/s41598-018-28948-z)    
+Klopfenstein DV, Zhang L, Pedersen BS, ... Tang H [GOATOOLS: A Python library for Gene Ontology analyses](https://www.nature.com/articles/s41598-018-28948-z)
 _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
 
-  * **GO Grouping**:    
-    Visualize the major findings in a gene ontology enrichment analysis (GEOA) more easily with grouping.    
+  * **GO Grouping**:
+    Visualize the major findings in a gene ontology enrichment analysis (GEOA) more easily with grouping.
     A detailed description of GOATOOLS GO grouping is found in the
-    [manuscript](https://www.nature.com/articles/s41598-018-28948-z).    
+    [manuscript](https://www.nature.com/articles/s41598-018-28948-z).
     To group GO terms, see examples in
     [find_enrichment examples](/doc/md/README_find_enrichment.md)
-    where the optional _--sections_ argument is used.    
-  * **Compare GO lists**:    
-    Compare two or more lists of GO IDs using _scripts/compare_gos.py_.    
+    where the optional _--sections_ argument is used.
+  * **Compare GO lists**:
+    Compare two or more lists of GO IDs using _scripts/compare_gos.py_.
     This script can be used with or without grouping.
-  * **Stochastic GOEA simulations**:    
+  * **Stochastic GOEA simulations**:
     One of the findings resulting from our simulations is:
     [Larger study sizes result in higher GOEA sensitivity](https://github.com/dvklopfenstein/goatools_simulation#manuscript-figures),
-    meaning fewer truly significant observations go unreported.    
+    meaning fewer truly significant observations go unreported.
     The code for the stochastic GOEA simulations
     described in the paper is found here:
     https://github.com/dvklopfenstein/goatools_simulation
@@ -187,19 +187,19 @@ the output that are not present in their `association` file. Use
 
 ### Write GO hierarchy
   * [scripts/wr_hier.py](doc/md/README_wr_hier.md): Given a GO ID, write the hierarchy below (default)
-    or above (--up) the given GO.         
+    or above (--up) the given GO.
 
 ### Plot GO lineage
 
-  * [scripts/go_plot.py](doc/md/README_go_plot.md):    
+  * [scripts/go_plot.py](doc/md/README_go_plot.md):
     * Plots user-specified GO term(s) up to root
-    * Multiple user-specified GOs   
-    * User-defined colors    
-    * Plot relationships (-r)    
+    * Multiple user-specified GOs
+    * User-defined colors
+    * Plot relationships (-r)
     * Optionally plot children of user-specfied GO terms
   * [scripts/plot_go_term.py](plot_go_term-py)
 
-  
+
 #### plot_go_term.py
 
 See `plot_go_term.py` for usage. `plot_go_term.py` can plot the lineage
@@ -328,7 +328,7 @@ strategy which may lead to slightly different q-values between runs.
 
 ## Want to Help?
 
-Prior to submitting your pull request, please add a test which verifies your code, and run: 
+Prior to submitting your pull request, please add a test which verifies your code, and run:
 ```
 make test
 ```
