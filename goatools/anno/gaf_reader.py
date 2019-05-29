@@ -1,10 +1,7 @@
 """Read a GO Annotation File (GAF) and store the data in a Python object.
 
     Annotations available from the Gene Ontology Consortium:
-        http://geneontology.org/page/download-annotations
-
-    GAF format:
-        http://geneontology.org/page/go-annotation-file-formats
+        http://current.geneontology.org/annotations/
 """
 
 import sys
