@@ -18,7 +18,7 @@ def test_anno_read():
     godag = get_godag(os.path.join(REPO, 'go-basic.obo'))
 
     # pylint: disable=superfluous-parens
-    print('- DOWNLOAD AND LOAD -----------------------------------------------')
+    print('- DOWNLOAD (if needed) AND LOAD -----------------------------------')
     annoobjs = [
         # gene2go
         _get_objanno('gene2go', taxid=10090),
@@ -50,26 +50,63 @@ def test_anno_read():
         _get_objanno('data/association', 'id2gos', godag=godag, namespaces={'CC'}),
     ]
 
-    print('- prt_summary_anno2ev ---------------------------------------------')
+    # pylint: disable=superfluous-parens
+    print('- RUN prt_summary_anno2ev -----------------------------------------')
+    _run_prt_summary_anno2ev(annoobjs)
+
+    print('- RUN print extension ---------------------------------------------')
+    _run_print_extension(annoobjs)
+
+    print('- RUN get_id2gos ALL ----------------------------------------------')
+    _run_get_id2gos_nss(annoobjs)
+
+    print('- RUN get_id2gos --------------------------------------------------')
+    _run_get_id2gos(annoobjs)
+
+    print('- RUN get_ns2... --------------------------------------------------')
+    _run_get_ns(annoobjs)
+
+
+def _run_prt_summary_anno2ev(annoobjs):
+    """Test prt_summary_anno2ev"""
     for idx, obj in enumerate(annoobjs):
         print('>>>>> {I} >>>>> prt_summary_anno2ev {ANNO}'.format(I=idx, ANNO=obj.get_desc()))
         obj.prt_summary_anno2ev()
         obj.chk_associations()
 
-    print('- print extension -------------------------------------------------')
+def _run_print_extension(annoobjs):
+    """Test printing extensions"""
     for idx, obj in enumerate(annoobjs):
         print('>>>>> {I} >>>>> print Extension {ANNO}'.format(I=idx, ANNO=obj.get_desc()))
         if obj.name in {'gaf', 'gpad'}:
             _prt_fld(obj, 'Extension', 10)
 
-    print('- get_id2gos ------------------------------------------------------')
+def _run_get_id2gos_nss(annoobjs):
+    """Test getting id2gos for all namespaces"""
     for idx, obj in enumerate(annoobjs):
-        nspc = 'BP' if not obj.namespaces else next(iter(obj.namespaces))
-        id2gos = obj.get_id2gos(nspc)
-        assert obj.get_id2gos(ev_include=INC_GOOD) == obj.get_id2gos(ev_exclude={'IEA'}), \
+        print('\n{I}) get_id2gos_nss {N:7,} annotations DESC({DESC}) NSs({NSs})'.format(
+            I=idx, DESC=obj.get_desc(), NSs=obj.namespaces, N=len(obj.associations)))
+        id2gos_nss = obj.get_id2gos_nss()  # Get all namespaces
+        assert id2gos_nss
+
+def _run_get_id2gos(annoobjs):
+    """Test get_id2gos"""
+    for idx, obj in enumerate(annoobjs):
+        print('\n{I}) get_id2gos {DESC} {NSs} {N:,} annotations'.format(
+            I=idx, DESC=obj.get_desc(), NSs=obj.namespaces, N=len(obj.associations)))
+        # If all namespaces are loaded, returns BP, else returns loaded NS
+        print('Load all evidence codes')
+        id2gos = obj.get_id2gos()
+        assert id2gos, 'NO ANNOTATIONS FOUND'
+        ## print(next(iter(obj.associations)))
+        print('Load all evidence codes, except IEA')
+        id2gos_inc = obj.get_id2gos(ev_include=INC_GOOD)
+        id2gos_exc = obj.get_id2gos(ev_exclude={'IEA'})
+        assert id2gos_exc, 'NO NON-IEA ANNOTATIONS FOUND'
+        assert id2gos_inc == id2gos_exc, \
             'INC ALL({A}) != EXC IEA({I}): {DIF}'.format(
-                A=len(obj.get_id2gos(ev_incclude=INC_GOOD)),
-                I=len(obj.get_id2gos(ev_exclude={'IEA'})),
+                A=len(id2gos_inc),
+                I=len(id2gos_exc),
                 # DIF=set(obj.get_id2gos(ev_inc=INC_GOOD).keys()).
                 # symmetric_difference(obj.get_id2gos(ev_exclude={'IEA'})))
                 DIF='')
@@ -80,7 +117,8 @@ def test_anno_read():
         if obj.filename[-16:] == 'data/association' and obj.godag is None:
             assert num_ids == 34284
 
-    print('- get_ns2... ------------------------------------------------------')
+def _run_get_ns(annoobjs):
+    """Test getting namespace dict"""
     for idx, obj in enumerate(annoobjs):
         if obj.name in {'gpad', 'id2gos'} and obj.godag is None:
             print('{IDX}) SKIPPING(No NS): {C}:get_ns2ntsanno {ANNO}'.format(
@@ -88,7 +126,7 @@ def test_anno_read():
             continue
         _tst_ns2(obj, idx)
 
-
+# pylint: disable=too-many-locals
 def _tst_ns2(obj, idx):
     """Test functions which use ns2 functions."""
     # ALL annotations for a species

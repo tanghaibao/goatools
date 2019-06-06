@@ -184,7 +184,7 @@ class GoeaCliFnc(object):
         _optional_attrs = ['relationship'] if self.sections else None
         self.godag = GODag(obo_file=self.args.obo, optional_attrs=_optional_attrs)
         # Get GOEnrichmentStudy
-        print('ARGS GoeaCliFnc', self.args)
+        # print('ARGS GoeaCliFnc ', self.args)
         self.objanno = self._get_objanno(self.args.filenames[2])
         _ns2assoc = self.objanno.get_ns2assc(**self._get_anno_kws())
         _study, _pop = self.rd_files(*self.args.filenames[:2])

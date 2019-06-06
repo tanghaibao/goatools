@@ -21,11 +21,12 @@ REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../")
 def test_gosubdag_relationships(wr_new_obo_subset=False):
     """Plot both the standard 'is_a' field and the 'part_of' relationship."""
 
+    # Leaf GO: viral triggering of virus induced gene silencing
     goid_chosen = 'GO:0060150'
 
     # Load GODag with all relationships
     fin_obo = os.path.join(REPO, "go-basic.obo")
-    # godag_r0 = get_godag(file_obo, loading_bar=None)
+    godag_r0 = get_godag(fin_obo, loading_bar=None)
     godag_r1 = get_godag(fin_obo, loading_bar=None, optional_attrs=['relationship'])
 
     file_sub = os.path.join(REPO, "tests/data/viral_gene_silence.obo")
@@ -34,8 +35,8 @@ def test_gosubdag_relationships(wr_new_obo_subset=False):
     if wr_new_obo_subset:
         _wr_sub_obo(file_sub, goid_chosen, godag_r1, fin_obo)
 
-    gosubdag_r0 = GoSubDag(set([goid_chosen]), godag_r1, relationships=False, prt=sys.stdout)
-    gosubdag_r1 = GoSubDag(set([goid_chosen]), godag_r1, relationships=True, prt=sys.stdout)
+    gosubdag_r0 = GoSubDag(set([goid_chosen]), godag_r0)
+    gosubdag_r1 = GoSubDag(set([goid_chosen]), godag_r1, relationships=True)
 
     _run_baseline_r0(gosubdag_r0, gosubdag_r1)
 
@@ -65,8 +66,9 @@ def test_gosubdag_relationships(wr_new_obo_subset=False):
 
 
 def _run_baseline_r0(gosubdag_r0, gosubdag_r1):
-    # BASELINE r0: Test that GOTerm.get_all_parents() is the same as GoSubDag ancestors
+    """BASELINE r0: Test that GOTerm.get_all_parents() == GoSubDag ancestors"""
     r1_ancestors_more = set()
+    # Loop through r0 GO IDs
     for goid, term in gosubdag_r0.go2obj.items():
         ancestors_r0 = gosubdag_r0.rcntobj.go2parents[goid]
         ancestors_r1 = gosubdag_r1.rcntobj.go2parents[goid]
@@ -75,22 +77,28 @@ def _run_baseline_r0(gosubdag_r0, gosubdag_r1):
         if len(ancestors_r0) < len(ancestors_r1):
             r1_ancestors_more.add(goid)
     assert len(r1_ancestors_more) != 0
-    _prt_goterms(r1_ancestors_more, gosubdag_r1.go2nt)
+    print('{N} r1 GO terms in GoSubDag have more ancestors than r0'.format(
+        N=len(r1_ancestors_more)))
+    # scripts/go_plot.py --go_file=i126_goids_baseline.txt -r --obo=tests/data/viral_gene_silence.obo -o i126_goids_baseline.png
+    fout_gos = 'i126_goids_baseline.txt'
+    with open(fout_gos, 'w') as prt:
+        prt.write('#cafffb {SRC_GO}\n'.format(SRC_GO=next(iter(gosubdag_r0.go_sources))))
+        _prt_goterms(r1_ancestors_more, gosubdag_r1.go2nt, prt)
+        print('  WROTE: {GOs}'.format(GOs=fout_gos))
 
-def _prt_goterms(goids, go2nt):
+def _prt_goterms(goids, go2nt, prt):
     """Print details of GO terms"""
-    print('{N} r1 GO terms in GoSubDag have more ancestors than r0'.format(N=len(goids)))
-    fmt = '{GO} # {NS} {dcnt:5} {childcnt:3} L{level:02} D{depth:02} R{reldepth:02} {D1:5} {REL} {rel} {GO_name}'
+    fmt = ('#ffd1df {GO} # {NS} {dcnt:5} {childcnt:3} '
+           'L{level:02} D{depth:02} R{reldepth:02} {D1:5} {REL} {rel} {GO_name}\n')
     nts = [nt for go, nt in go2nt.items() if go in goids]
     for ntd in sorted(nts, key=lambda nt: nt.dcnt, reverse=True):
-        print(fmt.format(**ntd._asdict()))
+        prt.write(fmt.format(**ntd._asdict()))
 
 
 # - Generate GO DAG subset for this test ---------------------------------------------------------
 def _wr_sub_obo(fout_obo, goid_chosen, godag_r1, fin_obo):
     """Sub plot used for visualizing this test file's elements"""
     # Load GO-DAG: Load optional 'relationship'
-    pngpat = '{REPO}/scripts/go_plot.py -r {GO} -o {PNG}'
     godag = {go:o for go, o in godag_r1.items() if go == o.item_id}
     _prt_rtel_ctr(godag)
     rels_all = set(['part_of', 'regulates', 'negatively_regulates', 'positively_regulates'])
@@ -104,7 +112,11 @@ def _wr_sub_obo(fout_obo, goid_chosen, godag_r1, fin_obo):
     with open(fout_obo, 'w') as prt:
         WrSubObo.prt_goterms(fin_obo, goids_viral, prt)
         print('{N} GO IDs WROTE: {OBO}'.format(N=len(goids_viral), OBO=fout_obo))
-    os.system(pngpat.format(REPO=REPO, PNG=fout_obo.replace('obo', 'png'), GO=goid_chosen))
+    # Plot obo subset
+    pat_r1 = '{REPO}/scripts/go_plot.py {GO} -o {PNG} -r'
+    pat_r0 = '{REPO}/scripts/go_plot.py {GO} -o {PNG}'
+    os.system(pat_r1.format(REPO=REPO, PNG=fout_obo.replace('.obo', '_r1.png'), GO=goid_chosen))
+    os.system(pat_r0.format(REPO=REPO, PNG=fout_obo.replace('.obo', '_r0.png'), GO=goid_chosen))
 
 def _get_leafs_w_relsinhier(rels_usr, gosubdag_r1):
     """Get GO IDs that have all relationships up their hierarchy."""

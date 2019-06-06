@@ -23,10 +23,14 @@ class AnnoReaderBase(object):
         'not', 'contributes_to', 'colocalizes_with',
     ])
 
+    valid_formats = {'gpad', 'gaf', 'gene2go', 'id2gos'}
+
+    exp_nss = set(['BP', 'MF', 'CC'])
+
     # pylint: disable=too-many-instance-attributes
     def __init__(self, name, filename=None, **kws):
         # kws: allow_missing_symbol
-        self.name = name
+        self.name = name  # name is one of valid_formats
         self.filename = filename
         self.godag = kws.get('godag')
         self.namespaces = kws.get('namespaces')
@@ -85,24 +89,57 @@ class AnnoReaderBase(object):
         ns2nts = cx.defaultdict(list)
         for nta in annotations:
             ns2nts[nta.NS].append(nta)
-        return {ns:ns2nts[ns] for ns in set(['BP', 'MF', 'CC']).intersection(ns2nts)}
+        return {ns:ns2nts[ns] for ns in self.exp_nss.intersection(ns2nts)}
 
     def get_id2gos_nss(self, **kws):
         """Return all associations in a dict, id2gos, regardless of namespace"""
         return self._get_id2gos(self.associations, **kws)
 
-    def get_id2gos(self, namespace='BP', **kws):
+    #### def get_id2gos(self, namespace='BP', **kws):
+    ####     """Return associations from specified namespace in a dict, id2gos"""
+    ####     # pylint: disable=superfluous-parens
+    ####     if self.has_ns():
+    ####         assoc = [nt for nt in self.associations if nt.NS == namespace]
+    ####         id2gos = self._get_id2gos(assoc, **kws)
+    ####         print('{N} IDs in loaded association branch, {NS}'.format(N=len(id2gos), NS=namespace))
+    ####         return id2gos
+    ####     print('**ERROR get_id2gos: GODAG NOT LOADED. IGNORING namespace({NS})'.format(NS=namespace))
+    ####     id2gos = self._get_id2gos(self.associations, **kws)
+    ####     print('{N} IDs in association branch, {NS}'.format(N=len(id2gos), NS=namespace))
+    ####     return id2gos
+
+    def get_id2gos(self, namespace=None, **kws):
         """Return associations from specified namespace in a dict, id2gos"""
         # pylint: disable=superfluous-parens
         if self.has_ns():
-            assoc = [nt for nt in self.associations if nt.NS == namespace]
+            nspc, assoc = self._get_1ns_assn(namespace)
             id2gos = self._get_id2gos(assoc, **kws)
-            print('{N} IDs in association branch, {NS}'.format(N=len(id2gos), NS=namespace))
+            print('{N} IDs in loaded association branch, {NS}'.format(N=len(id2gos), NS=nspc))
             return id2gos
-        print('**ERROR: GODAG NOT LOADED. IGNORING namespace({NS})'.format(NS=namespace))
+        if namespace is not None:
+            print('**ERROR get_id2gos: GODAG NOT LOADED. IGNORING namespace({NS})'.format(NS=namespace))
         id2gos = self._get_id2gos(self.associations, **kws)
-        print('{N} IDs in association branch, {NS}'.format(N=len(id2gos), NS=namespace))
+        print('{N} IDs in all associations'.format(N=len(id2gos)))
         return id2gos
+
+    def _get_1ns_assn(self, namespace_usr):
+        """Get one namespace, given a user-provided namespace or a default"""
+        # If all namespaces were loaded
+        if self.namespaces is None:
+            # Return user-specified namespace, if provided. Otherwise BP
+            nspc = 'BP' if namespace_usr is None else namespace_usr
+            return nspc, [nt for nt in self.associations if nt.NS == nspc]
+        # If one namespace was loaded, use that regardless of what user specfies
+        if len(self.namespaces) == 1:
+            nspc = next(iter(self.namespaces))
+            if namespace_usr is not None and nspc != namespace_usr:
+                print('**WARNING: IGNORING {ns}; ONLY {NS} WAS LOADED'.format(
+                    ns=namespace_usr, NS=nspc))
+            return nspc, self.associations
+        if namespace_usr is None:
+            print('**ERROR get_id2gos: GODAG NOT LOADED. USING: {NSs}'.format(
+                NSs=' '.join(sorted(self.namespaces))))
+        return namespace_usr, self.associations
 
     def has_ns(self):
         """Return True if namespace field, NS exists on annotation namedtuples"""
@@ -115,7 +152,10 @@ class AnnoReaderBase(object):
         #   * Evidence_Code == ND -> No biological data No biological Data available
         #   * Qualifiers contain NOT
         assc = self.reduce_annotations(associations, options)
-        return self.get_dbid2goids(assc) if options.b_geneid2gos else self.get_goid2dbids(assc)
+        a2bs = self.get_dbid2goids(assc) if options.b_geneid2gos else self.get_goid2dbids(assc)
+        # if not a2bs:
+        #     raise RuntimeError('**ERROR: NO ASSOCATIONS FOUND: {FILE}'.format(FILE=self.filename))
+        return a2bs
 
     def _get_namespaces(self, nts):
         """Get the set of namespaces seen in the namedtuples."""

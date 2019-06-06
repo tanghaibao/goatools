@@ -48,6 +48,7 @@ This package contains a Python library to
   - id2gos format. See [example](https://raw.githubusercontent.com/tanghaibao/goatools/master/data/association)
 
 - [Print **_decendants count_** and/or **_information content_**](/notebooks/dcnt_and_tinfo.ipynb)
+  for a list of GO terms
 
 - Compare two or more lists of GO IDs using _scripts/compare_gos.py_
 - [Plot GO hierarchies](https://github.com/tanghaibao/goatools#plot-go-lineage)

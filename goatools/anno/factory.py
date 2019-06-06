@@ -30,6 +30,25 @@ def get_objanno(fin_anno, anno_type=None, **kws):
     raise RuntimeError('UNEXPECTED ANNOTATION FILE FORMAT: {F} {D}'.format(
         F=fin_anno, D=anno_type))
 
+def get_objanno_g_kws(**kws):
+    """Read annotations, given the filename in kws"""
+    anno_type, fin_anno = get_type_filename(**kws)
+    if fin_anno is not None:
+        kwargs = {k:v for k, v in kws.items() if k != anno_type}
+        return get_objanno(fin_anno, anno_type, **kwargs)
+
+def get_type_filename(**kws):
+    """Get annotation filename and type, if provided"""
+    if 'gpad' in kws:
+        return 'gpad', kws['gpad']
+    if 'gaf' in kws:
+        return 'gaf', kws['gaf']
+    if 'gene2go' in kws:
+        return 'gene2go', kws['gene2go']
+    if 'id2gos' in kws:
+        return 'id2gos', kws['id2gos']
+    return None, None
+
 def get_anno_desc(fin_anno, anno_type):
     """Indicate annotation format: gaf, gpad, NCBI gene2go, or id2gos."""
     if anno_type is not None:

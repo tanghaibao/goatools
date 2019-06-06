@@ -12,6 +12,7 @@ from goatools.base import dnld_file
 from goatools.base import ftp_get
 from goatools.anno.factory import get_objanno
 from goatools.anno.factory import get_anno_desc
+from goatools.anno.factory import get_objanno_g_kws
 from goatools.semantic import TermCounts
 from goatools.anno.gaf_reader import GafReader
 from goatools.anno.genetogo_reader import Gene2GoReader
@@ -165,28 +166,32 @@ def get_assc_pruned(assc_geneid2gos, min_genecnt=None, max_genecnt=None, prt=sys
 
 def read_annotations(**kws):
     """Read annotations from either a GAF file or NCBI's gene2go file."""
-    if 'gaf' not in kws and 'gene2go' not in kws:
-        return
-    namespace = kws.get('namespace', 'BP')
-    gene2gos = None
-    if 'gaf' in kws:
-        gene2gos = read_gaf(kws['gaf'], namespace=namespace, prt=sys.stdout)
-        if not gene2gos:
-            raise RuntimeError("NO ASSOCIATIONS LOADED FROM {F}".format(F=kws['gaf']))
-    elif 'gene2go' in kws:
-        assert 'taxid' in kws, 'taxid IS REQUIRED WHEN READING gene2go'
-        gene2gos = read_ncbi_gene2go(kws['gene2go'], taxids=[kws['taxid']])
-        if not gene2gos:
-            raise RuntimeError("NO ASSOCIATIONS LOADED FROM {F} FOR TAXID({T})".format(
-                F=kws['gene2go'], T=kws['taxid']))
-    return gene2gos
+    # Read and save annotation lines
+    objanno = get_objanno_g_kws(**kws)
+    # Return associations
+    return objanno.get_id2gos() if objanno is not None else {}
+    #### if 'gaf' not in kws and 'gene2go' not in kws:
+    ####     return
+    #### namespace = kws.get('namespace', 'BP')
+    #### gene2gos = None
+    #### if 'gaf' in kws:
+    ####     gene2gos = read_gaf(kws['gaf'], namespace=namespace, prt=sys.stdout)
+    ####     if not gene2gos:
+    ####         raise RuntimeError("NO ASSOCIATIONS LOADED FROM {F}".format(F=kws['gaf']))
+    #### elif 'gene2go' in kws:
+    ####     assert 'taxid' in kws, 'taxid IS REQUIRED WHEN READING gene2go'
+    ####     gene2gos = read_ncbi_gene2go(kws['gene2go'], taxids=[kws['taxid']])
+    ####     if not gene2gos:
+    ####         raise RuntimeError("NO ASSOCIATIONS LOADED FROM {F} FOR TAXID({T})".format(
+    ####             F=kws['gene2go'], T=kws['taxid']))
+    #### return gene2gos
 
 def get_tcntobj(go2obj, **kws):
     """Return a TermCounts object if the user provides an annotation file, otherwise None."""
-    # kws: gaf gene2go
-    annots = read_annotations(**kws)
-    if annots:
-        return TermCounts(go2obj, annots)
+    # kws: gpad gaf gene2go id2gos
+    objanno = get_objanno_g_kws(**kws)
+    if objanno:
+        return TermCounts(go2obj, objanno.get_id2gos_nss())
 
 
 # Copyright (C) 2010-2019, H Tang et al. All rights reserved."

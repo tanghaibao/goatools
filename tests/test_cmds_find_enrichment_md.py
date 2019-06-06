@@ -8,14 +8,13 @@ __copyright__ = "Copyright (C) 2010-2019, DV Klopfenstein, H Tang. All rights re
 import os
 import sys
 
-REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+# REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 
-# pylint: disable=fixme,too-many-locals
-def test_find_enrichment(run):
+def test_find_enrichment(run_all=False):
     """RUn an enrichments using all annotation file formats"""
 
-    if run:
+    if run_all:
         for idx, cmd in enumerate(_get_cmds()):
             print('------------------- TEST {I} ------------------------------------'.format(I=idx))
             print('CMD: {CMD}'.format(CMD=cmd))
@@ -46,7 +45,6 @@ def _get_cmds():
         'python3 scripts/find_enrichment.py data/study data/population data/association --outfile=goea_fdr_bh_flat.xlsx --method=fdr_bh',
         'python3 scripts/find_enrichment.py data/study data/population data/association --outfile=goea_fdr_bh_grpd.xlsx --method=fdr_bh --sections=goatools.test_data.sections.data2018_07_find_enrichment',
         'python3 scripts/find_enrichment.py data/study data/population data/association --outfile=goea_all.xlsx,goea_all.tsv --pval=-1',
-
     ]
 
 

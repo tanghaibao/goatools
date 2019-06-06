@@ -386,6 +386,8 @@ NOSETESTS := \
 # Run all tests. If you are submitting a pull request, all tests must pass.
 pytest:
 	#py.test -v tests/
+	python3 tests/test_cmds_find_enrichment_md.py all
+	python3 tests/test_cmds_plot_go.py
 	python3 -m pytest -v tests | tee pytest.log
 	make chk_parsers
 	# py.test tests/ --log-file=pytest.log

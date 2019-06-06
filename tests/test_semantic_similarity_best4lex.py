@@ -59,8 +59,8 @@ def test_semantic_similarity():
             sim_l = lin_sim(go_a, go_b, godag, termcounts)
             print('{GO1} {GO2} {RESNIK:6.4f} {LIN:7.4f}'.format(
                 GO1=go_a, GO2=go_b, RESNIK=sim_r, LIN=sim_l))
-            assert sim_r, "FATAL RESNIK SCORE"
-            assert sim_l, "FATAL LIN SCORE"
+            assert sim_r, "FATAL RESNIK SCORE: {S}".format(S=sim_r)
+            assert sim_l, "FATAL LIN SCORE: {S}".format(S=sim_l)
 
 
 if __name__ == '__main__':

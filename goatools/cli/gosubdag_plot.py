@@ -6,8 +6,10 @@ Usage:
              [--go_file=<file.txt>]
              [--relationship]
              [--sections=<sections.txt>]
+             [--gpad=<file.gpad>]
              [--gaf=<file.gaf>]
              [--gene2go=<gene2go>] [--taxid=<Taxonomy_number>]
+             [--id2gos=<file.txt>]
              [--shorten]
              [--parentcnt] [--childcnt] [--mark_alt_id]
              [--go_aliases=<go_aliases.txt>]
@@ -37,8 +39,10 @@ Options:
   -s <sections.txt> --sections=<sections.txt>  Sections file for grouping
   -S <sections module str>             Sections file for grouping
 
+  --gpad=<file.gpad>                   Annotations from a gpad file
   --gaf=<file.gaf>                     Annotations from a gaf file
   --gene2go=<gene2go>                  Annotations from a gene2go file downloaded from NCBI
+  --id2gos=<file.txt>                  Annotations from a text file, e.g., data/association
 
   --obo=<file.obo>                     Ontologies in obo file [default: go-basic.obo].
 
@@ -66,6 +70,7 @@ import sys
 from goatools.obo_parser import GODag
 from goatools.associations import get_tcntobj
 from goatools.godag.obo_optional_attributes import OboOptionalAttrs
+from goatools.anno.annoreader_base import AnnoReaderBase
 
 from goatools.cli.docopt_parse import DocOptParse
 from goatools.gosubdag.plot.gosubdag_plot import GoSubDagPlot
@@ -170,7 +175,7 @@ class PlotCli(object):
     """Class for command-line interface for creating GO term diagrams"""
 
     kws_dict = set(['GO', 'outfile', 'go_file', 'sections', 'S',
-                    'gaf', 'gene2go', 'taxid',
+                    'gpad', 'gaf', 'gene2go', 'taxid', 'id2gos',
                     'title',
                     'obo',
                     'go_aliases'])
@@ -261,10 +266,12 @@ class PlotCli(object):
     def _get_tcntobj(goids, go2obj, **kws):
         """Get a TermCounts object if the user provides an annotation file, otherwise None."""
         # kws: gaf (gene2go taxid)
-        if 'gaf' in kws or 'gene2go' in kws:
+        #### if 'gaf' in kws or 'gene2go' in kws:
+        if not AnnoReaderBase.valid_formats.isdisjoint(kws):
             # Get a reduced go2obj set for TermCounts
             _gosubdag = GoSubDag(goids, go2obj, rcntobj=False)
-            #return get_tcntobj(_gosubdag.go2obj, **kws)  # TermCounts
+            kws = dict(kws)
+            kws['godag'] = go2obj
             return get_tcntobj(go2obj, **kws)  # TermCounts
 
     def get_docargs(self, args=None, prt=None):
