@@ -2,11 +2,12 @@
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import collections as cx
 from itertools import chain
+from goatools.godag.consts import RELATIONSHIP_SET
 from goatools.godag.go_tasks import get_id2parents
 from goatools.godag.go_tasks import get_id2upper
 from goatools.godag.go_tasks import get_id2children
@@ -18,6 +19,7 @@ from goatools.gosubdag.go_tasks import add_alt_goids
 class CountRelativesInit(object):
     """Get descendant/parent counts for all GO terms in a GODag and broad L0 and L1 terms."""
 
+
     def __init__(self, go2obj, relationships, dcnt, go2letter):
         # Subset go2obj contains only items needed by go_sources
         self.go2obj = go2obj
@@ -28,12 +30,23 @@ class CountRelativesInit(object):
         _goobjs, _altgo2goobj = get_goobjs_altgo2goobj(self.go2obj)
         _r0 = not relationships  # True if not using relationships
         self.go2descendants = get_id2children(_goobjs) if _r0 else get_id2lower(_goobjs)
-        self.go2parents = get_id2parents(_goobjs) if _r0 else get_id2upper(_goobjs)
+        # self.go2parents = get_id2parents(_goobjs) if _r0 else get_id2upper(_goobjs)
+        self.go2parents = self._init_go2parents(relationships, _goobjs)
         self.go2dcnt = {go: len(p) for go, p in self.go2descendants.items()}
         add_alt_goids(self.go2parents, _altgo2goobj)
         add_alt_goids(self.go2descendants, _altgo2goobj)
         add_alt_goids(self.go2dcnt, _altgo2goobj)
         # print('INIT CountRelativesInit', self.relationships)
+
+    def _init_go2parents(self, relationships, terms):
+        """Get go2parents"""
+        if not relationships:
+            return get_id2parents(terms)
+        id2upper = get_id2upper(terms)
+        if relationships == RELATIONSHIP_SET:
+            return id2upper
+        goids_all = set(self.go2obj.keys())
+        return {i:goids_all.intersection(ups) for i, ups in id2upper.items()}
 
     def get_relationship_dicts(self):
         """Given GO DAG relationships, return summaries per GO ID."""
@@ -82,4 +95,4 @@ class CountRelativesInit(object):
                 goid_seen.add(goid)
         return depth2goobjs
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
