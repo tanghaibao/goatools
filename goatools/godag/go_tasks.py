@@ -1,6 +1,6 @@
 """item-DAG tasks."""
 
-__copyright__ = "Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2010-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 # ------------------------------------------------------------------------------------
@@ -143,4 +143,4 @@ class CurNHigher(object):
         return idobjs_higher
 
 
-# Copyright (C) 2010-2018, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2010-2019, DV Klopfenstein, H Tang, All rights reserved.

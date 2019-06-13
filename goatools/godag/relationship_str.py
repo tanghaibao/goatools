@@ -27,7 +27,8 @@ __copyright__ = "Copyright (C) 2010-2019, DV Klopfenstein, H Tang, All rights re
 __author__ = "DV Klopfenstein"
 
 from collections import OrderedDict
-from goatools.godag.consts import Consts
+from goatools.godag.consts import RELATIONSHIP_LIST
+from goatools.godag.consts import RELATIONSHIP_SET
 
 # pylint: disable=too-few-public-methods,bad-whitespace
 class RelationshipStr(object):
@@ -53,11 +54,10 @@ class RelationshipStr(object):
         ('positively_regulates', 'u')])
 
     def __init__(self, relationships=None):
-        self.consts = Consts()
-        assert set(self.rel2chr.keys()) == self.consts.relationships
+        assert set(self.rel2chr.keys()) == RELATIONSHIP_SET
         # Ordered relationships
         _rels = relationships if relationships else set()
-        self.rels = [r for r in self.consts.RELATIONSHIP_LIST if r in _rels]
+        self.rels = [r for r in RELATIONSHIP_LIST if r in _rels]
 
     def str_relationships(self, goobj):
         """Get a string representing the presence of absence of relationships. Ex: P..."""

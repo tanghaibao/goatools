@@ -10,11 +10,10 @@ import sys
 import re
 import collections as cx
 from goatools.base import nopen
-from goatools.godag.consts import Consts
+from goatools.godag.consts import NAMESPACE2NS
 from goatools.anno.init.utils import get_date_yyyymmdd
 from goatools.anno.extensions.factory import get_extensions
 from goatools.anno.eco2group import ECO2GRP
-NAMESPACE2NS = Consts.NAMESPACE2NS
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"

@@ -29,7 +29,7 @@ Options:
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import os
@@ -44,7 +44,7 @@ from goatools.cli.docopt_parse import DocOptParse
 from goatools.cli.gos_get import GetGOs
 from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.gosubdag.rpt.write_hierarchy import WrHierGO
-from goatools.godag.consts import Consts
+from goatools.godag.consts import NS2GO
 
 
 def cli():
@@ -85,15 +85,14 @@ class WrHierCli(object):
 
     def _init_goids(self):
         goids_ret = []
-        godagconsts = Consts()
         # print("WWWWWWWWWWWWWWWWWWWWWW", self.kws)
         if 'GO' in self.kws:
             for goid in self.kws['GO']:
                 if goid[:3] == "GO:":
                     assert len(goid) == 10, "BAD GO ID({GO})".format(GO=goid)
                     goids_ret.append(goid)
-                elif goid in godagconsts.NS2GO:
-                    goids_ret.append(godagconsts.NS2GO[goid])
+                elif goid in NS2GO:
+                    goids_ret.append(NS2GO[goid])
         if 'i' in self.kws:
             goids_fin = GetGOs().rdtxt_gos(self.kws['i'], sys.stdout)
             if goids_fin:
@@ -182,4 +181,4 @@ class WrHierCli(object):
             return GetGOs().get_goids(None, gostr, sys.stdout)
 
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved.

@@ -3,8 +3,7 @@
 import sys
 from goatools.anno.annoreader_base import AnnoReaderBase
 from goatools.anno.init.reader_idtogos import InitAssc
-from goatools.godag.consts import Consts
-NAMESPACE2NS = Consts.NAMESPACE2NS
+from goatools.godag.consts import NAMESPACE2NS
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"

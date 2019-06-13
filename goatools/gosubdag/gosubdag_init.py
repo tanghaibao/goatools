@@ -8,6 +8,7 @@ __author__ = "DV Klopfenstein"
 import sys
 import collections as cx
 import math
+from goatools.godag.consts import NAMESPACE2NS
 from goatools.godag.relationship_str import RelationshipStr
 from goatools.godag.go_tasks import CurNHigher
 from goatools.gosubdag.godag_rcnt import CountRelatives
@@ -213,9 +214,8 @@ class InitFields(object):
         b_tcnt = tcntobj is not None
         # b_rcnt = rcntobj is not None and rcntobj
         objrelstr = RelationshipStr(self.relationships)
-        namespace2ns = objrelstr.consts.NAMESPACE2NS
         for goid, goobj in self.go2obj.items():
-            ns_go = namespace2ns[goobj.namespace]
+            ns_go = NAMESPACE2NS[goobj.namespace]
             fld2vals = {
                 'NS' : ns_go,
                 'level' : goobj.level,

@@ -1,11 +1,11 @@
 """Print a GO term's lower-level hierarchy."""
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
 import collections as cx
-from goatools.godag.consts import Consts
+from goatools.godag.consts import NAMESPACE2GO
 from goatools.gosubdag.go_paths import GoPaths
 from goatools.rpt.write_hierarchy_base import WrHierPrt
 
@@ -15,7 +15,6 @@ class WrHierGO(object):
 
     kws_dct = set(['max_indent'])
     kws_set = set(['no_indent', 'concise'])
-    consts = Consts()
 
     def __init__(self, gosubdag, **kws):
         self.gosubdag = gosubdag  # GoSubDag arg, children=True, must be used
@@ -92,7 +91,7 @@ class WrHierGO(object):
 
     def _get_goroot(self, goids_all, namespace):
         """Get the top GO for the set of goids_all."""
-        root_goid = self.consts.NAMESPACE2GO[namespace]
+        root_goid = NAMESPACE2GO[namespace]
         if root_goid in goids_all:
             return root_goid
         root_goids = set()
@@ -156,4 +155,4 @@ class WrHierGO(object):
 ####
 #### """.format(SCR='write_hierarchy')
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved.

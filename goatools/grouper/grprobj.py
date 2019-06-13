@@ -14,10 +14,10 @@
 
 import sys
 import collections as cx
-from goatools.godag.consts import Consts
+from goatools.godag.consts import NAMESPACE2NS
 from goatools.grouper.grprobj_init import GrouperInit
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
@@ -250,7 +250,7 @@ class Grouper(object):
         sections = "_".join(self.hdrobj.get_sections(goid))
         return "{PRE}_{BP}_{NAME}_{SEC}_{DSTR}_{D1s}_{GO}".format(
             PRE=pre,
-            BP=Consts.NAMESPACE2NS[goobj.namespace],
+            BP=NAMESPACE2NS[goobj.namespace],
             NAME=self._str_replace(name),
             SEC=self._str_replace(self._str_replace(sections)),
             GO=goid.replace(":", ""),
@@ -284,4 +284,4 @@ class Grouper(object):
             h=len(self.hdrobj.hdrgos.intersection(self.hdrgo2usrgos.keys())),
             H=self.hdrobj.num_hdrgos()))
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
