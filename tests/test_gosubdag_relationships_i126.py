@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Plot both the standard 'is_a' field and the optional 'part_of' relationship."""
+"""Test that GoSubDag contains ancestors from only the user-specified relationships"""
 
 from __future__ import print_function
 
@@ -11,6 +11,7 @@ import sys
 ## import datetime
 import collections as cx
 from goatools.base import get_godag
+from goatools.godag.consts import RELATIONSHIP_SET
 from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.test_data.wr_subobo import WrSubObo
 
@@ -19,7 +20,7 @@ REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../")
 
 # pylint: disable=line-too-long,unused-variable
 def test_gosubdag_relationships(wr_new_obo_subset=False):
-    """Plot both the standard 'is_a' field and the 'part_of' relationship."""
+    """Test that GoSubDag contains ancestors from only the user-specified relationships"""
 
     # Leaf GO: viral triggering of virus induced gene silencing
     goid_chosen = 'GO:0060150'
@@ -35,8 +36,45 @@ def test_gosubdag_relationships(wr_new_obo_subset=False):
     if wr_new_obo_subset:
         _wr_sub_obo(file_sub, goid_chosen, godag_r1, fin_obo)
 
+    # RELATIONSHIPS: None
     gosubdag_r0 = GoSubDag(set([goid_chosen]), godag_r0)
+    assert 12 == len(gosubdag_r0.rcntobj.go2parents[goid_chosen])
+
+    # RELATIONSHIPS: ALL
     gosubdag_r1 = GoSubDag(set([goid_chosen]), godag_r1, relationships=True)
+    assert gosubdag_r1.relationships == RELATIONSHIP_SET
+        #### set(['part_of', 'regulates', 'positively_regulates', 'negatively_regulates'])
+    assert 50 == len(gosubdag_r1.rcntobj.go2parents[goid_chosen])
+
+    # RELATIONSHIPS: part_of
+    gosubdag_rp = GoSubDag(set([goid_chosen]), godag_r1, relationships={'part_of'})
+    assert gosubdag_rp.relationships == set(['part_of'])
+    rp_par = gosubdag_rp.rcntobj.go2parents[goid_chosen]
+    assert 'GO:0016441' not in gosubdag_rp.go2obj, '**FATAL: REGULATION TERM GoSubDag(part_of) go2obj'
+    assert 'GO:0016441' not in rp_par, '**FATAL: REGULATION TERM GoSubDag(part_of) go2parents'
+
+    # RELATIONSHIPS: regulates
+    gosubdag_rr = GoSubDag(set([goid_chosen]), godag_r1, relationships={'regulates'})
+    assert gosubdag_rr.relationships == set(['regulates'])
+    rp_par = gosubdag_rr.rcntobj.go2parents[goid_chosen]
+    # assert 'GO:0016441' not in gosubdag_rp.go2obj, '**FATAL: REGULATION TERM GoSubDag(part_of) go2obj'
+    # assert 'GO:0016441' not in rp_par, '**FATAL: REGULATION TERM GoSubDag(part_of) go2parents'
+
+    # RELATIONSHIPS: positively_regulates
+    gosubdag_rp = GoSubDag(set([goid_chosen]), godag_r1, relationships={'positively_regulates'})
+    assert gosubdag_rp.relationships == set(['positively_regulates'])
+    rp_par = gosubdag_rp.rcntobj.go2parents[goid_chosen]
+
+    # RELATIONSHIPS: negatively_regulates
+    gosubdag_rn = GoSubDag(set([goid_chosen]), godag_r1, relationships={'negatively_regulates'})
+    assert gosubdag_rn.relationships == set(['negatively_regulates'])
+    rp_par = gosubdag_rn.rcntobj.go2parents[goid_chosen]
+
+    # RELATIONSHIPS: regulates positively_regulates negatively_regulates
+    regs = {'positively_regulates', 'negatively_regulates'}
+    gosubdag_rnp = GoSubDag(set([goid_chosen]), godag_r1, relationships=regs)
+    assert gosubdag_rnp.relationships == regs
+    rp_par = gosubdag_rnp.rcntobj.go2parents[goid_chosen]
 
     _run_baseline_r0(gosubdag_r0, gosubdag_r1)
 
@@ -94,6 +132,16 @@ def _prt_goterms(goids, go2nt, prt):
     for ntd in sorted(nts, key=lambda nt: nt.dcnt, reverse=True):
         prt.write(fmt.format(**ntd._asdict()))
 
+#cafffb GO:0060150
+#ffd1df GO:0050794 # BP  8278  64 D03 R03 regulation of cellular process
+#ffd1df GO:0019222 # BP  3382  20 D03 R03 regulation of metabolic process
+#ffd1df GO:0048522 # BP  2417  65 D04 R04 positive regulation of cellular process
+#ffd1df GO:0060255 # BP  2130  20 D04 R04 regulation of macromolecule metabolic process
+#ffd1df GO:0010468 # BP   862  20 D05 R05 regulation of gene expression
+#ffd1df GO:0060968 # BP    53   4 D06 R08 regulation of gene silencing
+#ffd1df GO:0060147 # BP    24   4 D07 R09 regulation of posttranscriptional gene silencing
+#ffd1df GO:0060148 # BP     8   3 D08 R10 positive regulation of posttranscriptional gene silencing
+#ffd1df GO:0060150 # BP     0   0 D09 R11  viral triggering of virus induced gene silencing
 
 # - Generate GO DAG subset for this test ---------------------------------------------------------
 def _wr_sub_obo(fout_obo, goid_chosen, godag_r1, fin_obo):
