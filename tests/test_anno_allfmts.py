@@ -50,7 +50,9 @@ def test_anno_read():
         _get_objanno('data/association', 'id2gos', godag=godag, namespaces={'CC'}),
     ]
 
-    # pylint: disable=superfluous-parens
+    print('- RUN get_id2gos --------------------------------------------------')
+    _run_get_id2gos2(annoobjs)
+
     print('- RUN prt_summary_anno2ev -----------------------------------------')
     _run_prt_summary_anno2ev(annoobjs)
 
@@ -70,6 +72,7 @@ def test_anno_read():
 def _run_prt_summary_anno2ev(annoobjs):
     """Test prt_summary_anno2ev"""
     for idx, obj in enumerate(annoobjs):
+    # pylint: disable=superfluous-parens
         print('>>>>> {I} >>>>> prt_summary_anno2ev {ANNO}'.format(I=idx, ANNO=obj.get_desc()))
         obj.prt_summary_anno2ev()
         obj.chk_associations()
@@ -88,6 +91,20 @@ def _run_get_id2gos_nss(annoobjs):
             I=idx, DESC=obj.get_desc(), NSs=obj.namespaces, N=len(obj.associations)))
         id2gos_nss = obj.get_id2gos_nss()  # Get all namespaces
         assert id2gos_nss
+
+def _run_get_id2gos2(annoobjs):
+    """Test get_id2gos"""
+    idx = 0
+    for obj in annoobjs:
+        # Test only on annotations that loaded all: BP MF CC
+        if not obj.namespaces and obj.has_ns():
+            print('\n{I}) get_id2gos {DESC} {NSs} annoobj.namespaces({N:,}) annotations'.format(
+                I=idx, DESC=obj.get_desc(), NSs=obj.namespaces, N=len(obj.associations)))
+            id2gos = obj.get_id2gos('all')
+            assert id2gos, 'NO ANNOTATIONS FOUND'
+            assert id2gos == obj.get_id2gos_nss()
+            assert obj.get_id2gos('all', ev_include={'IEA'}) == obj.get_id2gos_nss(ev_include={'IEA'})
+            idx += 1
 
 def _run_get_id2gos(annoobjs):
     """Test get_id2gos"""
@@ -204,6 +221,11 @@ def _chk_namespaces(obj, namespaces):
     for nta in obj.associations:
         assert nta.NS in namespaces
 
-
+def _get_num_annos(id2gos):
+    """Return the number of annotations found in id2gos"""
+    num = 0
+    for gos in id2gos.values():
+        num += len(gos)
+    return num
 if __name__ == '__main__':
     test_anno_read()
