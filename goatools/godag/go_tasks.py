@@ -5,35 +5,43 @@ __author__ = "DV Klopfenstein"
 
 # ------------------------------------------------------------------------------------
 def get_id2parents(objs):
-    """Get all parent item IDs for each item in dict keys."""
+    """Get all parent IDs up the hierarchy"""
     id2parents = {}
     for obj in objs:
         _get_id2parents(id2parents, obj.item_id, obj)
     return id2parents
 
 def get_id2children(objs):
-    """Get all parent item IDs for each item in dict keys."""
+    """Get all child IDs down the hierarchy"""
     id2children = {}
     for obj in objs:
         _get_id2children(id2children, obj.item_id, obj)
     return id2children
 
 def get_id2upper(objs):
-    """Get all parent item IDs for each item in dict keys."""
+    """Get all ancester IDs, including all parents and IDs up all relationships"""
     id2upper = {}
     for obj in objs:
         _get_id2upper(id2upper, obj.item_id, obj)
     return id2upper
 
 def get_id2lower(objs):
-    """Get all parent item IDs for each item in dict keys."""
+    """Get all descendant IDs, including all children and IDs down all relationships"""
     id2lower = {}
     for obj in objs:
         _get_id2lower(id2lower, obj.item_id, obj)
     return id2lower
 
+def get_id2upperselect(objs, relationship_set):
+    """Get all ancester IDs, including all parents and IDs up selected relationships"""
+    return IdToUpperSelect(objs, relationship_set).id2upperselect
+
+def get_id2lowerselect(objs, relationship_set):
+    """Get all descendant IDs, including all children and IDs down selected relationships"""
+    return IdToLowerSelect(objs, relationship_set).id2lowerselect
+
 def get_relationship_targets(item_ids, relationships, id2rec):
-    """Get item ID set of item IDs in a relationship target set."""
+    """Get item ID set of item IDs in a relationship target set"""
     # Requirements to use this function:
     #     1) item Terms must have been loaded with 'relationships'
     #     2) item IDs in 'item_ids' arguement must be present in id2rec
@@ -47,6 +55,65 @@ def get_relationship_targets(item_ids, relationships, id2rec):
     return reltgt_objs_all
 
 # ------------------------------------------------------------------------------------
+# pylint: disable=old-style-class,too-few-public-methods
+class IdToUpperSelect:
+    """Get all ancester IDs, including all parents and IDs up selected relationships"""
+
+    def __init__(self, objs, relationship_set):
+        self.rset = relationship_set
+        self.id2upperselect = {}
+        self._init_id2upperselect(objs)
+
+    def _init_id2upperselect(self, objs):
+        """Get all parent item IDs for each item in dict keys."""
+        for obj in objs:
+            self._get_id2upperselect(obj.item_id, obj)
+
+    def _get_id2upperselect(self, item_id, item_obj):
+        """Add the parent item IDs for one item object and their parents."""
+        id2upperselect = self.id2upperselect
+        if item_id in id2upperselect:
+            return id2upperselect[item_id]
+        parent_ids = set()
+        r2os = item_obj.relationship
+        sets = [r2os[r] for r in self.rset.intersection(r2os)]
+        for parent_obj in item_obj.parents.union(*sets):
+            parent_id = parent_obj.item_id
+            parent_ids.add(parent_id)
+            parent_ids |= self._get_id2upperselect(parent_id, parent_obj)
+        id2upperselect[item_id] = parent_ids
+        return parent_ids
+
+class IdToLowerSelect:
+    """Get all descendant IDs, including all children and IDs down selected relationships"""
+
+    def __init__(self, objs, relationship_set):
+        self.rset = relationship_set
+        self.id2lowerselect = {}
+        self._init_id2lowerselect(objs)
+
+    def _init_id2lowerselect(self, objs):
+        """Get all child item IDs for each item in dict keys."""
+        for obj in objs:
+            self._get_id2lowerselect(obj.item_id, obj)
+
+    def _get_id2lowerselect(self, item_id, item_obj):
+        """Add the child item IDs for one item object and their childs."""
+        id2lowerselect = self.id2lowerselect
+        if item_id in id2lowerselect:
+            return id2lowerselect[item_id]
+        child_ids = set()
+        r2os = item_obj.relationship_rev
+        sets = [r2os[r] for r in self.rset.intersection(r2os)]
+        for child_obj in item_obj.children.union(*sets):
+            child_id = child_obj.item_id
+            child_ids.add(child_id)
+            child_ids |= self._get_id2lowerselect(child_id, child_obj)
+        id2lowerselect[item_id] = child_ids
+        return child_ids
+
+# ------------------------------------------------------------------------------------
+
 def _get_id2parents(id2parents, item_id, item_obj):
     """Add the parent item IDs for one item object and their parents."""
     if item_id in id2parents:
