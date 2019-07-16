@@ -6,7 +6,7 @@ import datetime
 import collections as cx
 from goatools.evidence_codes import EvidenceCodes
 from goatools.anno.opts import AnnoOptions
-from goatools.godag.consts import Consts
+from goatools.godag.consts import NAMESPACE2NS
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
@@ -130,7 +130,7 @@ class AnnoReaderBase(object):
             # Return user-specified namespace, if provided. Otherwise BP
             nspc = 'BP' if namespace_usr is None else namespace_usr
             # Return one namespace
-            if nspc in set(Consts.NAMESPACE2NS.values()):
+            if nspc in set(NAMESPACE2NS.values()):
                 return nspc, [nt for nt in self.associations if nt.NS == nspc]
             # Return all namespaces
             return nspc, self.associations
