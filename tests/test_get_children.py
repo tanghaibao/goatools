@@ -3,7 +3,7 @@
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2010-2018, H Tang et al. All rights reserved."
+__copyright__ = "Copyright (C) 2010-2019, DV Klopfenstein, H Tang et al. All rights reserved."
 
 import os
 import sys
@@ -11,7 +11,7 @@ import timeit
 from goatools.base import get_godag
 from goatools.godag.go_tasks import get_id2children
 from goatools.test_data.godag_timed import prt_hms
-from goatools.test_data.checks import _chk_a2bset
+from goatools.test_data.checks import CheckGOs
 
 
 def test_get_children(prt=sys.stdout):
@@ -29,13 +29,13 @@ def test_get_children(prt=sys.stdout):
     tic = prt_hms(tic, "Get all goobj's children using GOTerm.get_all_children()", prt)
     # Get all children for all GO IDs using GOTerm get_all_children
     go2children_fast = get_id2children(go2obj.values())
-    prt_hms(tic, "Get all goobj's children using go_tasks::get_go3children", prt)
+    prt_hms(tic, "Get all goobj's children using go_tasks::get_id2children", prt)
     # Compare children lists
-    _chk_a2bset(go2children_orig, go2children_fast)
+    CheckGOs('test_get_children', go2obj).chk_a2bset(go2children_orig, go2children_fast)
 
 
 if __name__ == '__main__':
     PRT = None if len(sys.argv) != 1 else sys.stdout
     test_get_children(PRT)
 
-# Copyright (C) 2010-2018, H Tang et al. All rights reserved.
+# Copyright (C) 2010-2019, DV Klopfenstein, H Tang et al. All rights reserved.
