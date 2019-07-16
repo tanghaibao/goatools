@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -83,8 +83,10 @@ class InitGOs(object):
     def _add_goterms_kws(self, go2obj_user, kws_gos):
         """Add more GOTerms to go2obj_user, if requested and relevant."""
         if 'go2color' in kws_gos:
-            for goid in kws_gos['go2color'].keys():
-                self._add_goterms(go2obj_user, goid)
+            go2color = kws_gos['go2color']
+            if go2color is not None:
+                for goid in go2color.keys():
+                    self._add_goterms(go2obj_user, goid)
 
     def _add_goterms(self, go2obj_user, goid):
         """Add alt GO IDs to go2obj subset, if requested and relevant."""
@@ -92,9 +94,9 @@ class InitGOs(object):
         if goid != goterm.id and goterm.id in go2obj_user and goid not in go2obj_user:
             go2obj_user[goid] = goterm
 
-    def _init_go_sources(self, go_sources_arg, go2obj_arg):
+    def _init_go_sources(self, go_srcs, go2obj_arg):
         """Return GO sources which are present in GODag."""
-        gos_user = set(go_sources_arg)
+        gos_user = set(go_srcs) if not isinstance(go_srcs, str) else set([go_srcs,])
         if 'children' in self.kws and self.kws['children']:
             gos_user |= get_leaf_children(gos_user, go2obj_arg)
         gos_godag = set(go2obj_arg)
@@ -258,4 +260,4 @@ class InitFields(object):
         return ret
 
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
