@@ -332,25 +332,18 @@ class PlotCli(object):
     def _get_relationships(kws_all, relationship_in_godag):
         """Return value for GoSubDag arg, relationships."""
         if not relationship_in_godag:
-            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAA')
             return None
         if 'relationship' in kws_all:
-            print('BBBBBBBBBBBBBBBBBBBBBBBBBBBB')
             return RELATIONSHIP_SET
         if 'relationships' not in kws_all:
-            print('CCCCCCCCCCCCCCCCCCCCCCCCCCCC')
             return None
         relationships_arg = kws_all['relationships']
-        print('DDDDDDDDDDDDDDDDDDDDDDDDDDDD', relationship_in_godag, kws_all)
-        print('dddddddddddddddddddddddddddd', relationships_arg)
         if isinstance(relationships_arg, str):
             relationships = set(kws_all['relationships'].split(','))
             assert relationships.issubset(RELATIONSHIP_SET), 'RELATIONSHIP({R}) NOT IN: {Rs}'.format(
                 R=relationships.difference(RELATIONSHIP_SET), Rs=RELATIONSHIP_SET)
-            print('EEEEEEEEEEEEEEEEEEEEEEEEEEEE', relationships)
             return relationships
         if relationships_arg:
-            print('FFFFFFFFFFFFFFFFFFFFFFFFFFFF', relationships_arg)
             return True
 
 
