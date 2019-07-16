@@ -67,10 +67,15 @@ class GoSubDagPlot(object):
     # pylint: disable=bad-whitespace
     rel2edgekws = {
         'is_a':                 {'color':'black',       'style':'solid'},
-        'part_of':              {'color':'magenta',     'style':'dashed'},
+        #### 'part_of':              {'color':'magenta',     'style':'dashed'},
+        'part_of':              {'color':'#ff5b00',     'style':'dashed'},  # xkcd bright orange
+        #### 'part_of':              {'color':'#653700',     'style':'dashed'},  # xkcd brown
+        #### 'part_of':              {'color':'#65fe08',     'style':'dashed'},  # xkcd bright lime green
+        #### 'part_of':              {'color':'#41fdfe',     'style':'dashed'},  # xkcd bright cyan
         'regulates':            {'color':'purple3',     'style':'dashed'},
-        'positively_regulates': {'color':'red',         'style':'dashed'},
-        'negatively_regulates': {'color':'blue',        'style':'dashed'},
+        'positively_regulates': {'color':'magenta',     'style':'dashed'},
+        #### 'negatively_regulates': {'color':'blue',        'style':'dashed'},
+        'negatively_regulates': {'color':'#41fdfe',     'style':'dashed'},  # xkcd bright cyan
         'occurs_in':            {'color':'aquamarine4', 'style':'dashed'},
         'capable_of':           {'color':'dodgerblue',  'style':'dashed'},
         'capable_of_part_of':   {'color':'darkorange',  'style':'dashed'},
