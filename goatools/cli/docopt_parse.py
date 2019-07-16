@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -22,8 +22,7 @@ class DocOptParse(object):
 
     def get_docargs(self, args=None, prt=None, **kws):
         """Pare down docopt. Return a minimal dictionary and a set containing runtime arg values."""
-        args_user = sys.argv[1:] if args is None else args
-        arg_kws = self._get_docargs(args_user, prt)
+        arg_kws = self._get_docargs(args, prt)
         if 'intvals' in kws:
             self._set_intvals(arg_kws, kws['intvals'])
         return arg_kws
@@ -96,4 +95,4 @@ class DocOptParse(object):
         return unknown
 
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
