@@ -204,6 +204,9 @@ pylint:
 	chmod 755 tmp_pylint
 	tmp_pylint
 
+ls_tests:
+	find tests -name \*.py -printf "%T@ %Tc %p\n" | sort -n
+
 clean:
 	make clean_pyc
 	rm -f tmp_pylint
@@ -248,6 +251,7 @@ clean_docgen:
 	rm -f write_hierarchy.html
 
 clobber:
+	rm -f ./notebooks/go-basic.obo
 	@make --no-print-directory clean
 	rm -f $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
 	rm -f goa_human.gaf gene_association.*
@@ -386,12 +390,16 @@ NOSETESTS := \
 # Run all tests. If you are submitting a pull request, all tests must pass.
 pytest:
 	#py.test -v tests/
-	python3 tests/test_cmds_find_enrichment_md.py all
-	python3 tests/test_cmds_plot_go.py
+	#make test_scripts
 	python3 -m pytest -v tests | tee pytest.log
 	make chk_parsers
 	# py.test tests/ --log-file=pytest.log
 	grep FAIL pytest.log
+
+test_scripts:
+	python3 tests/test_cmds_goplot_rels.py all
+	python3 tests/test_cmds_find_enrichment_md.py all
+	python3 tests/test_cmds_plot_go.py
 
 # Used to call GOATOOLS developers attention to illegal lines in parsed files
 chk_parsers:
