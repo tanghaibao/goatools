@@ -251,17 +251,30 @@ class GOTerm(object):
         return all_child_edges
 
     def get_goterms_upper(self):
-        """Returns a set containing parents and relationship GO Terms."""
+        """Returns a set containing parents and all relationship GO Terms."""
         # Requires GODag is created with 'relationship' in optional_attrs argument
         # pylint: disable=no-member
-        # print('UPPER -------------------------------', self.relationship.keys())
         return set.union(self.parents, *self.relationship.values())
 
+    def get_goterms_upper_rels(self, relationship_set):
+        """Returns a set containing parents and specified relationship GO Terms."""
+        # Requires GODag is created with 'relationship' in optional_attrs argument
+        # pylint: disable=no-member
+        terms = [term_set for r, term_set in self.relationship.items() if r in relationship_set]
+        return set.union(self.parents, *terms)
+
     def get_goterms_lower(self):
-        """Returns a set containing children and reverse-relationship GO Terms."""
+        """Returns a set containing children and all reverse-relationship GO Terms."""
         # Requires GODag is created with 'relationship' in optional_attrs argument
         # pylint: disable=no-member
         return set.union(self.children, *self.relationship_rev.values())
+
+    def get_goterms_lower_rels(self, relationship_set):
+        """Returns a set containing children and specified reverse-relationship GO Terms."""
+        # Requires GODag is created with 'relationship' in optional_attrs argument
+        # pylint: disable=no-member
+        terms = [term_set for r, term_set in self.relationship_rev.items() if r in relationship_set]
+        return set.union(self.children, *terms)
 
 
 class GODag(dict):
