@@ -6,6 +6,7 @@ import datetime
 import collections as cx
 from goatools.evidence_codes import EvidenceCodes
 from goatools.anno.opts import AnnoOptions
+from goatools.godag.consts import Consts
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
@@ -111,7 +112,7 @@ class AnnoReaderBase(object):
     def get_id2gos(self, namespace=None, **kws):
         """Return associations from specified namespace in a dict, id2gos"""
         # pylint: disable=superfluous-parens
-        if self.has_ns():
+        if self.has_ns():  # Anno namedtuple has NS field
             nspc, assoc = self._get_1ns_assn(namespace)
             id2gos = self._get_id2gos(assoc, **kws)
             print('{N} IDs in loaded association branch, {NS}'.format(N=len(id2gos), NS=nspc))
@@ -128,7 +129,11 @@ class AnnoReaderBase(object):
         if self.namespaces is None:
             # Return user-specified namespace, if provided. Otherwise BP
             nspc = 'BP' if namespace_usr is None else namespace_usr
-            return nspc, [nt for nt in self.associations if nt.NS == nspc]
+            # Return one namespace
+            if nspc in set(Consts.NAMESPACE2NS.values()):
+                return nspc, [nt for nt in self.associations if nt.NS == nspc]
+            # Return all namespaces
+            return nspc, self.associations
         # If one namespace was loaded, use that regardless of what user specfies
         if len(self.namespaces) == 1:
             nspc = next(iter(self.namespaces))
