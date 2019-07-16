@@ -10,8 +10,10 @@ from itertools import chain
 from goatools.godag.consts import RELATIONSHIP_SET
 from goatools.godag.go_tasks import get_id2parents
 from goatools.godag.go_tasks import get_id2upper
+from goatools.godag.go_tasks import get_id2upperselect
 from goatools.godag.go_tasks import get_id2children
 from goatools.godag.go_tasks import get_id2lower
+from goatools.godag.go_tasks import get_id2lowerselect
 from goatools.gosubdag.go_tasks import get_goobjs_altgo2goobj
 from goatools.gosubdag.go_tasks import add_alt_goids
 
@@ -29,8 +31,7 @@ class CountRelativesInit(object):
         # Ex: set(['part_of', 'regulates', 'negatively_regulates', 'positively_regulates'])
         _goobjs, _altgo2goobj = get_goobjs_altgo2goobj(self.go2obj)
         _r0 = not relationships  # True if not using relationships
-        self.go2descendants = get_id2children(_goobjs) if _r0 else get_id2lower(_goobjs)
-        # self.go2parents = get_id2parents(_goobjs) if _r0 else get_id2upper(_goobjs)
+        self.go2descendants = self._init_go2descendants(relationships, _goobjs)
         self.go2parents = self._init_go2parents(relationships, _goobjs)
         self.go2dcnt = {go: len(p) for go, p in self.go2descendants.items()}
         add_alt_goids(self.go2parents, _altgo2goobj)
@@ -38,27 +39,35 @@ class CountRelativesInit(object):
         add_alt_goids(self.go2dcnt, _altgo2goobj)
         # print('INIT CountRelativesInit', self.relationships)
 
-    def _init_go2parents(self, relationships, terms):
-        """Get go2parents"""
+    @staticmethod
+    def _init_go2parents(relationships, terms):
+        """Get GO-to- ancestors (all parents)"""
         if not relationships:
             return get_id2parents(terms)
-        id2upper = get_id2upper(terms)
         if relationships == RELATIONSHIP_SET:
-            return id2upper
-        goids_all = set(self.go2obj.keys())
-        return {i:goids_all.intersection(ups) for i, ups in id2upper.items()}
+            return get_id2upper(terms)
+        return get_id2upperselect(terms, relationships)
 
-    def get_relationship_dicts(self):
-        """Given GO DAG relationships, return summaries per GO ID."""
-        if not self.relationships:
-            return None
-        for goid, goobj in self.go2obj.items():
-            for reltyp, relset in goobj.relationship.items():
-                relfwd_goids = set(o.id for o in relset)
-                # for relfwd_goid in relfwd_goids:
-                #     assert relfwd_goid in self.go2obj, "{GO} {REL} NOT FOUND {GO_R}".format(
-                #         GO=goid, REL=reltyp, GO_R=relfwd_goid)
-                print("CountRelativesInit RELLLLS", goid, goobj.id, reltyp, relfwd_goids)
+    @staticmethod
+    def _init_go2descendants(relationships, terms):
+        """Get GO-to- descendants"""
+        if not relationships:
+            return get_id2children(terms)
+        if relationships == RELATIONSHIP_SET:
+            return get_id2lower(terms)
+        return get_id2lowerselect(terms, relationships)
+
+    ## def get_relationship_dicts(self):
+    ##     """Given GO DAG relationships, return summaries per GO ID."""
+    ##     if not self.relationships:
+    ##         return None
+    ##     for goid, goobj in self.go2obj.items():
+    ##         for reltyp, relset in goobj.relationship.items():
+    ##             relfwd_goids = set(o.id for o in relset)
+    ##             # for relfwd_goid in relfwd_goids:
+    ##             #     assert relfwd_goid in self.go2obj, "{GO} {REL} NOT FOUND {GO_R}".format(
+    ##             #         GO=goid, REL=reltyp, GO_R=relfwd_goid)
+    ##             # print("CountRelativesInit RELLLLS", goid, goobj.id, reltyp, relfwd_goids)
 
     def get_goone2ntletter(self, go2dcnt, depth2goobjs):
         """Assign letters to depth-01 GO terms ordered using descendants cnt."""
@@ -94,5 +103,6 @@ class CountRelativesInit(object):
                 depth2goobjs[goobj.depth].append(goobj)
                 goid_seen.add(goid)
         return depth2goobjs
+
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
