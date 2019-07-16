@@ -14,6 +14,7 @@ from goatools.semantic import get_info_content
 from goatools.test_data.gafs import ASSOCIATIONS
 
 TIC = timeit.default_timer()
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def test_semantic_similarity(usr_assc=None):
     """Computing basic semantic similarities between GO terms."""
@@ -24,12 +25,11 @@ def test_semantic_similarity(usr_assc=None):
     # http://current.geneontology.org/annotations/
     if usr_assc is not None:
         associations = [usr_assc]
-    cwd = os.getcwd()
     not_found = set()
     for assc_name in associations:  # Limit test numbers for speed
         tic = timeit.default_timer()
         # Get all the annotations from arabidopsis.
-        assc_gene2gos = dnld_assc(os.path.join(cwd, assc_name), go2obj, prt=sys.stdout)
+        assc_gene2gos = dnld_assc(os.path.join(REPO, assc_name), go2obj, prt=sys.stdout)
         if not assc_gene2gos:
             not_found.add(assc_name)
             continue
@@ -81,7 +81,7 @@ def get_goid(go_cnt, max_val):
 
 def get_go2obj():
     """Read GODag and return go2obj."""
-    godag = get_godag(os.path.join(os.getcwd(), "go-basic.obo"), loading_bar=None)
+    godag = get_godag(os.path.join(REPO, "go-basic.obo"), loading_bar=None)
     return {go:o for go, o in godag.items() if not o.is_obsolete}
 
 if __name__ == '__main__':
