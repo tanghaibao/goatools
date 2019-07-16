@@ -11,6 +11,11 @@ from goatools.gosubdag.go_tasks import get_go2obj_unique
 from goatools.godag.consts import NS2GO
 
 
+def get_go2color(go_color_file):
+    """Get GO colors from file"""
+    _, go2color = GetGOs.rdtxt_gos_color(go_color_file)
+    return go2color
+
 class GetGOs(object):
     """Return a list of GO IDs for plotting."""
 
@@ -20,12 +25,13 @@ class GetGOs(object):
 
     def get_goids(self, go_args, fin_goids, prt):
         """Return source GO IDs ."""
-        goids = set()
+        goids_all = set()
         if fin_goids is not None:
-            goids.update(self.rdtxt_gos(fin_goids, prt))
+            goids_all.update(self.rdtxt_gos(fin_goids, prt))
         if go_args:
-            goids.update(self.get_goargs(go_args, prt))
-        return goids
+            goids_cur, _ = self.get_goargs(go_args, prt)  # go2color
+            goids_all.update(goids_cur)
+        return goids_all
 
     def get_usrgos(self, fin_goids, prt):
         """Return source GO IDs ."""
@@ -57,11 +63,11 @@ class GetGOs(object):
         if not os.path.exists(go_file):
             raise RuntimeError("CAN NOT READ GO FILE: {FILE}\n".format(FILE=go_file))
         re_go = re.compile(r'(GO:\d{7})+?')
-        re_com = re.compile(r'^\s*#')  # Lines starting with a '#' are comment lines and ignored
         with open(go_file) as ifstrm:
             for line in ifstrm:
                 # Skip lines that are comments
-                if re_com.search(line):
+                line = line.strip()
+                if line[:1] == '#':
                     continue
                 # Search for GO IDs on the line
                 goids_found = re_go.findall(line)
@@ -71,7 +77,31 @@ class GetGOs(object):
                 prt.write("  {N} GO IDs READ: {TXT}\n".format(N=len(goids_all), TXT=go_file))
         return goids_all
 
-    def get_goargs(self, go_args, prt):
+    @staticmethod
+    def rdtxt_gos_color(go_file):
+        """Read GO IDs from a file."""
+        if not os.path.exists(go_file):
+            raise RuntimeError("CAN NOT READ: {FILE}\n".format(FILE=go_file))
+        goids = set()
+        go2color = {}
+        re_goids = re.compile(r"(GO:\d{7})+?")
+        re_color = re.compile(r"(#[0-9a-fA-F]{6})+?")
+        with open(go_file) as ifstrm:
+            for line in ifstrm:
+                goids_found = re_goids.findall(line)
+                if goids_found:
+                    goids.update(goids_found)
+                    colors = re_color.findall(line)
+                    if colors:
+                        if len(goids_found) == len(colors):
+                            for goid, color in zip(goids_found, colors):
+                                go2color[goid] = color
+                        else:
+                            print("IGNORING: {L}".format(L=line),)
+        return goids, go2color
+
+    @staticmethod
+    def get_goargs(go_args, prt):
         """Get GO IDs and colors for GO IDs from the GO ID runtime arguments."""
         goids = set()
         go2color = {}
@@ -88,6 +118,7 @@ class GetGOs(object):
                 goids.add(NS2GO[go_arg])
             elif prt:
                 prt.write("WARNING: UNRECOGNIZED ARG({})\n".format(go_arg))
-        return goids
+        return goids, go2color
+
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved.
