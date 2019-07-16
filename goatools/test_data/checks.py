@@ -19,17 +19,18 @@ class CheckGOs:
         for goid, exp_goids in exp_a2bset.items():
             act_goids = act_a2bset[goid]
             if act_goids != exp_goids:
-                self._err(goid, act_goids, exp_goids)
+                self._err(goid, exp_goids, act_goids)
 
-    def _err(self, goid, act_goids, exp_goids):
+    def _err(self, goid, exp_goids, act_goids):
         """Report Mismatch Error: Create plot showing relationships"""
         diff_exp = exp_goids.difference(act_goids)
         diff_act = act_goids.difference(exp_goids)
-        self._plt(goid, act_goids, exp_goids, diff_exp, diff_act)
+        self._plt(goid, exp_goids, act_goids, diff_exp, diff_act)
         raise RuntimeError('{GO}: EXP[{E}]<->ACT[{A}] EXP({EXP}) ACT({ACT})'.format(
             GO=goid, E=len(exp_goids), A=len(act_goids), EXP=diff_exp, ACT=diff_act))
 
-    def _plt(self, goid, act_goids, exp_goids, diff_exp, diff_act):
+    # pylint: disable=too-many-arguments
+    def _plt(self, goid, exp_goids, act_goids, diff_exp, diff_act):
         """Plot GO IDs, colored by differences in expected and actual"""
         fout_png = '{NAME}_{GO}.png'.format(NAME=self.name, GO=goid.replace(':', ''))
         go_sources = set.union(exp_goids, act_goids, {goid})
