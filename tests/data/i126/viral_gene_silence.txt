@@ -1,0 +1,62 @@
+
+is_a green
+#e6fad2 GO:0008150 biological process
+#e6fad2 GO:0065007 biological regulation
+#e6fad2 GO:0050794 # BP  8358  65 L03 D03 R03 AB    .R.. .... regulation of cellular process
+#e6fad2 GO:0019222 # BP  3380  20 L03 D03 R03 BC    .R.. .... regulation of metabolic process
+#e6fad2 GO:0048522 # BP  2417  65 L04 D04 R04 AB    ...U .... positive regulation of cellular process
+#e6fad2 GO:0060255 # BP  2128  20 L04 D04 R04 BC    .R.. .... regulation of macromolecule metabolic process
+#e6fad2 GO:0010468 # BP   866  21 L05 D05 R05 BC    .R.. p... regulation of gene expression
+#e6fad2 GO:0060968 # BP    53   4 L04 D06 R08 ABC   .R.. .... regulation of gene silencing
+#e6fad2 GO:0060147 # BP    24   4 L05 D07 R09 ABC   .R.. .... regulation of posttranscriptional gene silencing
+#e6fad2 GO:0060148 # BP     8   3 L05 D08 R10 ABC   ...U .... positive regulation of posttranscriptional gene silencing
+#e6fad2 GO:0050789  # BP    18   4 L02 D02 R02 A     . . regulation of biological process
+#e6fad2 GO:0048518  # BP     3   1 L03 D03 R03 A     . . positive regulation of biological process
+
+part_of orange
+#ffe5b4 GO:0002376 immune system process
+#ffe5b4 GO:0050896 response to stimulus
+#ffe5b4 GO:0051704 multi-organism process
+#ffe5b4 GO:0044419  # BP     9   3 L02 D02 R02 B     . . interspecies interaction between organisms
+#ffe5b4 GO:0006955  # BP     3   1 L02 D02 R02 CD    . . immune response
+#ffe5b4 GO:0009607  # BP     9   1 L02 D02 R02 C     . . response to biotic stimulus
+#ffe5b4 GO:0009605  # BP     9   1 L02 D02 R02 C     . . response to external stimulus
+#ffe5b4 GO:0006950  # BP     6   1 L02 D02 R02 C     . . response to stress
+#ffe5b4 GO:0002252  # BP     3   1 L02 D02 R02 D     . . immune effector process
+#ffe5b4 GO:0043207  # BP     8   1 L03 D03 R03 C     . . response to external biotic stimulus
+#ffe5b4 GO:0006952  # BP     5   1 L03 D03 R03 C     . . defense response
+#ffe5b4 GO:0051701  # BP     4   1 L03 D03 R04 B     P . interaction with host
+#ffe5b4 GO:0044403  # BP     7   0 L03 D03 R03 B     . p symbiont process
+#ffe5b4 GO:0035821  # BP     6   1 L03 D03 R03 B     . . modification of morphology or physiology of other organism
+#ffe5b4 GO:0051817  # BP     5   2 L04 D04 R04 B     P . modification of morphology or physiology of other organism involved in symbiotic interaction
+#ffe5b4 GO:0051707  # BP     7   2 L02 D04 R04 BC    . . response to other organism
+#ffe5b4 GO:0052249  # BP     3   1 L05 D05 R05 B     . . modulation of RNA levels in other organism involved in symbiotic interaction
+#ffe5b4 GO:0009615  # BP     4   2 L03 D05 R05 BC    . . response to virus
+#ffe5b4 GO:0044003  # BP     3   1 L04 D05 R05 B     . . modification by symbiont of host morphology or physiology
+#ffe5b4 GO:0098542  # BP     4   2 L03 D05 R05 BC    . . defense response to other organism
+#ffe5b4 GO:0052018  # BP     2   1 L05 D06 R06 B     . . modulation by symbiont of RNA levels in host
+#ffe5b4 GO:0098586  # BP     2   1 L04 D06 R06 BC    . . cellular response to virus
+#ffe5b4 GO:0045087  # BP     2   1 L03 D06 R06 BCD   . . innate immune response
+#ffe5b4 GO:0051607  # BP     2   1 L03 D06 R06 BCD   . . defense response to virus
+#ffe5b4 GO:0009616  # BP     1   0 L04 D07 R07 BCD   . p virus induced gene silencing
+
+regulates: purple
+#d2d2fa GO:0071704  # BP    14   1 L02 D02 R02 B     . . organic substance metabolic process
+#d2d2fa GO:0048519  # BP     9   1 L03 D03 R03 A     . . negative regulation of biological process
+#d2d2fa GO:0009892  # BP     8   1 L04 D04 R04 AB    . . negative regulation of metabolic process
+#d2d2fa GO:0010605  # BP     7   1 L05 D05 R05 AB    . . negative regulation of macromolecule metabolic process
+#d2d2fa GO:0010629  # BP     6   1 L06 D06 R06 AB    . . negative regulation of gene expression
+#d2d2fa GO:0010608  # BP     4   1 L06 D06 R06 AB    . . posttranscriptional regulation of gene expression
+#d2d2fa GO:0040029  # BP     4   1 L06 D06 R06 AB    . . regulation of gene expression, epigenetic
+#d2d2fa GO:0016458  # BP     5   1 L02 D07 R07 ABC   . r gene silencing
+
+negatively_regulates: cyan
+#d2fafa GO:0008152 metabolic process
+#d2fafa GO:0043170  # BP    13   1 L03 D03 R03 B     . r macromolecule metabolic process
+#d2fafa GO:0010467  # BP    10   0 L04 D04 R04 B     . r gene expression
+
+positively_regulates: magenta
+#fad2fa GO:0009987 cellular process
+#fad2fa GO:0016441  # BP     3   0 L03 D08 R08 ABC   . r posttranscriptional gene silencing
+
+
