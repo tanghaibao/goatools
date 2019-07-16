@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 """Test that GoSubDag contains ancestors from only the user-specified relationships"""
+# tests/test_gosubdag_relationships_i126.py
+# goatools/gosubdag/gosubdag.py
+# goatools/gosubdag/godag_rcnt.py
+# goatools/gosubdag/godag_rcnt_init.py
+# goatools/godag/go_tasks.py
+# goatools/obo_parser.py
 
 from __future__ import print_function
 
@@ -38,13 +44,13 @@ def test_gosubdag_relationships(wr_new_obo_subset=False):
 
     # RELATIONSHIPS: None
     gosubdag_r0 = GoSubDag(set([goid_chosen]), godag_r0)
-    assert 12 == len(gosubdag_r0.rcntobj.go2parents[goid_chosen])
+    assert len(gosubdag_r0.rcntobj.go2parents[goid_chosen]) == 12
 
     # RELATIONSHIPS: ALL
     gosubdag_r1 = GoSubDag(set([goid_chosen]), godag_r1, relationships=True)
     assert gosubdag_r1.relationships == RELATIONSHIP_SET
         #### set(['part_of', 'regulates', 'positively_regulates', 'negatively_regulates'])
-    assert 50 == len(gosubdag_r1.rcntobj.go2parents[goid_chosen])
+    assert len(gosubdag_r1.rcntobj.go2parents[goid_chosen]) == 50
 
     # RELATIONSHIPS: part_of
     gosubdag_rp = GoSubDag(set([goid_chosen]), godag_r1, relationships={'part_of'})
