@@ -19,7 +19,7 @@ def update_association(assc_gene2gos, go2obj, relationships=None):
     _goids_assoc_cur = goids_assoc_all.intersection(goids_avail)
     _go2obj_assc = {go:go2obj[go] for go in _goids_assoc_cur}
     go2ancesters = get_go2parents_go2obj(_go2obj_assc, relationships)
-    # Expand the association GO set for each gene to include all GO ancestors
+    # Update the GO sets in assc_gene2gos to include all GO ancestors
     for assc_goids_cur in assc_goid_sets:
         parents = set()
         for goid in assc_goids_cur.intersection(goids_avail):
