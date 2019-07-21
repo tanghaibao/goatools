@@ -3,6 +3,26 @@
 __copyright__ = "Copyright (C) 2010-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
+from goatools.godag.consts import RELATIONSHIP_SET
+
+
+# ------------------------------------------------------------------------------------
+def get_go2ancesters(terms, relationships):
+    """Get GO-to- ancestors (all parents)"""
+    if not relationships:
+        return get_id2parents(terms)
+    if relationships == RELATIONSHIP_SET:
+        return get_id2upper(terms)
+    return get_id2upperselect(terms, relationships)
+
+def get_go2descendants(terms, relationships):
+    """Get GO-to- descendants"""
+    if not relationships:
+        return get_id2children(terms)
+    if relationships == RELATIONSHIP_SET:
+        return get_id2lower(terms)
+    return get_id2lowerselect(terms, relationships)
+
 # ------------------------------------------------------------------------------------
 def get_id2parents(objs):
     """Get all parent IDs up the hierarchy"""

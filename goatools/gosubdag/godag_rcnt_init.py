@@ -7,13 +7,8 @@ __author__ = "DV Klopfenstein"
 
 import collections as cx
 from itertools import chain
-from goatools.godag.consts import RELATIONSHIP_SET
-from goatools.godag.go_tasks import get_id2parents
-from goatools.godag.go_tasks import get_id2upper
-from goatools.godag.go_tasks import get_id2upperselect
-from goatools.godag.go_tasks import get_id2children
-from goatools.godag.go_tasks import get_id2lower
-from goatools.godag.go_tasks import get_id2lowerselect
+from goatools.godag.go_tasks import get_go2ancesters
+from goatools.godag.go_tasks import get_go2descendants
 from goatools.gosubdag.go_tasks import get_goobjs_altgo2goobj
 from goatools.gosubdag.go_tasks import add_alt_goids
 
@@ -31,31 +26,13 @@ class CountRelativesInit(object):
         # Ex: set(['part_of', 'regulates', 'negatively_regulates', 'positively_regulates'])
         _goobjs, _altgo2goobj = get_goobjs_altgo2goobj(self.go2obj)
         _r0 = not relationships  # True if not using relationships
-        self.go2descendants = self._init_go2descendants(relationships, _goobjs)
-        self.go2parents = self._init_go2parents(relationships, _goobjs)
+        self.go2descendants = get_go2descendants(_goobjs, relationships)
+        self.go2parents = get_go2ancesters(_goobjs, relationships)
         self.go2dcnt = {go: len(p) for go, p in self.go2descendants.items()}
         add_alt_goids(self.go2parents, _altgo2goobj)
         add_alt_goids(self.go2descendants, _altgo2goobj)
         add_alt_goids(self.go2dcnt, _altgo2goobj)
         # print('INIT CountRelativesInit', self.relationships)
-
-    @staticmethod
-    def _init_go2parents(relationships, terms):
-        """Get GO-to- ancestors (all parents)"""
-        if not relationships:
-            return get_id2parents(terms)
-        if relationships == RELATIONSHIP_SET:
-            return get_id2upper(terms)
-        return get_id2upperselect(terms, relationships)
-
-    @staticmethod
-    def _init_go2descendants(relationships, terms):
-        """Get GO-to- descendants"""
-        if not relationships:
-            return get_id2children(terms)
-        if relationships == RELATIONSHIP_SET:
-            return get_id2lower(terms)
-        return get_id2lowerselect(terms, relationships)
 
     ## def get_relationship_dicts(self):
     ##     """Given GO DAG relationships, return summaries per GO ID."""
