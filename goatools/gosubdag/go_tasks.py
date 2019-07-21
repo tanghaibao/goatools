@@ -1,12 +1,11 @@
 """Tasks for go2obj dicts."""
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
-import sys
 import collections as cx
-from goatools.godag.go_tasks import get_id2parents
-from goatools.godag.go_tasks import get_id2children
+from goatools.godag.go_tasks import get_go2ancesters
+from goatools.godag.go_tasks import get_go2descendants
 
 
 # ------------------------------------------------------------------------------------
@@ -38,30 +37,6 @@ class TopologicalSortRelationships(object):
             self._get_sorted_relationships(goterm_upper)
         self.goterms_sorted.append(goterm)
 
-
-# ------------------------------------------------------------------------------------
-def update_association(assc_gene2gos, go2obj):
-    """Add the GO parents of a gene's associated GO IDs to the gene's association."""
-    # Replaces update_association in GODag
-    goids_avail = set(go2obj)
-    # Get all assc GO IDs that are current
-    goid_sets = assc_gene2gos.values()
-    goids_assoc_all = set.union(*goid_sets)
-    goids_assoc_cur = goids_assoc_all.intersection(goids_avail)
-    # Get the subset of GO objects in the association
-    go2obj_assc = {go:go2obj[go] for go in goids_assoc_cur}
-    go2parents = get_go2parents_go2obj(go2obj_assc)
-    # Update the association: update the GO set for each gene
-    for goids_cur in goid_sets:
-        parents = set()
-        for goid in goids_cur.intersection(goids_avail):
-            parents.update(go2parents[goid])
-        goids_cur.update(parents)
-    goids_bad = goids_assoc_all.difference(goids_avail)
-    if goids_bad:
-        sys.stderr.write("{N} GO IDs NOT FOUND IN ASSOCIATION: {GOs}\n".format(
-            N=len(goids_bad), GOs=" ".join(goids_bad)))
-
 # ------------------------------------------------------------------------------------
 def get_go2obj_unique(go2obj):
     """If GO keys point to the same GOTerm, return new go2obj w/no duplicates."""
@@ -80,18 +55,18 @@ def get_go2obj_unique(go2obj):
     return go_unique
 
 # ------------------------------------------------------------------------------------
-def get_go2parents_go2obj(go2obj):
+def get_go2parents_go2obj(go2obj, relationships=None):
     """Return go2parents (set of parent GO IDs) for all GO ID keys in go2obj."""
     goobjs, altgo2goobj = get_goobjs_altgo2goobj(go2obj)
-    go2parents = get_id2parents(goobjs)
+    go2parents = get_go2ancesters(goobjs, relationships)
     add_alt_goids(go2parents, altgo2goobj)
     return go2parents
 
 # ------------------------------------------------------------------------------------
-def get_go2children_go2obj(go2obj):
+def get_go2children_go2obj(go2obj, relationships=None):
     """Return go2children (set of child GO IDs) for all GO ID keys in go2obj."""
     goobjs, altgo2goobj = get_goobjs_altgo2goobj(go2obj)
-    go2children = get_id2children(goobjs)
+    go2children = get_go2descendants(goobjs, relationships)
     add_alt_goids(go2children, altgo2goobj)
     return go2children
 
@@ -214,4 +189,4 @@ def chk_goids(goids, msg=None, raise_except=True):
             else:
                 return goid
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
