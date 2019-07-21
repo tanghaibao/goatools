@@ -12,14 +12,18 @@ from goatools.base import get_godag
 from goatools.godag.go_tasks import get_id2lowerselect
 from goatools.test_data.godag_timed import prt_hms
 from goatools.test_data.checks import CheckGOs
-from goatools.godag.consts import RELATIONSHIP_SET
+from goatools.godag.relationship_combos import RelationshipCombos
 
 
 def test_get_lowerselect(prt=sys.stdout):
     """Test getting parents and user-specfied ancestor relationships"""
     # Load GO-DAG
-    run = _Run('go-basic.obo')
-    rels_combo = run.get_rel_combos()
+    repo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+    godag = get_godag(os.path.join(repo, 'go-basic.obo'), optional_attrs='relationship')
+    run = RelationshipCombos(godag)
+    run.chk_relationships_all()
+    rels_combo = run.get_relationship_combos()
+    print('{N} COMBINATIONS OF RELATIONSHIPS'.format(N=len(rels_combo)))
 
     for relidx, rels_set in enumerate(rels_combo, 1):
         print('{I}) RELATIONSHIPS[{N}]: {Rs}'.format(
@@ -36,41 +40,10 @@ def test_get_lowerselect(prt=sys.stdout):
         tic = prt_hms(tic, "Get all goobj's parents using go_tasks::get_id2lowerselect", prt)
         # ------------------------------------------------------------------------
         # Compare parent lists
-        run.chkr.chk_a2bset(go2lowerselect_orig, go2lowerselect_fast)  # EXPECTED, ACTUAL
+        chkr = CheckGOs('test_get_lower_select', godag)
+        chkr.chk_a2bset(go2lowerselect_orig, go2lowerselect_fast)  # EXPECTED, ACTUAL
         print("PASSED: get_lowerselect RELATIONSHIPS[{N}]: {Rs}".format(
             N=len(rels_set), Rs=' '.join(sorted(rels_set))))
-
-# pylint: disable=too-few-public-methods,old-style-class
-class _Run:
-    """Test getting parents and user-specfied ancestor relationships"""
-
-    def __init__(self, fin_obo):
-        _repo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-        _godag = get_godag(os.path.join(_repo, fin_obo), optional_attrs='relationship')
-        self.go2obj = {go:o for go, o in _godag.items() if go == o.id}
-        self.chkr = CheckGOs('test_get_lower_select', self.go2obj)
-        self.rels_all = self._get_rels_all()
-
-    def get_rel_combos(self):
-        """Get all combinations of all lengths of relationships"""
-        rels_combo = []
-        num_rels = len(self.rels_all)
-        print('GODAG relationships[{N}]: {Rs}'.format(N=num_rels, Rs=self.rels_all))
-        for cnt in range(2**num_rels):
-            idxs = [i for i, v in enumerate('{N:0{L}b}'.format(N=cnt, L=num_rels)) if v == '1']
-            if idxs:
-                rels_cur = set(self.rels_all[i] for i in idxs)
-                rels_combo.append(rels_cur)
-                # print('{N:0{L}b}'.format(N=cnt, L=num_rels), idxs, rels_cur)
-        return rels_combo
-
-    def _get_rels_all(self):
-        """Check that the list of relationships in consts is same as found in GODAG"""
-        rels_all = set()
-        for obj in self.go2obj.values():
-            rels_all.update(obj.relationship.keys())
-        assert rels_all == RELATIONSHIP_SET, rels_all.symmetric_difference(RELATIONSHIP_SET)
-        return sorted(rels_all)
 
 # ------------------------------------------------------------------------------------
 def get_all_lowerselect(goterm, relationship_set):
