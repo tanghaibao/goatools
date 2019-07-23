@@ -26,7 +26,6 @@ import argparse
 from goatools.evidence_codes import EvidenceCodes
 
 from goatools.obo_parser import GODag
-#### from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.goea.go_enrichment_ns import GOEnrichmentStudyNS
 from goatools.multiple_testing import Methods
 from goatools.pvalcalc import FisherFactory
@@ -34,6 +33,8 @@ from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
 from goatools.rpt.prtfmt import PrtFmt
 from goatools.semantic import TermCounts
 from goatools.wr_tbl import prt_tsv_sections
+## from goatools.godag.consts import RELATIONSHIP_SET
+from goatools.godag.consts import chk_relationships
 from goatools.godag.prtfncs import GoeaPrintFunctions
 from goatools.anno.factory import get_anno_desc
 from goatools.anno.factory import get_objanno
@@ -56,7 +57,9 @@ class GoeaCliArgs(object):
 
     def __init__(self):
         self.args = self._init_args()
-        ## print(self.args)
+        #### print('BBBBBBBBBBBBBB', self.args)
+        #### print('BBBBBBBBBBBBBB', self.args.relationship)
+        #### print('BBBBBBBBBBBBBB', self.args.relationships)
 
     def _init_args(self):
         """Get enrichment arg parser."""
@@ -117,6 +120,17 @@ class GoeaCliArgs(object):
                        help="Specifies location and name of the obo file")
         p.add_argument('--no_propagate_counts', default=False, action='store_true',
                        help="Do not propagate counts to parent terms")
+        # no -r:   args.relationship == False
+        # -r seen: args.relationship == True
+        p.add_argument('-r', '--relationship', action='store_true',
+                       help='Propagate counts up all relationships')
+        # NO --relationships                -> None
+        # --relationships part_of regulates -> relationships=['part_of', 'regulates']
+        # --relationships=part_of           -> relationships=['part_of']
+        # --relationships=part_of,regulates -> relationships=['part_of', 'regulates']
+        # --relationships=part_of regulates -> NOT VALID
+        p.add_argument('--relationships', nargs='*',
+                       help='Propagate counts up user-specified relationships')
         p.add_argument('--method', default="bonferroni,sidak,holm,fdr_bh", type=str,
                        help=Methods().getmsg_valid_methods())
         p.add_argument('--pvalcalc', default="fisher", type=str,
@@ -138,6 +152,7 @@ class GoeaCliArgs(object):
             sys.exit(not p.print_help())
         self._prt_evidence_codes(set(sys.argv[1:]))
         args = p.parse_args()  # Namespace object from argparse
+        self._adjust_relationships(args)
         self._check_input_files(args, p)
         return args
 
@@ -173,6 +188,21 @@ class GoeaCliArgs(object):
 
         return False
 
+    @staticmethod
+    def _adjust_relationships(args):
+        """Adjust relationships for various user input"""
+        # NO --relationships                -> None
+        # --relationships part_of regulates -> relationships=['part_of', 'regulates']
+        # --relationships=part_of           -> relationships=['part_of']
+        # --relationships=part_of,regulates -> relationships=['part_of,regulates']
+        # --relationships=part_of regulates -> NOT VALID
+        if args.relationships is not None:
+            if len(args.relationships) == 1 and ',' in args.relationships[0]:
+                args.relationships = args.relationships[0].split(',')
+            args.relationships = set(args.relationships)
+            chk_relationships(args.relationships)
+
+
 
 class GoeaCliFnc(object):
     """For running a GOEA on the command-line."""
@@ -181,10 +211,11 @@ class GoeaCliFnc(object):
     def __init__(self, args):
         self.args = args
         self.sections = read_sections(self.args.sections) if self.args.sections else None
-        _optional_attrs = ['relationship'] if self.sections else None
-        self.godag = GODag(obo_file=self.args.obo, optional_attrs=_optional_attrs)
-        # Get GOEnrichmentStudy
+        #### _optional_attrs = ['relationship'] if self.sections else None
+        godag_optional_attrs = self._get_optional_attrs()
+        self.godag = GODag(obo_file=self.args.obo, optional_attrs=godag_optional_attrs)
         # print('ARGS GoeaCliFnc ', self.args)
+        # GET Gene2GoReader, GafReader, GpadReader, or IdToGosReader
         self.objanno = self._get_objanno(self.args.filenames[2])
         _ns2assoc = self.objanno.get_ns2assc(**self._get_anno_kws())
         _study, _pop = self.rd_files(*self.args.filenames[:2])
@@ -192,6 +223,7 @@ class GoeaCliFnc(object):
             self.chk_genes(_study, _pop, self.objanno.associations)
         self.methods = self.args.method.split(",")
         self.itemid2name = self._init_itemid2name()
+        # Get GOEnrichmentStudyNS
         self.objgoeans = self._init_objgoeans(_pop, _ns2assoc)
         # Run GOEA
         self.results_all = self.objgoeans.run_study(_study)
@@ -214,6 +246,7 @@ class GoeaCliFnc(object):
         # Default annotation file format is id2gos
         if anno_type is None:
             anno_type = self.args.annofmt if self.args.annofmt else 'id2gos'
+        # kws: namespaces taxid godag
         kws = self._get_kws_objanno(anno_type)
         return get_objanno(assoc_fn, anno_type, **kws)
 
@@ -388,6 +421,15 @@ class GoeaCliFnc(object):
                 len(study), len(pop)))
         return study, pop
 
+    def _get_optional_attrs(self):
+        """Given keyword args, return optional_attributes to be loaded into the GODag."""
+        if self.args.relationship:
+            return {'relationship',}
+        if self.args.relationships is not None:
+            return {'relationship',}
+        if self.sections:
+            return {'relationship',}
+
 class GroupItems(object):
     """Prepare for grouping, if specified by the user."""
 
@@ -395,7 +437,7 @@ class GroupItems(object):
         # _goids = set(o.id for o in godag.values() if not o.children)
         _goids = set(r.GO for r in objcli.results_all)
         assoc_values = objcli.objgoeans.get_list_gosets()
-        _tobj = TermCounts(objcli.godag, None, assoc_values)
+        _tobj = TermCounts(objcli.godag, assoc_values)
         # pylint: disable=line-too-long
         self.gosubdag = GoSubDag(_goids, objcli.godag, relationships=True, tcntobj=_tobj, prt=sys.stdout)
         self.grprdflt = GrouperDflts(self.gosubdag, objcli.args.goslim)
