@@ -17,7 +17,7 @@ class TermCounts(object):
     '''
         TermCounts counts the term counts for each
     '''
-    def __init__(self, go2obj, annots, anno_values=None):
+    def __init__(self, go2obj, annots):
         '''
             Initialise the counts and
         '''
@@ -28,9 +28,8 @@ class TermCounts(object):
         self.gocnts = Counter()
         self.aspect_counts = Counter()
 
-        # Fill the counters...
-        self._init_termcounts(annots.values() if anno_values is None else anno_values)
-
+        # fill the counters...
+        self._init_termcounts(self._init_anno_values(annots))
 
     def _init_termcounts(self, annots_values):
         '''
@@ -95,6 +94,15 @@ class TermCounts(object):
                 GOa=alt_goid, GO=goobj.item_id, NAME=goobj.name)
             gocnts[alt_goid] = cnt
 
+    @staticmethod
+    def _init_anno_values(annots):
+        """Return annotation values, which are sets of GO IDs"""
+        assert annots, 'NO ASSOCIATIONS FOUND'
+        if isinstance(annots, dict):
+            return annots.values()
+        assert isinstance(annots, list)
+        assert isinstance(annots[0], set)
+        return annots
 
     def get_count(self, go_id):
         '''
