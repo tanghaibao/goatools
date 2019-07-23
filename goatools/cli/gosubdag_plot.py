@@ -38,7 +38,7 @@ Options:
   -i --go_file=<file.txt>              GO IDs in an ASCII file
   -o <file.png>, --outfile=<file.png>  Plot file name [default: go_plot.png]
   -r --relationship                    Plot all relationships
-  --relationships=<part_of>            Plot user-specfied relationships
+  --relationships=<part_of>            Plot user-specified relationships
   -s <sections.txt> --sections=<sections.txt>  Sections file for grouping
   -S <sections module str>             Sections file for grouping
 
@@ -75,6 +75,7 @@ from goatools.obo_parser import GODag
 from goatools.associations import get_tcntobj
 from goatools.godag.obo_optional_attributes import OboOptionalAttrs
 from goatools.godag.consts import RELATIONSHIP_SET
+from goatools.godag.consts import chk_relationships
 from goatools.anno.annoreader_base import AnnoReaderBase
 
 from goatools.cli.docopt_parse import DocOptParse
@@ -190,7 +191,7 @@ class PlotCli(object):
         print('RRRRRRRRRRRRRRRRRRRRRRRRRR relationships', relationships)
         self.gosubdag = GoSubDag(goids, godag, relationships, **kws_dag)
         # objplt = self._plt_gogrouped(goids, go2color, **kws_plt) if 'sections' in kws_plt self._plt_gosubdag(goids, go2color, **kws_plt)
-        obj = self._get_objpltg(goids, go2color, **kws_plt) if 'sections' in kws_plt else self._get_objplt(goids, go2color, **kws_plt)
+        obj = self._get_objpltg(goids, go2color, **kws_plt) if 'sections' in kws_plt else self._get_objplt(go2color, **kws_plt)
         # print('############ {N} GO IDs: relationships={Rs}'.format(N=len(obj.gosubdag.go2obj), Rs=obj.gosubdag.relationships))
         return obj
 
@@ -232,7 +233,8 @@ class PlotCli(object):
         return Grouper("sections", goids, hdrobj, self.gosubdag)
 
     #### def _plt_gosubdag(self, goids, go2color, **kws):
-    def _get_objplt(self, goids, go2color, **kws):
+    #### def _get_objplt(self, goids, go2color, **kws):
+    def _get_objplt(self, go2color, **kws):
         """Plot GO IDs."""
         #### fout_img = self.get_outfile(kws['outfile'], goids)
         objcolor = Go2Color(self.gosubdag, objgoea=None, go2color=go2color)
@@ -319,6 +321,7 @@ class PlotCli(object):
     @staticmethod
     def _get_optional_attrs(kws):
         """Given keyword args, return optional_attributes to be loaded into the GODag."""
+        # Ex: def defn synonym relationship xref subset comment
         vals = OboOptionalAttrs.attributes.intersection(kws.keys())
         if 'relationships' in kws:
             vals.add('relationship')
@@ -340,8 +343,7 @@ class PlotCli(object):
         relationships_arg = kws_all['relationships']
         if isinstance(relationships_arg, str):
             relationships = set(kws_all['relationships'].split(','))
-            assert relationships.issubset(RELATIONSHIP_SET), 'RELATIONSHIP({R}) NOT IN: {Rs}'.format(
-                R=relationships.difference(RELATIONSHIP_SET), Rs=RELATIONSHIP_SET)
+            chk_relationships(relationships)
             return relationships
         if relationships_arg:
             return True
