@@ -25,6 +25,7 @@ from goatools.multiple_testing import Sidak
 from goatools.multiple_testing import HolmBonferroni
 from goatools.multiple_testing import FDR
 from goatools.multiple_testing import calc_qval
+from goatools.anno.update_association import update_association
 from goatools.ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
 from goatools.pvalcalc import FisherFactory
@@ -253,8 +254,8 @@ class GOEnrichmentStudy(object):
         print('\nLoad {OBJNAME} Gene Ontology Analysis ...'.format(OBJNAME=self.name))
         self.log = kws['log'] if 'log' in kws else sys.stdout
         self._run_multitest = {
-            'local':lambda iargs: self._run_multitest_local(iargs),
-            'statsmodels':lambda iargs: self._run_multitest_statsmodels(iargs)}
+            'local':self._run_multitest_local,
+            'statsmodels':self._run_multitest_statsmodels}
         self.pop = set(pop)
         self.pop_n = len(pop)
         self.assoc = assoc
@@ -267,7 +268,7 @@ class GOEnrichmentStudy(object):
 
         if propagate_counts:
             sys.stderr.write("Propagating term counts to parents ..\n")
-            obo_dag.update_association(assoc)
+            update_association(assoc, obo_dag, kws.get('relationships', None))
         self.go2popitems = get_terms("population", pop, assoc, obo_dag, self.log)
 
     # def get_objresults(self, name, study, **kws):
