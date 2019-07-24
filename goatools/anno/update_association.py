@@ -7,8 +7,9 @@ import sys
 from goatools.gosubdag.go_tasks import get_go2parents_go2obj
 
 
-def update_association(assc_gene2gos, go2obj, relationships=None):
+def update_association(assc_gene2gos, go2obj, relationships=None, prt=sys.stdout):
     """Add the GO parents of a gene's associated GO IDs to the gene's association."""
+    prt.write("Propagating term counts to parents\n")
     # Replaces update_association in GODag
     goids_avail = set(go2obj)
     # Get all assc GO IDs that are current
@@ -18,7 +19,7 @@ def update_association(assc_gene2gos, go2obj, relationships=None):
     # Get the subset of GO objects in the association
     _goids_assoc_cur = goids_assoc_all.intersection(goids_avail)
     _go2obj_assc = {go:go2obj[go] for go in _goids_assoc_cur}
-    go2ancesters = get_go2parents_go2obj(_go2obj_assc, relationships)
+    go2ancesters = get_go2parents_go2obj(_go2obj_assc, relationships, prt)
     # Update the GO sets in assc_gene2gos to include all GO ancestors
     for assc_goids_cur in assc_goid_sets:
         parents = set()
