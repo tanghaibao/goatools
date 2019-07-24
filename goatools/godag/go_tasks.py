@@ -7,20 +7,36 @@ from goatools.godag.consts import RELATIONSHIP_SET
 
 
 # ------------------------------------------------------------------------------------
-def get_go2ancesters(terms, relationships):
+def get_go2ancesters(terms, relationships, prt=None):
     """Get GO-to- ancestors (all parents)"""
     if not relationships:
+        if prt is not None:
+            prt.write('Get go2ancesters up is_a\n')
         return get_id2parents(terms)
     if relationships == RELATIONSHIP_SET:
+        if prt is not None:
+            prt.write('Get go2ancesters up is_a and {Rs}\n'.format(
+                Rs=' '.join(sorted(relationships))))
         return get_id2upper(terms)
+    if prt is not None:
+        prt.write('Get go2ancesters up is_a and {Rs}\n'.format(
+            Rs=' '.join(sorted(relationships))))
     return get_id2upperselect(terms, relationships)
 
-def get_go2descendants(terms, relationships):
+def get_go2descendants(terms, relationships, prt=None):
     """Get GO-to- descendants"""
     if not relationships:
+        if prt is not None:
+            prt.write('Get go2descendants up is_a\n')
         return get_id2children(terms)
     if relationships == RELATIONSHIP_SET:
+        if prt is not None:
+            prt.write('Get go2descendants up is_a and {Rs}\n'.format(
+                Rs=' '.join(sorted(relationships))))
         return get_id2lower(terms)
+    if prt is not None:
+        prt.write('Get go2descendants up is_a and {Rs}\n'.format(
+            Rs=' '.join(sorted(relationships))))
     return get_id2lowerselect(terms, relationships)
 
 # ------------------------------------------------------------------------------------
