@@ -55,18 +55,18 @@ def get_go2obj_unique(go2obj):
     return go_unique
 
 # ------------------------------------------------------------------------------------
-def get_go2parents_go2obj(go2obj, relationships=None):
+def get_go2parents_go2obj(go2obj, relationships=None, prt=None):
     """Return go2parents (set of parent GO IDs) for all GO ID keys in go2obj."""
     goobjs, altgo2goobj = get_goobjs_altgo2goobj(go2obj)
-    go2parents = get_go2ancesters(goobjs, relationships)
+    go2parents = get_go2ancesters(goobjs, relationships, prt)
     add_alt_goids(go2parents, altgo2goobj)
     return go2parents
 
 # ------------------------------------------------------------------------------------
-def get_go2children_go2obj(go2obj, relationships=None):
+def get_go2children_go2obj(go2obj, relationships=None, prt=None):
     """Return go2children (set of child GO IDs) for all GO ID keys in go2obj."""
     goobjs, altgo2goobj = get_goobjs_altgo2goobj(go2obj)
-    go2children = get_go2descendants(goobjs, relationships)
+    go2children = get_go2descendants(goobjs, relationships, prt)
     add_alt_goids(go2children, altgo2goobj)
     return go2children
 
