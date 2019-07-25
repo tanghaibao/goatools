@@ -72,7 +72,7 @@ class WrHierCli(object):
         opt_attrs = OboOptionalAttrs.attributes.intersection(self.kws.keys())
         godag = get_godag(self.kws['dag'], prt, optional_attrs=opt_attrs)
         self.gene2gos = read_annotations(**self.kws)
-        self.tcntobj = TermCounts(godag, self.gene2gos) if self.gene2gos is not None else None
+        self.tcntobj = TermCounts(godag, self.gene2gos) if self.gene2gos else None
         self.gosubdag = GoSubDag(godag.keys(), godag,
                                  relationships='relationship' in opt_attrs,
                                  tcntobj=self.tcntobj,
