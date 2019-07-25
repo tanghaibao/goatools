@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-"""ArgsDflt minimum overlap."""
+"""fraction of genes/proteins in study are found in the population background"""
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2010-2018, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2010-2019, DV Klopfenstein, H Tang. All rights reserved."
 
 import os
 from goatools.base import get_godag
@@ -47,4 +47,4 @@ def _get_studygenes(study_orig, num_stu_in_pop):
 if __name__ == '__main__':
     test_find_enrichment()
 
-# Copyright (C) 2010-2018, DV Klopfenstein, H Tang. All rights reserved.
+# Copyright (C) 2010-2019, DV Klopfenstein, H Tang. All rights reserved.
