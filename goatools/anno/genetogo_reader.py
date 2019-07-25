@@ -20,7 +20,7 @@ __author__ = "DV Klopfenstein"
 class Gene2GoReader(AnnoReaderBase):
     """Reads a Gene Annotation File (GAF). Returns a Python object."""
 
-    exp_kws = {'taxids', 'taxid'}
+    exp_kws = {'taxids', 'taxid', 'namespaces', 'godag'}
 
     def __init__(self, filename=None, **kws):
         # kws: taxids or taxid

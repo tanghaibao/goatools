@@ -16,8 +16,8 @@ def get_objanno(fin_anno, anno_type=None, **kws):
     if anno_type is not None:
         if anno_type == 'gene2go':
             # kws: taxid taxids
-            kws_gaf = {k:kws[k] for k in Gene2GoReader.exp_kws.intersection(kws.keys())}
-            return Gene2GoReader(fin_anno, **kws)
+            kws_ncbi = {k:kws[k] for k in Gene2GoReader.exp_kws.intersection(kws.keys())}
+            return Gene2GoReader(fin_anno, **kws_ncbi)
         if anno_type == 'gaf':
             kws_gaf = {k:kws[k] for k in GafReader.exp_kws.intersection(kws.keys())}
             return GafReader(fin_anno, **kws_gaf)
