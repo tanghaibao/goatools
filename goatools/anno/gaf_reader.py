@@ -17,11 +17,12 @@ __author__ = "DV Klopfenstein"
 class GafReader(AnnoReaderBase):
     """Reads a Gene Annotation File (GAF). Returns a Python object."""
 
-    exp_kws = {'hdr_only', 'prt', 'namespaces', 'allow_missing_symbol'}
+    exp_kws = {'hdr_only', 'prt', 'namespaces', 'allow_missing_symbol', 'godag'}
 
     def __init__(self, filename=None, **kws):
         super(GafReader, self).__init__(
             'gaf', filename,
+            godag=kws.get('godag'),
             hdr_only=kws.get('hdr_only', False),
             prt=kws.get('prt', sys.stdout),
             namespaces=kws.get('namespaces'),
