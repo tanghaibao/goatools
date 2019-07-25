@@ -25,7 +25,9 @@ def test_pc_w_rels(prt=sys.stdout):
 
 def _chk_results(results_r0, results_r1, prt):
     """Test propagate_counts up relationships as well as parent-child links."""
-    prt.write('TBD: Compare results')
+    prt.write('TBD: Compare results\n')
+    prt.write('{N} results with r0\n'.format(N=len(results_r0)))
+    prt.write('{N} results with r1\n'.format(N=len(results_r1)))
     pass
 
 def _get_results(godag, propagate_counts, relationships, prt=sys.stdout):
