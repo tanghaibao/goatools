@@ -28,7 +28,7 @@ def dnld_assc(assc_name, go2obj=None, namespace='BP', prt=sys.stdout):
     assc_locfile = os.path.join(dirloc, assc_base) if not dirloc else assc_name
     dnld_annotation(assc_locfile, prt)
     # Read the downloaded nt120GV)association
-    assc_orig = read_gaf(assc_locfile, namespace=namespace, prt=prt)
+    assc_orig = read_gaf(assc_locfile, namespace=namespace, godag=go2obj, prt=prt)
     if go2obj is None:
         return assc_orig
     # If a GO DAG is provided, use only GO IDs present in the GO DAG
@@ -123,7 +123,7 @@ def get_gaf_hdr(fin_gaf):
 def read_gaf(fin_gaf, prt=sys.stdout, hdr_only=False, namespace='BP', allow_missing_symbol=False, **kws):
     """Read Gene Association File (GAF). Return data."""
     return GafReader(
-        fin_gaf, hdr_only=hdr_only, prt=prt, allow_missing_symbol=allow_missing_symbol).get_id2gos(
+        fin_gaf, hdr_only=hdr_only, prt=prt, allow_missing_symbol=allow_missing_symbol, godag=kws.get('godag')).get_id2gos(
             namespace, **kws)
 
 def get_b2aset(a2bset):
@@ -170,21 +170,6 @@ def read_annotations(**kws):
     objanno = get_objanno_g_kws(**kws)
     # Return associations
     return objanno.get_id2gos() if objanno is not None else {}
-    #### if 'gaf' not in kws and 'gene2go' not in kws:
-    ####     return
-    #### namespace = kws.get('namespace', 'BP')
-    #### gene2gos = None
-    #### if 'gaf' in kws:
-    ####     gene2gos = read_gaf(kws['gaf'], namespace=namespace, prt=sys.stdout)
-    ####     if not gene2gos:
-    ####         raise RuntimeError("NO ASSOCIATIONS LOADED FROM {F}".format(F=kws['gaf']))
-    #### elif 'gene2go' in kws:
-    ####     assert 'taxid' in kws, 'taxid IS REQUIRED WHEN READING gene2go'
-    ####     gene2gos = read_ncbi_gene2go(kws['gene2go'], taxids=[kws['taxid']])
-    ####     if not gene2gos:
-    ####         raise RuntimeError("NO ASSOCIATIONS LOADED FROM {F} FOR TAXID({T})".format(
-    ####             F=kws['gene2go'], T=kws['taxid']))
-    #### return gene2gos
 
 def get_tcntobj(go2obj, **kws):
     """Return a TermCounts object if the user provides an annotation file, otherwise None."""
