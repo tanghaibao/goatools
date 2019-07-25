@@ -7,19 +7,19 @@ from goatools.godag.consts import RELATIONSHIP_SET
 
 
 # ------------------------------------------------------------------------------------
-def get_go2ancesters(terms, relationships, prt=None):
+def get_go2ancestors(terms, relationships, prt=None):
     """Get GO-to- ancestors (all parents)"""
     if not relationships:
         if prt is not None:
-            prt.write('Get go2ancesters up is_a\n')
+            prt.write('Get go2ancestors up is_a\n')
         return get_id2parents(terms)
-    if relationships == RELATIONSHIP_SET:
+    if relationships == RELATIONSHIP_SET or relationships is True:
         if prt is not None:
-            prt.write('Get go2ancesters up is_a and {Rs}\n'.format(
-                Rs=' '.join(sorted(relationships))))
+            prt.write('Get go2ancestors up is_a and {Rs}\n'.format(
+                Rs=' '.join(sorted(RELATIONSHIP_SET))))
         return get_id2upper(terms)
     if prt is not None:
-        prt.write('Get go2ancesters up is_a and {Rs}\n'.format(
+        prt.write('Get go2ancestors up is_a and {Rs}\n'.format(
             Rs=' '.join(sorted(relationships))))
     return get_id2upperselect(terms, relationships)
 
@@ -29,10 +29,10 @@ def get_go2descendants(terms, relationships, prt=None):
         if prt is not None:
             prt.write('Get go2descendants up is_a\n')
         return get_id2children(terms)
-    if relationships == RELATIONSHIP_SET:
+    if relationships == RELATIONSHIP_SET or relationships is True:
         if prt is not None:
             prt.write('Get go2descendants up is_a and {Rs}\n'.format(
-                Rs=' '.join(sorted(relationships))))
+                Rs=' '.join(sorted(RELATIONSHIP_SET))))
         return get_id2lower(terms)
     if prt is not None:
         prt.write('Get go2descendants up is_a and {Rs}\n'.format(
@@ -55,7 +55,7 @@ def get_id2children(objs):
     return id2children
 
 def get_id2upper(objs):
-    """Get all ancester IDs, including all parents and IDs up all relationships"""
+    """Get all ancestor IDs, including all parents and IDs up all relationships"""
     id2upper = {}
     for obj in objs:
         _get_id2upper(id2upper, obj.item_id, obj)
@@ -69,7 +69,7 @@ def get_id2lower(objs):
     return id2lower
 
 def get_id2upperselect(objs, relationship_set):
-    """Get all ancester IDs, including all parents and IDs up selected relationships"""
+    """Get all ancestor IDs, including all parents and IDs up selected relationships"""
     return IdToUpperSelect(objs, relationship_set).id2upperselect
 
 def get_id2lowerselect(objs, relationship_set):
@@ -93,7 +93,7 @@ def get_relationship_targets(item_ids, relationships, id2rec):
 # ------------------------------------------------------------------------------------
 # pylint: disable=old-style-class,too-few-public-methods
 class IdToUpperSelect:
-    """Get all ancester IDs, including all parents and IDs up selected relationships"""
+    """Get all ancestor IDs, including all parents and IDs up selected relationships"""
 
     def __init__(self, objs, relationship_set):
         self.rset = relationship_set
