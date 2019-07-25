@@ -35,6 +35,8 @@ class ArgsDict(object):
             'pval_field' : 'uncorrected',
             'pvalcalc' : 'fisher',
             'ratio' : None,
+            'relationship': False,
+            'relationships': None,
             'sections' : None,
             'ev_inc': None,
             'ev_exc': None,
