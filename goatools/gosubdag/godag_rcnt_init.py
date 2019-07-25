@@ -7,7 +7,7 @@ __author__ = "DV Klopfenstein"
 
 import collections as cx
 from itertools import chain
-from goatools.godag.go_tasks import get_go2ancesters
+from goatools.godag.go_tasks import get_go2ancestors
 from goatools.godag.go_tasks import get_go2descendants
 from goatools.gosubdag.go_tasks import get_goobjs_altgo2goobj
 from goatools.gosubdag.go_tasks import add_alt_goids
@@ -27,7 +27,7 @@ class CountRelativesInit(object):
         _goobjs, _altgo2goobj = get_goobjs_altgo2goobj(self.go2obj)
         _r0 = not relationships  # True if not using relationships
         self.go2descendants = get_go2descendants(_goobjs, relationships)
-        self.go2parents = get_go2ancesters(_goobjs, relationships)
+        self.go2parents = get_go2ancestors(_goobjs, relationships)
         self.go2dcnt = {go: len(p) for go, p in self.go2descendants.items()}
         add_alt_goids(self.go2parents, _altgo2goobj)
         add_alt_goids(self.go2descendants, _altgo2goobj)

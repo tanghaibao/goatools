@@ -19,12 +19,12 @@ def update_association(assc_gene2gos, go2obj, relationships=None, prt=sys.stdout
     # Get the subset of GO objects in the association
     _goids_assoc_cur = goids_assoc_all.intersection(goids_avail)
     _go2obj_assc = {go:go2obj[go] for go in _goids_assoc_cur}
-    go2ancesters = get_go2parents_go2obj(_go2obj_assc, relationships, prt)
+    go2ancestors = get_go2parents_go2obj(_go2obj_assc, relationships, prt)
     # Update the GO sets in assc_gene2gos to include all GO ancestors
     for assc_goids_cur in assc_goid_sets:
         parents = set()
         for goid in assc_goids_cur.intersection(goids_avail):
-            parents.update(go2ancesters[goid])
+            parents.update(go2ancestors[goid])
         assc_goids_cur.update(parents)
 
 def _chk_goids_notfound(goids_assoc_all, goids_avail):
