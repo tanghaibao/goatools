@@ -3,7 +3,7 @@
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (c) 2017-2018, DV Klopfenstein. Haiboa Tang. All rights reserved."
+__copyright__ = "Copyright (c) 2017-2019, DV Klopfenstein. Haiboa Tang. All rights reserved."
 
 from goatools.cli.wr_hierarchy import WrHierCli
 
@@ -42,4 +42,4 @@ def test_cli():
 if __name__ == '__main__':
     test_cli()
 
-# Copyright (c) 2017-2018, DV Klopfenstein, Haibao Tang. All rights reserved.
+# Copyright (c) 2017-2019, DV Klopfenstein, Haibao Tang. All rights reserved.
