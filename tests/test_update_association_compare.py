@@ -10,30 +10,45 @@ from goatools.obo_parser import GODag
 from goatools.base import get_godag
 from goatools.associations import dnld_assc
 from goatools.anno.update_association import update_association
+from goatools.anno.factory import get_objanno
 from goatools.test_data.godag_timed import prt_hms
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
+# pylint: disable=superfluous-parens
 def test_update_association():
-    """Compare new propagate counts function with original function. Test assc results is same."""
+    """Compare new propagate cnts function with original function. Test assc results is same."""
+
+    print('\n1) READ GODAG:')
     assc_name = "goa_human.gaf" # gene_association.fb gene_association.mgi
     obo = os.path.join(REPO, "go-basic.obo")
     tic = timeit.default_timer()
-    godag1 = get_godag(obo)
-    godag2 = get_godag(obo)
+    godag = get_godag(obo)
     tic = prt_hms(tic, "Created two GODags: One for original and one for new propagate counts")
-    assc_orig = dnld_assc(os.path.join(REPO, assc_name), godag1)
+
+    print('\n2) READ ANNOTATIONS:')
+    assc_orig = dnld_assc(os.path.join(REPO, assc_name), godag)
     tic = prt_hms(tic, "Associations Read")
+    objanno = get_objanno(os.path.join(REPO, assc_name), 'gaf', godag=godag)
+    tic = prt_hms(tic, "Associations Read")
+
+    print('\n3) MAKE COPIES OF ASSOCIATIONS:')
     assc1 = {g:set(gos) for g, gos in assc_orig.items()}
     assc2 = {g:set(gos) for g, gos in assc_orig.items()}
     tic = prt_hms(tic, "Associations Copied: One for original and one for new")
-    godag1.update_association(assc1)
+
+    print('\n4) UPDATE ASSOCIATIONS (PROPAGATE COUNTS):')
+    godag.update_association(assc1)
     tic = prt_hms(tic, "ORIG: godag.update_association(assc)")
-    update_association(assc2, godag2)
-    tic = prt_hms(tic, "NEW:  update_association(go2obj, assc_orig)")
+    update_association(assc2, godag)
+    tic = prt_hms(tic, "NEW SA:    update_association(go2obj, assc_orig)")
+    assc3 = objanno.get_id2gos(namespace='BP', propagate_counts=True)
+    tic = prt_hms(tic, "NEW BASE:  update_association(go2obj, assc_orig)")
+
+    print('\n5) RUN CHECKS')
     _chk_assc(assc1, assc2)
-    _chk_godag(godag1, obo)
-    _chk_godag(godag2, obo)
+    _chk_assc(assc1, assc3)
+    _chk_godag(godag, obo)
 
 def _chk_godag(go2obj_act, obo):
     """Check that the update_association function did not alter godag."""

@@ -13,6 +13,7 @@ REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 INC_GOOD = set(EvidenceCodes.code2nt.keys()).difference({'IEA'})
 
 
+# pylint: disable=superfluous-parens
 def test_anno_read():
     """Test all annotation formats"""
     godag = get_godag(os.path.join(REPO, 'go-basic.obo'))
@@ -103,6 +104,7 @@ def _run_get_id2gos2(annoobjs):
             id2gos = obj.get_id2gos('all')
             assert id2gos, 'NO ANNOTATIONS FOUND'
             assert id2gos == obj.get_id2gos_nss()
+            # pylint: disable=line-too-long
             assert obj.get_id2gos('all', ev_include={'IEA'}) == obj.get_id2gos_nss(ev_include={'IEA'})
             idx += 1
 
@@ -219,7 +221,8 @@ def _chk_namespaces(obj, namespaces):
         assert not hasattr(next(iter(obj.associations)), 'NS')
         return
     for nta in obj.associations:
-        assert nta.NS in namespaces
+        assert nta.NS in namespaces, 'nta.NS({NS}) not in ({NSs})\n{NT}'.format(
+            NSs=namespaces, NS=nta.NS, NT=nta)
 
 def _get_num_annos(id2gos):
     """Return the number of annotations found in id2gos"""
@@ -227,5 +230,6 @@ def _get_num_annos(id2gos):
     for gos in id2gos.values():
         num += len(gos)
     return num
+
 if __name__ == '__main__':
     test_anno_read()

@@ -7,11 +7,13 @@ import collections as cx
 from goatools.evidence_codes import EvidenceCodes
 from goatools.anno.opts import AnnoOptions
 from goatools.godag.consts import NAMESPACE2NS
+from goatools.gosubdag.go_tasks import get_go2parents_go2obj
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
+# pylint: disable=too-many-instance-attributes
 class AnnoReaderBase(object):
     """Reads a Gene Association File. Returns a Python object."""
     # pylint: disable=broad-except,line-too-long,too-many-instance-attributes
@@ -28,7 +30,6 @@ class AnnoReaderBase(object):
 
     exp_nss = set(['BP', 'MF', 'CC'])
 
-    # pylint: disable=too-many-instance-attributes
     def __init__(self, name, filename=None, **kws):
         # kws: allow_missing_symbol
         self.name = name  # name is one of valid_formats
@@ -96,19 +97,6 @@ class AnnoReaderBase(object):
         """Return all associations in a dict, id2gos, regardless of namespace"""
         return self._get_id2gos(self.associations, **kws)
 
-    #### def get_id2gos(self, namespace='BP', **kws):
-    ####     """Return associations from specified namespace in a dict, id2gos"""
-    ####     # pylint: disable=superfluous-parens
-    ####     if self.has_ns():
-    ####         assoc = [nt for nt in self.associations if nt.NS == namespace]
-    ####         id2gos = self._get_id2gos(assoc, **kws)
-    ####         print('{N} IDs in loaded association branch, {NS}'.format(N=len(id2gos), NS=namespace))
-    ####         return id2gos
-    ####     print('**ERROR get_id2gos: GODAG NOT LOADED. IGNORING namespace({NS})'.format(NS=namespace))
-    ####     id2gos = self._get_id2gos(self.associations, **kws)
-    ####     print('{N} IDs in association branch, {NS}'.format(N=len(id2gos), NS=namespace))
-    ####     return id2gos
-
     def get_id2gos(self, namespace=None, **kws):
         """Return associations from specified namespace in a dict, id2gos"""
         # pylint: disable=superfluous-parens
@@ -150,17 +138,28 @@ class AnnoReaderBase(object):
         """Return True if namespace field, NS exists on annotation namedtuples"""
         return hasattr(next(iter(self.associations)), 'NS')
 
-    def _get_id2gos(self, associations, **kws):
-        """Return given associations in a dict, id2gos"""
+    def _get_id2gos(self, ntannos_usr, propagate_counts=False, relationships=None, prt=sys.stdout, **kws):
+        """Return given ntannos_usr in a dict, id2gos"""
         options = AnnoOptions(self.evobj, **kws)
         # Default reduction is to remove. For all options, see goatools/anno/opts.py:
         #   * Evidence_Code == ND -> No biological data No biological Data available
         #   * Qualifiers contain NOT
-        assc = self.reduce_annotations(associations, options)
-        a2bs = self.get_dbid2goids(assc) if options.b_geneid2gos else self.get_goid2dbids(assc)
+        ntannos_m = self.reduce_annotations(ntannos_usr, options)
+        dbid2goids = self.get_dbid2goids(ntannos_m, propagate_counts, relationships, prt)
+        if options.b_geneid2gos:
+            return dbid2goids
         # if not a2bs:
         #     raise RuntimeError('**ERROR: NO ASSOCATIONS FOUND: {FILE}'.format(FILE=self.filename))
-        return a2bs
+        return self._get_goid2dbids(dbid2goids)
+
+    @staticmethod
+    def _get_goid2dbids(dbid2goids):
+        """Return dict of GO ID keys and a set of gene products as values"""
+        goid2dbids = cx.defaultdict(set)
+        for dbid, goids in dbid2goids.items():
+            for goid in goids:
+                goid2dbids[goid].add(dbid)
+        return dict(goid2dbids)
 
     def _get_namespaces(self, nts):
         """Get the set of namespaces seen in the namedtuples."""
@@ -197,11 +196,64 @@ class AnnoReaderBase(object):
         return [nt for nt in annotations if getfnc_qual_ev(nt.Qualifier, nt.Evidence_Code)]
 
     @staticmethod
-    def get_dbid2goids(associations):
+    def update_association(assc_goidsets, go2ancestors, prt=sys.stdout):
+        """Update the GO sets in assc_gene2gos to include all GO ancestors"""
+        goids_avail = set(go2ancestors)
+        # assc_gos is assc_gene2gos.values()
+        for assc_goids_cur in assc_goidsets:
+            parents = set()
+            for goid in assc_goids_cur.intersection(goids_avail):
+                parents.update(go2ancestors[goid])
+            assc_goids_cur.update(parents)
+
+    def _get_go2ancestors(self, goids_assoc_usr, relationships, prt=sys.stdout):
+        """Return go2ancestors (set of parent GO IDs) for all GO ID keys in go2obj."""
+        assert self.godag is not None
+        _godag = self.godag
+        # Get GO IDs in annotations that are in GO DAG
+        goids_avail = set(_godag)
+        self._rpt_goids_notfound(goids_assoc_usr, goids_avail)
+        goids_assoc_cur = goids_assoc_usr.intersection(goids_avail)
+        # Get GO Term for each current GO ID in the annotations
+        _go2obj_assc = {go:_godag[go] for go in goids_assoc_cur}
+        go2ancestors = get_go2parents_go2obj(_go2obj_assc, relationships, prt)
+        if prt:
+            prt.write('{N} GO IDs -> {M} go2ancestors\n'.format(
+                N=len(goids_avail), M=len(go2ancestors)))
+        return go2ancestors
+
+    @staticmethod
+    def _rpt_goids_notfound(goids_assoc_all, goids_avail):
+        """Report the number of GO IDs in the association, but not in the GODAG"""
+        goids_missing = goids_assoc_all.difference(goids_avail)
+        if goids_missing:
+            print("{N} GO IDs NOT FOUND IN ASSOCIATION: {GOs}".format(
+                N=len(goids_missing), GOs=" ".join(goids_missing)))
+
+    def get_dbid2goids(self, ntannos, propagate_counts=False, relationships=None, prt=sys.stdout):
         """Return gene2go data for user-specified taxids."""
+        if propagate_counts:
+            return self._get_dbid2goids_p1(ntannos, relationships, prt)
+        return self._get_dbid2goids_p0(ntannos)
+
+    @staticmethod
+    def _get_dbid2goids_p0(associations):
+        """Return gene2goids with annotations as-is (propagate_counts == False)"""
         id2gos = cx.defaultdict(set)
         for ntd in associations:
             id2gos[ntd.DB_ID].add(ntd.GO_ID)
+        return dict(id2gos)
+
+    def _get_dbid2goids_p1(self, ntannos, relationships=None, prt=sys.stdout):
+        """Return gene2goids with propagate_counts == True"""
+        id2gos = cx.defaultdict(set)
+        goids_annos = set(nt.GO_ID for nt in ntannos)
+        go2ancestors = self._get_go2ancestors(goids_annos, relationships, prt)
+        for ntd in ntannos:
+            goid = ntd.GO_ID
+            goids = id2gos[ntd.DB_ID]
+            goids.add(goid)
+            goids.update(go2ancestors[goid])
         return dict(id2gos)
 
     @staticmethod

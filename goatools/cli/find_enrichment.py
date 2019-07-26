@@ -33,7 +33,7 @@ from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
 from goatools.rpt.prtfmt import PrtFmt
 from goatools.semantic import TermCounts
 from goatools.wr_tbl import prt_tsv_sections
-## from goatools.godag.consts import RELATIONSHIP_SET
+from goatools.godag.consts import RELATIONSHIP_SET
 from goatools.godag.consts import chk_relationships
 from goatools.godag.prtfncs import GoeaPrintFunctions
 from goatools.anno.factory import get_anno_desc
@@ -57,9 +57,6 @@ class GoeaCliArgs(object):
 
     def __init__(self):
         self.args = self._init_args()
-        #### print('BBBBBBBBBBBBBB', self.args)
-        #### print('BBBBBBBBBBBBBB', self.args.relationship)
-        #### print('BBBBBBBBBBBBBB', self.args.relationships)
 
     def _init_args(self):
         """Get enrichment arg parser."""
@@ -196,6 +193,8 @@ class GoeaCliArgs(object):
         # --relationships=part_of           -> relationships=['part_of']
         # --relationships=part_of,regulates -> relationships=['part_of,regulates']
         # --relationships=part_of regulates -> NOT VALID
+        if args.relationship:
+            args.relationships = RELATIONSHIP_SET
         if args.relationships is not None:
             if len(args.relationships) == 1 and ',' in args.relationships[0]:
                 args.relationships = args.relationships[0].split(',')
@@ -215,29 +214,20 @@ class GoeaCliFnc(object):
         godag_optional_attrs = self._get_optional_attrs()
         self.godag = GODag(obo_file=self.args.obo, optional_attrs=godag_optional_attrs)
         # print('ARGS GoeaCliFnc ', self.args)
-        # GET Gene2GoReader, GafReader, GpadReader, or IdToGosReader
+        # GET: Gene2GoReader, GafReader, GpadReader, or IdToGosReader
         self.objanno = self._get_objanno(self.args.filenames[2])
-        _ns2assoc = self.objanno.get_ns2assc(**self._get_anno_kws())
         _study, _pop = self.rd_files(*self.args.filenames[:2])
-        if not self.args.compare:  # sanity check
+        if not self.args.compare:
+            # Compare population and study gene product sets
             self.chk_genes(_study, _pop, self.objanno.associations)
         self.methods = self.args.method.split(",")
         self.itemid2name = self._init_itemid2name()
         # Get GOEnrichmentStudyNS
-        self.objgoeans = self._init_objgoeans(_pop, _ns2assoc)
+        self.objgoeans = self._init_objgoeans(_pop)
         # Run GOEA
         self.results_all = self.objgoeans.run_study(_study)
         # Prepare for grouping, if user-specified. Create GroupItems
         self.prepgrp = GroupItems(self, self.godag.version) if self.sections else None
-
-    def _get_anno_kws(self):
-        """Return keyword options to obtain id2gos"""
-        kws = {}
-        if self.args.ev_inc is not None:
-            kws['ev_include'] = set(self.args.ev_inc.split(','))
-        if self.args.ev_exc is not None:
-            kws['ev_exclude'] = set(self.args.ev_exc.split(','))
-        return kws
 
     def _get_objanno(self, assoc_fn):
         """Get an annotation object"""
@@ -260,11 +250,9 @@ class GoeaCliFnc(object):
 
     def _get_kws_objanno(self, anno_type):
         """Get keyword-args for creating an Annotation object"""
-        kws = {'namespaces': self._get_ns()}
+        kws = {'namespaces': self._get_ns(), 'godag': self.godag}
         if anno_type == 'gene2go':
             kws['taxid'] = self.args.taxid
-        if anno_type in {'gpad', 'id2gos'}:
-            kws['godag'] = self.godag
         return kws
 
     def _init_itemid2name(self):
@@ -325,18 +313,26 @@ class GoeaCliFnc(object):
         """Given all GOEA results, return the significant results (< pval)."""
         return self.get_results_sig() if self.args.pval != -1.0 else self.results_all
 
-    def _init_objgoeans(self, pop, ns2assoc):
+    def _init_objgoeans(self, pop):
         """Run gene ontology enrichment analysis (GOEA)."""
-        propagate_counts = not self.args.no_propagate_counts
+        ns2assoc = self.objanno.get_ns2assc(**self._get_anno_kws())
         return GOEnrichmentStudyNS(pop, ns2assoc, self.godag,
-                                   propagate_counts=propagate_counts,
-                                   relationships=False,
+                                   propagate_counts=not self.args.no_propagate_counts,
+                                   relationships=self.args.relationships,
                                    alpha=self.args.alpha,
                                    pvalcalc=self.args.pvalcalc,
                                    methods=self.methods)
+    def _get_anno_kws(self):
+        """Return keyword options to obtain id2gos"""
+        kws = {}
+        if self.args.ev_inc is not None:
+            kws['ev_include'] = set(self.args.ev_inc.split(','))
+        if self.args.ev_exc is not None:
+            kws['ev_exclude'] = set(self.args.ev_exc.split(','))
+        return kws
 
     def chk_genes(self, study, pop, ntsassoc=None):
-        """Check gene sets."""
+        """Compare population and study gene product sets"""
         if len(pop) < len(study):
             exit("\nERROR: The study file contains more elements than the population file. "
                  "Please check that the study file is a subset of the population file.\n")
@@ -344,7 +340,7 @@ class GoeaCliFnc(object):
         overlap = self.get_overlap(study, pop)
         if overlap < 0.95:
             sys.stderr.write("\nWARNING: only {} fraction of genes/proteins in study are found in "
-                             "the population  background.\n\n".format(overlap))
+                             "the population background.\n\n".format(overlap))
         if overlap <= self.args.min_overlap:
             exit("\nERROR: only {} of genes/proteins in the study are found in the "
                  "background population. Please check.\n".format(overlap))

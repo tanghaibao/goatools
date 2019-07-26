@@ -32,6 +32,8 @@ def _get_cmds():
         'python3 scripts/find_enrichment.py data/study data/population data/association --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_id2gos.xlsx',
         'python3 scripts/find_enrichment.py ids_stu_gaf.txt ids_pop_gaf.txt goa_human.gaf --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gaf.xlsx',
         'python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx',
+        'python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx -r',
+        'python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx --relationships=regulates,negatively_regulates,positively_regulates',
         'python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx',
         'python3 scripts/find_enrichment.py ids_stu_gene2go_10090.txt ids_pop_gene2go_10090.txt gene2go --taxid=10090 --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_10090.xlsx',
         'python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_exc=IEA --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx',
