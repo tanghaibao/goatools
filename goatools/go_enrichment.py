@@ -267,7 +267,6 @@ class GOEnrichmentStudy(object):
         self.pval_obj = FisherFactory(**kws).pval_obj
 
         if propagate_counts:
-            sys.stderr.write("Propagating term counts to parents ..\n")
             update_association(assoc, obo_dag, kws.get('relationships', None))
         self.go2popitems = get_terms("population", pop, assoc, obo_dag, self.log)
 
