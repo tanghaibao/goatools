@@ -11,15 +11,15 @@ def get_go2ancestors(terms, relationships, prt=None):
     """Get GO-to- ancestors (all parents)"""
     if not relationships:
         if prt is not None:
-            prt.write('Get go2ancestors up is_a\n')
+            prt.write('up: is_a\n')
         return get_id2parents(terms)
     if relationships == RELATIONSHIP_SET or relationships is True:
         if prt is not None:
-            prt.write('Get go2ancestors up is_a and {Rs}\n'.format(
+            prt.write('up: is_a and {Rs}\n'.format(
                 Rs=' '.join(sorted(RELATIONSHIP_SET))))
         return get_id2upper(terms)
     if prt is not None:
-        prt.write('Get go2ancestors up is_a and {Rs}\n'.format(
+        prt.write('up: is_a and {Rs}\n'.format(
             Rs=' '.join(sorted(relationships))))
     return get_id2upperselect(terms, relationships)
 
@@ -27,15 +27,15 @@ def get_go2descendants(terms, relationships, prt=None):
     """Get GO-to- descendants"""
     if not relationships:
         if prt is not None:
-            prt.write('Get go2descendants up is_a\n')
+            prt.write('down: is_a\n')
         return get_id2children(terms)
     if relationships == RELATIONSHIP_SET or relationships is True:
         if prt is not None:
-            prt.write('Get go2descendants up is_a and {Rs}\n'.format(
+            prt.write('down: is_a and {Rs}\n'.format(
                 Rs=' '.join(sorted(RELATIONSHIP_SET))))
         return get_id2lower(terms)
     if prt is not None:
-        prt.write('Get go2descendants up is_a and {Rs}\n'.format(
+        prt.write('down: is_a and {Rs}\n'.format(
             Rs=' '.join(sorted(relationships))))
     return get_id2lowerselect(terms, relationships)
 
