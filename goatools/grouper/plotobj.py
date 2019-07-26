@@ -120,6 +120,7 @@ class PltGroupedGos(object):
             dotstrs_cur = self._get_dotgraphs(
                 hdrgo, usrgos,
                 pltargs=PltGroupedGosArgs(self.grprobj, **kws),
+                # TBD: get_go2parents_go2obj: Add user-specified relationships
                 go2parentids=get_go2parents_go2obj(go2obj))
             dotstrs_all.extend(dotstrs_cur)
         sys.stdout.write("\nElapsed HMS: {HMS} to write ".format(
@@ -140,6 +141,7 @@ class PltGroupedGos(object):
             pngs.extend(self._plot_go_group(
                 hdrgo, usrgos,
                 pltargs=pltargs,
+                # TBD: get_go2parents_go2obj: Add user-specified relationships
                 go2parentids=get_go2parents_go2obj(go2obj)))
         sys.stdout.write("\nElapsed HMS: {HMS} to write ".format(
             HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
@@ -166,7 +168,7 @@ class PltGroupedGos(object):
         dotgraphs = []
         go2color = pltargs.get_go2color_inst(hdrgo)
         # namedtuple fields: hdrgo gosubdag tot_usrgos parentcnt desc
-        ntpltgo0 = self._get_pltdag_ancesters(hdrgo, usrgos, desc="")
+        ntpltgo0 = self._get_pltdag_ancestors(hdrgo, usrgos, desc="")
         ntpltgo1 = self._get_pltdag_path_hdr(hdrgo, usrgos, desc="pruned")
         num_go0 = len(ntpltgo0.gosubdag.go2obj)
         num_go1 = len(ntpltgo1.gosubdag.go2obj)
@@ -192,7 +194,7 @@ class PltGroupedGos(object):
         elif num_go1 >= pltargs.upper_trigger:
             # print("PltGroupedGos::_get_gosubdagplotnts upper_pruned CCCCCCCCCCCCCCCCC")
             gos_upper = self._get_gos_upper(ntpltgo1, pltargs.max_upper, go2parentids)
-            #ntpltgo2 = self._get_pltdag_ancesters(hdrgo, gos_upper, "{BASE}_upper.png")
+            #ntpltgo2 = self._get_pltdag_ancestors(hdrgo, gos_upper, "{BASE}_upper.png")
             ntpltgo3 = self._get_pltdag_path_hdr(hdrgo, gos_upper, "upper_pruned")
             # Middle GO terms chosen to be start points will be green unless reset back
             for goid in gos_upper:
@@ -250,8 +252,8 @@ class PltGroupedGos(object):
             GO_USR=len(ntplt.gosubdag.go_sources),
             GO_ALL=len(ntplt.gosubdag.go2obj)))
 
-    def _get_pltdag_ancesters(self, hdrgo, usrgos, desc=""):
-        """Get GoSubDag containing hdrgo and all usrgos and their ancesters."""
+    def _get_pltdag_ancestors(self, hdrgo, usrgos, desc=""):
+        """Get GoSubDag containing hdrgo and all usrgos and their ancestors."""
         go_srcs = usrgos.union([hdrgo])
         gosubdag = GoSubDag(go_srcs,
                             self.gosubdag.get_go2obj(go_srcs),
