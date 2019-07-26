@@ -35,16 +35,6 @@ class Gene2GoReader(AnnoReaderBase):
         # kws2: ev_include ev_exclude ...
         return self._get_ns2ntsanno(ntsanno)
 
-    ## def get_id2gos(self, namespace='BP', taxid=None, **kws):
-    ##     """Return geneid2gos, or optionally go2geneids."""
-    ##     # kws1: taxid
-    ##     ntsanno = [nt for nt in self.get_associations(taxid) if nt.NS == namespace]
-    ##     # kws2: ev_include ev_exclude
-    ##     id2gos = self._get_id2gos(ntsanno, **kws)
-    ##     # pylint: disable=superfluous-parens
-    ##     print('{N} IDs in association branch, {NS}'.format(N=len(id2gos), NS=namespace))
-    ##     return id2gos
-
     def get_associations(self, taxid=None):
         """Return annotations"""
         # kws: taxid
@@ -114,7 +104,7 @@ class Gene2GoReader(AnnoReaderBase):
 
     # -- initialization -----------------------------------------------------------------------
     @staticmethod
-    def _init_associations(fin_anno, taxid=None, taxids=None, namespaces=None):
+    def _init_associations(fin_anno, taxid=None, taxids=None, namespaces=None, **kws):
         """Read annotation file and store a list of namedtuples."""
         return InitAssc(taxid, taxids).init_associations(fin_anno, taxids, namespaces)
 
