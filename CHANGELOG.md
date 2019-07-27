@@ -1,22 +1,23 @@
 Latest changes
 ==============
 
-Release 2019-07-26 v0.9.7
+Release 2019-07-26 0.9.7
 -------------------------
 
-- https://github.com/tanghaibao/goatools/issues/117#issuecomment-515484624
+- https://github.com/tanghaibao/goatools/issues/117#issuecomment-515484624    
   Support traversing optional relationships,
   like part_of and regulates, when propagating counts
   using these two new arguments in scripts/find_enrichment.py:
+```
         -r, --relationship    Propagate counts up all relationships (default: False)
        --relationships        [RELATIONSHIPS [RELATIONSHIPS ...]]
                                Propagate counts up user-specified relationships
                                (default: None)
+```
 
-- https://github.com/tanghaibao/goatools/issues/126#issuecomment-511985524
+- https://github.com/tanghaibao/goatools/issues/126#issuecomment-511985524    
   Find all ancesters of a GO term using a user-specified list of relationships
 
----
 
 Release 2019-05-08 0.9.5
 -------------------------
