@@ -4,6 +4,8 @@ Latest changes
 Release 2019-07-26 0.9.7
 -------------------------
 
+### Added:
+
 - https://github.com/tanghaibao/goatools/issues/117#issuecomment-515484624    
   Support traversing optional relationships,
   like part_of and regulates, when propagating counts
@@ -62,4 +64,4 @@ Release 2010-02-23
 -------------------------
 
 
-# git log --since=2019-05-08 --before=2019-07-26
+git log --since=2019-05-08 --before=2019-07-26
