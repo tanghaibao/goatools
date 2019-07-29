@@ -1,7 +1,7 @@
 # CHANGELOG
 
 * [Release 2019-07-26 0.9.7](#release-2019-07-26-097)
-  * Support user-specified optional relationships in propagate counts before GOEA    
+  * Support user-specified optional relationships in GOEA propagate counts
 * [Release 2019-05-08 0.9.5](#release-2019-05-08-095)
   * Support user-specified evidence codes in GOEAs    
   * Separate GOEAs into BP, MF, and CC    
@@ -23,10 +23,10 @@ Release 2019-07-26 0.9.7
                                Propagate counts up user-specified relationships
                                (default: None)
 ```
-  https://github.com/tanghaibao/goatools/issues/117#issuecomment-515484624    
+https://github.com/tanghaibao/goatools/issues/117#issuecomment-515484624    
 
-- https://github.com/tanghaibao/goatools/issues/126#issuecomment-511985524    
-  Find all ancesters of a GO term using a user-specified list of relationships
+- Find all ancesters of a GO term using a user-specified list of relationships    
+  https://github.com/tanghaibao/goatools/issues/126#issuecomment-511985524    
 
 
 Release 2019-05-08 0.9.5
