@@ -67,7 +67,7 @@ class EvidenceCodes(object):
 
     def prt_summary_code(self, prt=sys.stdout):
         """Print summary of codes and groups that can be inputs to get_evcodes."""
-        prt.write('EVIDENCE GROUP AND CODES:\n')
+        prt.write('{N} EVIDENCE GROUPS AND {M} CODES:\n'.format(N=len(self.grp2code2nt), M=len(self.code2nt)))
         for grp, c2nt in self.grp2code2nt.items():
             prt.write('    {GRP:19}: {CODES}\n'.format(GRP=grp, CODES=' '.join(c2nt.keys())))
 
