@@ -44,8 +44,9 @@ Options:
 
   --gpad=<file.gpad>                   Annotations from a gpad file
   --gaf=<file.gaf>                     Annotations from a gaf file
-  --gene2go=<gene2go>                  Annotations from a gene2go file downloaded from NCBI
   --id2gos=<file.txt>                  Annotations from a text file, e.g., data/association
+  --gene2go=<gene2go>                  Annotations from a gene2go file downloaded from NCBI
+  --taxid=<taxid_num>                  TaxID for use when reading NCBI's gene2go file
 
   --obo=<file.obo>                     Ontologies in obo file [default: go-basic.obo].
 
