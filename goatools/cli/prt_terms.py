@@ -39,7 +39,7 @@ class PrtGOterms(object):
     def cli(self, prt=sys.stdout):
         """Command-line interface to print specified GO Terms from the DAG source ."""
         kws = self.objdoc.get_docargs(prt=None)
-        print("KWS", kws)
+        # print("KWS", kws)
         goids = GetGOs().get_goids(kws.get('GO'), kws.get('GO_FILE'), sys.stdout)
         if not goids and 'name' in kws:
             goids = self.objsub.get_goids(kws['obo'], kws['name'])
