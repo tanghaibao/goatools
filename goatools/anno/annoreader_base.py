@@ -106,7 +106,8 @@ class AnnoReaderBase(object):
             print('{N} IDs in loaded association branch, {NS}'.format(N=len(id2gos), NS=nspc))
             return id2gos
         if namespace is not None:
-            print('**ERROR get_id2gos: GODAG NOT LOADED. IGNORING namespace({NS})'.format(NS=namespace))
+            print('**ERROR {CLS}(..., godag=None).get_id2gos: GODAG is None. IGNORING namespace({NS})'.format(
+                NS=namespace, CLS=type(self).__name__))
         id2gos = self._get_id2gos(self.associations, **kws)
         print('{N} IDs in all associations'.format(N=len(id2gos)))
         return id2gos
