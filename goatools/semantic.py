@@ -86,8 +86,11 @@ class TermCounts(object):
         # If alternate GO used to set count, add main GO ID
         for goid, cnt in go2cnt_add.items():
             gocnts[goid] = cnt
-        # Add missing alt GO IDs to gocnts
-        for alt_goid in goid_alts.difference(gocnts):
+        # Add an alternate ID to gocnts if:
+        #   1) It has not already been counted
+        #   2) The alternate GO ID is present in the GODag
+        alts_missing = goid_alts.difference(gocnts).intersection(set(self.go2obj.keys()))
+        for alt_goid in alts_missing:
             goobj = go2obj[alt_goid]
             cnt = gocnts[goobj.item_id]
             assert cnt, "NO TERM COUNTS FOR ALT_ID({GOa}) ID({GO}): {NAME}".format(
@@ -133,7 +136,8 @@ def get_info_content(go_id, termcounts):
     freq = termcounts.get_term_freq(go_id)
 
     # Calculate the information content (i.e., -log("freq of GO term")
-    return -1.0 * math.log(freq) if freq else 0
+    # Information content is IC(c) = -log10 p(c) [1].
+    return -1.0 * math.log10(freq) if freq else 0
 
 
 def resnik_sim(go_id1, go_id2, godag, termcounts):
@@ -236,3 +240,7 @@ def semantic_similarity(go_id1, go_id2, godag, branch_dist=None):
     dist = semantic_distance(go_id1, go_id2, godag, branch_dist)
     if dist is not None:
         return 1.0 / float(dist)
+
+# 1. Schlicker, Andreas et al.
+#    "A new measure for functional similarity of gene products based on Gene Ontology"
+#    BMC Bioinformatics (2006)
