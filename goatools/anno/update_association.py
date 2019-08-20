@@ -5,6 +5,8 @@ __author__ = "DV Klopfenstein"
 
 import sys
 from goatools.gosubdag.go_tasks import get_go2parents_go2obj
+from goatools.anno.broad_gos import NS2GOS_SHORT
+from goatools.anno.broad_gos import NS2GOS
 
 
 def update_association(assc_gene2gos, go2obj, relationships=None, prt=sys.stdout):
@@ -38,6 +40,37 @@ def _chk_goids_notfound(goids_assoc_all, goids_avail):
     if goids_bad:
         sys.stderr.write("{N} GO IDs NOT FOUND IN ASSOCIATION: {GOs}\n".format(
             N=len(goids_bad), GOs=" ".join(goids_bad)))
+
+def remove_assc_goids(assoc, broad_goids):
+    """Remove GO IDs from the association, return a reduced association"""
+    actuall_removed_goids = set()
+    actuall_removed_genes = set()
+    assc_rm = {}
+    for geneid, goid_set in assoc.items():
+        rm_gos = goid_set.intersection(broad_goids)
+        if rm_gos:
+            actuall_removed_goids.update(rm_gos)
+            reduced_goids = goid_set.difference(rm_gos)
+            if reduced_goids:
+                assc_rm[geneid] = reduced_goids
+            else:
+                actuall_removed_genes.add(geneid)
+        else:
+            assc_rm[geneid] = goid_set
+    return {'assoc_reduced':assc_rm,
+            'goids_removed':actuall_removed_goids,
+            'genes_removed':actuall_removed_genes}
+
+
+def get_goids_to_remove(goids_or_bool=None):
+    """Get GO IDs to remove, with the default being very broad GO IDs"""
+    if isinstance(goids_or_bool, (tuple, list, set)):
+        return set(goids_or_bool)
+    if goids_or_bool is None:
+        return set.union(*NS2GOS_SHORT.values())
+    if goids_or_bool is True:
+        return set.union(*NS2GOS.values())
+    return set()
 
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.

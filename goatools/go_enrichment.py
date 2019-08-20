@@ -26,6 +26,8 @@ from goatools.multiple_testing import HolmBonferroni
 from goatools.multiple_testing import FDR
 from goatools.multiple_testing import calc_qval
 from goatools.anno.update_association import update_association
+from goatools.anno.update_association import remove_assc_goids
+# BROAD from goatools.anno.update_association import get_goids_to_remove
 from goatools.ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
 from goatools.pvalcalc import FisherFactory
@@ -220,7 +222,7 @@ class GOEnrichmentRecord(object):
         """Return values in a format amenable to printing in a table."""
         if fld.startswith("ratio_"):
             return "{N}/{TOT}".format(N=val[0], TOT=val[1])
-        elif fld in set(['study_items', 'pop_items', 'alt_ids']):
+        if fld in set(['study_items', 'pop_items', 'alt_ids']):
             if itemid2name is not None:
                 val = [itemid2name.get(v, v) for v in val]
             return ", ".join([str(v) for v in sorted(val)])
@@ -237,9 +239,9 @@ class GOEnrichmentRecord(object):
             msg.append("\nFATAL: {N} UNEXPECTED FIELDS({F})\n".format(
                 N=len(bad_flds), F=" ".join(bad_flds)))
             msg.append("  {N} User-provided fields:".format(N=len(fldnames)))
-            for idx, fld in enumerate(fldnames, 1):
-                mrk = "ERROR -->" if fld in bad_flds else ""
-                msg.append("  {M:>9} {I:>2}) {F}".format(M=mrk, I=idx, F=fld))
+            for idx, fldname in enumerate(fldnames, 1):
+                mrk = "ERROR -->" if fldname in bad_flds else ""
+                msg.append("  {M:>9} {I:>2}) {F}".format(M=mrk, I=idx, F=fldname))
         raise Exception("\n".join(msg))
 
 
@@ -268,6 +270,9 @@ class GOEnrichmentStudy(object):
 
         if propagate_counts:
             update_association(assoc, obo_dag, kws.get('relationships', None))
+        ## BROAD broad_goids = get_goids_to_remove(kws.get('remove_goids'))
+        ## BROAD if broad_goids:
+        ## BROAD     assoc = self._remove_assc_goids(assoc, broad_goids)
         self.go2popitems = get_terms("population", pop, assoc, obo_dag, self.log)
 
     # def get_objresults(self, name, study, **kws):
@@ -275,6 +280,14 @@ class GOEnrichmentStudy(object):
     #     results = self.run_study(study, **kws)
     #     study_in_pop = self.pop.intersection(study)
     #     return GoeaResults(study_in_pop, results, self, name)
+
+    def _remove_assc_goids(self, assoc, broad_goids):
+        """Remove broad GO IDs"""
+        ret = remove_assc_goids(assoc, broad_goids)
+        if self.log:
+            self.log.write('**NOTE: {N} of {M} Broad GO IDs remove from association\n'.format(
+                N=len(ret['goids_removed']), M=len(broad_goids)))
+        return ret['assoc_reduced']
 
     def run_study(self, study, **kws):
         """Run Gene Ontology Enrichment Study (GOEA) on study ids."""
@@ -518,7 +531,7 @@ class GOEnrichmentStudy(object):
             if hasattr(rec, attrname):
                 items_cur = getattr(rec, attrname)
                 # Only count GO term if there are items in the set.
-                if len(items_cur) != 0:
+                if not items_cur:
                     items |= items_cur
                     go_cnt += 1
         return items, go_cnt

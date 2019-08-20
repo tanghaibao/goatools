@@ -40,7 +40,7 @@ class ArgsDict(object):
             'sections' : None,
             'ev_inc': None,
             'ev_exc': None,
-            'remove_goids': None,
+            # BROAD 'remove_goids': None,
         }
         self.ntobj = cx.namedtuple("Namespace", " ".join(self.namespace.keys()))
 

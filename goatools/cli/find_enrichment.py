@@ -38,6 +38,7 @@ from goatools.godag.consts import chk_relationships
 from goatools.godag.prtfncs import GoeaPrintFunctions
 from goatools.anno.factory import get_anno_desc
 from goatools.anno.factory import get_objanno
+from goatools.cli.gos_get import GetGOs
 
 from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.grouper.read_goids import read_sections
@@ -144,6 +145,12 @@ class GoeaCliArgs(object):
                        help="Print all Evidence codes, with descriptions")
         p.add_argument('--ev_help_short', dest='ev_help_short', action='store_false',
                        help="Print all Evidence codes")
+        # remove_goids: TBD
+        #   None (Default) Remove a small number (~14) of broad GO IDs from the association
+        #   True           Remove a slightly larger number of broad GO IDs (~100)
+        #   False          Do not remove any broad GO IDs
+        ## p.add_argument('--remove_goids', dest='remove_goids', default=None,
+        ##                help="User-specified list of broad GO IDs to remove")
 
         if len(sys.argv) == 1:
             sys.exit(not p.print_help())
@@ -182,7 +189,6 @@ class GoeaCliArgs(object):
         for fin in nspc.filenames:
             if not os.path.exists(fin):
                 return "*{}* does not exist".format(fin)
-
         return False
 
     @staticmethod
@@ -210,10 +216,9 @@ class GoeaCliFnc(object):
     def __init__(self, args):
         self.args = args
         self.sections = read_sections(self.args.sections) if self.args.sections else None
-        #### _optional_attrs = ['relationship'] if self.sections else None
         godag_optional_attrs = self._get_optional_attrs()
         self.godag = GODag(obo_file=self.args.obo, optional_attrs=godag_optional_attrs)
-        # print('ARGS GoeaCliFnc ', self.args)
+        ## print('ARGS GoeaCliFnc ', self.args)
         # GET: Gene2GoReader, GafReader, GpadReader, or IdToGosReader
         self.objanno = self._get_objanno(self.args.filenames[2])
         _study, _pop = self.rd_files(*self.args.filenames[:2])
@@ -269,6 +274,7 @@ class GoeaCliFnc(object):
                     if mtch:
                         id2sym[mtch.group(1)] = mtch.group(2)
             return id2sym
+        return None
 
     def prt_results(self, goea_results):
         """Print GOEA results to the screen or to a file."""
@@ -316,12 +322,15 @@ class GoeaCliFnc(object):
     def _init_objgoeans(self, pop):
         """Run gene ontology enrichment analysis (GOEA)."""
         ns2assoc = self.objanno.get_ns2assc(**self._get_anno_kws())
+        ## BROAD rm_goids = self._get_remove_goids()
+        rm_goids = False  # BROAD
         return GOEnrichmentStudyNS(pop, ns2assoc, self.godag,
                                    propagate_counts=not self.args.no_propagate_counts,
                                    relationships=self.args.relationships,
                                    alpha=self.args.alpha,
                                    pvalcalc=self.args.pvalcalc,
-                                   methods=self.methods)
+                                   methods=self.methods,
+                                   remove_goids=rm_goids)
     def _get_anno_kws(self):
         """Return keyword options to obtain id2gos"""
         kws = {}
@@ -425,6 +434,24 @@ class GoeaCliFnc(object):
             return {'relationship',}
         if self.sections:
             return {'relationship',}
+        return None
+
+    def _get_remove_goids(self):
+        """Get arguments to get a list of broad GO IDs to remove"""
+        # None: (Default) Remove a small number (~14) of broad GO IDs from the association
+        if self.args.remove_goids is None:
+            return self.args.remove_goids
+        # True: Remove a slightly larger number of broad GO IDs (~100)
+        if self.args.remove_goids.lower() == 'true':
+            return True
+        # False: Do not remove any broad GO IDs
+        if self.args.remove_goids.lower() == 'false':
+            return False
+        if os.path.exists(self.args.remove_goids):
+            GetGOs.rdtxt_gos(self.args.remove_goids, sys.stdout)
+        if isinstance(self.args.remove_goids, str) and 'GO' in self.args.remove_goids:
+            return self.args.remove_goids.split(',')
+        return None
 
 class GroupItems(object):
     """Prepare for grouping, if specified by the user."""
@@ -495,7 +522,6 @@ class GrpWr(object):
         self.flds_all = next(iter(self.sortobj.grprobj.go2nt.values()))._fields
         self.flds_cur = self._init_flds_cur()
         self.desc2nts = self.sortobj.get_desc2nts(hdrgo_prt=False)
-        # print("nnnnnnnnnnnnnnnnnnnnnttttttttttttttttt", self.flds_all)
 
     def prt_outfiles_grouped(self, outfiles):
         """Write to outfiles."""
