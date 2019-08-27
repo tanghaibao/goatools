@@ -18,8 +18,10 @@ from goatools.associations import dnld_assc
 from goatools.semantic import semantic_similarity
 from goatools.semantic import TermCounts
 from goatools.semantic import get_info_content
+from goatools.semantic import deepest_common_ancestor
 from goatools.semantic import resnik_sim
 from goatools.semantic import lin_sim
+from goatools.godag.consts import NS2GO
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
@@ -55,16 +57,26 @@ def test_semantic_similarity():
     # Resnik's similarity measure is defined as the information content of the most
     # informative common ancestor. That is, the most specific common parent-term in
     # the GO. Then we can calculate this as follows:
-    #       "Resnik similarity score (GO:0048364, GO:0044707) = 4.0540784252
+    #       Resnik similarity score (GO:0048364, GO:0044707) = 0.0 because DCA is BP top
     sim_r = resnik_sim(go_id3, go_id4, godag, termcounts)
+    dca = deepest_common_ancestor([go_id3, go_id4], godag)
+    assert dca == NS2GO['BP']
+    assert sim_r == get_info_content(dca, termcounts)
+    assert sim_r == 0.0
     print('Resnik similarity score ({GO1}, {GO2}) = {VAL}'.format(
         GO1=go_id3, GO2=go_id4, VAL=sim_r))
-    assert sim_r, "FATAL RESNIK SCORE"
 
-    # Lin similarity score (GO:0048364, GO:0044707) = -0.607721957763
+    # Lin similarity score (GO:0048364, GO:0044707) = 0.0 because they are similar through BP top
     sim_l = lin_sim(go_id3, go_id4, godag, termcounts)
     print('Lin similarity score ({GO1}, {GO2}) = {VAL}'.format(GO1=go_id3, GO2=go_id4, VAL=sim_l))
-    assert sim_l, "FATAL LIN SCORE"
+    assert sim_l == 0.0, "FATAL LIN SCORE"
+
+    # 
+    go_top_cc = NS2GO['CC']
+    sim_r = resnik_sim(go_top_cc, go_top_cc, godag, termcounts)
+    assert sim_r == 0.0
+    sim_l = lin_sim(go_top_cc, go_top_cc, godag, termcounts)
+    assert sim_l == 1.0
 
 
 

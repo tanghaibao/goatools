@@ -11,6 +11,7 @@ from __future__ import print_function
 
 import math
 from collections import Counter
+from goatools.godag.consts import NAMESPACE2GO
 
 
 class TermCounts(object):
@@ -24,27 +25,31 @@ class TermCounts(object):
         # Backup
         self.go2obj = go2obj
 
-        # Initialise the counters
-        self.gocnts = Counter()
-        self.aspect_counts = Counter()
+        # Set the number of genes annotated to each GO,
+        # including when a gene is annotated to a GO term,
+        # it is also annotated to all of its parents.
+        self.gocnts = self._init_termcounts(self._init_anno_values(annots))
+        self.aspect_counts = {
+            'biological_process': self.gocnts[NAMESPACE2GO['biological_process']],
+            'molecular_function': self.gocnts[NAMESPACE2GO['molecular_function']],
+            'cellular_component': self.gocnts[NAMESPACE2GO['cellular_component']]}
 
-        # fill the counters...
-        self._init_termcounts(self._init_anno_values(annots))
 
     def _init_termcounts(self, annots_values):
         '''
             Fill aspect_counts. Find alternate GO IDs that may not be on gocnts.
         '''
-        self._init_count_terms(annots_values)
-        self._init_add_goid_alt()
+        gocnts = self._init_count_terms(annots_values)
+        self._init_add_goid_alt(gocnts)
+        return gocnts
 
 
     def _init_count_terms(self, annots_values):
         '''
             Fills in the counts and overall aspect counts.
         '''
+        gocnts = Counter()
         gonotindag = set()
-        gocnts = self.gocnts
         go2obj = self.go2obj
         # Fill gocnts with GO IDs in annotations and their corresponding counts
         for terms in annots_values: # key is 'gene'
@@ -58,21 +63,23 @@ class TermCounts(object):
                     allterms |= goobj.get_all_parents()
                 else:
                     gonotindag.add(go_id)
+            # Add 1 for each GO annotated to this gene product
             for parent in allterms:
                 gocnts[parent] += 1
         if gonotindag:
             print("{N} Assc. GO IDs not found in the GODag\n".format(N=len(gonotindag)))
+        return gocnts
 
 
-    def _init_add_goid_alt(self):
+    def _init_add_goid_alt(self, gocnts):
         '''
             Add alternate GO IDs to term counts.
         '''
-        # Fill aspect_counts. Find alternate GO IDs that may not be on gocnts
+        #### Fill aspect_counts. Find alternate GO IDs that may not be on gocnts
+        # Find alternate GO IDs that may not be on gocnts
         goid_alts = set()
         go2cnt_add = {}
-        aspect_counts = self.aspect_counts
-        gocnts = self.gocnts
+        #### aspect_counts = self.aspect_counts
         go2obj = self.go2obj
         for go_id, cnt in gocnts.items():
             goobj = go2obj[go_id]
@@ -81,8 +88,8 @@ class TermCounts(object):
             if go_id != goobj.item_id:
                 go2cnt_add[goobj.item_id] = cnt
             goid_alts |= goobj.alt_ids
-            # Group by namespace
-            aspect_counts[goobj.namespace] += cnt
+            #### # Group by namespace
+            #### aspect_counts[goobj.namespace] += cnt
         # If alternate GO used to set count, add main GO ID
         for goid, cnt in go2cnt_add.items():
             gocnts[goid] = cnt
@@ -149,6 +156,7 @@ def resnik_sim(go_id1, go_id2, godag, termcounts):
     if goterm1.namespace == goterm2.namespace:
         msca_goid = deepest_common_ancestor([go_id1, go_id2], godag)
         return get_info_content(msca_goid, termcounts)
+    return None
 
 
 def lin_sim(goid1, goid2, godag, termcnts):
@@ -168,7 +176,8 @@ def lin_sim_calc(goid1, goid2, sim_r, termcnts):
         if info != 0:
             return (2*sim_r)/info
         if sim_r == 0:
-            return 0
+            return 1.0 if goid1 == goid2 else 0.0
+    return None
 
 
 def common_parent_go_ids(goids, godag):
@@ -220,8 +229,9 @@ def min_branch_length(go_id1, go_id2, godag, branch_dist):
         # Return the total distance - i.e., to the deepest common ancestor and back.
         return depth1 + depth2
 
-    elif branch_dist is not None:
+    if branch_dist is not None:
         return goterm1.depth + goterm2.depth + branch_dist
+    return None
 
 
 def semantic_distance(go_id1, go_id2, godag, branch_dist=None):
@@ -240,6 +250,7 @@ def semantic_similarity(go_id1, go_id2, godag, branch_dist=None):
     dist = semantic_distance(go_id1, go_id2, godag, branch_dist)
     if dist is not None:
         return 1.0 / float(dist)
+    return None
 
 # 1. Schlicker, Andreas et al.
 #    "A new measure for functional similarity of gene products based on Gene Ontology"

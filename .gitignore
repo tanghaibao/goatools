@@ -1,4 +1,5 @@
 # Ontologies and Annotations
+*.gpad
 *.owl
 *.obo
 gene_association.*

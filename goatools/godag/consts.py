@@ -9,6 +9,11 @@ NAMESPACE2NS = {
     'molecular_function' : 'MF',
     'cellular_component' : 'CC'}
 
+NS2NAMESPACE = {
+    'BP': 'biological_process',
+    'MF': 'molecular_function',
+    'CC': 'cellular_component'}
+
 # https://owlcollab.github.io/oboformat/doc/GO.format.obo-1_4.html
 RELATIONSHIP_LIST = ['part_of', 'regulates', 'negatively_regulates', 'positively_regulates']
 RELATIONSHIP_SET = set(RELATIONSHIP_LIST)
