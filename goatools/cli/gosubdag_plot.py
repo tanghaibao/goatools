@@ -189,7 +189,7 @@ class PlotCli(object):
         #### self.gosubdag = GoSubDag(goids, godag, relationships, tcntobj=tcntobj)
         kws_dag = self._get_kwsdag(goids, godag, **kws_plt)
         relationships = self._get_relationships(kws_plt, hasattr(next(iter(godag.values())), 'relationship'))
-        print('RRRRRRRRRRRRRRRRRRRRRRRRRR relationships', relationships)
+        ## print('RRRRRRRRRRRRRRRRRRRRRRRRRR relationships', relationships)
         self.gosubdag = GoSubDag(goids, godag, relationships, **kws_dag)
         # objplt = self._plt_gogrouped(goids, go2color, **kws_plt) if 'sections' in kws_plt self._plt_gosubdag(goids, go2color, **kws_plt)
         obj = self._get_objpltg(goids, go2color, **kws_plt) if 'sections' in kws_plt else self._get_objplt(go2color, **kws_plt)

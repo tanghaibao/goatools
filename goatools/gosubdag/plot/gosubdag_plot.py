@@ -81,6 +81,7 @@ class GoSubDagPlot(object):
         'capable_of_part_of':   {'color':'darkorange',  'style':'dashed'},
     }
 
+    # https://graphviz.org/doc/info/attrs.html
     exp_keys = {
         'dag': set(['title', 'id', 'dpi']),  # pydot.Dot kwargs
         # goobj2fncname parentcnt shorten mark_alt_id childcnt prt_pcnt ...
@@ -141,6 +142,9 @@ class GoSubDagPlot(object):
         for objname, expset in self.exp_keys.items():
             usrkeys_curr = user_keys.intersection(expset)
             kws_self[objname] = get_kwargs(kws_usr, usrkeys_curr, usrkeys_curr)
+        if 'title' in kws_usr:
+            kws_self['dag']['label'] = kws_usr['title']
+            kws_self['dag']['labelloc'] = 't'
         dpi = str(kws_self['dag'].get('dpi', self.dflts['dpi']))
         kws_self['dag']['dpi'] = dpi
         return kws_self
