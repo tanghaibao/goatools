@@ -12,9 +12,10 @@ from __future__ import print_function
 import math
 from collections import Counter
 from goatools.godag.consts import NAMESPACE2GO
+from goatools.godag.go_tasks import get_go2ancestors
 
 
-class TermCounts(object):
+class TermCounts:
     '''
         TermCounts counts the term counts for each
     '''
@@ -44,23 +45,25 @@ class TermCounts(object):
         return gocnts
 
 
-    def _init_count_terms(self, annots_values):
+    def _init_count_terms(self, annots_values, relationships=None):
         '''
             Fills in the counts and overall aspect counts.
         '''
         gocnts = Counter()
+        if relationships is None:
+            relationships = {}
+        go2parents = get_go2ancestors(set(self.go2obj.values()), relationships)
         gonotindag = set()
-        go2obj = self.go2obj
         # Fill gocnts with GO IDs in annotations and their corresponding counts
         for terms in annots_values: # key is 'gene'
             # Make a union of all the terms for a gene, if term parents are
             # propagated but they won't get double-counted for the gene
             allterms = set()
             for go_id in terms:
-                goobj = go2obj.get(go_id, None)
-                if goobj is not None:
+                ancestors = go2parents.get(go_id, None)
+                if ancestors is not None:
                     allterms.add(go_id)
-                    allterms |= goobj.get_all_parents()
+                    allterms |= ancestors
                 else:
                     gonotindag.add(go_id)
             # Add 1 for each GO annotated to this gene product
