@@ -28,26 +28,20 @@ class TermCounts:
         self.go2obj = go2obj
 
         self.go2genes = self._init_go2genes(annots)
-        self.gocnts = {go:len(geneset) for go, geneset in self.go2genes.items()}
+        self.gocnts = Counter({go:len(geneset) for go, geneset in self.go2genes.items()})
         self.aspect_counts = {
             'biological_process': self.gocnts.get(NAMESPACE2GO['biological_process'], 0),
             'molecular_function': self.gocnts.get(NAMESPACE2GO['molecular_function'], 0),
             'cellular_component': self.gocnts.get(NAMESPACE2GO['cellular_component'], 0)}
-
-
-    def _init_termcounts(self, annots_values):
-        '''
-            Fill aspect_counts. Find alternate GO IDs that may not be on gocnts.
-        '''
-        gocnts = self._init_count_terms(annots_values)
-        self._init_add_goid_alt(gocnts)
-        return gocnts
+        self._init_add_goid_alt()
 
 
     def _init_go2genes(self, annots, relationships=None):
         '''
             Fills in the genes annotated to each GO, including ancestors
-            When a gene is annotated to a GO term, it is considered annotated to all of its ancestors
+
+            Due to the ontology structure, gene products annotated to
+            a GO Terma are also annotated to all ancestors.
         '''
         go2geneset = defaultdict(set)
         if relationships is None:
@@ -74,7 +68,7 @@ class TermCounts:
         return dict(go2geneset)
 
 
-    def _init_add_goid_alt(self, gocnts):
+    def _init_add_goid_alt(self):
         '''
             Add alternate GO IDs to term counts.
         '''
@@ -84,6 +78,7 @@ class TermCounts:
         go2cnt_add = {}
         #### aspect_counts = self.aspect_counts
         go2obj = self.go2obj
+        gocnts = self.gocnts
         for go_id, cnt in gocnts.items():
             goobj = go2obj[go_id]
             assert cnt, "NO TERM COUNTS FOR {GO}".format(GO=goobj.item_id)
