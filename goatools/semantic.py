@@ -11,6 +11,7 @@ from __future__ import print_function
 
 import math
 from collections import Counter
+from collections import defaultdict
 from goatools.godag.consts import NAMESPACE2GO
 from goatools.godag.go_tasks import get_go2ancestors
 
@@ -26,15 +27,12 @@ class TermCounts:
         # Backup
         self.go2obj = go2obj
 
-        # Set the number of genes annotated to each GO,
-        # including when a gene is annotated to a GO term,
-        # it is also annotated to all of its parents.
-        # self.go2genes = self._init_go2genes(annots)
-        self.gocnts = self._init_termcounts(annots)
+        self.go2genes = self._init_go2genes(annots)
+        self.gocnts = {go:len(geneset) for go, geneset in self.go2genes.items()}
         self.aspect_counts = {
-            'biological_process': self.gocnts[NAMESPACE2GO['biological_process']],
-            'molecular_function': self.gocnts[NAMESPACE2GO['molecular_function']],
-            'cellular_component': self.gocnts[NAMESPACE2GO['cellular_component']]}
+            'biological_process': self.gocnts.get(NAMESPACE2GO['biological_process'], 0),
+            'molecular_function': self.gocnts.get(NAMESPACE2GO['molecular_function'], 0),
+            'cellular_component': self.gocnts.get(NAMESPACE2GO['cellular_component'], 0)}
 
 
     def _init_termcounts(self, annots_values):
@@ -46,17 +44,18 @@ class TermCounts:
         return gocnts
 
 
-    def _init_count_terms(self, annots_values, relationships=None):
+    def _init_go2genes(self, annots, relationships=None):
         '''
-            Fills in the counts and overall aspect counts.
+            Fills in the genes annotated to each GO, including ancestors
+            When a gene is annotated to a GO term, it is considered annotated to all of its ancestors
         '''
-        gocnts = Counter()
+        go2geneset = defaultdict(set)
         if relationships is None:
             relationships = {}
         go2parents = get_go2ancestors(set(self.go2obj.values()), relationships)
         gonotindag = set()
-        # Fill gocnts with GO IDs in annotations and their corresponding counts
-        for terms in annots_values: # key is 'gene'
+        # Fill go2geneset with GO IDs in annotations and their corresponding counts
+        for geneid, terms in annots.items():
             # Make a union of all the terms for a gene, if term parents are
             # propagated but they won't get double-counted for the gene
             allterms = set()
@@ -69,10 +68,10 @@ class TermCounts:
                     gonotindag.add(go_id)
             # Add 1 for each GO annotated to this gene product
             for parent in allterms:
-                gocnts[parent] += 1
+                go2geneset[parent].add(geneid)
         if gonotindag:
             print("{N} Assc. GO IDs not found in the GODag\n".format(N=len(gonotindag)))
-        return gocnts
+        return dict(go2geneset)
 
 
     def _init_add_goid_alt(self, gocnts):

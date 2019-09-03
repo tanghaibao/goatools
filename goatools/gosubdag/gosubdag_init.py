@@ -231,7 +231,7 @@ class InitFields(object):
             if 'D1' in self.kw_elems:
                 fld2vals['D1'] = rcntobj.get_d1str(goobj)
             if b_tcnt:
-                tcnt = tcntobj.gocnts[goid]
+                tcnt = tcntobj.gocnts.get(goid, 0)
                 num_ns = float(tcntobj.aspect_counts[goobj.namespace])
                 tfreq = float(tcnt)/num_ns if num_ns != 0 else 0
                 fld2vals['tcnt'] = tcnt
