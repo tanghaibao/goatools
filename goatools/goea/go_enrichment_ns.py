@@ -5,11 +5,10 @@ __copyright__ = "Copyright (C) 2010-2019, H Tang et al., All rights reserved."
 __author__ = "various"
 
 import itertools
-from itertools import chain
 from goatools.go_enrichment import GOEnrichmentStudy
 
 
-class GOEnrichmentStudyNS(object):
+class GOEnrichmentStudyNS:
     """Runs Fisher's exact test, as well as multiple corrections for each of: BP MF CC"""
 
     # pylint: disable=too-many-arguments
@@ -39,9 +38,9 @@ class GOEnrichmentStudyNS(object):
             ns:GOEnrichmentStudy(pop, a, godag, propagate_counts, alpha, methods, name=ns, **kws) \
                 for ns, a in sorted(ns2assoc.items())}
 
-    def get_list_gosets(self):
+    def get_assoc(self):
         """Get a list of all GO sets in all (BP, MF, CC) associations"""
-        return list(chain.from_iterable(o.assoc.values() for o in self.ns2objgoea.values()))
+        return {geneid:gos for o in self.ns2objgoea.values() for geneid, gos in o.assoc.items()}
 
 
 # Copyright (C) 2010-2019, H Tang et al., All rights reserved.

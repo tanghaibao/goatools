@@ -53,7 +53,7 @@ OBJPRTRES = GoeaPrintFunctions()
 
 
 # pylint: disable=too-few-public-methods
-class GoeaCliArgs(object):
+class GoeaCliArgs:
     """Extracts arguments from the command-line."""
 
     def __init__(self):
@@ -209,7 +209,7 @@ class GoeaCliArgs(object):
 
 
 
-class GoeaCliFnc(object):
+class GoeaCliFnc:
     """For running a GOEA on the command-line."""
 
     # pylint: disable=too-many-instance-attributes
@@ -453,14 +453,13 @@ class GoeaCliFnc(object):
             return self.args.remove_goids.split(',')
         return None
 
-class GroupItems(object):
+class GroupItems:
     """Prepare for grouping, if specified by the user."""
 
     def __init__(self, objcli, godag_version):
         # _goids = set(o.id for o in godag.values() if not o.children)
         _goids = set(r.GO for r in objcli.results_all)
-        assoc_values = objcli.objgoeans.get_list_gosets()
-        _tobj = TermCounts(objcli.godag, assoc_values)
+        _tobj = TermCounts(objcli.godag, objcli.objgoeans.get_assoc())
         # pylint: disable=line-too-long
         self.gosubdag = GoSubDag(_goids, objcli.godag, relationships=True, tcntobj=_tobj, prt=sys.stdout)
         self.grprdflt = GrouperDflts(self.gosubdag, objcli.args.goslim)
@@ -510,7 +509,7 @@ class GroupItems(object):
             }
         return AArtGeneProductSetsAll(self.grprdflt, self.hdrobj, **kws)
 
-class GrpWr(object):
+class GrpWr:
     """Write GO term GOEA information, grouped."""
 
     objprtfmt = PrtFmt()

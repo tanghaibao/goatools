@@ -29,7 +29,8 @@ class TermCounts:
         # Set the number of genes annotated to each GO,
         # including when a gene is annotated to a GO term,
         # it is also annotated to all of its parents.
-        self.gocnts = self._init_termcounts(self._init_anno_values(annots))
+        # self.go2genes = self._init_go2genes(annots)
+        self.gocnts = self._init_termcounts(annots)
         self.aspect_counts = {
             'biological_process': self.gocnts[NAMESPACE2GO['biological_process']],
             'molecular_function': self.gocnts[NAMESPACE2GO['molecular_function']],
@@ -106,16 +107,6 @@ class TermCounts:
             assert cnt, "NO TERM COUNTS FOR ALT_ID({GOa}) ID({GO}): {NAME}".format(
                 GOa=alt_goid, GO=goobj.item_id, NAME=goobj.name)
             gocnts[alt_goid] = cnt
-
-    @staticmethod
-    def _init_anno_values(annots):
-        """Return annotation values, which are sets of GO IDs"""
-        assert annots, 'NO ASSOCIATIONS FOUND'
-        if isinstance(annots, dict):
-            return annots.values()
-        assert isinstance(annots, list)
-        assert isinstance(annots[0], set)
-        return annots
 
     def get_count(self, go_id):
         '''
