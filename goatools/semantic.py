@@ -14,6 +14,7 @@ from collections import Counter
 from collections import defaultdict
 from goatools.godag.consts import NAMESPACE2GO
 from goatools.godag.go_tasks import get_go2ancestors
+from goatools.gosubdag.gosubdag import GoSubDag
 
 
 class TermCounts:
@@ -26,14 +27,15 @@ class TermCounts:
         '''
         # Backup
         self.go2obj = go2obj
-
-        self.go2genes = self._init_go2genes(annots)
+        self.go2genes, not_main = self._init_go2genes(annots)
+        self.goids = set(self.go2genes.keys())  # Annotation main GO IDs (prefer main id to alt_id)
         self.gocnts = Counter({go:len(geneset) for go, geneset in self.go2genes.items()})
         self.aspect_counts = {
             'biological_process': self.gocnts.get(NAMESPACE2GO['biological_process'], 0),
             'molecular_function': self.gocnts.get(NAMESPACE2GO['molecular_function'], 0),
             'cellular_component': self.gocnts.get(NAMESPACE2GO['cellular_component'], 0)}
-        self._init_add_goid_alt()
+        self._init_add_goid_alt(not_main)
+        self.gosubdag = GoSubDag(set(self.gocnts.keys()), go2obj, tcntobj=self)
 
 
     def _init_go2genes(self, annots, relationships=None):
@@ -46,61 +48,48 @@ class TermCounts:
         go2geneset = defaultdict(set)
         if relationships is None:
             relationships = {}
-        go2parents = get_go2ancestors(set(self.go2obj.values()), relationships)
-        gonotindag = set()
+        go2up = get_go2ancestors(set(self.go2obj.values()), relationships)
+        godag = self.go2obj
+        go_alts = set()  # For alternate GO IDs
+        goids_notfound = set()  # For missing GO IDs
         # Fill go2geneset with GO IDs in annotations and their corresponding counts
-        for geneid, terms in annots.items():
+        for geneid, goids_anno in annots.items():
             # Make a union of all the terms for a gene, if term parents are
             # propagated but they won't get double-counted for the gene
             allterms = set()
-            for go_id in terms:
-                ancestors = go2parents.get(go_id, None)
-                if ancestors is not None:
-                    allterms.add(go_id)
-                    allterms |= ancestors
+            for goid_anno in goids_anno:
+                if goid_anno in godag:
+                    goid_main = godag[goid_anno].item_id
+                    if goid_anno != goid_main:
+                        go_alts.add(goid_anno)
+                    if goid_main in go2up:
+                        ancestors = go2up[goid_main]
+                        allterms.add(goid_main)
+                        allterms |= ancestors
                 else:
-                    gonotindag.add(go_id)
+                    goids_notfound.add(goid_anno)
             # Add 1 for each GO annotated to this gene product
-            for parent in allterms:
-                go2geneset[parent].add(geneid)
-        if gonotindag:
-            print("{N} Assc. GO IDs not found in the GODag\n".format(N=len(gonotindag)))
-        return dict(go2geneset)
+            for ancestor in allterms:
+                go2geneset[ancestor].add(geneid)
+        if goids_notfound:
+            print("{N} Assc. GO IDs not found in the GODag\n".format(N=len(goids_notfound)))
+        return dict(go2geneset), go_alts
 
-
-    def _init_add_goid_alt(self):
+    def _init_add_goid_alt(self, not_main):
         '''
-            Add alternate GO IDs to term counts.
+            Add alternate GO IDs to term counts. Report GO IDs not found in GO DAG.
         '''
-        #### Fill aspect_counts. Find alternate GO IDs that may not be on gocnts
-        # Find alternate GO IDs that may not be on gocnts
         goid_alts = set()
-        go2cnt_add = {}
-        #### aspect_counts = self.aspect_counts
-        go2obj = self.go2obj
-        gocnts = self.gocnts
-        for go_id, cnt in gocnts.items():
-            goobj = go2obj[go_id]
-            assert cnt, "NO TERM COUNTS FOR {GO}".format(GO=goobj.item_id)
-            # Was the count set using an alternate GO?
-            if go_id != goobj.item_id:
-                go2cnt_add[goobj.item_id] = cnt
-            goid_alts |= goobj.alt_ids
-            #### # Group by namespace
-            #### aspect_counts[goobj.namespace] += cnt
-        # If alternate GO used to set count, add main GO ID
-        for goid, cnt in go2cnt_add.items():
-            gocnts[goid] = cnt
-        # Add an alternate ID to gocnts if:
-        #   1) It has not already been counted
-        #   2) The alternate GO ID is present in the GODag
-        alts_missing = goid_alts.difference(gocnts).intersection(set(self.go2obj.keys()))
-        for alt_goid in alts_missing:
-            goobj = go2obj[alt_goid]
-            cnt = gocnts[goobj.item_id]
-            assert cnt, "NO TERM COUNTS FOR ALT_ID({GOa}) ID({GO}): {NAME}".format(
-                GOa=alt_goid, GO=goobj.item_id, NAME=goobj.name)
-            gocnts[alt_goid] = cnt
+        notfound = set()
+        for go_id in not_main:
+            if go_id in self.go2obj:
+                goid_main = self.go2obj[go_id].item_id
+                self.gocnts[go_id] = self.gocnts[goid_main]
+                self.go2genes[go_id] = self.go2genes[goid_main]
+            else:
+                notfound.add(go_id)
+        if notfound:
+            print("{N} Assc. GO IDs not found in the GODag\n".format(N=len(notfound)))
 
     def get_count(self, go_id):
         '''
