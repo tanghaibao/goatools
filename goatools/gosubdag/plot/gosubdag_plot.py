@@ -93,11 +93,11 @@ class GoSubDagPlot(object):
     dflts = {'dpi':150}
 
     def __init__(self, gosubdag, **kwu):
+        assert gosubdag, "**FATAL: MISSING SUBSET GODag"
+        self.gosubdag = gosubdag
         # kwu: id, title, dpi, go2txt
         self.kws = self._init_kws(**kwu)
         # kwu: log parentcnt
-        assert gosubdag, "**FATAL: MISSING SUBSET GODag"
-        self.gosubdag = gosubdag
         self.edgesobj = get_edgesobj(gosubdag, **kwu)
         # pylint: disable=line-too-long
         # kwu: go2color go2bordercolor dflt_bordercolor
@@ -145,9 +145,20 @@ class GoSubDagPlot(object):
         if 'title' in kws_usr:
             kws_self['dag']['label'] = kws_usr['title']
             kws_self['dag']['labelloc'] = 't'
+        if 'go2txt' in kws_usr:
+            self._init_go2txt_altgos(kws_self['node_go']['go2txt'])
         dpi = str(kws_self['dag'].get('dpi', self.dflts['dpi']))
         kws_self['dag']['dpi'] = dpi
         return kws_self
+
+    def _init_go2txt_altgos(self, go2txt):
+        """If user provided GO.alt_id, add the corressponding main GO ID, if needed"""
+        _go2obj = self.gosubdag.go2obj
+        for goid_user, txt in go2txt.items():
+            if goid_user in _go2obj:
+                goid_main = _go2obj[goid_user].item_id
+                if goid_user != goid_main and goid_main not in go2txt:
+                    go2txt[goid_main] = txt
 
     def plt_dag(self, fout_img, engine="pydot"):
         """Plot using pydot, graphviz, or GML."""
