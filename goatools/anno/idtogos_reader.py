@@ -3,13 +3,11 @@
 import sys
 from goatools.anno.annoreader_base import AnnoReaderBase
 from goatools.anno.init.reader_idtogos import InitAssc
-from goatools.godag.consts import NAMESPACE2NS
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
-# pylint: disable=broad-except,too-few-public-methods,line-too-long
 class IdToGosReader(AnnoReaderBase):
     """Reads a Annotation File in text format with data in id2gos line"""
 
@@ -20,6 +18,14 @@ class IdToGosReader(AnnoReaderBase):
         super(IdToGosReader, self).__init__('id2gos', filename,
                                             godag=kws.get('godag'),
                                             namespaces=kws.get('namespaces'))
+
+    @staticmethod
+    def wr_id2gos(fout_txt, id2gos):
+        """Write annotations into a text file"""
+        with open(fout_txt, 'w') as prt:
+            for geneid, goset in sorted(id2gos.items()):
+                prt.write('{GENE}\t{GOs}\n'.format(GENE=geneid, GOs=';'.join(sorted(goset))))
+        print('  {N} annotations WROTE: {TXT}'.format(N=len(id2gos), TXT=fout_txt))
 
     def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print a summary of all Evidence Codes seen in annotations"""

@@ -82,7 +82,9 @@ class InitAssc(object):
         :return: dictionary having keys: gene id, values set of GO terms
         """
         assoc = cx.defaultdict(set)
+
         ## top_terms = set(['GO:0008150', 'GO:0003674', 'GO:0005575']) # BP, MF, CC
+        gene_int = None
         for row in open(assoc_fn, 'r'):
             atoms = row.split()
             if len(atoms) == 2:
@@ -94,6 +96,10 @@ class InitAssc(object):
             gos = set(go_terms.split(";"))
             ## if no_top:
             ##     gos = gos.difference(top_terms)
+            if gene_int is None:
+                gene_int = gene_id.isdigit()
+            if gene_int:
+                gene_id = int(gene_id)
             assoc[gene_id] |= gos
         return assoc
 
