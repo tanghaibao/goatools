@@ -25,7 +25,7 @@ __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights re
 __author__ = "DV Klopfenstein"
 
 
-class GrouperInit(object):
+class GrouperInit:
     """Initialize Grouper object."""
 
     most_specific_fncs = {
@@ -79,7 +79,7 @@ class GrouperInit(object):
         # User GO IDs that are header GOs in groups containing no other user GO IDs
         gos_all |= self.hdrgo_is_usrgo
         assert gos_all == self.usrgos.union(set(self.hdrgo2usrgos.keys()))
-        assert len(self.usrgos.difference(gos_all)) == 0, \
+        assert not self.usrgos.difference(gos_all), \
             "GROUPER ERROR: {GOs}".format(GOs=self.usrgos.difference(gos_all))
         return gos_all
 
@@ -121,7 +121,7 @@ class GrouperInit(object):
         self.hdrgo_is_usrgo = hdrgo_is_usrgo
 
     # pylint: disable=too-few-public-methods
-    class GetGoidHigh(object):
+    class GetGoidHigh:
         """Given a user GO ID, return the 'closest' header GO."""
 
         def __init__(self, gosubdag, gos_high, get_most_specific):
@@ -132,7 +132,9 @@ class GrouperInit(object):
 
         def get_goid_high(self, goid_main):
             """Return the 'closest' GO header to the GO ID arg."""
-            parents_all = self.go2parents[goid_main].union([goid_main])
+            parents_all = {goid_main}
+            if goid_main in self.go2parents:
+                parents_all.update(self.go2parents[goid_main])
             parents_high = parents_all.intersection(self.gos_high)
             assert parents_high, "NO PARENTS {P} {H} {NT}".format(
                 P=len(parents_all), H=len(self.gos_high), NT=goid_main)
@@ -149,7 +151,7 @@ class GrouperInit(object):
             return self.__init_go2nt_dflt(gos_all, prt_flds_all)
         usr_nt_flds = next(iter(usr_go2nt.values()))._fields
         # If user namedtuple already contains all fields available, then return usr_go2nt
-        if len(set(prt_flds_all).difference(usr_nt_flds)) == 0:
+        if not set(prt_flds_all).difference(usr_nt_flds):
             return self._init_go2nt_aug(usr_go2nt)
         # Otherwise, combine user fields and default Sorter fields
         return self.__init_go2nt_w_usr(gos_all, usr_go2nt, prt_flds_all)
@@ -203,7 +205,7 @@ class GrouperInit(object):
             go2nthdridx[goid] = obj.get_nt(goid)
         return go2nthdridx
 
-    class NtMaker(object):
+    class NtMaker:
         """Make namedtuples for GO IDs in grouper."""
 
         ntobj = cx.namedtuple("NtHdrIdx", " ".join(get_hdridx_flds()))

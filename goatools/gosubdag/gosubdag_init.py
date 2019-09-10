@@ -17,7 +17,7 @@ from goatools.gosubdag.utils import get_kwargs
 
 
 # pylint: disable=too-few-public-methods
-class InitGOs(object):
+class InitGOs:
     """Initialize GoSubDab."""
 
     # Add additional GO IDs if used in user tasks
@@ -43,8 +43,7 @@ class InitGOs(object):
             relationships_all = self._get_all_relationships()
             if relationships_arg is True:
                 return relationships_all
-            else:
-                return relationships_all.intersection(relationships_arg)
+            return relationships_all.intersection(relationships_arg)
         return set()
 
     def _get_all_relationships(self):
@@ -109,7 +108,7 @@ class InitGOs(object):
         return gos_source
 
 
-class InitFields(object):
+class InitFields:
     """Initialize print attributes and namedtuple fields."""
 
     exp_keys = set(['rcntobj', 'tcntobj', 'go2nt', 'go2letter'])
@@ -135,22 +134,21 @@ class InitFields(object):
                 self.relationships,
                 dcnt='dcnt' in self.kw_elems,
                 go2letter=self.kws.get('go2letter'))
+        return None
 
     def get_go2nt_all(self, rcntobj):
         """For each GO id, put all printable fields in one namedtuple."""
         if 'go2nt' in self.kws:
             go2nt = self.kws['go2nt']
             return {go:go2nt[go] for go in self.go2obj}
-        else:
-            return self._get_go2nt_all(rcntobj)
+        return self._get_go2nt_all(rcntobj)
 
     def _init_prt_flds(self):
         """Return the print fields in the go2nt namedtuple."""
         # Create namedtuple fields or copy namedtuple fields
         if 'go2nt' not in self.kws:
             return self.__init_prt_flds()
-        else:
-            return next(iter(self.kws['go2nt'].values()))._asdict()
+        return next(iter(self.kws['go2nt'].values()))._asdict()
 
     def __init_prt_flds(self):
         """Return the print fields in the go2nt namedtuple."""
@@ -227,7 +225,7 @@ class InitFields(object):
                 'id' : goobj.id,
                 'GO_name' : goobj.name}
             if 'dcnt' in self.kw_elems:
-                fld2vals['dcnt'] = rcntobj.go2dcnt.get(goid)
+                fld2vals['dcnt'] = rcntobj.go2dcnt[goid]
             if 'D1' in self.kw_elems:
                 fld2vals['D1'] = rcntobj.get_d1str(goobj)
             if b_tcnt:

@@ -32,6 +32,28 @@ class GafReader(AnnoReaderBase):
         """Read Gene Association File (GAF). Return associations."""
         return self.get_id2gos(namespace, **kws)
 
+    @staticmethod
+    def wr_txt(fout_gaf, nts):
+        """Write namedtuples into a gaf format"""
+        pat = (
+            '{DB}\t{DB_ID}\t{DB_Symbol}\t{Qualifier}\t{GO_ID}\t{DB_Reference}\t'
+            '{Evidence_Code}\t{With_From}\t{NS}\t{DB_Name}\t{DB_Synonym}\t{DB_Type}\t'
+            '{Taxon}\t{Date}\t{Assigned_By}\t{Extension}\t{Gene_Product_Form_ID}\n')
+        sets = {'Qualifier', 'DB_Reference', 'With_From', 'DB_Name', 'DB_Synonym', 'Gene_Product_Form_ID'}
+        ns2a = {ns:p for p, ns in GafData.aspect2ns.items()}
+        with open(fout_gaf, 'w') as prt:
+            prt.write('!gaf-version: 2.1\n')
+            for ntd in nts:
+                dct = ntd._asdict()
+                for fld in sets:
+                    dct[fld] = '|'.join(sorted(dct[fld]))
+                dct['Taxon'] = '|'.join(['taxon:{T}'.format(T=t) for t in dct['Taxon']])
+                dct['NS'] = ns2a[dct['NS']]
+                dct['Date'] = dct['Date'].strftime('%Y%m%d')
+                prt.write(pat.format(**dct))
+                #prt.write('{NT}\n'.format(NT=ntd))
+        print('  {N} annotations WROTE: {GAF}'.format(N=len(nts), GAF=fout_gaf))
+
     def chk_associations(self, fout_err="gaf.err"):
         """Check that fields are legal in GAF"""
         obj = GafData("2.1")

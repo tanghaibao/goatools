@@ -18,7 +18,7 @@ __author__ = "DV Klopfenstein"
 
 
 # pylint: disable=too-few-public-methods
-class InitAssc(object):
+class InitAssc:
     """Read annotation file and store a list of namedtuples."""
 
     def __init__(self, fin_gaf):
@@ -100,7 +100,7 @@ class InitAssc(object):
 
 
 
-class GafData(object):
+class GafData:
     """Extracts GAF fields from a GAF line."""
 
     spec_req1 = [0, 1, 2, 4, 6, 8, 11, 13, 14]
@@ -156,6 +156,29 @@ class GafData(object):
         self.ignored = []  # Illegal GAF lines that are ignored (e.g., missing an ID)
         self.illegal_lines = cx.defaultdict(list)  # GAF lines that are missing information (missing taxon)
 
+    @staticmethod
+    def get_dfltdict():
+        """Return default values for GAF data in a namedtuple"""
+        return {
+            'DB': 'database',        #  0 required 1              UniProtKB
+            'DB_ID': 1,              #  1 required 1              P12345
+            'DB_Symbol': 'Symbol1',  #  2 required 1              PHO3
+            'Qualifier': set(),      #  3 optional 0 or greater   NOT
+            'GO_ID': 'GO:0000001',   #  4 required 1              GO:0003993
+            'DB_Reference': {'GO_REF:0000001',},   #  5 required 1 or greater   PMID:2676709
+            'Evidence_Code': 'IDA',  #  6 required 1              IMP
+            'With_From': set(),      #  7 optional 0 or greater   GO:0000346
+            'NS': 'BP',              #  8 required 1              P->BP  F->MF  C->CC
+            'DB_Name': set(),        #  9 optional 0 or 1         Toll-like receptor 4
+            'DB_Synonym': set(),     # 10 optional 0 or greater   hToll|Tollbooth
+            'DB_Type': 'protein',    # 11 required 1              protein
+            'Taxon': [9606],         # 12 required 1 or 2         taxon:9606
+            'Date': datetime.datetime.now().date(), # 13 required 1              20090118
+            'Assigned_By': 'user',   # 14 required 1              SGD
+            'Extension': set(),      # 15 optional 0 or greater part_of(CL:0000576)
+            'Gene_Product_Form_ID':set(), # 16 optional 0 or 1       UniProtKB:P12345-2
+        }
+
     def chk(self, annotations, fout_err):
         """Check annotations."""
         for idx, ntd in enumerate(annotations):
@@ -204,9 +227,9 @@ class GafData(object):
         quals = set()
         if val == '':
             return quals
-        for val in val.split('|'):
-            val = val.lower()
-            quals.add(val if val != 'not' else 'NOT')
+        for item in val.split('|'):
+            item = item.lower()
+            quals.add(item if item != 'not' else 'NOT')
         return quals
 
     @staticmethod
@@ -308,7 +331,7 @@ class GafData(object):
         return fout_err
 
 
-class GafHdr(object):
+class GafHdr:
     """Used to build a GAF header."""
 
     cmpline = re.compile(r'^!(\w[\w\s-]+:.*)$')
@@ -325,5 +348,6 @@ class GafHdr(object):
         mtch = self.cmpline.search(line)
         if mtch:
             self.gafhdr.append(mtch.group(1))
+
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."

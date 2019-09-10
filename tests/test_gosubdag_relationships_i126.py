@@ -86,7 +86,7 @@ def test_gosubdag_relationships(wr_new_obo_subset=False):
 
     # BASELINE r1: Test that GOTerm.get_all_upper() is the same as GoSubDag ancestors
     for goid, term in gosubdag_r1.go2obj.items():
-        ancestors_r1 = gosubdag_r1.rcntobj.go2parents[goid]
+        ancestors_r1 = gosubdag_r1.rcntobj.go2parents.get(goid, set())
         assert ancestors_r1 == term.get_all_upper()
 
     #### # Test that
@@ -114,8 +114,8 @@ def _run_baseline_r0(gosubdag_r0, gosubdag_r1):
     r1_ancestors_more = set()
     # Loop through r0 GO IDs
     for goid, term in gosubdag_r0.go2obj.items():
-        ancestors_r0 = gosubdag_r0.rcntobj.go2parents[goid]
-        ancestors_r1 = gosubdag_r1.rcntobj.go2parents[goid]
+        ancestors_r0 = gosubdag_r0.rcntobj.go2parents.get(goid, set())
+        ancestors_r1 = gosubdag_r1.rcntobj.go2parents.get(goid, set())
         assert ancestors_r0 == term.get_all_parents()
         assert ancestors_r0.issubset(ancestors_r1)
         if len(ancestors_r0) < len(ancestors_r1):

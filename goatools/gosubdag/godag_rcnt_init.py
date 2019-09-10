@@ -13,7 +13,7 @@ from goatools.gosubdag.go_tasks import get_goobjs_altgo2goobj
 from goatools.gosubdag.go_tasks import add_alt_goids
 
 
-class CountRelativesInit(object):
+class CountRelativesInit:
     """Get descendant/parent counts for all GO terms in a GODag and broad L0 and L1 terms."""
 
 
@@ -28,7 +28,7 @@ class CountRelativesInit(object):
         _r0 = not relationships  # True if not using relationships
         self.go2descendants = get_go2descendants(_goobjs, relationships)
         self.go2parents = get_go2ancestors(_goobjs, relationships)
-        self.go2dcnt = {go: len(p) for go, p in self.go2descendants.items()}
+        self.go2dcnt = cx.Counter({go: len(p) for go, p in self.go2descendants.items()})
         add_alt_goids(self.go2parents, _altgo2goobj)
         add_alt_goids(self.go2descendants, _altgo2goobj)
         add_alt_goids(self.go2dcnt, _altgo2goobj)

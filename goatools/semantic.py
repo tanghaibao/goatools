@@ -27,6 +27,7 @@ class TermCounts:
         '''
         # Backup
         self.go2obj = go2obj
+        self.annots = annots
         self.go2genes, not_main = self._init_go2genes(annots)
         self.goids = set(self.go2genes.keys())  # Annotation main GO IDs (prefer main id to alt_id)
         self.gocnts = Counter({go:len(geneset) for go, geneset in self.go2genes.items()})
@@ -62,10 +63,9 @@ class TermCounts:
                     goid_main = godag[goid_anno].item_id
                     if goid_anno != goid_main:
                         go_alts.add(goid_anno)
+                    allterms.add(goid_main)
                     if goid_main in go2up:
-                        ancestors = go2up[goid_main]
-                        allterms.add(goid_main)
-                        allterms |= ancestors
+                        allterms |= go2up[goid_main]
                 else:
                     goids_notfound.add(goid_anno)
             # Add 1 for each GO annotated to this gene product
@@ -79,17 +79,11 @@ class TermCounts:
         '''
             Add alternate GO IDs to term counts. Report GO IDs not found in GO DAG.
         '''
-        goid_alts = set()
-        notfound = set()
         for go_id in not_main:
             if go_id in self.go2obj:
                 goid_main = self.go2obj[go_id].item_id
                 self.gocnts[go_id] = self.gocnts[goid_main]
                 self.go2genes[go_id] = self.go2genes[goid_main]
-            else:
-                notfound.add(go_id)
-        if notfound:
-            print("{N} Assc. GO IDs not found in the GODag\n".format(N=len(notfound)))
 
     def get_count(self, go_id):
         '''

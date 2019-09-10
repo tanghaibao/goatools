@@ -2,7 +2,7 @@
 
 * [**Unreleased changes**](#unreleased-changes)
   * Removed empty sets from Descendant and Ancestor dicts in *gosubdag.rcntobj*
-  * TermCount improvements   
+  * *TermCount* improvements (used in semantic similarity calculations)    
   * User can add a title to GO DAG plots
 * [**Release 2019-07-26 0.9.7**](#release-2019-07-26-097)
   * Support user-specified optional relationships in GOEA propagate counts
@@ -15,16 +15,16 @@ Unreleased changes
 
 ### Summary
 * **Removed**
-  * All dict entries whose values were empty set in:
+  * All dict entries whose values were an empty set in:
     * *gosubdag.rcntobj.go2parents*    
     * *gosubdag.rcntobj.go2descendants*    
 * **Added**`
-  * Method to annotation object, IdToGosReader, which writes namedtuples into an ASCII file
+  * Method to annotation object, *IdToGosReader*, which writes namedtuples into an ASCII file
 * **Changed**
-  * Faster initialization of TermCounts object, used in semantic similarity calculations
+  * Faster initialization of *TermCounts* object, used in semantic similarity calculations
   * Users can now provide a title to be printed in a GO DAG plot
 * **Fixed**
-  * Aspect counts (BP, MF, CC totals) in TermCounts object
+  * Aspect counts (BP, MF, CC totals) in *TermCounts* object
 
 Release 2019-07-26 0.9.7
 -------------------------

@@ -13,7 +13,7 @@ def get_sorted_relationship(goterms):
     """Topological sort of GO Terms w/'relationship's loaded."""
     return TopologicalSortRelationships(goterms).goterms_sorted
 
-class TopologicalSortRelationships(object):
+class TopologicalSortRelationships:
     """Topological sort of GO Terms w/'relationship's loaded."""
 
     # pylint: disable=too-few-public-methods
@@ -84,9 +84,10 @@ def get_goobjs_altgo2goobj(go2obj):
 def add_alt_goids(go2values, altgo2goobj):
     """Add alternate source GO IDs."""
     for goobj_key in altgo2goobj.values():
-        values_curr = go2values[goobj_key.id]
-        for goid_alt in goobj_key.alt_ids:
-            go2values[goid_alt] = values_curr
+        if goobj_key.id in go2values:
+            values_curr = go2values[goobj_key.id]
+            for goid_alt in goobj_key.alt_ids:
+                go2values[goid_alt] = values_curr
     return go2values
 
 # ------------------------------------------------------------------------------------
@@ -117,7 +118,7 @@ def fill_relationshipobjs(go2obj, relationships):
         if goobj.relationship_rev:
             obj.fill_relationshiprevgo2obj(goobj)
 
-class RelationshipFill(object):
+class RelationshipFill:
     """Fill go2obj with GO IDs in relatinships."""
 
     def __init__(self, go2obj, relationships):
@@ -186,7 +187,8 @@ def chk_goids(goids, msg=None, raise_except=True):
         if not goid_is_valid(goid):
             if raise_except:
                 raise RuntimeError("BAD GO({GO}): {MSG}".format(GO=goid, MSG=msg))
-            else:
-                return goid
+            return goid
+    return None
+
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.

@@ -31,7 +31,8 @@ def update_association(assc_gene2gos, go2obj, relationships=None, prt=sys.stdout
     for assc_goids_cur in assc_goid_sets:
         parents = set()
         for goid in assc_goids_cur.intersection(goids_avail):
-            parents.update(go2ancestors[goid])
+            if goid in go2ancestors:
+                parents.update(go2ancestors[goid])
         assc_goids_cur.update(parents)
 
 def _chk_goids_notfound(goids_assoc_all, goids_avail):

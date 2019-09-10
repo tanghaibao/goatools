@@ -114,7 +114,7 @@ class _Run:
         print('AAAAAAAAAAAAAAAAAAAAAAAAA', go2p[self.goid])
         self._cmp(go2p[self.goid], exp_all)
         # each
-        assert not go2p['GO:0008150']
+        assert 'GO:0008150' not in go2p
         exp1 = {'GO:0008150'}  # biological process
         assert go2p['GO:0065007'] == exp1
         exp1.add('GO:0065007')

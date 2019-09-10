@@ -15,27 +15,28 @@ REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 def test_semantic_similarity():
     """Test faster version of sematic similarity"""
     godag = GODag(os.path.join(REPO, 'tests/data/yangRWC/fig1b.obo'))
-    assoc = _get_id2gos(os.path.join(REPO, 'tests/data/yangRWC/fig1b.anno'), godag)
+    name2go = {o.name: o.item_id for o in godag.values()}
+    assoc = _get_id2gos(os.path.join(REPO, 'tests/data/yangRWC/fig1b.anno'), godag, name2go)
     tcntobj = TermCounts(godag, assoc)
-    assert tcntobj.gocnts['GO:000000I'] == 20
-    assert tcntobj.gocnts['GO:000000L'] == 20
-    assert tcntobj.gocnts['GO:000000M'] == 20
-    assert tcntobj.gocnts['GO:000000N'] == 20
+    assert tcntobj.gocnts[name2go['I']] == 20
+    assert tcntobj.gocnts[name2go['L']] == 20
+    assert tcntobj.gocnts[name2go['M']] == 20
+    assert tcntobj.gocnts[name2go['N']] == 20
 
-def _get_id2gos(file_id2gos, godag):
+def _get_id2gos(file_id2gos, godag, name2go):
     """Get annotations"""
     if os.path.exists(file_id2gos):
         return IdToGosReader(file_id2gos, godag=godag).get_id2gos('CC')
     id2num = {
-        'GO:000000A':  1,
-        'GO:000000B':  1,
-        'GO:000000C': 10,
-        'GO:000000D': 10,
-        'GO:000000E': 10,
-        'GO:000000F': 10,
-        'GO:000000G': 10,
-        'GO:000000H': 10,
-        'GO:000000I': 18,
+        name2go['A']:  1,
+        name2go['B']:  1,
+        name2go['C']: 10,
+        name2go['D']: 10,
+        name2go['E']: 10,
+        name2go['F']: 10,
+        name2go['G']: 10,
+        name2go['H']: 10,
+        name2go['I']: 18,
     }
     go2genes = cx.defaultdict(set)
     genenum = 0

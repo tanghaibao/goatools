@@ -24,10 +24,14 @@ def test_get_parent(prt=sys.stdout):
     # ------------------------------------------------------------------------
     # Get all parents for all GO IDs using get_all_parents in GOTerm class
     tic = timeit.default_timer()
-    go2parents_orig = {o.item_id:o.get_all_parents() for o in go2obj.values()}
-    ## go2parents_orig = {}
-    ## for goobj in go2obj.values():
-    ##     go2parents_orig[goobj.id] = goobj.get_all_parents()
+    go2parents_orig = {}
+    ## go_noparents = set()
+    for goterm in go2obj.values():
+        parents = goterm.get_all_parents()
+        #if parents:
+        go2parents_orig[goterm.id] = parents
+        #else:
+        #    go_noparents.add(goterm.id)
     tic = prt_hms(tic, "Get all goobj's parents using GOTerm.get_all_parents()", prt)
     # ------------------------------------------------------------------------
     # Get all parents for all GO IDs using GOTerm get_all_parents
@@ -39,8 +43,8 @@ def test_get_parent(prt=sys.stdout):
     # ------------------------------------------------------------------------
     # Compare parent lists
     chkr = CheckGOs('test_get_parents', go2obj)
-    chkr.chk_a2bset(go2parents_orig, go2parents_fast)
-    chkr.chk_a2bset(go2parents_orig, go2parents_fast2)
+    chkr.chk_a2bset_equiv(go2parents_orig, go2parents_fast)
+    chkr.chk_a2bset_equiv(go2parents_orig, go2parents_fast2)
     print("PASSED: get_parent test")
 
 
@@ -51,7 +55,9 @@ def get_id2parents2(objs):
     ofnc.set_id2parents(objs)
     return ofnc.id2parents
 
+# pylint:disable=too-few-public-methods
 class IdToParents:
+    """Test functions"""
 
     def __init__(self):
         self.id2parents = {}

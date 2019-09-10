@@ -24,8 +24,13 @@ def test_get_children(prt=sys.stdout):
     # Get all children for all GO IDs using get_all_children in GOTerm class
     tic = timeit.default_timer()
     go2children_orig = {}
+    go2children_empty = set()
     for goobj in go2obj.values():
-        go2children_orig[goobj.id] = goobj.get_all_children()
+        children = goobj.get_all_children()
+        if children:
+            go2children_orig[goobj.id] = children
+        else:
+            go2children_empty.add(goobj.id)
     tic = prt_hms(tic, "Get all goobj's children using GOTerm.get_all_children()", prt)
     # Get all children for all GO IDs using GOTerm get_all_children
     go2children_fast = get_id2children(go2obj.values())
