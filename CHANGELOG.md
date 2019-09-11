@@ -3,7 +3,9 @@
 * [**Unreleased changes**](#unreleased-changes)
   * Removed empty sets from Descendant and Ancestor dicts in *gosubdag.rcntobj*
   * *TermCount* improvements (used in semantic similarity calculations)    
-  * User can add a title to GO DAG plots
+  * GO DAG Plotting:
+    * User can now add a title to GO DAG plots
+    * User can now add custom text to edges in GO DAG plots
 * [**Release 2019-07-26 0.9.7**](#release-2019-07-26-097)
   * Support user-specified optional relationships in GOEA propagate counts
 * [**Release 2019-05-08 0.9.5**](#release-2019-05-08-095)
