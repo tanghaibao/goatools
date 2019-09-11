@@ -46,7 +46,7 @@
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2020, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -55,26 +55,23 @@ import pydot
 from goatools.gosubdag.go_edges import get_edgesobj
 from goatools.gosubdag.plot.go_node import GoNodeOpts
 from goatools.gosubdag.plot.go_node import GoNode
+from goatools.gosubdag.plot.go_edge import GoEdgeOpts
+from goatools.gosubdag.plot.go_edge import GoEdge
 from goatools.gosubdag.plot.go2color import Go2Color
 from goatools.gosubdag.plot.goea_results import GoeaResults
 from goatools.gosubdag.utils import get_kwargs
 
 
-class GoSubDagPlot(object):
+class GoSubDagPlot:
     """Plot a graph contained in an object of type GoSubDag ."""
 
     # http://www.graphviz.org/doc/info/colors.html
     # pylint: disable=bad-whitespace
     rel2edgekws = {
         'is_a':                 {'color':'black',       'style':'solid'},
-        #### 'part_of':              {'color':'magenta',     'style':'dashed'},
         'part_of':              {'color':'#ff5b00',     'style':'dashed'},  # xkcd bright orange
-        #### 'part_of':              {'color':'#653700',     'style':'dashed'},  # xkcd brown
-        #### 'part_of':              {'color':'#65fe08',     'style':'dashed'},  # xkcd bright lime green
-        #### 'part_of':              {'color':'#41fdfe',     'style':'dashed'},  # xkcd bright cyan
         'regulates':            {'color':'purple3',     'style':'dashed'},
         'positively_regulates': {'color':'magenta',     'style':'dashed'},
-        #### 'negatively_regulates': {'color':'blue',        'style':'dashed'},
         'negatively_regulates': {'color':'#41fdfe',     'style':'dashed'},  # xkcd bright cyan
         'occurs_in':            {'color':'aquamarine4', 'style':'dashed'},
         'capable_of':           {'color':'dodgerblue',  'style':'dashed'},
@@ -83,9 +80,10 @@ class GoSubDagPlot(object):
 
     # https://graphviz.org/doc/info/attrs.html
     exp_keys = {
-        'dag': set(['title', 'id', 'dpi']),  # pydot.Dot kwargs
+        'dag': {'title', 'id', 'dpi'},  # pydot.Dot kwargs
         # goobj2fncname parentcnt shorten mark_alt_id childcnt prt_pcnt ...
         'node_go': GoNodeOpts.exp_keys.union(GoNodeOpts.exp_elems),
+        'edge_go': {'edge2txt'},
         # id2symbol study_items items_p_line pval_name
         'goea': GoeaResults.kws_set,
     }
@@ -102,8 +100,10 @@ class GoSubDagPlot(object):
         # pylint: disable=line-too-long
         # kwu: go2color go2bordercolor dflt_bordercolor
         _node_opt = kwu['GoNodeOpts'] if 'GoNodeOpts' in kwu else self._init_gonodeopts(**kwu)
+        _edge_opt = kwu['GoEdgeOpts'] if 'GoEdgeOpts' in kwu else self._init_goedgeopts()
         _objcolor = kwu['Go2Color'] if 'Go2Color' in kwu else self._init_objcolor(_node_opt, **kwu)
         self.pydotnodego = GoNode(gosubdag, _objcolor, _node_opt)
+        self.pydotedge = GoEdge(gosubdag, _edge_opt)
         self.log = kwu.get('log', sys.stdout)
         #    KWS=kws.keys(), V=kws['parentcnt'] if 'parentcnt' in kws else None)
 
@@ -123,6 +123,11 @@ class GoSubDagPlot(object):
         if 'goea_results' in kws_usr:
             objgoea = GoeaResults(kws_usr['goea_results'], **self.kws['goea'])
             options.kws['dict']['objgoea'] = objgoea
+        return options
+
+    def _init_goedgeopts(self):
+        """Initialize a GO Edge plot options object, GoEdgeOpts."""
+        options = GoEdgeOpts(self.gosubdag, **self.kws['edge_go'])
         return options
 
     def prt_goids(self, prt):
@@ -145,20 +150,9 @@ class GoSubDagPlot(object):
         if 'title' in kws_usr:
             kws_self['dag']['label'] = kws_usr['title']
             kws_self['dag']['labelloc'] = 't'
-        if 'go2txt' in kws_usr:
-            self._init_go2txt_altgos(kws_self['node_go']['go2txt'])
         dpi = str(kws_self['dag'].get('dpi', self.dflts['dpi']))
         kws_self['dag']['dpi'] = dpi
         return kws_self
-
-    def _init_go2txt_altgos(self, go2txt):
-        """If user provided GO.alt_id, add the corressponding main GO ID, if needed"""
-        _go2obj = self.gosubdag.go2obj
-        for goid_user, txt in go2txt.items():
-            if goid_user in _go2obj:
-                goid_main = _go2obj[goid_user].item_id
-                if goid_user != goid_main and goid_main not in go2txt:
-                    go2txt[goid_main] = txt
 
     def plt_dag(self, fout_img, engine="pydot"):
         """Plot using pydot, graphviz, or GML."""
@@ -197,29 +191,12 @@ class GoSubDagPlot(object):
         rel2edgekws = self.rel2edgekws
         self.edgesobj.chk_edges()
         edgekws = rel2edgekws.get(rel)
-        self._add_edges(self.edgesobj.edges, go2node, dag, **edgekws)
+        _add_edges = self.pydotedge.add_edges
+        _add_edges(self.edgesobj.edges, go2node, dag, **edgekws)
         for reltype, edges_list in self.edgesobj.edges_rel.items():
             edgekws = rel2edgekws.get(reltype)
-            self._add_edges(edges_list, go2node, dag, **edgekws)
+            _add_edges(edges_list, go2node, dag, **edgekws)
         return dag
-
-    @staticmethod
-    def _add_edges(edges_list, go2node, dag, **kws):
-        # style: solid dashed dotted bold invis tapered
-        # arrowType: http://www.graphviz.org/doc/info/attrs.html#k:arrowType
-        for src, tgt in edges_list:
-            assert src in go2node, "MISSING Edge source({S}); target({T})".format(S=src, T=tgt)
-            assert tgt in go2node, "MISSING Edge target({T}); source({S})".format(S=src, T=tgt)
-            dag_edge = pydot.Edge(
-                go2node[tgt], go2node[src],
-                shape="normal",
-                # # style="normal",
-                # color=color,
-                dir="back", # invert arrow direction for obo dag convention
-                **kws)
-            # sequence parent_graph points attributes type parent_edge_list
-            # GoSubDagPlot._prt_edge(dag_edge, 'parent_edge_list')
-            dag.add_edge(dag_edge)
 
     @staticmethod
     def _prt_edge(dag_edge, attr):
@@ -245,4 +222,4 @@ class GoSubDagPlot(object):
         return self.edgesobj.get_all_edge_nodes()
 
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2020, DV Klopfenstein, H Tang, All rights reserved.

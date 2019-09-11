@@ -1,13 +1,13 @@
 """Create a pydot Node for a GO Term."""
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2020, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import pydot
 from goatools.gosubdag.plot.go_name_shorten import ShortenText
 from goatools.gosubdag.utils import extract_kwargs
 
-class GoNodeOpts(object):
+class GoNodeOpts:
     """Processes GO Node plot args."""
 
     exp_keys = set(['goobj2fncname', 'go2txt', 'objgoea', 'prt_flds'])
@@ -24,10 +24,8 @@ class GoNodeOpts(object):
 
     def __init__(self, gosubdag, **kws):
         self.gosubdag = gosubdag
-        # print("WWWWWWWWWWWWW GoNodeOpts UsrKws", kws)
         # kws = {'set':set(...), 'dict':{...}}
         self.kws = extract_kwargs(kws, self.exp_keys, self.exp_elems)
-        # print("WWWWWWWWWWWWW GoNodeOpts KWARGS", self.kws)
 
     def get_kws(self):
         """Only load keywords if they are specified by the user."""
@@ -35,6 +33,8 @@ class GoNodeOpts(object):
         act_set = self.kws['set']
         if 'shorten' in act_set and 'goobj2fncname' not in ret:
             ret['goobj2fncname'] = ShortenText().get_short_plot_name
+        if 'dict' in self.kws and 'go2txt' in self.kws['dict']:
+            self._init_go2txt_altgos(self.kws['dict']['go2txt'])
         return ret
 
     def get_present(self):
@@ -42,8 +42,17 @@ class GoNodeOpts(object):
         # The presence of c2ps marks that the user specified parentcnt=True
         return self.kws['set'].difference(['parentcnt'])
 
+    def _init_go2txt_altgos(self, go2txt):
+        """If user provided GO.alt_id, add the corressponding main GO ID, if needed"""
+        _go2obj = self.gosubdag.go2obj
+        for goid_user, txt in go2txt.items():
+            if goid_user in _go2obj:
+                goid_main = _go2obj[goid_user].item_id
+                if goid_user != goid_main and goid_main not in go2txt:
+                    go2txt[goid_main] = txt
 
-class GoNode(object):
+
+class GoNode:
     """Creates pydot Node containing a GO term."""
 
     def __init__(self, gosubdag, objcolor, optobj):
@@ -146,8 +155,9 @@ class GoNode(object):
         """Get string representing count of children for this GO term."""
         if 'childcnt' in self.present:
             return "c{N}".format(N=len(goobj.children))
-        elif self.gosubdag.relationships and not goobj.children and ntgo.dcnt != 0:
+        if self.gosubdag.relationships and not goobj.children and ntgo.dcnt != 0:
             return "c0"
+        return None
 
     def _add_parent_cnt(self, hdr, goobj, c2ps):
         """Add the parent count to the GO term box for if not all parents are plotted."""
@@ -158,4 +168,4 @@ class GoNode(object):
                 hdr.append("p{N}".format(N=len(set(goobj.parents))))
 
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2020, DV Klopfenstein, H Tang, All rights reserved.
