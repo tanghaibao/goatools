@@ -53,7 +53,7 @@ class TermCounts:
         godag = self.go2obj
         go_alts = set()  # For alternate GO IDs
         goids_notfound = set()  # For missing GO IDs
-        # Fill go2geneset with GO IDs in annotations and their corresponding counts
+        # Fill go-geneset dict with GO IDs in annotations and their corresponding counts
         for geneid, goids_anno in annots.items():
             # Make a union of all the terms for a gene, if term parents are
             # propagated but they won't get double-counted for the gene

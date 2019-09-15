@@ -1,0 +1,90 @@
+format-version: 1.2
+
+[Term]
+id: GO:0000001
+name: A
+namespace: cellular_component
+is_a: GO:0000009
+
+[Term]
+id: GO:0000002
+name: B
+namespace: cellular_component
+is_a: GO:0000009
+
+[Term]
+id: GO:0000003
+name: C
+namespace: cellular_component
+is_a: GO:0000010
+
+[Term]
+id: GO:0000004
+name: D
+namespace: cellular_component
+is_a: GO:0000010
+
+[Term]
+id: GO:0000005
+name: E
+namespace: cellular_component
+is_a: GO:0000011
+
+[Term]
+id: GO:0000006
+name: F
+namespace: cellular_component
+is_a: GO:0000011
+
+[Term]
+id: GO:0000007
+name: G
+namespace: cellular_component
+is_a: GO:0000012
+
+[Term]
+id: GO:0000008
+name: H
+namespace: cellular_component
+is_a: GO:0000012
+
+[Term]
+id: GO:0000009
+name: I
+namespace: cellular_component
+is_a: GO:0000013
+
+[Term]
+id: GO:0000010
+name: L
+namespace: cellular_component
+is_a: GO:0000013
+
+[Term]
+id: GO:0000011
+name: M
+namespace: cellular_component
+is_a: GO:0000014
+
+[Term]
+id: GO:0000012
+name: N
+namespace: cellular_component
+is_a: GO:0000014
+
+[Term]
+id: GO:0000013
+name: O
+namespace: cellular_component
+is_a: GO:0005575
+
+[Term]
+id: GO:0000014
+name: P
+namespace: cellular_component
+is_a: GO:0005575
+
+[Term]
+id: GO:0005575
+name: R
+namespace: cellular_component
