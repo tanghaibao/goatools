@@ -3,6 +3,7 @@
 
 
 import os
+import sys
 import collections as cx
 from goatools.obo_parser import GODag
 from goatools.associations import get_b2aset
@@ -26,8 +27,9 @@ NAME2NUM = {
 def test_semantic_similarity():
     """Test initializing TermCounts with annotations made to alternate GO ID"""
     godag = GODag(os.path.join(REPO, '../goatools/tests/data/yangRWC/fig2a.obo'))
+    file_id2gos = os.path.join(REPO, '../goatools/tests/data/yangRWC/fig2a.anno')
     name2go = {o.name: o.item_id for o in godag.values()}
-    assoc = _get_id2gos(os.path.join(REPO, '../goatools/tests/data/yangRWC/fig2a.anno'), godag, name2go)
+    assoc = _get_id2gos(file_id2gos, godag, name2go, NAME2NUM)
     tcntobj = TermCounts(godag, assoc)
     # N_v: Test accuracy of Python equivalent to Java: getNumberOfAnnotations
     # Test number of unique genes annotated to a GO Term PLUS genes annotated to a descendant
@@ -39,13 +41,13 @@ def test_semantic_similarity():
     assert tcntobj.gocnts[name2go['F']] == 30, tcntobj.gocnts
     assert tcntobj.gocnts[name2go['G']] == 10, tcntobj.gocnts
 
-def _get_id2gos(file_id2gos, godag, name2go):
+def _get_id2gos(file_id2gos, godag, name2go, name2num):
     """Get annotations"""
     if os.path.exists(file_id2gos):
         return IdToGosReader(file_id2gos, godag=godag).get_id2gos('CC')
     go2genes = cx.defaultdict(set)
     genenum = 0
-    for name, qty in NAME2NUM.items():
+    for name, qty in name2num.items():
         goid = name2go[name]
         for _ in range(qty):
             go2genes[goid].add(genenum)
@@ -54,6 +56,18 @@ def _get_id2gos(file_id2gos, godag, name2go):
     IdToGosReader.wr_id2gos(file_id2gos, id2gos)
     return id2gos
 
+def gen_anno_small():
+    """Generate a maller nnotations containing 10% of the oringal genes"""
+    godag = GODag(os.path.join(REPO, '../goatools/tests/data/yangRWC/fig2a.obo'))
+    name2go = {o.name: o.item_id for o in godag.values()}
+    file_id2gos = os.path.join(REPO, '../goatools/tests/data/yangRWC/fig2a_small.anno')
+    name2num = {e:i/10 for e, i in NAME2NUM.items()}
+    _get_id2gos(file_id2gos, godag, name2go, name2num)
+    print(name2num)
+
 
 if __name__ == '__main__':
-    test_semantic_similarity()
+    if len(sys.argv) == 1:
+        test_semantic_similarity()
+    else:
+        gen_anno_small()
