@@ -28,6 +28,7 @@ class TermCounts:
         # Backup
         self.go2obj = go2obj
         self.annots = annots
+        # Genes annotated to a GO, including ancestors
         self.go2genes, not_main = self._init_go2genes(annots)
         self.goids = set(self.go2genes.keys())  # Annotation main GO IDs (prefer main id to alt_id)
         self.gocnts = Counter({go:len(geneset) for go, geneset in self.go2genes.items()})
@@ -79,6 +80,9 @@ class TermCounts:
         '''
             Add alternate GO IDs to term counts. Report GO IDs not found in GO DAG.
         '''
+        if not not_main:
+            return
+        print('{N} alternate GO IDs'.format(N=len(not_main)))
         for go_id in not_main:
             if go_id in self.go2obj:
                 goid_main = self.go2obj[go_id].item_id
