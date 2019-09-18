@@ -1,0 +1,8 @@
+!gaf-version: 2.1
+database	prot0	prot0		GO:0000001	GO_REF:0000001	IDA		C			protein	taxon:9606	20190917	user	set([])	
+database	prot1	prot1		GO:0000001	GO_REF:0000001	IDA		C			protein	taxon:9606	20190917	user	set([])	
+database	prot2	prot2		GO:0000003	GO_REF:0000001	IDA		C			protein	taxon:9606	20190917	user	set([])	
+database	prot3	prot3		GO:0000002	GO_REF:0000001	IDA		C			protein	taxon:9606	20190917	user	set([])	
+database	prot4	prot4		GO:0000005	GO_REF:0000001	IDA		C			protein	taxon:9606	20190917	user	set([])	
+database	prot5	prot5		GO:0000004	GO_REF:0000001	IDA		C			protein	taxon:9606	20190917	user	set([])	
+database	prot6	prot6		GO:0000007	GO_REF:0000001	IDA		C			protein	taxon:9606	20190917	user	set([])	
