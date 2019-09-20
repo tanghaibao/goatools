@@ -10,4 +10,7 @@ __copyright__ = "Copyright (C) 2009-present, Haibao Tang, DV Klopfenstein"
 __email__ = "tanghaibao@gmail.com"
 __license__ = "BSD"
 __status__ = "Development"
-__version__ = "0.9.7"
+
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
