@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-2020, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -60,7 +60,7 @@ class InitGOs:
         """Initialize GO sources."""
         # No GO sources provided
         if not go_sources_arg:
-            assert self.go2obj_orig, "go2obj MUST BE PRESENT IF go_sources IS NOT"
+            assert self.go2obj_orig, "go2obj MUST BE PRESENT IF go_sources IS NOT: {O}".format(O=self.go2obj_orig)
             self.go_sources = set(self.go2obj_orig)
             self.go2obj = self.go2obj_orig
             sys.stdout.write("**NOTE: {N:,} SOURCE GO IDS\n".format(N=len(self.go_sources)))
@@ -234,7 +234,7 @@ class InitFields:
                 tfreq = float(tcnt)/num_ns if num_ns != 0 else 0
                 fld2vals['tcnt'] = tcnt
                 fld2vals['tfreq'] = tfreq
-                fld2vals['tinfo'] = -1.0 * math.log(tfreq) if tfreq else 0
+                fld2vals['tinfo'] = 0.0 - math.log10(tfreq) if tfreq else 0
             if self.relationships:
                 fld2vals['childcnt'] = len(goobj.children)
                 fld2vals['reldepth'] = goobj.reldepth
@@ -258,4 +258,4 @@ class InitFields:
         return ret
 
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-2020, DV Klopfenstein, H Tang, All rights reserved.
