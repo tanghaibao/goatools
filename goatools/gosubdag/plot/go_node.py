@@ -55,6 +55,8 @@ class GoNodeOpts:
 class GoNode:
     """Creates pydot Node containing a GO term."""
 
+    exclude = {'tfreq',}
+
     def __init__(self, gosubdag, objcolor, optobj):
         self.gosubdag = gosubdag     # GoSubDag
         self.objcolor = objcolor     # Go2Color   -> color options
@@ -134,6 +136,8 @@ class GoNode:
             hdr.append("d{N}".format(N=ntgo.dcnt))
         if 'tinfo' in prt_flds:
             hdr.append("i{I:4.02f}".format(I=ntgo.tinfo))
+        if 'tfreq' in prt_flds:
+            hdr.append("f{I:4.03f}".format(I=ntgo.tfreq))
         if 'REL' in prt_flds:
             hdr.append("{R}".format(R=ntgo.REL_short))
         return " ".join(hdr)
@@ -145,8 +149,8 @@ class GoNode:
         prt_flds = self.kws.get('prt_flds')
         if prt_flds:
             return prt_flds.intersection(ntflds)
-        exclude = set()
         # Default print fields
+        exclude = set(self.exclude)
         if self.gosubdag.relationships:
             exclude.add('level')
         return set(f for f in ntflds if f not in exclude)
