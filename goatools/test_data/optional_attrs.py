@@ -10,8 +10,8 @@ import sys
 import re
 import timeit
 import collections as cx
-from goatools.test_data.godag_timed import GoDagTimed
-from goatools.test_data.godag_timed import prt_hms
+from goatools.godag.prttime import GoDagTimed
+from goatools.godag.prttime import prt_hms
 
 
 class OptionalAttrs(object):

@@ -11,7 +11,7 @@ from goatools.base import get_godag
 from goatools.associations import dnld_assc
 from goatools.anno.update_association import update_association
 from goatools.anno.factory import get_objanno
-from goatools.test_data.godag_timed import prt_hms
+from goatools.godag.prttime import prt_hms
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 

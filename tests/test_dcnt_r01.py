@@ -12,7 +12,7 @@ from scipy import stats
 
 from goatools.base import download_go_basic_obo
 from goatools.obo_parser import GODag
-from goatools.test_data.godag_timed import prt_hms
+from goatools.godag.prttime import prt_hms
 from goatools.gosubdag.gosubdag import GoSubDag
 
 

@@ -6,7 +6,7 @@ import os
 import timeit
 import collections as cx
 from goatools.obo_parser import GODag
-from goatools.associations import get_b2aset
+from goatools.utils import get_b2aset
 from goatools.anno.idtogos_reader import IdToGosReader
 ## from goatools.base import get_godag
 ## from goatools.associations import dnld_assc

@@ -10,7 +10,7 @@ import os
 import collections as cx
 import timeit
 from goatools.parsers.david_chart import DavidChartReader
-from goatools.test_data.godag_timed import prt_hms
+from goatools.godag.prttime import prt_hms
 
 
 def test_david_chart():

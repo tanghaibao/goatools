@@ -10,7 +10,7 @@ import sys
 import timeit
 from goatools.base import get_godag
 from goatools.godag.go_tasks import get_id2children
-from goatools.test_data.godag_timed import prt_hms
+from goatools.godag.prttime import prt_hms
 from goatools.test_data.checks import CheckGOs
 
 

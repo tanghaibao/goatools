@@ -8,7 +8,7 @@ __author__ = "DV Klopfenstein"
 import sys
 import collections as cx
 # import timeit
-# from goatools.test_data.godag_timed import prt_hms
+# from goatools.godag.prttime import prt_hms
 from goatools.gosubdag.gosubdag_init import InitGOs
 from goatools.gosubdag.gosubdag_init import InitFields
 from goatools.gosubdag.go_tasks import chk_goids
