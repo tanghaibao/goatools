@@ -282,7 +282,7 @@ class GODag(dict):
 
     def __init__(self, obo_file="go-basic.obo", optional_attrs=None, load_obsolete=False, prt=sys.stdout):
         super(GODag, self).__init__()
-        self.version = self.load_obo_file(obo_file, optional_attrs, load_obsolete, prt)
+        self.version, self.data_version = self.load_obo_file(obo_file, optional_attrs, load_obsolete, prt)
 
     def load_obo_file(self, obo_file, optional_attrs, load_obsolete, prt):
         """Read obo file. Store results."""
@@ -312,7 +312,7 @@ class GODag(dict):
         desc = self._str_desc(reader)
         if prt is not None:
             prt.write("{DESC}\n".format(DESC=desc))
-        return desc
+        return desc, reader.data_version
 
     def _str_desc(self, reader):
         """String containing information about the current GO DAG."""
