@@ -16,6 +16,13 @@ Unreleased changes
 --------------
 
 ### Summary
+* **Deprecated**
+  * *get_b2aset* is moved:
+    * NOW: goatools.utils
+    * WAS: goatools.associations
+  * *GoDagTimed* and *prt_hms* is moved:
+    * NOW: goatools.godag.prttime
+    * WAS: goatools.test_data.godag_timed
 * **Removed**
   * All dict entries whose values were an empty set in:
     * *gosubdag.rcntobj.go2parents*    
