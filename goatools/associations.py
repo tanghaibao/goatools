@@ -99,6 +99,7 @@ def dnld_annofile(fin_anno, anno_type):
 
 def read_ncbi_gene2go(fin_gene2go, taxids=None, namespace='BP', **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
+    print('DEPRECATED: USE Gene2GoReader FROM goatools.anno.genetogo_reader INSTEAD')
     obj = Gene2GoReader(fin_gene2go, taxids=taxids)
     # By default, return id2gos. User can cause go2geneids to be returned by:
     #   >>> read_ncbi_gene2go(..., go2geneids=True

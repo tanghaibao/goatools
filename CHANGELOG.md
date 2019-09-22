@@ -17,6 +17,7 @@ Unreleased changes
 
 ### Summary
 * **Deprecated**
+  * *read_ncbi_gene2go* is deprecated and will be removed in the future.
   * *get_b2aset* is moved:
     * NOW: goatools.utils
     * WAS: goatools.associations
