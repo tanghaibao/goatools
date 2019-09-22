@@ -17,6 +17,7 @@ from goatools.semantic import TermCounts
 from goatools.anno.gaf_reader import GafReader
 from goatools.anno.genetogo_reader import Gene2GoReader
 from goatools.anno.opts import AnnoOptions
+from goatools.utils import get_b2aset as utils_get_b2aset
 
 def dnld_assc(assc_name, go2obj=None, namespace='BP', prt=sys.stdout):
     """Download association from http://geneontology.org/gene-associations."""
@@ -128,14 +129,8 @@ def read_gaf(fin_gaf, prt=sys.stdout, hdr_only=False, namespace='BP', allow_miss
 
 def get_b2aset(a2bset):
     """Given gene2gos, return go2genes. Given go2genes, return gene2gos."""
-    b2aset = {}
-    for a_item, bset in a2bset.items():
-        for b_item in bset:
-            if b_item in b2aset:
-                b2aset[b_item].add(a_item)
-            else:
-                b2aset[b_item] = set([a_item])
-    return b2aset
+    print('DEPRECATEDi(MOVED): USE get_b2aset IN goatools.utils')
+    return utils_get_b2aset(a2bset)
 
 def get_assc_pruned(assc_geneid2gos, min_genecnt=None, max_genecnt=None, prt=sys.stdout):
     """Remove GO IDs associated with large numbers of genes. Used in stochastic simulations."""
@@ -143,7 +138,7 @@ def get_assc_pruned(assc_geneid2gos, min_genecnt=None, max_genecnt=None, prt=sys
     #      ADDED min_genecnt argument and functionality
     if max_genecnt is None and min_genecnt is None:
         return assc_geneid2gos, set()
-    go2genes_orig = get_b2aset(assc_geneid2gos)
+    go2genes_orig = utils_get_b2aset(assc_geneid2gos)
     # go2genes_prun = {go:gs for go, gs in go2genes_orig.items() if len(gs) <= max_genecnt}
     go2genes_prun = {}
     for goid, genes in go2genes_orig.items():
@@ -162,7 +157,7 @@ def get_assc_pruned(assc_geneid2gos, min_genecnt=None, max_genecnt=None, prt=sys
             max_genecnt = "Max"
         prt.write("{N:4} GO IDs pruned. Kept {NOW} GOs assc w/({m} to {M} genes)\n".format(
             m=min_genecnt, M=max_genecnt, N=num_was-num_now, NOW=num_now))
-    return get_b2aset(go2genes_prun), gos_rm
+    return utils_get_b2aset(go2genes_prun), gos_rm
 
 def read_annotations(**kws):
     """Read annotations from either a GAF file or NCBI's gene2go file."""
@@ -177,6 +172,7 @@ def get_tcntobj(go2obj, **kws):
     objanno = get_objanno_g_kws(**kws)
     if objanno:
         return TermCounts(go2obj, objanno.get_id2gos_nss())
+    return None
 
 
 # Copyright (C) 2010-2019, H Tang et al. All rights reserved."

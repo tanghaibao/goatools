@@ -7,7 +7,7 @@ import os
 import sys
 from goatools.associations import dnld_assc
 from goatools.associations import get_assc_pruned
-from goatools.associations import get_b2aset
+from goatools.utils import get_b2aset
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 

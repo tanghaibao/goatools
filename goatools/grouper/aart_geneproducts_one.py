@@ -2,7 +2,7 @@
 
 import sys
 import collections as cx
-from goatools.associations import get_b2aset
+from goatools.utils import get_b2aset
 from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
 from goatools.grouper.grprobj import Grouper
 from goatools.grouper.sorter import Sorter

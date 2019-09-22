@@ -6,7 +6,7 @@ import os
 import sys
 import collections as cx
 from goatools.obo_parser import GODag
-from goatools.associations import get_b2aset
+from goatools.utils import get_b2aset
 from goatools.anno.idtogos_reader import IdToGosReader
 from goatools.semantic import TermCounts
 
@@ -20,8 +20,8 @@ NAME2NUM = {
     'C': 10,
     'D': 10,
     'E': 10,
-    'F': 30,
-    'G': 10,
+    'F': 10,
+    'G': 30,
 }
 
 def test_semantic_similarity():
@@ -38,8 +38,8 @@ def test_semantic_similarity():
     assert tcntobj.gocnts[name2go['C']] == 50, tcntobj.gocnts
     assert tcntobj.gocnts[name2go['D']] == 10, tcntobj.gocnts
     assert tcntobj.gocnts[name2go['E']] == 10, tcntobj.gocnts
-    assert tcntobj.gocnts[name2go['F']] == 30, tcntobj.gocnts
-    assert tcntobj.gocnts[name2go['G']] == 10, tcntobj.gocnts
+    assert tcntobj.gocnts[name2go['F']] == 10, tcntobj.gocnts
+    assert tcntobj.gocnts[name2go['G']] == 30, tcntobj.gocnts
 
 def _get_id2gos(file_id2gos, godag, name2go, name2num):
     """Get annotations"""

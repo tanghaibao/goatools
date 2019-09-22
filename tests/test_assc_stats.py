@@ -4,7 +4,7 @@ import sys
 import os
 from goatools.base import get_godag
 from goatools.associations import dnld_assc
-from goatools.associations import get_b2aset
+from goatools.utils import get_b2aset
 from goatools.statsdescribe import StatsDescribe
 
 

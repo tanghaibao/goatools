@@ -37,7 +37,7 @@ import sys
 from goatools.base import get_godag
 from goatools.associations import read_annotations
 from goatools.associations import read_associations
-from goatools.associations import get_b2aset
+from goatools.utils import get_b2aset
 from goatools.semantic import TermCounts
 from goatools.godag.obo_optional_attributes import OboOptionalAttrs
 from goatools.cli.docopt_parse import DocOptParse

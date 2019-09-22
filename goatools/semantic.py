@@ -15,6 +15,7 @@ from collections import defaultdict
 from goatools.godag.consts import NAMESPACE2GO
 from goatools.godag.go_tasks import get_go2ancestors
 from goatools.gosubdag.gosubdag import GoSubDag
+from goatools.utils import get_b2aset
 
 
 class TermCounts:
@@ -26,11 +27,12 @@ class TermCounts:
             Initialise the counts and
         '''
         # Backup
-        self.go2obj = go2obj
-        self.annots = annots
+        self.go2obj = go2obj  # Full GODag
         # Genes annotated to a GO, including ancestors
         self.go2genes, not_main = self._init_go2genes(annots)
-        self.goids = set(self.go2genes.keys())  # Annotation main GO IDs (prefer main id to alt_id)
+        self.gene2gos = get_b2aset(self.go2genes)
+        # Annotation main GO IDs (prefer main id to alt_id)
+        self.goids = set(self.go2genes.keys())
         self.gocnts = Counter({go:len(geneset) for go, geneset in self.go2genes.items()})
         self.aspect_counts = {
             'biological_process': self.gocnts.get(NAMESPACE2GO['biological_process'], 0),
@@ -38,7 +40,7 @@ class TermCounts:
             'cellular_component': self.gocnts.get(NAMESPACE2GO['cellular_component'], 0)}
         self._init_add_goid_alt(not_main)
         self.gosubdag = GoSubDag(set(self.gocnts.keys()), go2obj, tcntobj=self)
-
+        print('TermCounts: {N:5} alternate GO IDs seen in association'.format(N=len(not_main)))
 
     def _init_go2genes(self, annots, relationships=None):
         '''

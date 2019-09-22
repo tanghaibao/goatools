@@ -4,7 +4,7 @@
 import os
 from goatools.base import get_godag
 from goatools.associations import dnld_annofile
-from goatools.associations import get_b2aset
+from goatools.utils import get_b2aset
 from goatools.anno.opts import AnnoOptions
 from goatools.anno.factory import get_objanno
 from goatools.evidence_codes import EvidenceCodes
