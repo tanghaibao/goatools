@@ -25,7 +25,7 @@ class Gene2GoReader(AnnoReaderBase):
     def __init__(self, filename=None, **kws):
         # kws: taxids or taxid
         super(Gene2GoReader, self).__init__('gene2go', filename, **kws)
-        # Initialize associations and header information
+        # Each taxid has a list of namedtuples - one for each line in the annotations
         self.taxid2asscs = self._init_taxid2asscs()
 
     def get_ns2ntsanno(self, taxid=None):
