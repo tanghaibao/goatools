@@ -57,6 +57,11 @@ def read_associations(assoc_fn, anno_type='id2gos', namespace='BP', **kws):
 
 def get_assoc_ncbi_taxids(taxids, force_dnld=False, loading_bar=True, **kws):
     """Download NCBI's gene2go. Return annotations for user-specified taxid(s)."""
+    print('DEPRECATED read_ncbi_gene2go: USE Gene2GoReader FROM goatools.anno.genetogo_reader')
+    # pylint: disable=protected-access
+    frm = sys._getframe().f_back.f_code
+    print('DEPRECATED read_ncbi_gene2go CALLED FROM: {PY} BY {FNC}'.format(
+        PY=frm.co_filename, FNC=frm.co_name))
     fin = kws['gene2go'] if 'gene2go' in kws else os.path.join(os.getcwd(), "gene2go")
     dnld_ncbi_gene_file(fin, force_dnld, loading_bar=loading_bar)
     return read_ncbi_gene2go(fin, taxids, **kws)
