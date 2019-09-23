@@ -8,12 +8,15 @@ from goatools.godag.prttime import prt_hms as moved_prt_hms
 from goatools.godag.prttime import GoDagTimed as moved_GoDagTimed
 
 
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods,protected-access
 class GoDagTimed:
     """Load and store GO-DAG. Report elapsed time."""
 
     def __init__(self, fin_obo, opt_field=None, keep_alt_ids=False):
         print('DEPRECATED: GoDagTimed MOVED TO goatools.godag.prttime')
+        frm = sys._getframe().f_back.f_code
+        print('DEPRECATED GoDagTimed CALLED FROM: {PY} BY {FNC}'.format(
+            PY=frm.co_filename, FNC=frm.co_name))
         self.newloc = moved_GoDagTimed(fin_obo, opt_field, keep_alt_ids)
         self.go2obj = self.newloc.go2obj
 
@@ -23,7 +26,10 @@ class GoDagTimed:
 
 def prt_hms(tic, msg, prt=sys.stdout):
     """Print elapsed time including Hours, Minutes, and seconds with a user message."""
-    print('DEPRECATED: prt_hms MOVED TO goatools.godag.prttime')
+    print('DEPRECATED prt_hms: MOVED TO goatools.godag.prttime')
+    frm = sys._getframe().f_back.f_code
+    print('DEPRECATED prt_hms CALLED FROM: {PY} BY {FNC}'.format(
+        PY=frm.co_filename, FNC=frm.co_name))
     return moved_prt_hms(tic, msg, prt)
 
 

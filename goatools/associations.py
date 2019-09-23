@@ -99,7 +99,11 @@ def dnld_annofile(fin_anno, anno_type):
 
 def read_ncbi_gene2go(fin_gene2go, taxids=None, namespace='BP', **kws):
     """Read NCBI's gene2go. Return gene2go data for user-specified taxids."""
-    print('DEPRECATED: USE Gene2GoReader FROM goatools.anno.genetogo_reader INSTEAD')
+    print('DEPRECATED read_ncbi_gene2go: USE Gene2GoReader FROM goatools.anno.genetogo_reader')
+    # pylint: disable=protected-access
+    frm = sys._getframe().f_back.f_code
+    print('DEPRECATED read_ncbi_gene2go CALLED FROM: {PY} BY {FNC}'.format(
+        PY=frm.co_filename, FNC=frm.co_name))
     obj = Gene2GoReader(fin_gene2go, taxids=taxids)
     # By default, return id2gos. User can cause go2geneids to be returned by:
     #   >>> read_ncbi_gene2go(..., go2geneids=True
@@ -130,7 +134,10 @@ def read_gaf(fin_gaf, prt=sys.stdout, hdr_only=False, namespace='BP', allow_miss
 
 def get_b2aset(a2bset):
     """Given gene2gos, return go2genes. Given go2genes, return gene2gos."""
-    print('DEPRECATEDi(MOVED): USE get_b2aset IN goatools.utils')
+    print('DEPRECATED get_b2aset MOVED: USE get_b2aset IN goatools.utils')
+    # pylint: disable=protected-access
+    frm = sys._getframe().f_back.f_code
+    print('DEPRECATED get_b2aset CALLED FROM: {PY} BY {FNC}'.format(PY=frm.co_filename, FNC=frm.co_name))
     return utils_get_b2aset(a2bset)
 
 def get_assc_pruned(assc_geneid2gos, min_genecnt=None, max_genecnt=None, prt=sys.stdout):
