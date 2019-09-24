@@ -22,14 +22,14 @@ class TermCounts:
     '''
         TermCounts counts the term counts for each
     '''
-    def __init__(self, go2obj, annots):
+    def __init__(self, go2obj, annots, relationships=None):
         '''
             Initialise the counts and
         '''
         # Backup
         self.go2obj = go2obj  # Full GODag
         # Genes annotated to a GO, including ancestors
-        self.go2genes, not_main = self._init_go2genes(annots)
+        self.go2genes, not_main = self._init_go2genes(annots, relationships)
         self.gene2gos = get_b2aset(self.go2genes)
         # Annotation main GO IDs (prefer main id to alt_id)
         self.goids = set(self.go2genes.keys())
@@ -39,7 +39,11 @@ class TermCounts:
             'molecular_function': self.gocnts.get(NAMESPACE2GO['molecular_function'], 0),
             'cellular_component': self.gocnts.get(NAMESPACE2GO['cellular_component'], 0)}
         self._init_add_goid_alt(not_main)
-        self.gosubdag = GoSubDag(set(self.gocnts.keys()), go2obj, tcntobj=self)
+        self.gosubdag = GoSubDag(
+            set(self.gocnts.keys()),
+            go2obj,
+            tcntobj=self,
+            relationships=relationships)
         print('TermCounts: {N:5} alternate GO IDs seen in association'.format(N=len(not_main)))
 
     def _init_go2genes(self, annots, relationships=None):

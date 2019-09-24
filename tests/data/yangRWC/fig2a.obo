@@ -32,14 +32,15 @@ namespace: cellular_component
 is_a: GO:0000002 ! GO:0000002
 
 [Term]
-id: GO:0000007
-name: G
-namespace: cellular_component
-is_a: GO:0000003 ! GO:0000003
-
-[Term]
 id: GO:0000006
 name: F
 namespace: cellular_component
 is_a: GO:0000002 ! GO:0000002
 is_a: GO:0000003 ! GO:0000003
+
+[Term]
+id: GO:0000007
+name: G
+namespace: cellular_component
+is_a: GO:0000003 ! GO:0000003
+relationship: part_of GO:0000006 | F

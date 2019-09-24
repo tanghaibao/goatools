@@ -1,6 +1,8 @@
 # CHANGELOG
 
 * [**Unreleased changes**](#unreleased-changes)
+  * Deprecated: *read_ncbi_gene2go*
+  * Deprecated: *get_b2aset* and *GoDagTimed* in their old location. They have been moved.
   * Removed empty sets from Descendant and Ancestor dicts in *gosubdag.rcntobj*
   * *TermCount* improvements (used in semantic similarity calculations)    
   * GO DAG Plotting:
@@ -31,8 +33,13 @@ Unreleased changes
 * **Added**`
   * Method to annotation object, *IdToGosReader*, which writes namedtuples into an ASCII file
 * **Changed**
-  * Faster initialization of *TermCounts* object, used in semantic similarity calculations
-  * Users can now provide a title to be printed in a GO DAG plot
+  * *TermCounts*:
+    * Added support for optional relationships, like *part_of*.    
+      This is useful for computing termwise and genewise semantic similarities.
+    * Faster initialization of *TermCounts* object, used in semantic similarity calculations
+  * *Plotting*:
+    * Users can now provide a title to be printed in a GO DAG plot
+    * Users can now provide an *edge2txt* dict to print text on edges between GO Terms    
 * **Fixed**
   * Aspect counts (BP, MF, CC totals) in *TermCounts* object
 
