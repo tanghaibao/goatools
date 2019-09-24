@@ -24,7 +24,16 @@ def test_gafs(usr_assc=None):
 
     failed = []
     not_found = set()
+    ## https://github.com/geneontology/go-annotation/issues/2659
+    ## To get the line numbers containing the errors:
+    ##     assc_name example:
+    ##         goa_human.gaf
+    ##         goa_chicken.gaf
+    ##         goa_cow.gaf
+    ## only = {'gramene_oryza.gaf', 'pamgo_mgrisea.gaf', 'tair.gaf'}
     for assc_name in associations:  # Limit test numbers for speed
+        ## if assc_name not in only:
+        ##     continue
         obj = _get_objanno(assc_name, 'gaf')
         if not obj.chk_associations('{BASE}.err'.format(BASE=assc_name)):
             failed.append(assc_name)
