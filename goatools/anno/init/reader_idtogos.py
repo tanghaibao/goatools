@@ -5,12 +5,12 @@ import datetime
 import collections as cx
 from goatools.godag.consts import NAMESPACE2NS
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
 # pylint: disable=too-few-public-methods
-class InitAssc(object):
+class InitAssc:
     """Initialize associations."""
 
     flds = ['DB_ID', 'GO_ID']
@@ -85,23 +85,24 @@ class InitAssc(object):
 
         ## top_terms = set(['GO:0008150', 'GO:0003674', 'GO:0005575']) # BP, MF, CC
         gene_int = None
-        for row in open(assoc_fn, 'r'):
-            atoms = row.split()
-            if len(atoms) == 2:
-                gene_id, go_terms = atoms
-            elif len(atoms) > 2 and row.count('\t') == 1:
-                gene_id, go_terms = row.split("\t")
-            else:
-                continue
-            gos = set(go_terms.split(";"))
-            ## if no_top:
-            ##     gos = gos.difference(top_terms)
-            if gene_int is None:
-                gene_int = gene_id.isdigit()
-            if gene_int:
-                gene_id = int(gene_id)
-            assoc[gene_id] |= gos
+        with open(assoc_fn) as ifstrm:
+            for row in ifstrm:
+                atoms = row.split()
+                if len(atoms) == 2:
+                    gene_id, go_terms = atoms
+                elif len(atoms) > 2 and row.count('\t') == 1:
+                    gene_id, go_terms = row.split("\t")
+                else:
+                    continue
+                gos = set(go_terms.split(";"))
+                ## if no_top:
+                ##     gos = gos.difference(top_terms)
+                if gene_int is None:
+                    gene_int = gene_id.isdigit()
+                if gene_int:
+                    gene_id = int(gene_id)
+                assoc[gene_id] |= gos
         return assoc
 
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
