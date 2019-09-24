@@ -137,6 +137,7 @@ class AnnoReaderBase(object):
 
     def has_ns(self):
         """Return True if namespace field, NS exists on annotation namedtuples"""
+        assert self.associations, 'NO ASSOCIATIONS IN file({}): {}'.format(self.filename, self.associations)
         return hasattr(next(iter(self.associations)), 'NS')
 
     def _get_id2gos(self, ntannos_usr, propagate_counts=False, relationships=None, prt=sys.stdout, **kws):
