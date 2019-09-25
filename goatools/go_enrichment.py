@@ -531,7 +531,7 @@ class GOEnrichmentStudy(object):
             if hasattr(rec, attrname):
                 items_cur = getattr(rec, attrname)
                 # Only count GO term if there are items in the set.
-                if not items_cur:
+                if items_cur:
                     items |= items_cur
                     go_cnt += 1
         return items, go_cnt
