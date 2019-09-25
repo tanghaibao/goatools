@@ -88,7 +88,9 @@ class GoNode:
         """Return a string to be printed in a GO term box."""
         txt = []
         # Header line: "GO:0036464 L04 D06"
-        txt.append(self.get_hdr(goid, goobj))
+        hdr = self.get_hdr(goid, goobj)
+        if hdr != '':
+            txt.append(hdr)
         # GO name line: "cytoplamic ribonucleoprotein"
         if 'no_name' not in self.present:
             txt.append(self._get_go_name(goobj))
@@ -117,7 +119,8 @@ class GoNode:
         # Add letter to depth-01 GO Node.
         if 'D1' in prt_flds and goobj.depth == 1:
             hdr.append("{ABC} ".format(ABC=ntgo.D1))
-        hdr.append(self.str_fmthdr(goid, goobj))
+        if 'GO' in prt_flds:
+            hdr.append(self.str_fmthdr(goid, goobj))
         if 'level' in prt_flds:
             hdr.append("L{level}".format(level=goobj.level))
         if 'depth' in prt_flds:
@@ -140,7 +143,7 @@ class GoNode:
             hdr.append("f{I:4.03f}".format(I=ntgo.tfreq))
         if 'REL' in prt_flds:
             hdr.append("{R}".format(R=ntgo.REL_short))
-        return " ".join(hdr)
+        return " ".join(hdr) if hdr else ''
 
     def _get_prtflds(self):
         """Get print fields for GO header."""
