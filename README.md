@@ -26,7 +26,7 @@
 
 This package contains a Python library to
 
-- [Process over- and under-representation of certain GO terms](/doc/md/README_find_enrichment.md), based on
+- Process over- and under-representation of certain GO terms, based on
   Fisher's exact test. With numerous multiple correction routines
   including locally implemented routines for Bonferroni, Sidak, Holm,
   and false discovery rate. Also included are multiple test
@@ -70,9 +70,6 @@ _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
     Visualize the major findings in a gene ontology enrichment analysis (GEOA) more easily with grouping.
     A detailed description of GOATOOLS GO grouping is found in the
     [manuscript](https://www.nature.com/articles/s41598-018-28948-z).
-    To group GO terms, see examples in
-    [find_enrichment examples](/doc/md/README_find_enrichment.md)
-    where the optional _--sections_ argument is used.
   * **Compare GO lists**:
     Compare two or more lists of GO IDs using _scripts/compare_gos.py_.
     This script can be used with or without grouping.
