@@ -22,14 +22,15 @@ class TermCounts:
     '''
         TermCounts counts the term counts for each
     '''
-    def __init__(self, go2obj, annots, relationships=None):
+    def __init__(self, go2obj, annots, relationships=None, **kws):
         '''
             Initialise the counts and
         '''
+        _prt = kws.get('prt')
         # Backup
         self.go2obj = go2obj  # Full GODag
         # Genes annotated to a GO, including ancestors
-        self.go2genes, not_main = self._init_go2genes(annots, relationships)
+        self.go2genes, not_main = self._init_go2genes(annots, relationships, _prt)
         self.gene2gos = get_b2aset(self.go2genes)
         # Annotation main GO IDs (prefer main id to alt_id)
         self.goids = set(self.go2genes.keys())
@@ -38,15 +39,17 @@ class TermCounts:
             'biological_process': self.gocnts.get(NAMESPACE2GO['biological_process'], 0),
             'molecular_function': self.gocnts.get(NAMESPACE2GO['molecular_function'], 0),
             'cellular_component': self.gocnts.get(NAMESPACE2GO['cellular_component'], 0)}
-        self._init_add_goid_alt(not_main)
+        self._init_add_goid_alt(not_main, _prt)
         self.gosubdag = GoSubDag(
             set(self.gocnts.keys()),
             go2obj,
             tcntobj=self,
-            relationships=relationships)
-        print('TermCounts: {N:5} alternate GO IDs seen in association'.format(N=len(not_main)))
+            relationships=relationships,
+            prt=_prt)
+        if _prt:
+            _prt.write('TermCounts: {N:5} alternate GO IDs seen in association\n'.format(N=len(not_main)))
 
-    def _init_go2genes(self, annots, relationships=None):
+    def _init_go2genes(self, annots, relationships, prt):
         '''
             Fills in the genes annotated to each GO, including ancestors
 
@@ -78,17 +81,16 @@ class TermCounts:
             # Add 1 for each GO annotated to this gene product
             for ancestor in allterms:
                 go2geneset[ancestor].add(geneid)
-        if goids_notfound:
-            print("{N} Assc. GO IDs not found in the GODag\n".format(N=len(goids_notfound)))
+        if goids_notfound and prt:
+            prt.write("{N} Assc. GO IDs not found in the GODag\n".format(N=len(goids_notfound)))
         return dict(go2geneset), go_alts
 
-    def _init_add_goid_alt(self, not_main):
+    def _init_add_goid_alt(self, not_main, prt):
         '''
             Add alternate GO IDs to term counts. Report GO IDs not found in GO DAG.
         '''
         if not not_main:
             return
-        print('{N} alternate GO IDs'.format(N=len(not_main)))
         for go_id in not_main:
             if go_id in self.go2obj:
                 goid_main = self.go2obj[go_id].item_id

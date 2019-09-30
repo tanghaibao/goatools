@@ -36,7 +36,7 @@ class GoSubDag(object):
         self.go2nt = _fld.get_go2nt_all(self.rcntobj)
         ### tic = _rpt_hms(tic0, "GoSubDag: total")
         prt = kws.get('prt', sys.stdout)
-        if prt is not None:
+        if prt:
             self.prt_objdesc(prt)
 
     def prt_goids(self, goids=None, prtfmt=None, sortby=True, prt=sys.stdout):

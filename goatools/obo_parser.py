@@ -310,7 +310,7 @@ class GODag(dict):
         for goid_alt, rec in alt2rec.items():
             self[goid_alt] = rec
         desc = self._str_desc(reader)
-        if prt is not None:
+        if prt:
             prt.write("{DESC}\n".format(DESC=desc))
         return desc, reader.data_version
 

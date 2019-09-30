@@ -97,19 +97,21 @@ class AnnoReaderBase(object):
         """Return all associations in a dict, id2gos, regardless of namespace"""
         return self._get_id2gos(self.associations, **kws)
 
-    def get_id2gos(self, namespace=None, **kws):
+    def get_id2gos(self, namespace=None, prt=sys.stdout, **kws):
         """Return associations from specified namespace in a dict, id2gos"""
         # pylint: disable=superfluous-parens
         if self.has_ns():  # Anno namedtuple has NS field
             nspc, assoc = self._get_1ns_assn(namespace)
             id2gos = self._get_id2gos(assoc, **kws)
-            print('{N} IDs in loaded association branch, {NS}'.format(N=len(id2gos), NS=nspc))
+            if prt:
+                prt.write('{N} IDs in loaded association branch, {NS}\n'.format(N=len(id2gos), NS=nspc))
             return id2gos
-        if namespace is not None:
-            print('**ERROR {CLS}(..., godag=None).get_id2gos: GODAG is None. IGNORING namespace({NS})'.format(
+        if prt and namespace is not None:
+            print('**ERROR {CLS}(..., godag=None).get_id2gos: GODAG is None. IGNORING namespace({NS})\n'.format(
                 NS=namespace, CLS=type(self).__name__))
         id2gos = self._get_id2gos(self.associations, **kws)
-        print('{N} IDs in all associations'.format(N=len(id2gos)))
+        if prt:
+            prt.write('{N} IDs in all associations'.format(N=len(id2gos)))
         return id2gos
 
     def _get_1ns_assn(self, namespace_usr):
