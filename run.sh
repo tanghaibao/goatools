@@ -28,7 +28,7 @@ do
 case $REPLY in
 
 1)
-python scripts/find_enrichment.py --pval=0.05 --indent data/study data/population data/association
+python scripts/find_enrichment.py --pval=0.05 --indent data/study.txt data/population.txt data/association.txt --outfile=goea_results.tsv
 ;;
 
 2)
