@@ -49,6 +49,7 @@ This package contains a Python library to
 
 - [Print **_decendants count_** and/or **_information content_**](/notebooks/dcnt_and_tinfo.ipynb)
   for a list of GO terms
+- Get parents or ancestors for a GO term with or without optional relationships
 
 - Compare two or more lists of GO IDs using _scripts/compare_gos.py_
 - [Plot GO hierarchies](https://github.com/tanghaibao/goatools#plot-go-lineage)

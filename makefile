@@ -347,6 +347,7 @@ dnld_anno_uniprot:
 #    tests/test_quickgo_xml.py \
 
 NOSETESTS := \
+		tests/test_parents_ancestors.py \
     tests/test_rpt_gene2go_evidencecodes.py \
     tests/test_sorter_sections.py \
     tests/test_sorter_desc2nts.py \

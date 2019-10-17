@@ -1,10 +1,23 @@
 """item-DAG tasks."""
 
-__copyright__ = "Copyright (C) 2010-2019, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2010-present, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 from goatools.godag.consts import RELATIONSHIP_SET
 
+
+# ------------------------------------------------------------------------------------
+def get_go2parents(go2obj, relationships):
+    """Get list of parents GO IDs, including parents through user-specfied relationships"""
+    go2parents = {}
+    for goid_main, goterm in go2obj.items():
+        parents_goids = set(o.id for o in goterm.parents)
+        for rel in set(goterm.relationship.keys()).intersection(relationships):
+            for parent_term in goterm.relationship[rel]:
+                parents_goids.add(parent_term.id)
+        if parents_goids:
+            go2parents[goid_main] = parents_goids
+    return go2parents
 
 # ------------------------------------------------------------------------------------
 def get_go2children(go2obj, relationships):
@@ -12,10 +25,9 @@ def get_go2children(go2obj, relationships):
     go2children = {}
     for goid_main, goterm in go2obj.items():
         children_goids = set(o.id for o in goterm.children)
-        for rel in relationships:
-            for children_goterms in goterm.relationship_rev[rel]:
-                for child_term in children_goterms:
-                    children_goids.add(child_term.id)
+        for rel in set(goterm.relationship_rev.keys()).intersection(relationships):
+            for child_term in goterm.relationship_rev[rel]:
+                children_goids.add(child_term.id)
         if children_goids:
             go2children[goid_main] = children_goids
     return go2children
@@ -260,4 +272,4 @@ class CurNHigher:
         return idobjs_higher
 
 
-# Copyright (C) 2010-2019, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2010-present, DV Klopfenstein, H Tang, All rights reserved.
