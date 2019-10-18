@@ -3,7 +3,7 @@
 
 
 import os
-## from goatools.obo_parser import GODag
+from goatools.obo_parser import GODag
 from goatools.anno.idtogos_reader import IdToGosReader
 from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.godag.go_tasks import get_go2children
@@ -43,14 +43,14 @@ def test_parents_ancestors():
 
     # Load GO DAG into a GoSubDag object, to use user-selected relationships
     gosubdag_r0 = GoSubDag(goids, godag)
-    assert gosubdag_r0.rcntobj.go2parents[goid] == \
+    assert gosubdag_r0.rcntobj.go2ancestors[goid] == \
         {'GO:0050789', 'GO:0065007', 'GO:0008150'}
 
     # Load GO DAG into a GoSubDag object, to use user-selected relationships
     gosubdag_r1 = GoSubDag(goids, godag, relationships=optional_relationships)
-    assert gosubdag_r1.rcntobj.go2parents[goid] == \
+    assert gosubdag_r1.rcntobj.go2ancestors[goid] == \
         {'GO:0050789', 'GO:0008152', 'GO:0065007', 'GO:0008150'}, \
-        gosubdag_r1.rcntobj.go2parents[goid]
+        gosubdag_r1.rcntobj.go2ancestors[goid]
 
     exp = {'GO:0071704', 'GO:0010467', 'GO:0043170'}
     assert gosubdag_r0.rcntobj.go2descendants['GO:0008152'] == exp
