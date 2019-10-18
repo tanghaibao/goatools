@@ -8,7 +8,9 @@ from goatools.godag.consts import RELATIONSHIP_SET
 
 # ------------------------------------------------------------------------------------
 def get_go2parents(go2obj, relationships):
-    """Get list of parents GO IDs, including parents through user-specfied relationships"""
+    """Get set of parents GO IDs, including parents through user-specfied relationships"""
+    if go2obj and not hasattr(next(iter(go2obj.values())), 'relationship') or not relationships:
+        return get_go2parents_isa(go2obj)
     go2parents = {}
     for goid_main, goterm in go2obj.items():
         parents_goids = set(o.id for o in goterm.parents)
@@ -21,13 +23,35 @@ def get_go2parents(go2obj, relationships):
 
 # ------------------------------------------------------------------------------------
 def get_go2children(go2obj, relationships):
-    """Get list of children GO IDs, including children through user-specfied relationships"""
+    """Get set of children GO IDs, including children through user-specfied relationships"""
+    if go2obj and not hasattr(next(iter(go2obj.values())), 'relationship') or not relationships:
+        return get_go2children_isa(go2obj)
     go2children = {}
     for goid_main, goterm in go2obj.items():
         children_goids = set(o.id for o in goterm.children)
         for rel in set(goterm.relationship_rev.keys()).intersection(relationships):
             for child_term in goterm.relationship_rev[rel]:
                 children_goids.add(child_term.id)
+        if children_goids:
+            go2children[goid_main] = children_goids
+    return go2children
+
+# ------------------------------------------------------------------------------------
+def get_go2parents_isa(go2obj):
+    """Get set of immediate parents GO IDs"""
+    go2parents = {}
+    for goid_main, goterm in go2obj.items():
+        parents_goids = set(o.id for o in goterm.parents)
+        if parents_goids:
+            go2parents[goid_main] = parents_goids
+    return go2parents
+
+# ------------------------------------------------------------------------------------
+def get_go2children_isa(go2obj):
+    """Get set of immediate children GO IDs"""
+    go2children = {}
+    for goid_main, goterm in go2obj.items():
+        children_goids = set(o.id for o in goterm.children)
         if children_goids:
             go2children[goid_main] = children_goids
     return go2children

@@ -4,7 +4,7 @@
 
 import os
 from goatools.obo_parser import GODag
-from goatools.anno.idtogos_reader import IdToGosReader
+# from goatools.anno.idtogos_reader import IdToGosReader
 from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.godag.go_tasks import get_go2children
 from goatools.godag.go_tasks import get_go2parents
@@ -17,6 +17,14 @@ def test_parents_ancestors():
     # Load a small GO DAG to demonstrate getting parents and ancestors
     file_dag = os.path.join(REPO, 'tests/data/i126/viral_gene_silence.obo')
     # Load all relationships using optional attribute
+    godag = GODag(file_dag)
+
+    optional_relationships = set()  # Don't trace any optional relationships
+    go2parents_isa = get_go2parents(godag, optional_relationships)
+    go2children_isa = get_go2children(godag, optional_relationships)
+    # TODO: Add more tests for only is_a
+
+
     godag = GODag(file_dag, optional_attrs={'relationship'})
     goids = set(o.item_id for o in godag.values())
 
@@ -70,7 +78,6 @@ def test_parents_ancestors():
     ## annoobj = IdToGosReader(file_anno, godag=godag)
     ## # Get annotations: geneid-to-set_of_GO_IDs
     ## id2gos = annoobj.get_id2gos('BP')
-
 
 
 if __name__ == '__main__':
