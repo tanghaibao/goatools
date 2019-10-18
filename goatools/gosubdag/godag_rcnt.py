@@ -1,6 +1,6 @@
 """Get descendant/parent counts for all GO terms in a GODag and broad L0 and L1 terms."""
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 from goatools.gosubdag.godag_rcnt_init import CountRelativesInit
@@ -17,7 +17,8 @@ class CountRelatives:
         _ini = CountRelativesInit(go2obj, relationships, dcnt, go2letter)
         self.go2descendants = _ini.go2descendants  # GO IDs
         # Used by: Semantic, Grouper
-        self.go2parents = _ini.go2parents
+        self.go2parents = _ini.go2ancestors    # Will be DEPRECATED: renamed to go2ancestors
+        self.go2ancestors = _ini.go2ancestors
         self.go2dcnt = _ini.go2dcnt
         # self.go_relationships = _ini.get_relationship_dicts()
         # Top (depth-00) terms (BP, MF, CC) and depth-01 terms
@@ -27,8 +28,8 @@ class CountRelatives:
 
     def get_parents_letters(self, goobj):
         """Get the letters representing all parent terms which are depth-01 GO terms."""
-        if goobj.id in self.go2parents:
-            parents_all = set.union(self.go2parents[goobj.id])
+        if goobj.id in self.go2ancestors:
+            parents_all = set.union(self.go2ancestors[goobj.id])
             parents_all.add(goobj.id)
             # print "{}({}) D{:02}".format(goobj.id, goobj.name, goobj.depth), parents_all
             parents_d1 = parents_all.intersection(self.gos_depth1)
@@ -40,4 +41,4 @@ class CountRelatives:
         return "".join(sorted(self.get_parents_letters(goobj), reverse=reverse))
 
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved.

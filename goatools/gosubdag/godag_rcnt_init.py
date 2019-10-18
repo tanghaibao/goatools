@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import collections as cx
@@ -27,9 +27,9 @@ class CountRelativesInit:
         _goobjs, _altgo2goobj = get_goobjs_altgo2goobj(self.go2obj)
         _r0 = not relationships  # True if not using relationships
         self.go2descendants = get_go2descendants(_goobjs, relationships)
-        self.go2parents = get_go2ancestors(_goobjs, relationships)
+        self.go2ancestors = get_go2ancestors(_goobjs, relationships)
         self.go2dcnt = cx.Counter({go: len(p) for go, p in self.go2descendants.items()})
-        add_alt_goids(self.go2parents, _altgo2goobj)
+        add_alt_goids(self.go2ancestors, _altgo2goobj)
         add_alt_goids(self.go2descendants, _altgo2goobj)
         add_alt_goids(self.go2dcnt, _altgo2goobj)
         # print('INIT CountRelativesInit', self.relationships)
@@ -82,4 +82,4 @@ class CountRelativesInit:
         return depth2goobjs
 
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved.
