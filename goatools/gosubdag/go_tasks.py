@@ -1,6 +1,6 @@
 """Tasks for go2obj dicts."""
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import collections as cx
@@ -56,11 +56,11 @@ def get_go2obj_unique(go2obj):
 
 # ------------------------------------------------------------------------------------
 def get_go2parents_go2obj(go2obj, relationships=None, prt=None):
-    """Return go2parents (set of parent GO IDs) for all GO ID keys in go2obj."""
+    """Return go2ancestors (set of parent GO IDs) for all GO ID keys in go2obj."""
     goobjs, altgo2goobj = get_goobjs_altgo2goobj(go2obj)
-    go2parents = get_go2ancestors(goobjs, relationships, prt)
-    add_alt_goids(go2parents, altgo2goobj)
-    return go2parents
+    go2ancestors = get_go2ancestors(goobjs, relationships, prt)
+    add_alt_goids(go2ancestors, altgo2goobj)
+    return go2ancestors
 
 # ------------------------------------------------------------------------------------
 def get_go2children_go2obj(go2obj, relationships=None, prt=None):
@@ -191,4 +191,4 @@ def chk_goids(goids, msg=None, raise_except=True):
     return None
 
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved.
