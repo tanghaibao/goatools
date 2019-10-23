@@ -4,6 +4,7 @@ __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights re
 __author__ = "DV Klopfenstein"
 
 import sys
+from collections import defaultdict
 from goatools.gosubdag.go_tasks import get_go2parents_go2obj
 from goatools.anno.broad_gos import NS2GOS_SHORT
 from goatools.anno.broad_gos import NS2GOS
@@ -72,6 +73,32 @@ def get_goids_to_remove(goids_or_bool=None):
     if goids_or_bool is True:
         return set.union(*NS2GOS.values())
     return set()
+
+
+def clean_anno(annots, godag, prt=sys.stdout):
+    """Get annotations, gene2gos, for all main GO IDs (not alt) in GO DAG"""
+    gene2goset = defaultdict(set)
+    go_alts = set()  # For alternate GO IDs
+    goids_notfound = set()  # For missing GO IDs
+    # Fill go-geneset dict with GO IDs in annotations and their corresponding counts
+    for geneid, goids_anno in annots.items():
+        # Make a union of all the terms for a gene, if term parents are
+        # propagated but they won't get double-counted for the gene
+        goids_main = set()
+        for goid_anno in goids_anno:
+            if goid_anno in godag:
+                goid_main = godag[goid_anno].item_id
+                if goid_anno != goid_main:
+                    go_alts.add(goid_anno)
+                goids_main.add(goid_main)
+            else:
+                goids_notfound.add(goid_anno)
+        gene2goset[geneid] = goids_main
+    if prt:
+        if goids_notfound:
+            prt.write("{N} Assc. GO IDs not found in the GODag\n".format(N=len(goids_notfound)))
+        prt.write('TermCounts: {N:5} alternate GO IDs in association\n'.format(N=len(go_alts)))
+    return dict(gene2goset), go_alts, goids_notfound
 
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.

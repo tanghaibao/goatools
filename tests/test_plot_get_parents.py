@@ -59,7 +59,7 @@ def run_2(gosubdag):
         'GO:0002682': '#b1fc99',  # pale light green
         'GO:0002726': '#f6cefc'}  # very light purple
     plt_goids(gosubdag, "test_get_parents2.png", goids, go2color=go2color, mark_alt_id=True)
-    assert 'GO:0002682' in gosubdag.rcntobj.go2parents
+    assert 'GO:0002682' in gosubdag.rcntobj.go2ancestors
 
 
 

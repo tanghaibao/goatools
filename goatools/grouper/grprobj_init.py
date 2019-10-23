@@ -125,7 +125,7 @@ class GrouperInit:
         """Given a user GO ID, return the 'closest' header GO."""
 
         def __init__(self, gosubdag, gos_high, get_most_specific):
-            self.go2parents = gosubdag.rcntobj.go2parents
+            self.go2parents = gosubdag.rcntobj.go2ancestors
             self.go2nt = gosubdag.go2nt
             self.gos_high = gos_high
             self.get_most_specific = get_most_specific

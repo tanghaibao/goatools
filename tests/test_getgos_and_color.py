@@ -84,7 +84,7 @@ class _Run:
         """Check relationship, part_of"""
         png, gosubdagplot = arg
         assert os.path.exists(png)
-        go2p = gosubdagplot.gosubdag.rcntobj.go2parents
+        go2p = gosubdagplot.gosubdag.rcntobj.go2ancestors
         exp_all = set.union(*[self.color2goids[c] for c in ['green', 'purple', 'red', 'blue']])
         self._cmp(go2p[self.goid], exp_all)
 
@@ -92,7 +92,7 @@ class _Run:
         """Check relationship, part_of"""
         png, gosubdagplot = arg
         assert os.path.exists(png)
-        go2p = gosubdagplot.gosubdag.rcntobj.go2parents
+        go2p = gosubdagplot.gosubdag.rcntobj.go2ancestors
         exp_all = set.union(*[self.color2goids[c] for c in ['green', 'purple', 'red']]).difference({'GO:0071704'})
         self._cmp(go2p[self.goid], exp_all)
 
@@ -100,7 +100,7 @@ class _Run:
         """Check relationship, part_of"""
         png, gosubdagplot = arg
         assert os.path.exists(png)
-        go2p = gosubdagplot.gosubdag.rcntobj.go2parents
+        go2p = gosubdagplot.gosubdag.rcntobj.go2ancestors
         exp_all = self.color2goids['green'].union(self.color2goids['orange'])
         self._cmp(go2p[self.goid], exp_all)
 
@@ -108,7 +108,7 @@ class _Run:
         """Check relationship == False"""
         png, gosubdagplot = arg
         assert os.path.exists(png)
-        go2p = gosubdagplot.gosubdag.rcntobj.go2parents
+        go2p = gosubdagplot.gosubdag.rcntobj.go2ancestors
         exp_all = self.color2goids['green']
         print('AAAAAAAAAAAAAAAAAAAAAAAAA', exp_all)
         print('AAAAAAAAAAAAAAAAAAAAAAAAA', go2p[self.goid])

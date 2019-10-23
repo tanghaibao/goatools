@@ -44,56 +44,56 @@ def test_gosubdag_relationships(wr_new_obo_subset=False):
 
     # RELATIONSHIPS: None
     gosubdag_r0 = GoSubDag(set([goid_chosen]), godag_r0)
-    assert len(gosubdag_r0.rcntobj.go2parents[goid_chosen]) == 12
+    assert len(gosubdag_r0.rcntobj.go2ancestors[goid_chosen]) == 12
 
     # RELATIONSHIPS: ALL
     gosubdag_r1 = GoSubDag(set([goid_chosen]), godag_r1, relationships=True)
     assert gosubdag_r1.relationships == RELATIONSHIP_SET
         #### set(['part_of', 'regulates', 'positively_regulates', 'negatively_regulates'])
-    assert len(gosubdag_r1.rcntobj.go2parents[goid_chosen]) == 50
+    assert len(gosubdag_r1.rcntobj.go2ancestors[goid_chosen]) == 50
 
     # RELATIONSHIPS: part_of
     gosubdag_rp = GoSubDag(set([goid_chosen]), godag_r1, relationships={'part_of'})
     assert gosubdag_rp.relationships == set(['part_of'])
-    rp_par = gosubdag_rp.rcntobj.go2parents[goid_chosen]
+    rp_par = gosubdag_rp.rcntobj.go2ancestors[goid_chosen]
     assert 'GO:0016441' not in gosubdag_rp.go2obj, '**FATAL: REGULATION TERM GoSubDag(part_of) go2obj'
     assert 'GO:0016441' not in rp_par, '**FATAL: REGULATION TERM GoSubDag(part_of) go2parents'
 
     # RELATIONSHIPS: regulates
     gosubdag_rr = GoSubDag(set([goid_chosen]), godag_r1, relationships={'regulates'})
     assert gosubdag_rr.relationships == set(['regulates'])
-    rp_par = gosubdag_rr.rcntobj.go2parents[goid_chosen]
+    rp_par = gosubdag_rr.rcntobj.go2ancestors[goid_chosen]
     # assert 'GO:0016441' not in gosubdag_rp.go2obj, '**FATAL: REGULATION TERM GoSubDag(part_of) go2obj'
     # assert 'GO:0016441' not in rp_par, '**FATAL: REGULATION TERM GoSubDag(part_of) go2parents'
 
     # RELATIONSHIPS: positively_regulates
     gosubdag_rp = GoSubDag(set([goid_chosen]), godag_r1, relationships={'positively_regulates'})
     assert gosubdag_rp.relationships == set(['positively_regulates'])
-    rp_par = gosubdag_rp.rcntobj.go2parents[goid_chosen]
+    rp_par = gosubdag_rp.rcntobj.go2ancestors[goid_chosen]
 
     # RELATIONSHIPS: negatively_regulates
     gosubdag_rn = GoSubDag(set([goid_chosen]), godag_r1, relationships={'negatively_regulates'})
     assert gosubdag_rn.relationships == set(['negatively_regulates'])
-    rp_par = gosubdag_rn.rcntobj.go2parents[goid_chosen]
+    rp_par = gosubdag_rn.rcntobj.go2ancestors[goid_chosen]
 
     # RELATIONSHIPS: regulates positively_regulates negatively_regulates
     regs = {'positively_regulates', 'negatively_regulates'}
     gosubdag_rnp = GoSubDag(set([goid_chosen]), godag_r1, relationships=regs)
     assert gosubdag_rnp.relationships == regs
-    rp_par = gosubdag_rnp.rcntobj.go2parents[goid_chosen]
+    rp_par = gosubdag_rnp.rcntobj.go2ancestors[goid_chosen]
 
     _run_baseline_r0(gosubdag_r0, gosubdag_r1)
 
     # BASELINE r1: Test that GOTerm.get_all_upper() is the same as GoSubDag ancestors
     for goid, term in gosubdag_r1.go2obj.items():
-        ancestors_r1 = gosubdag_r1.rcntobj.go2parents.get(goid, set())
+        ancestors_r1 = gosubdag_r1.rcntobj.go2ancestors.get(goid, set())
         assert ancestors_r1 == term.get_all_upper()
 
     #### # Test that
     #### gosubdag_rp = GoSubDag(set([goid_chosen]), godag_r1, relationships={'part_of'}, prt=sys.stdout)
     #### for goid, dag_term in godag_r1.items():
-    ####     if goid in gosubdag_r1.rcntobj.go2parents:
-    ####         ancestors = gosubdag_rp.rcntobj.go2parents[goid]
+    ####     if goid in gosubdag_r1.rcntobj.go2ancestors:
+    ####         ancestors = gosubdag_rp.rcntobj.go2ancestors[goid]
     ####         sub_term = gosubdag_rp.go2obj[goid]
     ####         reldict = sub_term.relationship.items()
     ####         # print(goid)
@@ -104,7 +104,7 @@ def test_gosubdag_relationships(wr_new_obo_subset=False):
     ####         #     print(rel, ' '.join(sorted(o.id for o in pterms)))
     ####         # print('')
     #### print(gosubdag_rp.relationships)
-    #### #assert 'GO:0016441' not in gosubdag_rp.rcntobj.go2parents['GO:0060150']
+    #### #assert 'GO:0016441' not in gosubdag_rp.rcntobj.go2ancestors['GO:0060150']
     #### assert 'GO:0016441' in gosubdag_r1.go2nt
     #### assert 'GO:0010467' in gosubdag_r1.go2nt
 
@@ -114,8 +114,8 @@ def _run_baseline_r0(gosubdag_r0, gosubdag_r1):
     r1_ancestors_more = set()
     # Loop through r0 GO IDs
     for goid, term in gosubdag_r0.go2obj.items():
-        ancestors_r0 = gosubdag_r0.rcntobj.go2parents.get(goid, set())
-        ancestors_r1 = gosubdag_r1.rcntobj.go2parents.get(goid, set())
+        ancestors_r0 = gosubdag_r0.rcntobj.go2ancestors.get(goid, set())
+        ancestors_r1 = gosubdag_r1.rcntobj.go2ancestors.get(goid, set())
         assert ancestors_r0 == term.get_all_parents()
         assert ancestors_r0.issubset(ancestors_r1)
         if len(ancestors_r0) < len(ancestors_r1):
@@ -177,7 +177,7 @@ def _get_leafs_w_relsinhier(rels_usr, gosubdag_r1):
     gos_r1_relsinhier = set()
     goids_leaf = set(o.id for o in gosubdag_r1.go2obj.values() if not o.children)
     for goid in goids_leaf:
-        go_parents = gosubdag_r1.rcntobj.go2parents[goid]
+        go_parents = gosubdag_r1.rcntobj.go2ancestors[goid]
         rels = set(k for p in go_parents for k in gosubdag_r1.go2obj[p].relationship.keys())
         if rels == rels_usr:
             gos_r1_relsinhier.add(goid)

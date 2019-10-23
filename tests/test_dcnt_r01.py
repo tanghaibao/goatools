@@ -27,8 +27,8 @@ def test_go_pools():
         # No relationships loaded; GoSubDag subset equivalent to Full subset?
         gosubdag_r0 = objr.get_gosubdag_r0(goids)
         for goid in gosubdag_r0.go2obj:
-            r0_u = gosubdag_r0.rcntobj.go2parents.get(goid)
-            assert r0_u == objr.gosubdag_r0.rcntobj.go2parents.get(goid)
+            r0_u = gosubdag_r0.rcntobj.go2ancestors.get(goid)
+            assert r0_u == objr.gosubdag_r0.rcntobj.go2ancestors.get(goid)
             r0_d = gosubdag_r0.rcntobj.go2descendants.get(goid)
             assert r0_d == objr.gosubdag_r0.rcntobj.go2descendants.get(goid)
         # All relationships loaded; GoSubDag(r0) vs. GoSubDag(r1)
@@ -40,8 +40,8 @@ def test_go_pools():
             r1_d = gosubdag_r1.rcntobj.go2descendants.get(goid, set())
             r0_d = gosubdag_r0.rcntobj.go2descendants.get(goid, set())
             assert r0_d.issubset(r1_d), "R1({}) R0({})".format(len(r1_d), len(r0_d))
-            r0_u = gosubdag_r0.rcntobj.go2parents.get(goid, set())
-            r1_u = gosubdag_r1.rcntobj.go2parents.get(goid, set())
+            r0_u = gosubdag_r0.rcntobj.go2ancestors.get(goid, set())
+            r1_u = gosubdag_r1.rcntobj.go2ancestors.get(goid, set())
             assert r0_u.issubset(r1_u), "R1({}) R0({})".format(len(r1_u), len(r0_u))
             cnts['r0_u'].append(len(r0_u))
             cnts['r1_u'].append(len(r1_u))

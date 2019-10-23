@@ -15,6 +15,7 @@ from collections import defaultdict
 from goatools.godag.consts import NAMESPACE2GO
 from goatools.godag.go_tasks import get_go2ancestors
 from goatools.gosubdag.gosubdag import GoSubDag
+from goatools.anno.update_association import clean_anno
 from goatools.utils import get_b2aset
 
 
@@ -22,6 +23,7 @@ class TermCounts:
     '''
         TermCounts counts the term counts for each
     '''
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, go2obj, annots, relationships=None, **kws):
         '''
             Initialise the counts and
@@ -29,8 +31,9 @@ class TermCounts:
         _prt = kws.get('prt')
         # Backup
         self.go2obj = go2obj  # Full GODag
-        # Genes annotated to a GO, including ancestors
-        self.go2genes, not_main = self._init_go2genes(annots, relationships, _prt)
+        self.annots, go_alts = clean_anno(annots, go2obj, _prt)[:2]
+        # Genes annotated to all associated GO, including inherited up ancestors
+        self.go2genes = self._init_go2genes(relationships, go2obj)
         self.gene2gos = get_b2aset(self.go2genes)
         # Annotation main GO IDs (prefer main id to alt_id)
         self.goids = set(self.go2genes.keys())
@@ -39,17 +42,55 @@ class TermCounts:
             'biological_process': self.gocnts.get(NAMESPACE2GO['biological_process'], 0),
             'molecular_function': self.gocnts.get(NAMESPACE2GO['molecular_function'], 0),
             'cellular_component': self.gocnts.get(NAMESPACE2GO['cellular_component'], 0)}
-        self._init_add_goid_alt(not_main, _prt)
+        self._init_add_goid_alt(go_alts)
         self.gosubdag = GoSubDag(
             set(self.gocnts.keys()),
             go2obj,
             tcntobj=self,
             relationships=relationships,
             prt=_prt)
-        if _prt:
-            _prt.write('TermCounts: {N:5} alternate GO IDs seen in association\n'.format(N=len(not_main)))
 
-    def _init_go2genes(self, annots, relationships, prt):
+    def get_annotations_reversed(self):
+        """Return go2geneset for all GO IDs explicitly annotated to a gene"""
+        return set.union(*get_b2aset(self.annots))
+
+    ## def _init_go2genes(self, annots, relationships, prt):
+    ##     '''
+    ##         Fills in the genes annotated to each GO, including ancestors
+
+    ##         Due to the ontology structure, gene products annotated to
+    ##         a GO Terma are also annotated to all ancestors.
+    ##     '''
+    ##     go2geneset = defaultdict(set)
+    ##     if relationships is None:
+    ##         relationships = {}
+    ##     go2up = get_go2ancestors(set(self.go2obj.values()), relationships)
+    ##     godag = self.go2obj
+    ##     go_alts = set()  # For alternate GO IDs
+    ##     goids_notfound = set()  # For missing GO IDs
+    ##     # Fill go-geneset dict with GO IDs in annotations and their corresponding counts
+    ##     for geneid, goids_anno in annots.items():
+    ##         # Make a union of all the terms for a gene, if term parents are
+    ##         # propagated but they won't get double-counted for the gene
+    ##         allterms = set()
+    ##         for goid_anno in goids_anno:
+    ##             if goid_anno in godag:
+    ##                 goid_main = godag[goid_anno].item_id
+    ##                 if goid_anno != goid_main:
+    ##                     go_alts.add(goid_anno)
+    ##                 allterms.add(goid_main)
+    ##                 if goid_main in go2up:
+    ##                     allterms |= go2up[goid_main]
+    ##             else:
+    ##                 goids_notfound.add(goid_anno)
+    ##         # Add 1 for each GO annotated to this gene product
+    ##         for ancestor in allterms:
+    ##             go2geneset[ancestor].add(geneid)
+    ##     if goids_notfound and prt:
+    ##         prt.write("{N} Assc. GO IDs not found in the GODag\n".format(N=len(goids_notfound)))
+    ##     return dict(go2geneset), go_alts
+
+    def _init_go2genes(self, relationships, godag):
         '''
             Fills in the genes annotated to each GO, including ancestors
 
@@ -59,33 +100,22 @@ class TermCounts:
         go2geneset = defaultdict(set)
         if relationships is None:
             relationships = {}
-        go2up = get_go2ancestors(set(self.go2obj.values()), relationships)
-        godag = self.go2obj
-        go_alts = set()  # For alternate GO IDs
-        goids_notfound = set()  # For missing GO IDs
+        go2up = get_go2ancestors(set(godag.values()), relationships)
         # Fill go-geneset dict with GO IDs in annotations and their corresponding counts
-        for geneid, goids_anno in annots.items():
+        for geneid, goids_anno in self.annots.items():
             # Make a union of all the terms for a gene, if term parents are
             # propagated but they won't get double-counted for the gene
             allterms = set()
-            for goid_anno in goids_anno:
-                if goid_anno in godag:
-                    goid_main = godag[goid_anno].item_id
-                    if goid_anno != goid_main:
-                        go_alts.add(goid_anno)
-                    allterms.add(goid_main)
-                    if goid_main in go2up:
-                        allterms |= go2up[goid_main]
-                else:
-                    goids_notfound.add(goid_anno)
+            for goid_main in goids_anno:
+                allterms.add(goid_main)
+                if goid_main in go2up:
+                    allterms.update(go2up[goid_main])
             # Add 1 for each GO annotated to this gene product
             for ancestor in allterms:
                 go2geneset[ancestor].add(geneid)
-        if goids_notfound and prt:
-            prt.write("{N} Assc. GO IDs not found in the GODag\n".format(N=len(goids_notfound)))
-        return dict(go2geneset), go_alts
+        return dict(go2geneset)
 
-    def _init_add_goid_alt(self, not_main, prt):
+    def _init_add_goid_alt(self, not_main):
         '''
             Add alternate GO IDs to term counts. Report GO IDs not found in GO DAG.
         '''

@@ -14,6 +14,7 @@ from goatools.anno.factory import get_objanno as get_objanno_factory
 # from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.semantic import TermCounts
 
+# from goatools_alpha.geneprodsim.semanticcalcs import SemanticCalcs
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
@@ -23,9 +24,9 @@ def prt_hms(tic, msg, prt=sys.stdout):
     prt.write('{HMS} {MSG}\n'.format(HMS=str(timedelta(seconds=toc-tic)), MSG=msg))
     return toc
 
-def get_godag(fin_godag):
+def get_godag(fin_godag, **kws):
     """Get GODAG containing only primary GO IDs (no alternate GO IDs)"""
-    godag = base_get_godag(os.path.join(REPO, fin_godag), loading_bar=False)
+    godag = base_get_godag(os.path.join(REPO, fin_godag), loading_bar=False, **kws)
     return {o.item_id:o for o in godag.values()}
 
 def get_anno_fullname(fin_anno):

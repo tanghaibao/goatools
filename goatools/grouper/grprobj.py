@@ -47,7 +47,7 @@ class Grouper(object):
     def get_usrgos_w_parents(self, hdrgos, usrgos_all=None):
         """Get usrgos w/parents in hdrgos, even if usrgos did not get grouped under hdrgos."""
         usrgos = set()
-        _go2parents = self.gosubdag.rcntobj.go2parents
+        _go2parents = self.gosubdag.rcntobj.go2ancestors
         if usrgos_all is None:
             usrgos_all = self.usrgos
         for usrgo in usrgos_all:
