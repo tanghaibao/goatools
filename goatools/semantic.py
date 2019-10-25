@@ -54,42 +54,6 @@ class TermCounts:
         """Return go2geneset for all GO IDs explicitly annotated to a gene"""
         return set.union(*get_b2aset(self.annots))
 
-    ## def _init_go2genes(self, annots, relationships, prt):
-    ##     '''
-    ##         Fills in the genes annotated to each GO, including ancestors
-
-    ##         Due to the ontology structure, gene products annotated to
-    ##         a GO Terma are also annotated to all ancestors.
-    ##     '''
-    ##     go2geneset = defaultdict(set)
-    ##     if relationships is None:
-    ##         relationships = {}
-    ##     go2up = get_go2ancestors(set(self.go2obj.values()), relationships)
-    ##     godag = self.go2obj
-    ##     go_alts = set()  # For alternate GO IDs
-    ##     goids_notfound = set()  # For missing GO IDs
-    ##     # Fill go-geneset dict with GO IDs in annotations and their corresponding counts
-    ##     for geneid, goids_anno in annots.items():
-    ##         # Make a union of all the terms for a gene, if term parents are
-    ##         # propagated but they won't get double-counted for the gene
-    ##         allterms = set()
-    ##         for goid_anno in goids_anno:
-    ##             if goid_anno in godag:
-    ##                 goid_main = godag[goid_anno].item_id
-    ##                 if goid_anno != goid_main:
-    ##                     go_alts.add(goid_anno)
-    ##                 allterms.add(goid_main)
-    ##                 if goid_main in go2up:
-    ##                     allterms |= go2up[goid_main]
-    ##             else:
-    ##                 goids_notfound.add(goid_anno)
-    ##         # Add 1 for each GO annotated to this gene product
-    ##         for ancestor in allterms:
-    ##             go2geneset[ancestor].add(geneid)
-    ##     if goids_notfound and prt:
-    ##         prt.write("{N} Assc. GO IDs not found in the GODag\n".format(N=len(goids_notfound)))
-    ##     return dict(go2geneset), go_alts
-
     def _init_go2genes(self, relationships, godag):
         '''
             Fills in the genes annotated to each GO, including ancestors
@@ -156,8 +120,11 @@ def get_info_content(go_id, termcounts):
     freq = termcounts.get_term_freq(go_id)
 
     # Calculate the information content (i.e., -log("freq of GO term")
-    # Information content is IC(c) = -log10 p(c) [1].
-    return -1.0 * math.log10(freq) if freq else 0
+    # Information content is IC(c) = -log10 p(c) according to Schliker [1].
+    #
+    # Values in Yang 2012 (and many other papers) use IC(c) = -log p(c),
+    # With "log" meaning "log e" [2]
+    return -1.0 * math.log(freq) if freq else 0
 
 
 def resnik_sim(go_id1, go_id2, godag, termcounts):
@@ -266,5 +233,10 @@ def semantic_similarity(go_id1, go_id2, godag, branch_dist=None):
     return None
 
 # 1. Schlicker, Andreas et al.
-#    "A new measure for functional similarity of gene products based on Gene Ontology"
-#    BMC Bioinformatics (2006)
+# "A new measure for functional similarity of gene products based on Gene Ontology"
+# BMC Bioinformatics (2006)
+#
+# 2. Yang, Haixuan et al.
+# Improving GO semantic similarity measures by exploring the ontology
+#   beneath the terms and modelling uncertainty
+# Bioinformatics (2012)
