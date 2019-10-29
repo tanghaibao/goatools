@@ -120,7 +120,7 @@ def download_go_basic_obo(obo="go-basic.obo", prt=sys.stdout, loading_bar=True):
         obo_remote = "{HTTP}/{OBO}".format(HTTP=http, OBO=os.path.basename(obo))
         dnld_file(obo_remote, obo, prt, loading_bar)
     else:
-        if prt is not None:
+        if prt:
             prt.write("  EXISTS: {FILE}\n".format(FILE=obo))
     return obo
 

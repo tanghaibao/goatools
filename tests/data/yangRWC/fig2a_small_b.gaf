@@ -1,0 +1,12 @@
+!gaf-version: 2.1
+database	a	a		GO:0000004	GO_REF:0000001	IDA		C			protein	taxon:9606	20191028	user	set([])	
+database	a	a		GO:0000002	GO_REF:0000001	IDA		C			protein	taxon:9606	20191028	user	set([])	
+database	c	c		GO:0000006	GO_REF:0000001	IDA		C			protein	taxon:9606	20191028	user	set([])	
+database	b	b		GO:0000005	GO_REF:0000001	IDA		C			protein	taxon:9606	20191028	user	set([])	
+database	e	e		GO:0000007	GO_REF:0000001	IDA		C			protein	taxon:9606	20191028	user	set([])	
+database	d	d		GO:0000007	GO_REF:0000001	IDA		C			protein	taxon:9606	20191028	user	set([])	
+database	g	g		GO:0000002	GO_REF:0000001	IDA		C			protein	taxon:9606	20191028	user	set([])	
+database	f	f		GO:0000007	GO_REF:0000001	IDA		C			protein	taxon:9606	20191028	user	set([])	
+database	i	i		GO:0000001	GO_REF:0000001	IDA		C			protein	taxon:9606	20191028	user	set([])	
+database	h	h		GO:0000003	GO_REF:0000001	IDA		C			protein	taxon:9606	20191028	user	set([])	
+database	j	j		GO:0000001	GO_REF:0000001	IDA		C			protein	taxon:9606	20191028	user	set([])	
