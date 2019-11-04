@@ -302,6 +302,12 @@ class AnnoReaderBase(object):
             assert qual != set(['-']), ntd
             assert 'always' not in qual, 'SPEC SAID IT WOULD BE THERE'
 
+    def chk_godag(self):
+        """Check that a GODag was loaded"""
+        if not self.godag:
+            raise RuntimeError('{CLS} MUST INCLUDE GODag: {CLS}(file.anno, godag=godag)'.format(
+                CLS=self.__class__.__name__))
+
     @staticmethod
     def _has_not_qual(ntd):
         """Return True if the qualifiers contain a 'NOT'"""
