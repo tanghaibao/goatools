@@ -9,6 +9,7 @@ notebooks/semantic_similarity.ipynb
 
 from __future__ import print_function
 
+import sys
 import math
 from collections import Counter
 from collections import defaultdict
@@ -110,6 +111,15 @@ class TermCounts:
         '''
         num_ns = float(self.get_total_count(self.go2obj[go_id].namespace))
         return float(self.get_count(go_id))/num_ns if num_ns != 0 else 0
+
+    def get_gosubdag_all(self, prt=sys.stdout):
+        '''
+            Get GO DAG subset include descendants which are not included in the annotations
+        '''
+        goids = set()
+        for gos in self.gosubdag.rcntobj.go2descendants.values():
+            goids.update(gos)
+        return GoSubDag(goids, self.go2obj, self.gosubdag.relationships, tcntobj=self, prt=prt)
 
 
 def get_info_content(go_id, termcounts):
