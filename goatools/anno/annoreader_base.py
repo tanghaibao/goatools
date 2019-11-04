@@ -13,7 +13,7 @@ __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights re
 __author__ = "DV Klopfenstein"
 
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=useless-object-inheritance,too-many-public-methods
 class AnnoReaderBase(object):
     """Reads a Gene Association File. Returns a Python object."""
     # pylint: disable=broad-except,line-too-long,too-many-instance-attributes
@@ -279,6 +279,7 @@ class AnnoReaderBase(object):
 
     def chk_associations(self, fout_err=None):
         """Check that associations are in expected format."""
+        # pylint: disable=unnecessary-pass
         pass
 
     def nts_ev_nd(self):
