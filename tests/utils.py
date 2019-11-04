@@ -24,6 +24,10 @@ def prt_hms(tic, msg, prt=sys.stdout):
     prt.write('{HMS} {MSG}\n'.format(HMS=str(timedelta(seconds=toc-tic)), MSG=msg))
     return toc
 
+def repofn(fin):
+    """Get a full filename, given a local file name from repo dir root"""
+    return os.path.join(REPO, fin)
+
 def get_godag(fin_godag, **kws):
     """Get GODAG containing only primary GO IDs (no alternate GO IDs)"""
     godag = base_get_godag(os.path.join(REPO, fin_godag), loading_bar=False, **kws)
