@@ -7,6 +7,7 @@ __copyright__ = "Copyright (c) 2017-present, DV Klopfenstein. Haiboa Tang. All r
 
 import os
 from goatools.cli.wr_hierarchy import WrHierCli
+from goatools.base import download_go_basic_obo
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 #  --o               Output file in ASCII text format
@@ -31,6 +32,7 @@ def test_cli():
         (['--concise', '--no_indent'], {'dag':'go-basic.obo', 'dash_len':6,
                                         'concise':True, 'no_indent':True}),
     ]
+    download_go_basic_obo('go-basic.obo', loading_bar=None)
     for idx, (args, exp_dict) in enumerate(args_exp):
         print("ARGS={ARGS}".format(ARGS=args))
         print("EXP={EXP}".format(EXP=exp_dict))

@@ -374,6 +374,7 @@ NOSETESTS := \
     tests/test_wr_tbl_subset.py \
     tests/test_goea_local.py \
     tests/test_write_hier.py \
+		tests/test_cli_write_hierarchy.py \
     tests/test_go_print.py \
     tests/test_read_gaf_allow_nd.py \
     tests/test_write_summary_cnts.py \
