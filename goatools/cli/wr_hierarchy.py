@@ -29,14 +29,13 @@ Options:
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import os
 import sys
 from goatools.base import get_godag
 from goatools.associations import read_annotations
-from goatools.associations import read_associations
 from goatools.utils import get_b2aset
 from goatools.semantic import TermCounts
 from goatools.godag.obo_optional_attributes import OboOptionalAttrs
@@ -58,7 +57,7 @@ def cli():
         objcli.prt_hier(sys.stdout)
 
 
-class WrHierCli(object):
+class WrHierCli:
     """Write hierarchy cli."""
 
     kws_set_all = set(['relationship', 'up', 'f'])
@@ -85,7 +84,6 @@ class WrHierCli(object):
 
     def _init_goids(self):
         goids_ret = []
-        # print("WWWWWWWWWWWWWWWWWWWWWW", self.kws)
         if 'GO' in self.kws:
             for goid in self.kws['GO']:
                 if goid[:3] == "GO:":
@@ -102,6 +100,7 @@ class WrHierCli(object):
         # If GO DAG is small, print hierarchy for the entire DAG
         if len(self.gosubdag.go2nt) < 100:
             return set(self.gosubdag.go2nt.keys())
+        return None
 
     def get_fouts(self):
         """Get output filename."""
@@ -121,7 +120,7 @@ class WrHierCli(object):
 
     def wrtxt_hier(self, fout_txt):
         """Write hierarchy below specfied GO IDs to an ASCII file."""
-        with open(fout_txt, 'wb') as prt:
+        with open(fout_txt, 'w') as prt:
             self.prt_hier(prt)
             print("  WROTE: {TXT}".format(TXT=fout_txt))
 
@@ -179,6 +178,7 @@ class WrHierCli(object):
             return gostr.split(',')
         elif os.path.exists(gostr):
             return GetGOs().get_goids(None, gostr, sys.stdout)
+        return None
 
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved.
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved.

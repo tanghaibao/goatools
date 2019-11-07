@@ -10,6 +10,7 @@ from goatools.obo_parser import GODag
 from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.gosubdag.rpt.write_hierarchy import WrHierGO
 
+
 #################################################################
 # Sub-routines to tests
 #################################################################
