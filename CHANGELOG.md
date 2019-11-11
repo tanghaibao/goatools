@@ -33,6 +33,9 @@ Unreleased changes
 * **Added**`
   * Method to annotation object, *IdToGosReader*, which writes namedtuples into an ASCII file
 * **Changed**
+  * [*Issue 142*](https://github.com/tanghaibao/goatools/issues/142)
+    * **Write GO hierachy** to a file now writes a file when using Python3
+    * Gaf reader defaults to gaf file version of 2.1 if no version line if found
   * *TermCounts*:
     * Added support for optional relationships, like *part_of*.    
       This is useful for computing termwise and genewise semantic similarities.
