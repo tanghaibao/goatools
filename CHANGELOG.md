@@ -3,8 +3,8 @@
 ### Summary
 
 * [**Unreleased changes**](#unreleased-changes)
-  * Deprecated: Internal var, go2parents will be deprecated, renamed to go2ancestors
-  * Changes for [Issue 142](https://github.com/tanghaibao/goatools/issues/142)    
+  * Deprecated: Internal data member, *go2parents* will be deprecated, renamed to *go2ancestors*
+  * Changes for [**Issue 142**](https://github.com/tanghaibao/goatools/issues/142)    
 * [**Release 2019-09-29 0.9.7**](#release-2019-09-29-097)
   * Deprecated: *read_ncbi_gene2go*
   * Deprecated: *get_b2aset* and *GoDagTimed* in their old location. They have been moved.
@@ -24,11 +24,11 @@ Unreleased changes
 
 * **Deprecated**
   * Renamed internal data variable:
-    * NOW: gosubdag.rcntobj.go2ancestors    
-    * WAS: gosubdag.rcntobj.go2parents    
+    * NOW: *gosubdag.rcntobj.go2ancestors*    
+    * WAS: *gosubdag.rcntobj.go2parents*    
 * **Changed**
-  * [*Issue 142*](https://github.com/tanghaibao/goatools/issues/142)
-    * **Write GO hierachy** to a file now writes a file when using Python3
+  * [**Issue 142**](https://github.com/tanghaibao/goatools/issues/142)
+    * Write GO hierachy to a file now writes a file when using Python3
     * Gaf reader defaults to gaf file version of 2.1 if no version line if found
 
 Release 2019-09-29 0.9.9
