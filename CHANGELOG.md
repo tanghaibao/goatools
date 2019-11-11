@@ -1,6 +1,11 @@
 # CHANGELOG
 
+### Summary
+
 * [**Unreleased changes**](#unreleased-changes)
+  * Deprecated: Internal var, go2parents will be deprecated, renamed to go2ancestors
+  * Changes for [Issue 142](https://github.com/tanghaibao/goatools/issues/142)    
+* [**Release 2019-09-29 0.9.7**](#release-2019-09-29-097)
   * Deprecated: *read_ncbi_gene2go*
   * Deprecated: *get_b2aset* and *GoDagTimed* in their old location. They have been moved.
   * Removed empty sets from Descendant and Ancestor dicts in *gosubdag.rcntobj*
@@ -17,7 +22,18 @@
 Unreleased changes
 --------------
 
-### Summary
+* **Deprecated**
+  * Renamed internal data variable:
+    * NOW: gosubdag.rcntobj.go2ancestors    
+    * WAS: gosubdag.rcntobj.go2parents    
+* **Changed**
+  * [*Issue 142*](https://github.com/tanghaibao/goatools/issues/142)
+    * **Write GO hierachy** to a file now writes a file when using Python3
+    * Gaf reader defaults to gaf file version of 2.1 if no version line if found
+
+Release 2019-09-29 0.9.9
+-------------------------
+
 * **Deprecated**
   * *read_ncbi_gene2go* is deprecated and will be removed in the future.
   * *get_b2aset* is moved:
@@ -33,9 +49,6 @@ Unreleased changes
 * **Added**`
   * Method to annotation object, *IdToGosReader*, which writes namedtuples into an ASCII file
 * **Changed**
-  * [*Issue 142*](https://github.com/tanghaibao/goatools/issues/142)
-    * **Write GO hierachy** to a file now writes a file when using Python3
-    * Gaf reader defaults to gaf file version of 2.1 if no version line if found
   * *TermCounts*:
     * Added support for optional relationships, like *part_of*.    
       This is useful for computing termwise and genewise semantic similarities.
