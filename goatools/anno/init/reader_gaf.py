@@ -13,7 +13,7 @@ from goatools.anno.annoreader_base import AnnoReaderBase
 from goatools.anno.init.utils import get_date_yyyymmdd
 from goatools.anno.extensions.factory import get_extensions
 
-__copyright__ = "Copyright (C) 2016-2020, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
@@ -160,13 +160,22 @@ class GafData:
 
     def __init__(self, ver, allow_missing_symbol=False):
         self.ver = ver
-        self.is_long = ver[0] == '2'
-        self.flds = self.gaf_columns[ver]
+        self.is_long = self._init_is_long(ver)
+        self.flds = self.gaf_columns[self.ver]
         # pylint: disable=line-too-long
         self.req1 = self.spec_req1 if not allow_missing_symbol else [i for i in self.spec_req1 if i != 2]
         # Store information about illegal lines seen in a GAF file from the field
         self.ignored = []  # Illegal GAF lines that are ignored (e.g., missing an ID)
         self.illegal_lines = cx.defaultdict(list)  # GAF lines that are missing information (missing taxon)
+
+    def _init_is_long(self, ver):
+        """If the GAF version is 2.0 or 2.1, the GAF format is the long format (2 more cols)"""
+        if ver is not None:
+            return ver[0] == '2'
+        print('\n**WARNING: NO VERSION LINE FOUND IN GAF FILE. USING:')
+        print('!gaf-version: 2.1')
+        self.ver = '2.1'
+        return True
 
     @staticmethod
     def get_dfltdict():
@@ -382,4 +391,4 @@ class GafHdr:
             self.gafhdr.append(mtch.group(1))
 
 
-# Copyright (C) 2016-2020, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."

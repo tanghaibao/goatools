@@ -1,4 +1,3 @@
-!gaf-version: 2.1
 database	p89	p89		GO:0000012	GO_REF:0000001	IDA		C			protein	taxon:9606	20191029	user	set([])	
 database	p88	p88		GO:0000012	GO_REF:0000001	IDA		C			protein	taxon:9606	20191029	user	set([])	
 database	p83	p83		GO:0000012	GO_REF:0000001	IDA		C			protein	taxon:9606	20191029	user	set([])	
