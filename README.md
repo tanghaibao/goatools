@@ -52,7 +52,7 @@ This package contains a Python library to
 
 - [Get parents or ancestors for a GO term with or without optional relationships](https://nbviewer.jupyter.org/github/tanghaibao/goatools/blob/master/notebooks/parents_and_ancestors.ipynb)
 
-  - [Print details about a GO ID's parents](/notebooks/parent_go_terms.ipynb)    
+  - [Print details about a GO ID's parents](https://nbviewer.jupyter.org/github/tanghaibao/goatools/blob/master/notebooks/parent_go_terms.ipynb)    
 
 - Compare two or more lists of GO IDs using _scripts/compare_gos.py_
 - [Plot GO hierarchies](https://github.com/tanghaibao/goatools#plot-go-lineage)
