@@ -1,5 +1,8 @@
 # Notebook Images
 
+# GO parents
+![GO parents](reg_synapse_org.png)
+
 ## Nature paper GOEA results
 
 ### All Cellular Components
