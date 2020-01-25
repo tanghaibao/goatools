@@ -409,7 +409,7 @@ chk_parsers:
 
 # This Representative test subset is automatically run for all push requests using Travis-CI.
 # Running a subset of tests prevents Travis-CI from timeing out.
-test_travis_subset:
+test_ci_subset:
 	py.test --cov=goatools $(NOSETESTS)
 
 # Copyright (C) 2010-2019. Haibao Tang et al. All rights reserved.

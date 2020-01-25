@@ -3,24 +3,24 @@
 [![DIO](/doc/images/DOI.svg)](https://www.nature.com/articles/s41598-018-28948-z)
 [![Latest PyPI version](https://img.shields.io/pypi/v/goatools.svg)](https://pypi.python.org/pypi/goatools)
 [![bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools)
-[![travisCI](https://travis-ci.org/tanghaibao/goatools.svg?branch=master)](https://travis-ci.org/tanghaibao/goatools)
+[![Github Actions](https://github.com/tanghaibao/goatools/workflows/build/badge.svg)](https://github.com/tanghaibao/goatools/actions)
 
-| | |
-|---|---|
-| Authors | Haibao Tang ([tanghaibao](http://github.com/tanghaibao)) |
-| | DV Klopfenstein ([dvklopfenstein](https://github.com/dvklopfenstein)) |
-| | Brent Pedersen ([brentp](http://github.com/brentp)) |
-| | Fidel Ramirez ([fidelram](https://github.com/fidelram)) |
-| | Aurelien Naldi ([aurelien-naldi](http://github.com/aurelien-naldi)) |
-| | Patrick Flick ([patflick](http://github.com/patflick)) |
-| | Jeff Yunes ([yunesj](http://github.com/yunesj)) |
-| | Kenta Sato ([bicycle1885](http://github.com/bicycle1885)) |
-| | Chris Mungall ([cmungall](https://github.com/cmungall)) |
-| | Greg Stupp ([stuppie](https://github.com/stuppie)) |
-| | David DeTomaso ([deto](https://github.com/deto)) |
-| | Olga Botvinnik ([olgabot](https://github.com/olgabot)) |
-| Email | <tanghaibao@gmail.com> |
-| License | BSD |
+|         |                                                                       |
+| ------- | --------------------------------------------------------------------- |
+| Authors | Haibao Tang ([tanghaibao](http://github.com/tanghaibao))              |
+|         | DV Klopfenstein ([dvklopfenstein](https://github.com/dvklopfenstein)) |
+|         | Brent Pedersen ([brentp](http://github.com/brentp))                   |
+|         | Fidel Ramirez ([fidelram](https://github.com/fidelram))               |
+|         | Aurelien Naldi ([aurelien-naldi](http://github.com/aurelien-naldi))   |
+|         | Patrick Flick ([patflick](http://github.com/patflick))                |
+|         | Jeff Yunes ([yunesj](http://github.com/yunesj))                       |
+|         | Kenta Sato ([bicycle1885](http://github.com/bicycle1885))             |
+|         | Chris Mungall ([cmungall](https://github.com/cmungall))               |
+|         | Greg Stupp ([stuppie](https://github.com/stuppie))                    |
+|         | David DeTomaso ([deto](https://github.com/deto))                      |
+|         | Olga Botvinnik ([olgabot](https://github.com/olgabot))                |
+| Email   | <tanghaibao@gmail.com>                                                |
+| License | BSD                                                                   |
 
 ## Description
 
@@ -42,6 +42,7 @@ This package contains a Python library to
   acyclic graph (DAG) that allows easy traversal from leaf to root.
 
 - Read [GO Association files](http://geneontology.org/page/go-annotation-file-formats):
+
   - GAF ([GO Annotation File](http://geneontology.org/page/go-annotation-file-gaf-format-21))
   - GPAD ([Gene Product Association Data](https://geneontology.github.io/docs/gene-product-association-data-gpad-format/))
   - NCBI's gene2go file
@@ -70,20 +71,19 @@ _Please cite the following research paper if you use GOATOOLS in your research_:
 Klopfenstein DV, Zhang L, Pedersen BS, ... Tang H [GOATOOLS: A Python library for Gene Ontology analyses](https://www.nature.com/articles/s41598-018-28948-z)
 _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
 
-  * **GO Grouping**:
-    Visualize the major findings in a gene ontology enrichment analysis (GEOA) more easily with grouping.
-    A detailed description of GOATOOLS GO grouping is found in the
-    [manuscript](https://www.nature.com/articles/s41598-018-28948-z).
-  * **Compare GO lists**:
-    Compare two or more lists of GO IDs using _scripts/compare_gos.py_.
-    This script can be used with or without grouping.
-  * **Stochastic GOEA simulations**:
-    One of the findings resulting from our simulations is:
-    [Larger study sizes result in higher GOEA sensitivity](https://github.com/dvklopfenstein/goatools_simulation#manuscript-figures),
-    meaning fewer truly significant observations go unreported.
-    The code for the stochastic GOEA simulations
-    described in the paper is found here:
-    https://github.com/dvklopfenstein/goatools_simulation
+- **GO Grouping**:
+  Visualize the major findings in a gene ontology enrichment analysis (GEOA) more easily with grouping.
+  A detailed description of GOATOOLS GO grouping is found in the
+  [manuscript](https://www.nature.com/articles/s41598-018-28948-z).
+- **Compare GO lists**:
+  Compare two or more lists of GO IDs using _scripts/compare_gos.py_.
+  This script can be used with or without grouping.
+- **Stochastic GOEA simulations**:
+  One of the findings resulting from our simulations is:
+  [Larger study sizes result in higher GOEA sensitivity](https://github.com/dvklopfenstein/goatools_simulation#manuscript-figures),
+  meaning fewer truly significant observations go unreported.
+  The code for the stochastic GOEA simulations
+  described in the paper is found [here](https://github.com/dvklopfenstein/goatools_simulation)
 
 ## Installation
 
@@ -91,7 +91,7 @@ Make sure your Python version >= 2.7, install the latest stable
 version via PyPI:
 
 ```bash
-easy_install goatools
+pip install goatools
 ```
 
 To install the development version:
@@ -118,13 +118,14 @@ wget http://www.geneontology.org/ontology/subsets/goslim_generic.obo
 ## Dependencies
 
 - Simplest is to install via bioconda. See details
-   [here](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools).
+  [here](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools).
 
 - To calculate the uncorrected p-values, there are currently twooptions:
+
   - [fisher](http://pypi.python.org/pypi/fisher/) for calculating Fisher's exact test:
 
   ```bash
-  easy_install fisher
+  pip install fisher
   ```
 
   - [fisher](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html)
@@ -133,23 +134,25 @@ wget http://www.geneontology.org/ontology/subsets/goslim_generic.obo
 
   - `statsmodels` (optional) for access to a variety of statistical tests for GOEA:
 
-   ```bash
-   easy_install statsmodels
-   ```
+  ```bash
+  pip install statsmodels
+  ```
 
 - To plot the ontology lineage, install one of these two options:
+
   - Graphviz
+
     - [Graphviz](http://www.graphviz.org/), for graph visualization.
     - [pygraphviz](http://networkx.lanl.gov/pygraphviz/), Python binding for communicating with Graphviz:
 
     ```bash
-    easy_install pygraphviz
+    pip install pygraphviz
     ```
 
   - [pydot](https://code.google.com/p/pydot/), a Python interface to Graphviz's Dot language.
     - [pyparsing](http://pyparsing.wikispaces.com/) is a prerequisite for `pydot`
     - Images can be viewed using either:
-      - [ImageMagick](http://www.imagemagick.org/)'s *display*
+      - [ImageMagick](http://www.imagemagick.org/)'s _display_
       - [Graphviz](http://www.graphviz.org/)
 
 ## Cookbook
@@ -158,6 +161,7 @@ wget http://www.geneontology.org/ontology/subsets/goslim_generic.obo
 `scripts` folder.
 
 ### Find GO enrichment of genes under study
+
 See examples in [find_enrichment examples](/doc/md/README_find_enrichment.md)
 
 See `find_enrichment.py` for usage. It takes as arguments files
@@ -180,8 +184,8 @@ can report various multiple testing corrected p-values as well as the
 false discovery rate.
 
 The "e" in the "Enrichment" column means "enriched" - the concentration
-of GO term in the study group is significantly *higher* than those in
-the population. The "p" stands for "purified" - significantly *lower*
+of GO term in the study group is significantly _higher_ than those in
+the population. The "p" stands for "purified" - significantly _lower_
 concentration of the GO term in the study group than in the population.
 
 **Important note**: by default, `find_enrichment.py` propagates counts
@@ -190,19 +194,19 @@ the output that are not present in their `association` file. Use
 `--no_propagate_counts` to disable this behavior.
 
 ### Write GO hierarchy
-  * [scripts/wr_hier.py](doc/md/README_wr_hier.md): Given a GO ID, write the hierarchy below (default)
-    or above (--up) the given GO.
+
+- [scripts/wr_hier.py](doc/md/README_wr_hier.md): Given a GO ID, write the hierarchy below (default)
+  or above (--up) the given GO.
 
 ### Plot GO lineage
 
-  * [scripts/go_plot.py](doc/md/README_go_plot.md):
-    * Plots user-specified GO term(s) up to root
-    * Multiple user-specified GOs
-    * User-defined colors
-    * Plot relationships (-r)
-    * Optionally plot children of user-specfied GO terms
-  * [scripts/plot_go_term.py](plot_go_term-py)
-
+- [scripts/go_plot.py](doc/md/README_go_plot.md):
+  - Plots user-specified GO term(s) up to root
+  - Multiple user-specified GOs
+  - User-defined colors
+  - Plot relationships (-r)
+  - Optionally plot children of user-specfied GO terms
+- [scripts/plot_go_term.py](plot_go_term-py)
 
 #### plot_go_term.py
 
@@ -274,7 +278,7 @@ packages.
 
 - `fisher`, [fisher](http://pypi.python.org/pypi/fisher/) package's `fisher.pvalue_population`
 - `fisher_scipy_stats`:[SciPy](https://docs.scipy.org/doc/scipy/reference/)
-   [stats](https://docs.scipy.org/doc/scipy/reference/tutorial/stats.html) package
+  [stats](https://docs.scipy.org/doc/scipy/reference/tutorial/stats.html) package
   [fisher_exact](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html)
 
 ### Available multiple test corrections
@@ -333,7 +337,8 @@ strategy which may lead to slightly different q-values between runs.
 ## Want to Help?
 
 Prior to submitting your pull request, please add a test which verifies your code, and run:
-```
+
+```console
 make test
 ```
 
@@ -348,6 +353,7 @@ Items that we know we need include:
   ```bash
   make mkdocs_practice
   ```
+
   To remove practice documentation:
 
   ```bash
