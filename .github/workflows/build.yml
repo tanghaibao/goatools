@@ -13,6 +13,8 @@ jobs:
         exclude:
           - os: ubuntu-latest
             python-version: 2.7
+          - os: macos-latest
+            python-version: 2.7
 
     steps:
       - uses: actions/checkout@v1
