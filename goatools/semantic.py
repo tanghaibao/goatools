@@ -124,17 +124,10 @@ class TermCounts:
 
 def get_info_content(go_id, termcounts):
     '''
-        Calculates the information content of a GO term.
+        Retrieve the information content of a GO term.
     '''
-    # Get the observed frequency of the GO term
-    freq = termcounts.get_term_freq(go_id)
-
-    # Calculate the information content (i.e., -log("freq of GO term")
-    # Information content is IC(c) = -log10 p(c) according to Schliker [1].
-    #
-    # Values in Yang 2012 (and many other papers) use IC(c) = -log p(c),
-    # With "log" meaning "log e" [2]
-    return -1.0 * math.log(freq) if freq else 0
+    ntd = termcounts.gosubdag.go2nt.get(go_id)
+    return ntd.tinfo if ntd else 0.0
 
 
 def resnik_sim(go_id1, go_id2, godag, termcounts):
@@ -149,25 +142,30 @@ def resnik_sim(go_id1, go_id2, godag, termcounts):
     return None
 
 
-def lin_sim(goid1, goid2, godag, termcnts):
+def lin_sim(goid1, goid2, godag, termcnts, dfltval=None):
     '''
         Computes Lin's similarity measure.
     '''
     sim_r = resnik_sim(goid1, goid2, godag, termcnts)
-    return lin_sim_calc(goid1, goid2, sim_r, termcnts)
+    return lin_sim_calc(goid1, goid2, sim_r, termcnts, dfltval)
 
 
-def lin_sim_calc(goid1, goid2, sim_r, termcnts):
+def lin_sim_calc(goid1, goid2, sim_r, termcnts, dfltval=None):
     '''
         Computes Lin's similarity measure using pre-calculated Resnik's similarities.
     '''
     if sim_r is not None:
-        info = get_info_content(goid1, termcnts) + get_info_content(goid2, termcnts)
-        if info != 0:
+        tinfo1 = get_info_content(goid1, termcnts)
+        tinfo2 = get_info_content(goid2, termcnts)
+        info = tinfo1 + tinfo2
+        if tinfo1 != 0.0 and tinfo2 != 0.0 and info != 0:
             return (2*sim_r)/info
-        if sim_r == 0:
-            return 1.0 if goid1 == goid2 else 0.0
-    return None
+        if goid1 == goid2:
+            return 1.0
+        # The GOs are separated by the root term, so are not similar
+        if sim_r == 0.0:
+            return 0.0
+    return dfltval
 
 
 def common_parent_go_ids(goids, godag):
