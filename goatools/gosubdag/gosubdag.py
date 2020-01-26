@@ -18,7 +18,7 @@ class GoSubDag(object):
     """Manages a user-specified subset of a GO DAG."""
 
     def __init__(self, go_sources, go2obj, relationships=None, **kws):
-        # kws _Init: rcntobj
+        # kws _Init: tcntobj, rcntobj
         # tic = timeit.default_timer()
         _ini = InitGOs(go_sources, go2obj, relationships, **kws)
         self.go_sources = _ini.go_sources # set(go_sources)
