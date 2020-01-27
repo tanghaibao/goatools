@@ -10,12 +10,12 @@ notebooks/semantic_similarity.ipynb
 from __future__ import print_function
 
 import sys
-import math
 from collections import Counter
 from collections import defaultdict
 from goatools.godag.consts import NAMESPACE2GO
 from goatools.godag.go_tasks import get_go2ancestors
 from goatools.gosubdag.gosubdag import GoSubDag
+from goatools.godag.relationship_combos import RelationshipCombos
 from goatools.anno.update_association import clean_anno
 from goatools.utils import get_b2aset
 
@@ -33,8 +33,9 @@ class TermCounts:
         # Backup
         self.go2obj = go2obj  # Full GODag
         self.annots, go_alts = clean_anno(annots, go2obj, _prt)[:2]
-        # Genes annotated to all associated GO, including inherited up ancestors
-        self.go2genes = self._init_go2genes(relationships, go2obj)
+        # Genes annotated to all associated GO, including inherited up ancestors'
+        _relationship_set = RelationshipCombos(go2obj).get_set(relationships)
+        self.go2genes = self._init_go2genes(_relationship_set, go2obj)
         self.gene2gos = get_b2aset(self.go2genes)
         # Annotation main GO IDs (prefer main id to alt_id)
         self.goids = set(self.go2genes.keys())
@@ -48,14 +49,14 @@ class TermCounts:
             set(self.gocnts.keys()),
             go2obj,
             tcntobj=self,
-            relationships=relationships,
+            relationships=_relationship_set,
             prt=_prt)
 
     def get_annotations_reversed(self):
         """Return go2geneset for all GO IDs explicitly annotated to a gene"""
         return set.union(*get_b2aset(self.annots))
 
-    def _init_go2genes(self, relationships, godag):
+    def _init_go2genes(self, relationship_set, godag):
         '''
             Fills in the genes annotated to each GO, including ancestors
 
@@ -63,9 +64,7 @@ class TermCounts:
             a GO Terma are also annotated to all ancestors.
         '''
         go2geneset = defaultdict(set)
-        if relationships is None:
-            relationships = {}
-        go2up = get_go2ancestors(set(godag.values()), relationships)
+        go2up = get_go2ancestors(set(godag.values()), relationship_set)
         # Fill go-geneset dict with GO IDs in annotations and their corresponding counts
         for geneid, goids_anno in self.annots.items():
             # Make a union of all the terms for a gene, if term parents are

@@ -19,7 +19,7 @@ def test_semantic_similarity():
     assoc = _get_id2gos(os.path.join(REPO, 'tests/data/yangRWC/fig1b.anno'), godag, name2go)
     tcntobj = TermCounts(godag, assoc)
     assert tcntobj.gocnts[name2go['I']] == 20
-    assert tcntobj.gocnts[name2go['L']] == 20
+    assert tcntobj.gocnts[name2go['L']] == 21
     assert tcntobj.gocnts[name2go['M']] == 20
     assert tcntobj.gocnts[name2go['N']] == 20
 

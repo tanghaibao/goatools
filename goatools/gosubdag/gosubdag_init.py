@@ -2,13 +2,14 @@
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2016-2020, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
 import collections as cx
 import math
 from goatools.godag.consts import NAMESPACE2NS
+from goatools.godag.relationship_combos import RelationshipCombos
 from goatools.godag.relationship_str import RelationshipStr
 from goatools.godag.go_tasks import CurNHigher
 from goatools.gosubdag.godag_rcnt import CountRelatives
@@ -33,28 +34,10 @@ class InitGOs:
         # Init go2obj and go_sources
         self.go2obj = None
         self.go_sources = None
-        self._init_gos(go_sources, relationships)
+        relationship_set = RelationshipCombos(go2obj).get_set(relationships)
+        self._init_gos(go_sources, relationship_set)
         # Using reduced go2obj, init relationships
-        self.relationships = self._init_relationships(relationships)  # set of relationship types
-
-    def _init_relationships(self, relationships_arg):
-        """Return a set of relationships found in all subset GO Terms."""
-        if relationships_arg:
-            relationships_all = self._get_all_relationships()
-            if relationships_arg is True:
-                return relationships_all
-            return relationships_all.intersection(relationships_arg)
-        return set()
-
-    def _get_all_relationships(self):
-        """Return all relationships seen in GO Dag subset."""
-        relationships_all = set()
-        for goterm in self.go2obj.values():
-            if goterm.relationship:
-                relationships_all.update(goterm.relationship)
-            if goterm.relationship_rev:
-                relationships_all.update(goterm.relationship_rev)
-        return relationships_all
+        self.relationships = relationship_set
 
     def _init_gos(self, go_sources_arg, relationships_arg):
         """Initialize GO sources."""
@@ -259,4 +242,4 @@ class InitFields:
         return ret
 
 
-# Copyright (C) 2016-2020, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved.
