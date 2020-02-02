@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -85,11 +85,11 @@ class GoSubDag(object):
         """Return sorted list of tuples."""
         if 'dcnt' in self.prt_attr['flds']:
             if 'D1' in self.prt_attr['flds']:
-                return lambda ntgo: [ntgo.NS, ntgo.depth, -1*ntgo.dcnt, ntgo.D1, ntgo.alt]
+                return lambda ntgo: [ntgo.NS, ntgo.depth, -1*ntgo.dcnt, ntgo.D1, ntgo.alt, ntgo.GO]
             else:
-                return lambda ntgo: [ntgo.NS, ntgo.depth, -1*ntgo.dcnt, ntgo.alt]
+                return lambda ntgo: [ntgo.NS, ntgo.depth, -1*ntgo.dcnt, ntgo.alt, ntgo.GO]
         else:
-            return lambda ntgo: [ntgo.NS, -1*ntgo.depth, ntgo.alt]
+            return lambda ntgo: [ntgo.NS, -1*ntgo.depth, ntgo.alt, ntgo.GO]
 
     def get_go2nt(self, goids):
         """Return dict of GO ID as key and GO object information in namedtuple."""
@@ -139,4 +139,4 @@ class GoSubDag(object):
         prt.write("             GoSubDag: relationships: {RELS}\n".format(RELS=self.relationships))
 
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved.
