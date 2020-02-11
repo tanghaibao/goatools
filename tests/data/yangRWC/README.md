@@ -1,5 +1,5 @@
 # Yang RWC tests
-[Improving GO semantic similarity measures by exploring the ontology beneath the terms and modelling uncertainty](https://pubmed.ncbi.nlm.nih.gov/22522134)    
+[**Improving GO semantic similarity measures by exploring the ontology beneath the terms and modelling uncertainty**](https://pubmed.ncbi.nlm.nih.gov/22522134)    
 Yang, Haixuan et al. Bioinformatics (2012)    
 
 Yang's innovative addition to similarity calculation between two GO terms is to
@@ -11,9 +11,13 @@ leading to greatly imporved similarity measures.
 
 ### Very Small GO DAGs
 
+#### Original DAG from Yang's Fig 2a
+![Yang Fig2](bioinf_yang_fig2.png)
+![fig2a](yang_fig2a.png)
+
+#### Alter2G
 ![faa2a_nonleaf0](yang_faa2a_nonleaf0.png)
 ![fig2a_nonleaf0](yang_fig2a_nonleaf0.png)
-![fig2a](yang_fig2a.png)
 ![fig2a_small](yang_fig2a_small.png)
 ![fig2a_small_b](yang_fig2a_small_b.png)
 
