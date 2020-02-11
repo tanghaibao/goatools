@@ -1,4 +1,4 @@
-# Yang RWC tests
+# Yang random walk contribution (RWC) tests
 [**Improving GO semantic similarity measures by exploring the ontology beneath the terms and modelling uncertainty**](https://pubmed.ncbi.nlm.nih.gov/22522134)    
 Yang, Haixuan et al. Bioinformatics (2012)    
 
@@ -9,20 +9,32 @@ leading to greatly imporved similarity measures.
 
 ## GO DAGs used to test implementation of Yang RWC
 
-### Very Small GO DAGs
-
-#### Original DAG from Yang's Fig 2a
+### Original Yang's Fig 2
 ![Yang Fig2](bioinf_yang_fig2.png)
+
+#### Yang's Fig 2a GO DAG in GOATOOLS
+Note that we swapped node F and G    
 ![fig2a](yang_fig2a.png)
 
-#### Alter2G
-![faa2a_nonleaf0](yang_faa2a_nonleaf0.png)
+#### Fig2a modified: 1
 ![fig2a_nonleaf0](yang_fig2a_nonleaf0.png)
+
+#### Fig2a modified: 2
 ![fig2a_small](yang_fig2a_small.png)
+
+#### Fig2a modified: 3
 ![fig2a_small_b](yang_fig2a_small_b.png)
 
-### Small GO DAGs
+#### Simplify: All GO terms have one parent
+![faa2a_nonleaf0](yang_faa2a_nonleaf0.png)
 
+
+### Original Yang's Fig 1
+![Yang Fig 1](bioinf_yang_fig1.png)
+
+#### Yang Fig 1a in GOATOOLS
 ![fig1a](yang_fig1a.png)
 ![fig1a_small](yang_fig1a_small.png)
+
+#### Yang Fig 1b in GOATOOLS
 ![fig1b](yang_fig1b.png)
