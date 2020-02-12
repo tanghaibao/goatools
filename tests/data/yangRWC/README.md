@@ -15,7 +15,7 @@ leading to greatly imporved similarity measures.
 #### Yang's Fig 2a GO DAG in GOATOOLS
 A total of 100 genes are associated with GO terms.
 
-Note that we swapped node F and G.    
+Note that we swapped node F and G compared to Yang Fig 2.    
 ![fig2a](yang_fig2a.png)
 
 #### Fig2a modified: Reduce number of annotations by 10x
@@ -23,13 +23,13 @@ We reduced 100 genes to 10 genes (a, b, c, .... h, i, j) for easier testing.
 
 ![fig2a_small](yang_fig2a_small.png)
 
-#### Fig2a modified: 3
+#### Fig2a modified: Gene, a, is annotated to both B and D
 ![fig2a_small_b](yang_fig2a_small_b.png)
 
-#### Fig2a modified: 2
+#### Fig2a modified: F is not annotated
 ![fig2a_nonleaf0](yang_fig2a_nonleaf0.png)
 
-#### Simplify: All GO terms have one parent
+#### Simplify: All GO terms have one parent. F is not annotated.
 ![faa2a_nonleaf0](yang_faa2a_nonleaf0.png)
 
 
