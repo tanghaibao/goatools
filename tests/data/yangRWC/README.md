@@ -13,17 +13,19 @@ leading to greatly imporved similarity measures.
 ![Yang Fig2](bioinf_yang_fig2.png)
 
 #### Yang's Fig 2a GO DAG in GOATOOLS
-Note that we swapped node F and G    
+Note that we swapped node F and G.    
 ![fig2a](yang_fig2a.png)
 
-#### Fig2a modified: 1
-![fig2a_nonleaf0](yang_fig2a_nonleaf0.png)
-
-#### Fig2a modified: 2
+#### Fig2a modified: Reduce number of annotations 10x
+Debugging is easier with fewer annotations,
+so we divided the number of annotations for each GO term by 10.
 ![fig2a_small](yang_fig2a_small.png)
 
 #### Fig2a modified: 3
 ![fig2a_small_b](yang_fig2a_small_b.png)
+
+#### Fig2a modified: 2
+![fig2a_nonleaf0](yang_fig2a_nonleaf0.png)
 
 #### Simplify: All GO terms have one parent
 ![faa2a_nonleaf0](yang_faa2a_nonleaf0.png)
