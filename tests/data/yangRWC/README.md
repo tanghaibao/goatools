@@ -23,7 +23,7 @@ We reduced 100 genes to 10 genes (a, b, c, .... h, i, j) for easier testing.
 
 ![fig2a_small](yang_fig2a_small.png)
 
-#### Fig2a modified: Gene, a, is annotated to both B and D
+#### Fig2a modified: Gene, a, is explicitly annotated to both B and D
 ![fig2a_small_b](yang_fig2a_small_b.png)
 
 #### Fig2a modified: F is not annotated
