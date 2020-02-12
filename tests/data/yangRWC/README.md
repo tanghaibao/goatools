@@ -19,7 +19,7 @@ Note that we swapped node F and G.
 ![fig2a](yang_fig2a.png)
 
 #### Fig2a modified: Reduce number of annotations by 10x
-A total of 10 genes (a, b, c, .... h, i, j) are associated with GO terms, for easier testing.
+We reduced 100 genes to 10 genes (a, b, c, .... h, i, j) for easier testing.
 
 ![fig2a_small](yang_fig2a_small.png)
 
