@@ -13,12 +13,14 @@ leading to greatly imporved similarity measures.
 ![Yang Fig2](bioinf_yang_fig2.png)
 
 #### Yang's Fig 2a GO DAG in GOATOOLS
+A total of 100 genes are associated with GO terms.
+
 Note that we swapped node F and G.    
 ![fig2a](yang_fig2a.png)
 
-#### Fig2a modified: Reduce number of annotations 10x
-Debugging is easier with fewer annotations,
-so we divided the number of annotations for each GO term by 10.
+#### Fig2a modified: Reduce number of annotations by 10x
+A total of 10 genes (a, b, c, .... h, i, j) are associated with GO terms, for easier testing.
+
 ![fig2a_small](yang_fig2a_small.png)
 
 #### Fig2a modified: 3
