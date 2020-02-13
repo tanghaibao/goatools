@@ -13,6 +13,7 @@ import sys
 from collections import Counter
 from collections import defaultdict
 from goatools.godag.consts import NAMESPACE2GO
+from goatools.godag.consts import NAMESPACE2NS
 from goatools.godag.go_tasks import get_go2ancestors
 from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.godag.relationship_combos import RelationshipCombos
@@ -40,6 +41,7 @@ class TermCounts:
         # Annotation main GO IDs (prefer main id to alt_id)
         self.goids = set(self.go2genes.keys())
         self.gocnts = Counter({go:len(geneset) for go, geneset in self.go2genes.items()})
+        # Get total count for each branch: BP MF CC
         self.aspect_counts = {
             'biological_process': self.gocnts.get(NAMESPACE2GO['biological_process'], 0),
             'molecular_function': self.gocnts.get(NAMESPACE2GO['molecular_function'], 0),
@@ -50,7 +52,9 @@ class TermCounts:
             go2obj,
             tcntobj=self,
             relationships=_relationship_set,
-            prt=_prt)
+            prt=None)
+        if _prt:
+            self.prt_objdesc(_prt)
 
     def get_annotations_reversed(self):
         """Return go2geneset for all GO IDs explicitly annotated to a gene"""
@@ -119,6 +123,12 @@ class TermCounts:
         for gos in self.gosubdag.rcntobj.go2descendants.values():
             goids.update(gos)
         return GoSubDag(goids, self.go2obj, self.gosubdag.relationships, tcntobj=self, prt=prt)
+
+    def prt_objdesc(self, prt=sys.stdout):
+        """Print TermCount object description"""
+        ns_tot = sorted(self.aspect_counts.items())
+        cnts = ['{NS}({N:,})'.format(NS=NAMESPACE2NS[ns], N=n) for ns, n in ns_tot if n != 0]
+        self.gosubdag.prt_objdesc(prt, "TermCounts {CNT}".format(CNT=' '.join(cnts)))
 
 
 def get_info_content(go_id, termcounts):
