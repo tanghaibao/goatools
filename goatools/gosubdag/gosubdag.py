@@ -14,7 +14,7 @@ from goatools.gosubdag.gosubdag_init import InitFields
 from goatools.gosubdag.go_tasks import chk_goids
 
 
-class GoSubDag(object):
+class GoSubDag:
     """Manages a user-specified subset of a GO DAG."""
 
     def __init__(self, go_sources, go2obj, relationships=None, **kws):
@@ -86,10 +86,8 @@ class GoSubDag(object):
         if 'dcnt' in self.prt_attr['flds']:
             if 'D1' in self.prt_attr['flds']:
                 return lambda ntgo: [ntgo.NS, ntgo.depth, -1*ntgo.dcnt, ntgo.D1, ntgo.alt, ntgo.GO]
-            else:
-                return lambda ntgo: [ntgo.NS, ntgo.depth, -1*ntgo.dcnt, ntgo.alt, ntgo.GO]
-        else:
-            return lambda ntgo: [ntgo.NS, -1*ntgo.depth, ntgo.alt, ntgo.GO]
+            return lambda ntgo: [ntgo.NS, ntgo.depth, -1*ntgo.dcnt, ntgo.alt, ntgo.GO]
+        return lambda ntgo: [ntgo.NS, -1*ntgo.depth, ntgo.alt, ntgo.GO]
 
     def get_go2nt(self, goids):
         """Return dict of GO ID as key and GO object information in namedtuple."""
@@ -125,18 +123,22 @@ class GoSubDag(object):
             ns2goids[go2nt[goid].NS].add(goid)
         return {ns:gos for ns, gos in ns2goids.items()}
 
-    def prt_objdesc(self, prt):
+    def prt_objdesc(self, prt=sys.stdout, desc=None):
         """Return description of this GoSubDag object."""
-        txt = "INITIALIZING GoSubDag: {N:3} sources in {M:3} GOs rcnt({R}). {A} alt GO IDs\n"
+        if desc is not None:
+            desc += ' '
+        txt = "{DESC}GoSubDag: {N:3} sources in {M:3} GOs rcnt({R}). {A} alt GO IDs\n"
         alt2obj = {go:o for go, o in self.go2obj.items() if go != o.id}
         prt.write(txt.format(
+            DESC=desc,
             N=len(self.go_sources),
             M=len(self.go2obj),
             R=self.rcntobj is not None,
             A=len(alt2obj)))
-        prt.write("             GoSubDag: namedtuple fields: {FLDS}\n".format(
-            FLDS=" ".join(self.prt_attr['flds'])))
-        prt.write("             GoSubDag: relationships: {RELS}\n".format(RELS=self.relationships))
+        prt.write("{DESC}GoSubDag: namedtuple fields: {FLDS}\n".format(
+            DESC=desc, FLDS=" ".join(self.prt_attr['flds'])))
+        prt.write("{DESC}GoSubDag: relationships: {RELS}\n".format(
+            DESC=desc, RELS=self.relationships))
 
 
 # Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved.
