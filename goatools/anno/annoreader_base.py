@@ -9,7 +9,7 @@ from goatools.anno.opts import AnnoOptions
 from goatools.godag.consts import NAMESPACE2NS
 from goatools.gosubdag.go_tasks import get_go2parents_go2obj
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
@@ -319,6 +319,11 @@ class AnnoReaderBase(object):
                 return True
         return False
 
+    def prt_counts(self, prt=sys.stdout):
+        """Print the number of taxids stored."""
+        num_annos = len(self.associations)
+        # 792,891 annotations for 3 taxids stored: 10090 7227 9606
+        prt.write('{A:8,} annotations\n'.format(A=num_annos))
 
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."

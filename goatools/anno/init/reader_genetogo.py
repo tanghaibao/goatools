@@ -10,11 +10,11 @@ import collections as cx
 import timeit
 import datetime
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods,useless-object-inheritance
 class InitAssc(object):
     """Read annotation file and store a list of namedtuples."""
 
@@ -58,6 +58,7 @@ class InitAssc(object):
         tic = timeit.default_timer()
         lnum = -1
         line = "\t"*len(self.flds)
+        taxids = set()
         try:
             with open(fin_anno) as ifstrm:
                 category2ns = {'Process':'BP', 'Function':'MF', 'Component':'CC'}
@@ -74,6 +75,7 @@ class InitAssc(object):
                         nspc = category2ns[vals[7].rstrip()]
                         if (get_all_taxids or taxid in taxids) and (get_all_nss or nspc in namespaces):
                             # assert len(vals) == 8
+                            taxids.add(taxid)
                             ntd = ntobj(
                                 tax_id=taxid,
                                 DB_ID=int(vals[1]),
@@ -96,8 +98,8 @@ class InitAssc(object):
             sys.stderr.write("**FATAL: {FIN}[{LNUM}]:\n{L}".format(FIN=fin_anno, L=line, LNUM=lnum))
             self._prt_line_detail(sys.stdout, line, lnum)
             sys.exit(1)
-        print('HMS:{HMS} {N:7,} annotations READ: {ANNO} {NSs}'.format(
-            N=len(nts), ANNO=fin_anno,
+        print('HMS:{HMS} {N:7,} annotations for {T} taxids READ: {ANNO} {NSs}'.format(
+            N=len(nts), ANNO=fin_anno, T=len(taxids),
             NSs=','.join(namespaces) if namespaces else '',
             HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
         return nts
@@ -131,4 +133,4 @@ class InitAssc(object):
     ##             # self.illegal_lines[errname].append((lnum, "\t".join(flds)))
 
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."

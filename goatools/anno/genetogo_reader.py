@@ -12,7 +12,7 @@ from goatools.anno.init.reader_genetogo import InitAssc
 from goatools.anno.annoreader_base import AnnoReaderBase
 from goatools.anno.opts import AnnoOptions
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
@@ -66,6 +66,23 @@ class Gene2GoReader(AnnoReaderBase):
         """Return True if namespace field, NS exists on annotation namedtuples"""
         return True
 
+    def prt_counts(self, prt=sys.stdout):
+        """Print the number of taxids stored."""
+        num_taxids = len(self.taxid2asscs)
+        num_annos = sum(len(a) for a in self.taxid2asscs.values())
+        # 792,891 annotations for 3 taxids stored: 10090 7227 9606
+        prt.write('{A:8,} annotations for {N} taxids stored'.format(A=num_annos, N=num_taxids))
+        if num_taxids < 5:
+            prt.write(': {Ts}'.format(Ts=' '.join(str(t) for t in sorted(self.taxid2asscs))))
+        prt.write('\n')
+        # 102,430 annotations for taxid  7227
+        # 323,776 annotations for taxid  9606
+        # 366,685 annotations for taxid 10090
+        if num_taxids == 1:
+            return
+        for taxid, assc in self.taxid2asscs.items():
+            prt.write('{A:8,} annotations for taxid {T:5}\n'.format(A=len(assc), T=taxid))
+
     # -- taxids2asscs -------------------------------------------------------------------------
     def get_taxid2asscs(self, taxids=None, **kws):
         """Read Gene Association File (GAF). Return data."""
@@ -103,6 +120,7 @@ class Gene2GoReader(AnnoReaderBase):
         return taxid_keys if taxids is None else set(taxids).intersection(taxid_keys)
 
     # -- initialization -----------------------------------------------------------------------
+    # pylint: disable=unused-argument
     @staticmethod
     def _init_associations(fin_anno, taxid=None, taxids=None, namespaces=None, **kws):
         """Read annotation file and store a list of namedtuples."""
@@ -113,15 +131,8 @@ class Gene2GoReader(AnnoReaderBase):
         taxid2asscs = cx.defaultdict(list)
         for ntanno in self.associations:
             taxid2asscs[ntanno.tax_id].append(ntanno)
-        assert len(taxid2asscs) != 0, "**FATAL: NO TAXIDS: {F}".format(F=self.filename)
-        # """Print the number of taxids stored."""
-        prt = sys.stdout
-        num_taxids = len(taxid2asscs)
-        prt.write('{N} taxids stored'.format(N=num_taxids))
-        if num_taxids < 5:
-            prt.write(': {Ts}'.format(Ts=' '.join(sorted(str(t) for t in taxid2asscs))))
-        prt.write('\n')
+        assert taxid2asscs, "**FATAL: NO TAXIDS: {F}".format(F=self.filename)
         return dict(taxid2asscs)
 
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
