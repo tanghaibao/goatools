@@ -1,0 +1,43 @@
+format-version: 1.2
+
+[Term]
+id: GO:0005575
+alt_id: GO:0000001
+name: A
+namespace: cellular_component
+
+[Term]
+id: GO:0000002
+name: B
+namespace: cellular_component
+is_a: GO:0005575 ! GO:0005575
+
+[Term]
+id: GO:0000003
+name: C
+namespace: cellular_component
+is_a: GO:0005575 ! GO:0005575
+
+[Term]
+id: GO:0000004
+name: D
+namespace: cellular_component
+is_a: GO:0000002 ! GO:0000002
+
+[Term]
+id: GO:0000005
+name: E
+namespace: cellular_component
+is_a: GO:0000002 ! GO:0000002
+
+[Term]
+id: GO:0000006
+name: F
+namespace: cellular_component
+is_a: GO:0000003 ! GO:0000003
+
+[Term]
+id: GO:0000007
+name: G
+namespace: cellular_component
+is_a: GO:0000003 ! GO:0000003
