@@ -8,7 +8,7 @@ leading to greatly imporved similarity measures.
 
 
 ## GO DAGs used to test the Python port of Yang RWC
-The high-quality Java implementation of Yang's RWC semantic similarity addition is described in:    
+The [**high-quality Java implementation**](https://github.com/pwac092/gossto) of Yang's RWC semantic similarity addition is described in:    
 [**GOssTo: a stand-alone application and a web tool for calculating semantic similarities on the Gene Ontology**](https://pubmed.ncbi.nlm.nih.gov/24659104)   
 by first authors,
 [**Alfonso E Romero**](https://pubmed.ncbi.nlm.nih.gov/?term=Romero+AE%5BAU%5D) and
