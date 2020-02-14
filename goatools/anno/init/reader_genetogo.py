@@ -58,7 +58,7 @@ class InitAssc(object):
         tic = timeit.default_timer()
         lnum = -1
         line = "\t"*len(self.flds)
-        taxids = set()
+        cnts = cx.defaultdict(set)
         try:
             with open(fin_anno) as ifstrm:
                 category2ns = {'Process':'BP', 'Function':'MF', 'Component':'CC'}
@@ -75,10 +75,13 @@ class InitAssc(object):
                         nspc = category2ns[vals[7].rstrip()]
                         if (get_all_taxids or taxid in taxids) and (get_all_nss or nspc in namespaces):
                             # assert len(vals) == 8
-                            taxids.add(taxid)
+
+                            cnts['taxids'].add(taxid)
+                            geneid = int(vals[1])
+                            cnts['genes'].add(geneid)
                             ntd = ntobj(
                                 tax_id=taxid,
-                                DB_ID=int(vals[1]),
+                                DB_ID=geneid,
                                 GO_ID=vals[2],
                                 Evidence_Code=vals[3],
                                 Qualifier=self._get_qualifiers(vals[4]),
@@ -98,8 +101,8 @@ class InitAssc(object):
             sys.stderr.write("**FATAL: {FIN}[{LNUM}]:\n{L}".format(FIN=fin_anno, L=line, LNUM=lnum))
             self._prt_line_detail(sys.stdout, line, lnum)
             sys.exit(1)
-        print('HMS:{HMS} {N:7,} annotations for {T} taxids READ: {ANNO} {NSs}'.format(
-            N=len(nts), ANNO=fin_anno, T=len(taxids),
+        print('HMS:{HMS} {N:7,} annotations, {G:6,} genes, {T} taxids READ: {ANNO} {NSs}'.format(
+            N=len(nts), ANNO=fin_anno, G=len(cnts['genes']), T=len(cnts['taxids']),
             NSs=','.join(namespaces) if namespaces else '',
             HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
         return nts

@@ -71,7 +71,9 @@ class Gene2GoReader(AnnoReaderBase):
         num_taxids = len(self.taxid2asscs)
         num_annos = sum(len(a) for a in self.taxid2asscs.values())
         # 792,891 annotations for 3 taxids stored: 10090 7227 9606
-        prt.write('{A:8,} annotations for {N} taxids stored'.format(A=num_annos, N=num_taxids))
+        cnts = self._get_counts(list(chain.from_iterable(self.taxid2asscs.values())))
+        prt.write('{A:8,} annotations, {P:,} proteins/genes, {G:,} GO IDs, {N} taxids stored'.format(
+            A=num_annos, N=num_taxids, G=cnts['GOs'], P=cnts['geneids']))
         if num_taxids < 5:
             prt.write(': {Ts}'.format(Ts=' '.join(str(t) for t in sorted(self.taxid2asscs))))
         prt.write('\n')
@@ -81,7 +83,18 @@ class Gene2GoReader(AnnoReaderBase):
         if num_taxids == 1:
             return
         for taxid, assc in self.taxid2asscs.items():
-            prt.write('{A:8,} annotations for taxid {T:5}\n'.format(A=len(assc), T=taxid))
+            cnts = self._get_counts(assc)
+            prt.write('{A:8,} annotations, {P:,} proteins/genes, {G:,} GO IDs for taxid {T}\n'.format(
+                A=len(assc), T=taxid, G=cnts['GOs'], P=cnts['geneids']))
+
+    @staticmethod
+    def _get_counts(nts):
+        """Return the count of GO IDs and genes/proteins in a set of annotation namedtuples"""
+        sets = cx.defaultdict(set)
+        for ntd in nts:
+            sets['geneids'].add(ntd.DB_ID)
+            sets['GOs'].add(ntd.GO_ID)
+        return {'GOs':len(sets['GOs']), 'geneids':len(sets['geneids'])}
 
     # -- taxids2asscs -------------------------------------------------------------------------
     def get_taxid2asscs(self, taxids=None, **kws):
