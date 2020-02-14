@@ -28,21 +28,38 @@ class Gene2GoReader(AnnoReaderBase):
         # Each taxid has a list of namedtuples - one for each line in the annotations
         self.taxid2asscs = self._init_taxid2asscs()
 
+    def get_ns2assc(self, taxid=None, **kws):
+        """Return given associations into 3 (BP, MF, CC) dicts, id2gos"""
+        return {ns:self._get_id2gos(nts, **kws) for ns, nts in self.get_ns2ntsanno(taxid).items()}
+
     def get_ns2ntsanno(self, taxid=None):
         """Return all associations in three (one for BP MF CC) dicts, id2gos"""
-        # kws1: taxid
         ntsanno = self.get_associations(taxid)
         # kws2: ev_include ev_exclude ...
         return self._get_ns2ntsanno(ntsanno)
 
     def get_associations(self, taxid=None):
         """Return annotations"""
-        # kws: taxid
+        # If only one taxid is loaded, ignore the taxid arg
         if len(self.taxid2asscs) == 1:
             taxid_cur = next(iter(self.taxid2asscs.keys()))
             return self.taxid2asscs[taxid_cur]
-        assert taxid in self.taxid2asscs, '**FATAL: TAXID({T}) DATA MISSING'.format(T=taxid)
-        return self.taxid2asscs[taxid]
+        # If taxid is True, combine all associations
+        if taxid is True:
+            return list(chain.from_iterable(self.taxid2asscs.values()))
+        # If taxid is an int, return the associations for user-specified taxid
+        if isinstance(taxid, int):
+            return self.taxid2asscs[taxid] if taxid in self.taxid2asscs else []
+        # If multiple taxids were loaded, taxid, must be specified
+        if taxid is None or not taxid:
+            print('**ERROR: ARG taxid MUST BE AN int, list of ints, OR bool')
+            return {}
+        # Assume taxid is a list or set and combine those taxids
+        taxids = set(taxid).intersection(self.taxid2asscs.keys())
+        if taxids:
+            # Return user-specified taxids combined
+            return list(chain.from_iterable(self.taxid2asscs[t] for t in taxids))
+        return {}
 
     def get_id2gos_nss(self, **kws):
         """Return all associations in a dict, id2gos, regardless of namespace"""

@@ -74,15 +74,18 @@ class AnnoReaderBase(object):
         """Return taxid, if one was provided, otherwise return -1"""
         return -1
 
-    def get_ns2assc(self, **kws):
+    # Arg, taxid, is used by NCBI's annotations, but not by gpad, gaf, etc.
+    def get_ns2assc(self, taxid=None, **kws):
         """Return given associations into 3 (BP, MF, CC) dicts, id2gos"""
-        return {ns:self._get_id2gos(nts, **kws) for ns, nts in self.get_ns2ntsanno(kws.get('taxid')).items()}
+        return {ns:self._get_id2gos(nts, **kws) for ns, nts in self.get_ns2ntsanno().items()}
 
     # pylint: disable=unused-argument
+    # Arg, taxid, is used by NCBI's annotations, but not by gpad, gaf, etc.
     def get_ns2ntsanno(self, taxid=None):
         """Split list of annotations into 3 lists: BP, MF, CC"""
         return self._get_ns2ntsanno(self.associations)
 
+    # Used by gpad, gaf, etc., but not used by NCBI's annotation reader
     def _get_ns2ntsanno(self, annotations):
         """Split list of annotations into 3 lists: BP, MF, CC"""
         if self.name in {'gpad', 'id2gos'}:

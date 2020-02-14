@@ -58,7 +58,7 @@ class InitAssc(object):
         tic = timeit.default_timer()
         lnum = -1
         line = "\t"*len(self.flds)
-        cnts = cx.defaultdict(set)
+        cnts = {'taxids':set(), 'genes':set(), 'goids':set()}
         try:
             with open(fin_anno) as ifstrm:
                 category2ns = {'Process':'BP', 'Function':'MF', 'Component':'CC'}
@@ -75,14 +75,15 @@ class InitAssc(object):
                         nspc = category2ns[vals[7].rstrip()]
                         if (get_all_taxids or taxid in taxids) and (get_all_nss or nspc in namespaces):
                             # assert len(vals) == 8
-
                             cnts['taxids'].add(taxid)
                             geneid = int(vals[1])
                             cnts['genes'].add(geneid)
+                            goid = vals[2]
+                            cnts['goids'].add(goid)
                             ntd = ntobj(
                                 tax_id=taxid,
                                 DB_ID=geneid,
-                                GO_ID=vals[2],
+                                GO_ID=goid,
                                 Evidence_Code=vals[3],
                                 Qualifier=self._get_qualifiers(vals[4]),
                                 GO_term=vals[5],
@@ -101,8 +102,10 @@ class InitAssc(object):
             sys.stderr.write("**FATAL: {FIN}[{LNUM}]:\n{L}".format(FIN=fin_anno, L=line, LNUM=lnum))
             self._prt_line_detail(sys.stdout, line, lnum)
             sys.exit(1)
-        print('HMS:{HMS} {N:7,} annotations, {G:6,} genes, {T} taxids READ: {ANNO} {NSs}'.format(
-            N=len(nts), ANNO=fin_anno, G=len(cnts['genes']), T=len(cnts['taxids']),
+        print('HMS:{HMS} {N:7,} annotations, {G:6,} genes, {GOs:6,} GOs, {T} taxids READ: {ANNO} {NSs}'.format(
+            N=len(nts), ANNO=fin_anno,
+            G=len(cnts['genes']), GOs=len(cnts['goids']), T=len(cnts['taxids']),
+            ## N=len(nts), ANNO=fin_anno, G=-1, T=-1,
             NSs=','.join(namespaces) if namespaces else '',
             HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
         return nts
