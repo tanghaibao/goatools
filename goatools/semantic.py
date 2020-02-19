@@ -140,7 +140,6 @@ def get_info_content(go_id, termcounts):
     ntd = termcounts.gosubdag.go2nt.get(go_id)
     return ntd.tinfo if ntd else 0.0
 
-
 def resnik_sim(go_id1, go_id2, godag, termcounts):
     '''
         Computes Resnik's similarity measure.
@@ -165,13 +164,15 @@ def lin_sim_calc(goid1, goid2, sim_r, termcnts, dfltval=None):
     '''
         Computes Lin's similarity measure using pre-calculated Resnik's similarities.
     '''
+    # If goid1 and goid2 are in the same namespace
     if sim_r is not None:
         tinfo1 = get_info_content(goid1, termcnts)
         tinfo2 = get_info_content(goid2, termcnts)
         info = tinfo1 + tinfo2
+        # Both GO IDs must be annotated
         if tinfo1 != 0.0 and tinfo2 != 0.0 and info != 0:
             return (2*sim_r)/info
-        if goid1 == goid2:
+        if termcnts.go2obj[goid1].item_id == termcnts.go2obj[goid2].item_id:
             return 1.0
         # The GOs are separated by the root term, so are not similar
         if sim_r == 0.0:
@@ -184,16 +185,16 @@ def common_parent_go_ids(goids, godag):
         This function finds the common ancestors in the GO
         tree of the list of goids in the input.
     '''
-    # Find candidates from first
+    # Find main GO ID candidates from first main or alt GO ID
     rec = godag[goids[0]]
     candidates = rec.get_all_parents()
-    candidates.update({goids[0]})
+    candidates.update({rec.item_id})
 
-    # Find intersection with second to nth goid
+    # Find intersection with second to nth GO ID
     for goid in goids[1:]:
         rec = godag[goid]
         parents = rec.get_all_parents()
-        parents.update({goid})
+        parents.update({rec.item_id})
 
         # Find the intersection with the candidates, and update.
         candidates.intersection_update(parents)
