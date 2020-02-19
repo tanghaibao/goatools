@@ -1,16 +1,6 @@
-#!/usr/bin/env python
-"""Test for issue 148, Lin Similarity Problems"""
+#!/usr/bin/env python3
+"""Test for issue 148, Lin Similarity if a term has no annotations"""
 
-from __future__ import print_function
-
-# Computing basic semantic similarities between GO terms
-
-# Adapted from book chapter written by _Alex Warwick Vesztrocy and Christophe Dessimoz_
-
-# How to compute semantic similarity between GO terms.
-
-# First we need to write a function that calculates the minimum number
-# of branches connecting two GO terms.
 
 import os
 import sys
@@ -29,7 +19,7 @@ from goatools.semantic import lin_sim
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def test_i148_semsim_lin(prt=sys.stdout):
-    """Test for issue 148, Lin Similarity Problems"""
+    """Test for issue 148, Lin Similarity if a term has no annotations"""
     fin_gpad = os.path.join(REPO, 'goa_human.gpad')
     dnld_annofile(fin_gpad, 'gpad')
 
@@ -50,13 +40,19 @@ def test_i148_semsim_lin(prt=sys.stdout):
 
     # Calculate Lin values
     p2v = {frozenset([a, b]): lin_sim(a, b, godag, termcounts) for a, b in combo_w_rplc(goids, 2)}
+    _prt_values(goids, p2v, prt=sys.stdout)
 
-    # Print Lin values
+
+def _prt_values(goids, p2v, prt=sys.stdout):
+    """Print values"""
     prt.write('           {HDR}\n'.format(HDR=' '.join(goids)))
+    none = 'None     '
     for go_row in goids:
         prt.write('{GO} '.format(GO=go_row))
         for go_col in goids:
-            prt.write('{L:10.6f} '.format(L=p2v[frozenset([go_row, go_col])]))
+            val = p2v[frozenset([go_row, go_col])]
+            txt = '{L:<9.6} '.format(L=val) if val is not None else none
+            prt.write('{T:10} '.format(T=txt))
         prt.write('\n')
 
 
