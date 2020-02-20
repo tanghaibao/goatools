@@ -1,6 +1,6 @@
 """Manage optional GO-DAG attributes."""
 
-__copyright__ = "Copyright (C) 2015-2020, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2015-present, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import re
@@ -238,4 +238,4 @@ class OboOptionalAttrs:
         return opts
 
 
-# Copyright (C) 2015-2020, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2015-present, DV Klopfenstein, H Tang, All rights reserved.

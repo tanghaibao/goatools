@@ -323,7 +323,7 @@ class PlotCli(object):
     def _get_optional_attrs(kws):
         """Given keyword args, return optional_attributes to be loaded into the GODag."""
         # Ex: def defn synonym relationship xref subset comment
-        vals = OboOptionalAttrs.attributes.intersection(kws.keys())
+        vals = OboOptionalAttrs.optional_exp.intersection(kws.keys())
         if 'relationships' in kws:
             vals.add('relationship')
         if 'sections' in kws:

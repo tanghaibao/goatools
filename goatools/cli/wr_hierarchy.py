@@ -68,7 +68,7 @@ class WrHierCli:
     def __init__(self, args=None, prt=sys.stdout):
         self.kws = DocOptParse(__doc__, self.kws_dct_all, self.kws_set_all).get_docargs(
             args, intvals=set(['max_indent', 'dash_len']))
-        opt_attrs = OboOptionalAttrs.attributes.intersection(self.kws.keys())
+        opt_attrs = OboOptionalAttrs.optional_exp.intersection(self.kws.keys())
         godag = get_godag(self.kws['dag'], prt, optional_attrs=opt_attrs)
         self.gene2gos = read_annotations(**self.kws)
         self.tcntobj = TermCounts(godag, self.gene2gos) if self.gene2gos else None
