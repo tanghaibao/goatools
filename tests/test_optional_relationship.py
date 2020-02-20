@@ -31,7 +31,7 @@ In go-basic.obo fmt(1.2) rel(2018-02-11) 15,329 out of 47,120 GO Terms have syno
 
 from __future__ import print_function
 
-from goatools.test_data.optional_attrs import OptionalAttrs
+from optional_attrs import OptionalAttrs
 
 
 def test_optional_attrs():

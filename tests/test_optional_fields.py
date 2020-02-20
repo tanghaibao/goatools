@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Tests alternate OBOReader."""
 
 import os

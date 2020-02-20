@@ -22,11 +22,17 @@
 Unreleased changes
 --------------
 
+* **Added**
+  * [**Issue 154**](https://github.com/tanghaibao/goatools/issues/154) Support for optional GO term attributes, *consider* and *replaced_by*
 * **Deprecated**
   * Renamed internal data variable:
     * NOW: *gosubdag.rcntobj.go2ancestors*    
     * WAS: *gosubdag.rcntobj.go2parents*    
 * **Changed**
+  * [**Issue 148**](https://github.com/tanghaibao/goatools/issues/148)
+    Return None for Lin's semantic similarity calcuations if one or both of the GO terms is not annotated.
+    This will be updated in the future to have the option to assign a count of 1 to GO terms that are not annotated,
+    indicating the annotation of a mock gene to allow the researcher to get a rough idea of the similarity.
   * [**Issue 142**](https://github.com/tanghaibao/goatools/issues/142)
     * Write GO hierachy to a file now writes a file when using Python3
     * Gaf reader defaults to gaf file version of 2.1 if no version line if found

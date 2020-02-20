@@ -1,32 +1,97 @@
 """Manage optional GO-DAG attributes."""
 
-__copyright__ = "Copyright (C) 2015-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2015-2020, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import re
 import collections as cx
 
 
-class OboOptionalAttrs(object):
+class OboOptionalAttrs:
     """Manage optional GO-DAG attributes."""
 
-    attributes = set(['def', 'defn', 'synonym', 'relationship', 'xref', 'subset', 'comment'])
+    optional_exp = set(['def', 'defn', 'synonym', 'relationship', 'xref', 'subset', 'comment',
+                        'consider', 'replaced_by'])
 
     def __init__(self, optional_attrs):
         assert optional_attrs
-        self.optional_attrs = optional_attrs
-        self.attr2cmp = self._init_compile_patterns(optional_attrs)
+        self.optional_attrs = optional_attrs.intersection(self.optional_exp)
+        self.fncs_inirec = self._init_fncs_inirec()
+        self.fncs = self._init_fncs()
 
     def update_rec(self, rec, line):
         """Update current GOTerm with optional record."""
-        if 'def' in self.optional_attrs and line[:5] == "def: ":
+        for fnc_chkline, fnc_updaterec in self.fncs:
+            if fnc_chkline(line):
+                fnc_updaterec(rec, line)
+
+    def _init_fncs(self):
+        """Initialize functions to check for optional attributes and update GOTerm"""
+        fncs = []
+        optional_attrs = self.optional_attrs
+        if 'def' in optional_attrs:
+            fncs.append(self._get_fncs_def())
+        if 'synonym' in optional_attrs:
+            fncs.append(self._get_fncs_synonym())
+        if 'relationship' in optional_attrs:
+            fncs.append(self._get_fncs_relationship())
+        if 'xref' in optional_attrs:
+            fncs.append(self._get_fncs_xref())
+        if 'subset' in optional_attrs:
+            fncs.append(self._get_fncs_subset())
+        if 'comment' in optional_attrs:
+            fncs.append(self._get_fncs_comment())
+        if 'consider' in optional_attrs:
+            fncs.append(self._get_fncs_consider())
+        if 'replaced_by' in optional_attrs:
+            fncs.append(self._get_fncs_replaced_by())
+        return fncs
+
+    @staticmethod
+    def _get_fncs_def():
+        def fnc_chkline(line):
+            return line[:5] == "def: "
+        def fnc_updaterec(rec, line):
             assert not hasattr(rec, 'defn'), "ATTR(defn) ALREADY SET({VAL})".format(VAL=rec.defn)
             # Use 'defn' because 'def' is a reserved word in python
             rec.defn = line[5:]
-        elif 'synonym' in self.optional_attrs and line[:9] == "synonym: ":
-            rec.synonym.append(self._get_synonym(line[9:]))
+        return fnc_chkline, fnc_updaterec
+
+    @staticmethod
+    def _get_fncs_synonym():
+        def fnc_chkline(line):
+            return line[:9] == "synonym: "
+        def fnc_updaterec(rec, line):
+            """Given line, return optional attribute synonym value in a namedtuple.
+
+            Example synonym and its storage in a namedtuple:
+            synonym: "The other white meat" EXACT MARKETING_SLOGAN [MEAT:00324, BACONBASE:03021]
+              text:     "The other white meat"
+              scope:    EXACT
+              typename: MARKETING_SLOGAN
+              dbxrefs:  set(["MEAT:00324", "BACONBASE:03021"])
+
+            Example synonyms:
+              "peptidase inhibitor complex" EXACT [GOC:bf, GOC:pr]
+              "regulation of postsynaptic cytosolic calcium levels" EXACT syngo_official_label []
+              "tocopherol 13-hydroxylase activity" EXACT systematic_synonym []
+            """
+            mtch = fnc_updaterec.cmpd.match(line[9:])
+            text, scope, typename, dbxrefs, _ = mtch.groups()
+            typename = typename.strip()
+            dbxrefs = set(dbxrefs.split(', ')) if dbxrefs else set()
+            ntd = fnc_updaterec.ntobj._make([text, scope, typename, dbxrefs])
+            rec.synonym.append(ntd)
+        fnc_updaterec.cmpd = re.compile(r'"(\S.*\S)" ([A-Z]+) (.*)\[(.*)\](.*)$')
+        fnc_updaterec.ntobj = cx.namedtuple("synonym", "text scope typename dbxrefs")
+        return fnc_chkline, fnc_updaterec
+
+    @staticmethod
+    def _get_fncs_relationship():
         # http://geneontology.org/page/ontology-relations
-        elif 'relationship' in self.optional_attrs and line[:14] == "relationship: ":
+        def fnc_chkline(line):
+            return line[:14] == "relationship: "
+        def fnc_updaterec(rec, line):
             # relationships are stored in a dict of sets, mirroring
             # the structure implied in the GO DAG. Example:
             #
@@ -41,73 +106,118 @@ class OboOptionalAttrs(object):
                 rec.relationship[rel] = set([goid])
             else:
                 rec.relationship[rel].add(goid)
-        elif 'xref' in self.optional_attrs and line[:6] == "xref: ":
-            rec.xref.add(self._get_xref(line[6:]))
-        elif 'subset' in self.optional_attrs and line[:8] == "subset: ":
+        return fnc_chkline, fnc_updaterec
+
+    @staticmethod
+    def _get_fncs_xref():
+        def fnc_chkline(line):
+            return line[:6] == "xref: "
+        def fnc_updaterec(rec, line):
+            mtch = fnc_updaterec.cmpd.match(line[6:])
+            rec.xref.add(mtch.group(1).replace(' ', ''))
+        fnc_updaterec.cmpd = re.compile(r'^(\S+:\s*\S+)\b(.*)$')
+        return fnc_chkline, fnc_updaterec
+
+    @staticmethod
+    def _get_fncs_subset():
+        def fnc_chkline(line):
+            return line[:8] == "subset: "
+        def fnc_updaterec(rec, line):
             rec.subset.add(line[8:])
-        elif 'comment' in self.optional_attrs and line[:9] == "comment: ":
+        return fnc_chkline, fnc_updaterec
+
+    @staticmethod
+    def _get_fncs_comment():
+        def fnc_chkline(line):
+            return line[:9] == "comment: "
+        def fnc_updaterec(rec, line):
             rec.comment = line[9:]
+        return fnc_chkline, fnc_updaterec
+
+    @staticmethod
+    def _get_fncs_consider():
+        """Get optional attribute functions"""
+        def fnc_chkline(line):
+            return line[:10] == "consider: "
+        def fnc_updaterec(rec, line):
+            rec.consider.add(line[10:])
+        return fnc_chkline, fnc_updaterec
+
+    @staticmethod
+    def _get_fncs_replaced_by():
+        def fnc_chkline(line):
+            return line[:13] == "replaced_by: "
+        def fnc_updaterec(rec, line):
+            rec.replaced_by = line[13:]
+        return fnc_chkline, fnc_updaterec
 
     def init_datamembers(self, rec):
         """Initialize current GOTerm with data members for storing optional attributes."""
-        # pylint: disable=multiple-statements
-        if 'synonym'      in self.optional_attrs: rec.synonym = []
-        if 'xref'         in self.optional_attrs: rec.xref = set()
-        if 'subset'       in self.optional_attrs: rec.subset = set()
-        if 'comment'      in self.optional_attrs: rec.comment = ""
-        if 'relationship' in self.optional_attrs:
-            rec.relationship = {}
-            rec.relationship_rev = {}
+        for fnc_ini in self.fncs_inirec:
+            fnc_ini(rec)
 
-    def _get_synonym(self, line):
-        """Given line, return optional attribute synonym value in a namedtuple.
-
-        Example synonym and its storage in a namedtuple:
-        synonym: "The other white meat" EXACT MARKETING_SLOGAN [MEAT:00324, BACONBASE:03021]
-          text:     "The other white meat"
-          scope:    EXACT
-          typename: MARKETING_SLOGAN
-          dbxrefs:  set(["MEAT:00324", "BACONBASE:03021"])
-
-        Example synonyms:
-          "peptidase inhibitor complex" EXACT [GOC:bf, GOC:pr]
-          "regulation of postsynaptic cytosolic calcium levels" EXACT syngo_official_label []
-          "tocopherol 13-hydroxylase activity" EXACT systematic_synonym []
-        """
-        mtch = self.attr2cmp['synonym'].match(line)
-        text, scope, typename, dbxrefs, _ = mtch.groups()
-        typename = typename.strip()
-        dbxrefs = set(dbxrefs.split(', ')) if dbxrefs else set()
-        return self.attr2cmp['synonym nt']._make([text, scope, typename, dbxrefs])
-
-    def _get_xref(self, line):
-        """Given line, return optional attribute xref value in a dict of sets."""
-        # Ex: Wikipedia:Zygotene
-        # Ex: Reactome:REACT_22295 "Addition of a third mannose to ..."
-        mtch = self.attr2cmp['xref'].match(line)
-        return mtch.group(1).replace(' ', '')
+        #### # pylint: disable=multiple-statements
+        #### if 'synonym'      in self.optional_attrs: rec.synonym = []
+        #### if 'xref'         in self.optional_attrs: rec.xref = set()
+        #### if 'subset'       in self.optional_attrs: rec.subset = set()
+        #### if 'comment'      in self.optional_attrs: rec.comment = ""
+        #### if 'replaced_by'  in self.optional_attrs: rec.replaced_by = ""
+        #### if 'consider'     in self.optional_attrs: rec.consider = set()
+        #### if 'relationship' in self.optional_attrs:
+        ####     rec.relationship = {}
+        ####     rec.relationship_rev = {}
 
     @staticmethod
-    def _init_compile_patterns(optional_attrs):
-        """Compile search patterns for optional attributes if needed."""
-        attr2cmp = {}
-        if optional_attrs is None:
-            return attr2cmp
-        # "peptidase inhibitor complex" EXACT [GOC:bf, GOC:pr]
-        # "blood vessel formation from pre-existing blood vessels" EXACT systematic_synonym []
-        # "mitochondrial inheritance" EXACT []
-        # "tricarboxylate transport protein" RELATED [] {comment="WIkipedia:Mitochondrial_carrier"}
+    def _init_synonym(rec):
+        rec.synonym = []
+
+    @staticmethod
+    def _init_xref(rec):
+        rec.xref = set()
+
+    @staticmethod
+    def _init_subset(rec):
+        rec.subset = set()
+
+    @staticmethod
+    def _init_comment(rec):
+        rec.comment = ""
+
+    @staticmethod
+    def _init_replaced_by(rec):
+        rec.replaced_by = ""
+
+    @staticmethod
+    def _init_consider(rec):
+        rec.consider = set()
+
+    @staticmethod
+    def _init_relationship(rec):
+        rec.relationship = {}
+        rec.relationship_rev = {}
+
+    def _init_fncs_inirec(self):
+        """Initialize functions to check for optional attributes and update GOTerm"""
+        fncs = []
+        optional_attrs = self.optional_attrs
         if 'synonym' in optional_attrs:
-            attr2cmp['synonym'] = re.compile(r'"(\S.*\S)" ([A-Z]+) (.*)\[(.*)\](.*)$')
-            attr2cmp['synonym nt'] = cx.namedtuple("synonym", "text scope typename dbxrefs")
-        # Wikipedia:Zygotene
-        # Reactome:REACT_27267 "DHAP from Ery4P and PEP, Mycobacterium tuberculosis"
+            fncs.append(self._init_synonym)
+        if 'relationship' in optional_attrs:
+            fncs.append(self._init_relationship)
         if 'xref' in optional_attrs:
-            attr2cmp['xref'] = re.compile(r'^(\S+:\s*\S+)\b(.*)$')
-        return attr2cmp
+            fncs.append(self._init_xref)
+        if 'subset' in optional_attrs:
+            fncs.append(self._init_subset)
+        if 'comment' in optional_attrs:
+            fncs.append(self._init_comment)
+        if 'consider' in optional_attrs:
+            fncs.append(self._init_consider)
+        if 'replaced_by' in optional_attrs:
+            fncs.append(self._init_replaced_by)
+        return fncs
 
     @staticmethod
-    def get_optional_attrs(optional_attrs):
+    def get_optional_attrs(optional_attrs, attrs_opt):
         """Prepare to store data from user-desired optional fields.
 
           Not loading these optional fields by default saves in space and speed.
@@ -116,19 +226,16 @@ class OboOptionalAttrs(object):
               comment consider def is_class_level is_metadata_tag is_transitive
               relationship replaced_by subset synonym transitive_over xref
         """
-        attrs_opt = set(['def', 'defn', 'synonym', 'relationship', 'xref', 'subset', 'comment'])
         # Required attributes are always loaded. All others are optionally loaded.
         # Allow user to specify either: 'def' or 'defn'
         #   'def' is an obo field name, but 'defn' is legal Python attribute name
         getnm = lambda aopt: aopt if aopt != "defn" else "def"
-        # pylint: disable=redefined-variable-type
         opts = None
         if isinstance(optional_attrs, str) and optional_attrs in attrs_opt:
             opts = set([getnm(optional_attrs)])
         else:
-            opts = set([getnm(f) for f in optional_attrs if f in attrs_opt])
-        if opts:
-            return opts
+            opts = set(getnm(f) for f in optional_attrs if f in attrs_opt)
+        return opts
 
 
-# Copyright (C) 2015-2018, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2015-2020, DV Klopfenstein, H Tang, All rights reserved.

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test the loading of all optional GO term attributes.
 
 Maximum number of fields on a GO term:
@@ -32,7 +32,7 @@ In go-basic.obo fmt(1.2) rel(2018-02-11) 15,329 out of 47,120 GO Terms have syno
 from __future__ import print_function
 
 import sys
-from goatools.test_data.optional_attrs import OptionalAttrs
+from optional_attrs import OptionalAttrs
 
 
 def test_optional_attrs():
@@ -69,6 +69,8 @@ def test_optional_attrs():
     # XREF: Stored in a set
     obj.chk_xref(prt)
     print("PASSED: xrefs")
+
+    print(obj.dcts['flds'])
 
 def _prt_badnts(badnts, exit_if_warning):
     """Print bad namedtuples and potentially die."""

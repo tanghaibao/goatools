@@ -131,7 +131,7 @@ class OBOReader(object):
         """Create OboOptionalAttrs or return None."""
         if optional_attrs is None:
             return None
-        opts = OboOptionalAttrs.get_optional_attrs(optional_attrs)
+        opts = OboOptionalAttrs.get_optional_attrs(optional_attrs, OboOptionalAttrs.optional_exp)
         if opts:
             return OboOptionalAttrs(opts)
 
