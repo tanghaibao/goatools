@@ -17,12 +17,12 @@ def test_i148b_semsim_lin():
     load_obsolete=True
     prt=sys.stdout
 
-    godag = GODag(fin_dag, optional_attrs={'consider', 'replaced_by'}, load_obsolete=True, prt=sys.stdout)
+    godag = GODag(fin_dag, optional_attrs, load_obsolete, prt)
     prt_hms(tic, 'Loaded GO DAG')
     assert godag['GO:0000067'].consider
     assert godag['GO:0003734'].replaced_by == 'GO:0030532'
 
-    godag = GODag(fin_dag, optional_attrs='consider', load_obsolete=True, prt=sys.stdout)
+    godag = GODag(fin_dag, 'consider', load_obsolete, prt)
     prt_hms(tic, 'Loaded GO DAG')
     assert godag['GO:0000067'].consider
 
