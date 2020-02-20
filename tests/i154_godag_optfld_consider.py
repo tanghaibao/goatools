@@ -13,6 +13,10 @@ def test_i148b_semsim_lin():
     fin_dag = download_go_basic_obo()
     tic = timeit.default_timer()
 
+    optional_attrs={'consider', 'replaced_by'}
+    load_obsolete=True
+    prt=sys.stdout
+
     godag = GODag(fin_dag, optional_attrs={'consider', 'replaced_by'}, load_obsolete=True, prt=sys.stdout)
     prt_hms(tic, 'Loaded GO DAG')
     assert godag['GO:0000067'].consider

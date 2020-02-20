@@ -32,7 +32,7 @@ In go-basic.obo fmt(1.2) rel(2018-02-11) 15,329 out of 47,120 GO Terms have syno
 from __future__ import print_function
 
 import sys
-from optional_attrs import OptionalAttrs
+from tests.optional_attrs import OptionalAttrs
 
 
 def test_optional_attrs():
@@ -70,7 +70,7 @@ def test_optional_attrs():
     obj.chk_xref(prt)
     print("PASSED: xrefs")
 
-    print(obj.dcts['flds'])
+    print('FIELDS:', obj.dcts['flds'])
 
 def _prt_badnts(badnts, exit_if_warning):
     """Print bad namedtuples and potentially die."""
