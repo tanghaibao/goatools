@@ -27,24 +27,24 @@ class OboOptionalAttrs:
 
     def _init_fncs(self):
         """Initialize functions to check for optional attributes and update GOTerm"""
-        fncs = []
+        fncs = set()
         optional_attrs = self.optional_attrs
         if 'def' in optional_attrs:
-            fncs.append(self._get_fncs_def())
+            fncs.add(self._get_fncs_def())
         if 'synonym' in optional_attrs:
-            fncs.append(self._get_fncs_synonym())
+            fncs.add(self._get_fncs_synonym())
         if 'relationship' in optional_attrs:
-            fncs.append(self._get_fncs_relationship())
+            fncs.add(self._get_fncs_relationship())
         if 'xref' in optional_attrs:
-            fncs.append(self._get_fncs_xref())
+            fncs.add(self._get_fncs_xref())
         if 'subset' in optional_attrs:
-            fncs.append(self._get_fncs_subset())
+            fncs.add(self._get_fncs_subset())
         if 'comment' in optional_attrs:
-            fncs.append(self._get_fncs_comment())
+            fncs.add(self._get_fncs_comment())
         if 'consider' in optional_attrs:
-            fncs.append(self._get_fncs_consider())
+            fncs.add(self._get_fncs_consider())
         if 'replaced_by' in optional_attrs:
-            fncs.append(self._get_fncs_replaced_by())
+            fncs.add(self._get_fncs_replaced_by())
         return fncs
 
     @staticmethod
@@ -198,22 +198,22 @@ class OboOptionalAttrs:
 
     def _init_fncs_inirec(self):
         """Initialize functions to check for optional attributes and update GOTerm"""
-        fncs = []
+        fncs = set()
         optional_attrs = self.optional_attrs
         if 'synonym' in optional_attrs:
-            fncs.append(self._init_synonym)
+            fncs.add(self._init_synonym)
         if 'relationship' in optional_attrs:
-            fncs.append(self._init_relationship)
+            fncs.add(self._init_relationship)
         if 'xref' in optional_attrs:
-            fncs.append(self._init_xref)
+            fncs.add(self._init_xref)
         if 'subset' in optional_attrs:
-            fncs.append(self._init_subset)
+            fncs.add(self._init_subset)
         if 'comment' in optional_attrs:
-            fncs.append(self._init_comment)
+            fncs.add(self._init_comment)
         if 'consider' in optional_attrs:
-            fncs.append(self._init_consider)
+            fncs.add(self._init_consider)
         if 'replaced_by' in optional_attrs:
-            fncs.append(self._init_replaced_by)
+            fncs.add(self._init_replaced_by)
         return fncs
 
     @staticmethod

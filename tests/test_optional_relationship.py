@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test the loading of all optional GO term attributes.
 
 Maximum number of fields on a GO term:
