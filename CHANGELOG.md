@@ -31,6 +31,7 @@ Release 2020-02-20 1.0.2
 -------------------------
 
 * **Added**
+  * New [Jupyter notebook](https://github.com/tanghaibao/goatools/blob/master/notebooks/godag_obsolete_terms.ipynb) showing how to work with obsolete GO terms
   * [**Issue 154**](https://github.com/tanghaibao/goatools/issues/154) Support for optional GO term attributes, *consider* and *replaced_by*
 * **Deprecated**
   * Renamed internal data variable:
