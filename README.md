@@ -308,7 +308,7 @@ In total 15 tests are available, which can be selected using option
 `--method`. Please note that the default FDR (`fdr`) uses a resampling
 strategy which may lead to slightly different q-values between runs.
 
-## iPython Notebooks
+## iPython [Notebooks](https://github.com/tanghaibao/goatools/tree/master/notebooks)
 
 ### Run a Gene Ontology Enrichment Analysis (GOEA)
 
@@ -333,6 +333,10 @@ strategy which may lead to slightly different q-values between runs.
 ### Determine the semantic similarities between GO terms
 
 <https://github.com/tanghaibao/goatools/blob/master/notebooks/semantic_similarity.ipynb>
+
+### Obsolete GO terms are loaded upon request
+
+<https://github.com/tanghaibao/goatools/blob/master/notebooks/godag_obsolete_terms.ipynb>
 
 ## Want to Help?
 
