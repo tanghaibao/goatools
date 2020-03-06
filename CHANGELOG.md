@@ -3,9 +3,9 @@
 ### Summary
 
 * [**Unreleased changes**](#unreleased-changes)
-* [**Release 2020-02-20 1.0.2**](#release-2020-02-20-097)
+* [**Release 2020-02-20 1.0.2**](#release-2020-02-20-102)
   * Deprecated: Internal data member, *go2parents* will be deprecated, renamed to *go2ancestors*
-  * Changes for [**Issue 142**](https://github.com/tanghaibao/goatools/issues/142) writing GO hierarchy reports
+  * Changes for [#142](https://github.com/tanghaibao/goatools/issues/142) for writing GO hierarchy reports
   * Added [Jupyter notebook](https://github.com/tanghaibao/goatools/blob/master/notebooks/godag_obsolete_terms.ipynb) showing how to work with obsolete GO terms
     [#153](https://github.com/tanghaibao/goatools/issues/153)
     [#154](https://github.com/tanghaibao/goatools/issues/154)
