@@ -9,7 +9,6 @@
     [#154](https://github.com/tanghaibao/goatools/issues/154)
     [#155](https://github.com/tanghaibao/goatools/issues/155)
   * Deprecated: Internal data member, *go2parents* will be deprecated, renamed to *go2ancestors*
-  * Changes for [#142](https://github.com/tanghaibao/goatools/issues/142) for writing GO hierarchy reports
 * [**Release 2019-09-29 0.9.7**](#release-2019-09-29-097)
   * Deprecated: *read_ncbi_gene2go*
   * Deprecated: *get_b2aset* and *GoDagTimed* in their old location. They have been moved.
