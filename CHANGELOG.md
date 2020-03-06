@@ -3,8 +3,13 @@
 ### Summary
 
 * [**Unreleased changes**](#unreleased-changes)
+* [**Release 2020-02-20 1.0.2**](#release-2020-02-20-097)
   * Deprecated: Internal data member, *go2parents* will be deprecated, renamed to *go2ancestors*
-  * Changes for [**Issue 142**](https://github.com/tanghaibao/goatools/issues/142)    
+  * Changes for [**Issue 142**](https://github.com/tanghaibao/goatools/issues/142) writing GO hierarchy reports
+  * Added [Jupyter notebook](https://github.com/tanghaibao/goatools/blob/master/notebooks/godag_obsolete_terms.ipynb) showing how to work with obsolete GO terms
+    [#153](https://github.com/tanghaibao/goatools/issues/153)
+    [#154](https://github.com/tanghaibao/goatools/issues/154)
+    [#155](https://github.com/tanghaibao/goatools/issues/155)
 * [**Release 2019-09-29 0.9.7**](#release-2019-09-29-097)
   * Deprecated: *read_ncbi_gene2go*
   * Deprecated: *get_b2aset* and *GoDagTimed* in their old location. They have been moved.
@@ -22,6 +27,9 @@
 Unreleased changes
 --------------
 
+Release 2020-02-20 1.0.2
+-------------------------
+
 * **Added**
   * [**Issue 154**](https://github.com/tanghaibao/goatools/issues/154) Support for optional GO term attributes, *consider* and *replaced_by*
 * **Deprecated**
@@ -30,7 +38,7 @@ Unreleased changes
     * WAS: *gosubdag.rcntobj.go2parents*    
 * **Changed**
   * [**Issue 148**](https://github.com/tanghaibao/goatools/issues/148)
-    Return None for Lin's semantic similarity calcuations if one or both of the GO terms is not annotated.
+    Return None for Lin's semantic similarity calculations if one or both of the GO terms is not annotated.
     This will be updated in the future to have the option to assign a count of 1 to GO terms that are not annotated,
     indicating the annotation of a mock gene to allow the researcher to get a rough idea of the similarity.
   * [**Issue 142**](https://github.com/tanghaibao/goatools/issues/142)
@@ -63,7 +71,7 @@ Release 2019-09-29 0.9.9
     * Users can now provide a title to be printed in a GO DAG plot
     * Users can now provide an *edge2txt* dict to print text on edges between GO Terms    
 * **Fixed**
-  * Aspect counts (BP, MF, CC totals) in *TermCounts* object
+  * Aspect counts (BP, MF, CC totals) in *TermCounts* object explained in [#156](https://github.com/tanghaibao/goatools/issues/156)
 
 Release 2019-07-26 0.9.7
 -------------------------
