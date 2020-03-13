@@ -35,14 +35,17 @@ Release 2020-03-13 1.0.3
 [**GOEA Jupyter notebook**](https://github.com/tanghaibao/goatools/blob/master/notebooks/goea_nbt3102.ipynb).
 re: See comments ([1](https://github.com/tanghaibao/goatools/issues/133#issuecomment-598334391) and
 [2](https://github.com/tanghaibao/goatools/issues/133#issuecomment-598844019)) in
-[#133](https://github.com/tanghaibao/goatools/issues/133)
+[**#133**](https://github.com/tanghaibao/goatools/issues/133)
 
 Release 2020-02-20 1.0.2
 -------------------------
 
 * **Added**
-  * New [Jupyter notebook](https://github.com/tanghaibao/goatools/blob/master/notebooks/godag_obsolete_terms.ipynb) showing how to work with obsolete GO terms
+  * New [Jupyter notebook](https://github.com/tanghaibao/goatools/blob/master/notebooks/godag_obsolete_terms.ipynb) showing how to work with obsolete GO terms 
   * [**Issue 154**](https://github.com/tanghaibao/goatools/issues/154) Support for optional GO term attributes, *consider* and *replaced_by*
+    [**#153**](https://github.com/tanghaibao/goatools/issues/153)
+    [**#154**](https://github.com/tanghaibao/goatools/issues/154)
+    [**#155**](https://github.com/tanghaibao/goatools/issues/155)
 * **Deprecated**
   * Renamed internal data variable:
     * NOW: *gosubdag.rcntobj.go2ancestors*    
