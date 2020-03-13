@@ -292,14 +292,15 @@ class GOEnrichmentStudy(object):
     def run_study(self, study, **kws):
         """Run Gene Ontology Enrichment Study (GOEA) on study ids."""
         study_name = kws.get('name', 'current')
-        print('\nRun {OBJNAME} Gene Ontology Analysis: {STU} study set of {N} IDs ...'.format(
-            OBJNAME=self.name, N=len(study), STU=study_name))
+        log = self._get_log_or_prt(kws)
+        if log:
+            log.write('\nRun {OBJNAME} Gene Ontology Analysis: {STU} study set of {N} IDs ...'.format(
+                OBJNAME=self.name, N=len(study), STU=study_name))
         if not study:
             return []
         # Key-word arguments:
         methods = Methods(kws['methods']) if 'methods' in kws else self.methods
         alpha = kws['alpha'] if 'alpha' in kws else self.alpha
-        log = kws['log'] if 'log' in kws else self.log
         # Calculate uncorrected pvalues
         results = self.get_pval_uncorr(study, log)
         if not results:
@@ -325,6 +326,14 @@ class GOEnrichmentStudy(object):
         # Default sort order:
         results.sort(key=lambda r: [r.enrichment, r.NS, r.p_uncorrected])
         return results # list of GOEnrichmentRecord objects
+
+    def _get_log_or_prt(self, kws):
+        """Allow either keyword, 'log', or 'prt' to be used to suppress or redirect printing"""
+        if 'log' in kws:
+            return kws['log']
+        if 'prt' in kws:
+            return kws['prt']
+        return self.log
 
     def run_study_nts(self, study, **kws):
         """Run GOEA on study ids. Return results as a list of namedtuples."""

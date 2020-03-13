@@ -15,9 +15,9 @@ class GOEnrichmentStudyNS:
     def __init__(self, pop, ns2assoc, godag, propagate_counts=True, alpha=.05, methods=None, **kws):
         self.ns2objgoea = self._ns2o(pop, ns2assoc, godag, propagate_counts, alpha, methods, **kws)
 
-    def run_study(self, study_ids):
+    def run_study(self, study_ids, **kws):
         """Run GOEAs for each namespace, BP MF CC"""
-        ns2results = {ns:o.run_study(study_ids) for ns, o in sorted(self.ns2objgoea.items())}
+        ns2results = {ns:o.run_study(study_ids, **kws) for ns, o in sorted(self.ns2objgoea.items())}
         return list(itertools.chain.from_iterable(ns2results.values()))
 
     def wr_xlsx(self, fout_xlsx, goea_results, **kws):
