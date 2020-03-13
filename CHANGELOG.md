@@ -3,7 +3,7 @@
 ### Summary
 
 * [**Unreleased changes**](#unreleased-changes)
-* [**Release 2020-03-13 1.0.2**](#release-2020-03-13-102)
+* [**Release 2020-03-13 1.0.3**](#release-2020-03-13-103) GOEAs can be run in quiet mode
 * [**Release 2020-02-20 1.0.2**](#release-2020-02-20-102)
   * Added [Jupyter notebook](https://github.com/tanghaibao/goatools/blob/master/notebooks/godag_obsolete_terms.ipynb) showing how to work with obsolete GO terms
     [#153](https://github.com/tanghaibao/goatools/issues/153)
