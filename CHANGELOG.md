@@ -33,7 +33,7 @@ Release 2020-03-13 1.0.3
   * Added quiet mode when running GOEAs using the function, *run_goea*.
     Examples are in section **5a. Quietly Run a GOEA** of the
 [**GOEA Jupyter notebook**](https://github.com/tanghaibao/goatools/blob/master/notebooks/goea_nbt3102.ipynb).
-See: See comments[request](https://github.com/tanghaibao/goatools/issues/133#issuecomment-598334391) and
+re: See comments [request](https://github.com/tanghaibao/goatools/issues/133#issuecomment-598334391) and
 [response](https://github.com/tanghaibao/goatools/issues/133#issuecomment-598844019)) in
 [#133](https://github.com/tanghaibao/goatools/issues/133)
 
