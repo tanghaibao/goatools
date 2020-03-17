@@ -13,14 +13,14 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 
-__copyright__ = "Copyright (C) 2010-2019, H Tang et al., All rights reserved."
+__copyright__ = "Copyright (C) 2010-present, H Tang et al., All rights reserved."
 __author__ = "various"
 
 import sys
 import datetime
 
 
-class GoeaPrintFunctions(object):
+class GoeaPrintFunctions:
     """Functions for displaying GOEA results"""
 
     @staticmethod
@@ -62,17 +62,16 @@ class GoeaPrintFunctions(object):
     def get_adj_records(results, min_ratio=None, pval=0.05):
         """Return GOEA results with some additional statistics calculated."""
         records = []
+        if pval is not None and 0.0 <= pval < 1.0:
+            results = [r for r in results if r.p_uncorrected < pval]
         for rec in results:
             # calculate some additional statistics
             # (over_under, is_ratio_different)
             rec.update_remaining_fldsdefprt(min_ratio=min_ratio)
-
-            if pval is not None and rec.p_uncorrected >= pval:
-                continue
 
             if rec.is_ratio_different:
                 records.append(rec)
         return records
 
 
-# Copyright (C) 2010-2019, H Tang et al., All rights reserved.
+# Copyright (C) 2010-present, H Tang et al., All rights reserved.

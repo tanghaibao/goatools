@@ -15,7 +15,7 @@ About significance cutoff:
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2010-2019, H Tang et al. All rights reserved."
+__copyright__ = "Copyright (C) 2010-present, H Tang et al. All rights reserved."
 __author__ = "various"
 
 import os
@@ -34,6 +34,7 @@ from goatools.rpt.prtfmt import PrtFmt
 from goatools.semantic import TermCounts
 from goatools.wr_tbl import prt_tsv_sections
 from goatools.godag.consts import RELATIONSHIP_SET
+from goatools.godag.consts import RELATIONSHIP_LIST
 from goatools.godag.consts import chk_relationships
 from goatools.godag.prtfncs import GoeaPrintFunctions
 from goatools.anno.factory import get_anno_desc
@@ -77,7 +78,9 @@ class GoeaCliArgs:
         p.add_argument('--alpha', default=0.05, type=float,
                        help='Test-wise alpha for multiple testing')
         p.add_argument('--pval', default=.05, type=float,
-                       help='Only print results with uncorrected p-value < PVAL.')
+                       help=('Only print results with uncorrected p-value < PVAL. '
+                             'Print all results, significant and otherwise, '
+                             'by setting --pval=1.0'))
         p.add_argument('--pval_field', type=str,
                        help='Only print results when PVAL_FIELD < PVAL.')
         p.add_argument('--outfile', default=None, type=str,
@@ -112,6 +115,10 @@ class GoeaCliArgs:
                        "excluding GO categories with small differences, but "
                        "containing large numbers of genes. should be a value "
                        "between 1 and 2. ")
+        p.add_argument('--prt_study_gos_only', default=False, action='store_true',
+                       help=('Print GO terms only if they are associated with study genes. '
+                             'This is useful if printng all GO results '
+                             'regardless of their significance (--pval=1.0). '))
         p.add_argument('--indent', dest='indent', default=False,
                        action='store_true', help="indent GO terms")
         p.add_argument('--obo', default="go-basic.obo", type=str,
@@ -121,14 +128,15 @@ class GoeaCliArgs:
         # no -r:   args.relationship == False
         # -r seen: args.relationship == True
         p.add_argument('-r', '--relationship', action='store_true',
-                       help='Propagate counts up all relationships')
+                       help='Propagate counts up all relationships,')
         # NO --relationships                -> None
         # --relationships part_of regulates -> relationships=['part_of', 'regulates']
         # --relationships=part_of           -> relationships=['part_of']
         # --relationships=part_of,regulates -> relationships=['part_of', 'regulates']
         # --relationships=part_of regulates -> NOT VALID
         p.add_argument('--relationships', nargs='*',
-                       help='Propagate counts up user-specified relationships')
+                       help=('Propagate counts up user-specified relationships, which include: '
+                             '{RELS}').format(RELS=' '.join(RELATIONSHIP_LIST)))
         p.add_argument('--method', default="bonferroni,sidak,holm,fdr_bh", type=str,
                        help=Methods().getmsg_valid_methods())
         p.add_argument('--pvalcalc', default="fisher", type=str,
@@ -316,8 +324,11 @@ class GoeaCliFnc:
                 grpwr.prt_txt(sys.stdout)
 
     def get_results(self):
-        """Given all GOEA results, return the significant results (< pval)."""
-        return self.get_results_sig() if self.args.pval != -1.0 else self.results_all
+        """Return the significant GOEA results (< pval), unless user wants all."""
+        results = self.get_results_sig() if 0 <= self.args.pval < 1.0 else self.results_all
+        if self.args.prt_study_gos_only:
+            results = [r for r in results if r.study_count != 0]
+        return results
 
     def _init_objgoeans(self, pop):
         """Run gene ontology enrichment analysis (GOEA)."""
@@ -602,4 +613,4 @@ class GrpWr:
         return flds
 
 
-# Copyright (C) 2010-2019, H Tang et al. All rights reserved.
+# Copyright (C) 2010-present, H Tang et al. All rights reserved.

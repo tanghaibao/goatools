@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 """
 python find_enrichment.py study.file population.file gene-association.file
@@ -14,7 +14,7 @@ About significance cutoff:
         level to apply after Bonferroni correction
 """
 
-__copyright__ = "Copyright (C) 2010-2018, H Tang et al. All rights reserved."
+__copyright__ = "Copyright (C) 2010-present, H Tang et al. All rights reserved."
 __author__ = "various"
 
 import sys
@@ -43,4 +43,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# Copyright (C) 2010-2018, H Tang et al. All rights reserved.
+# Copyright (C) 2010-present, H Tang et al. All rights reserved.
