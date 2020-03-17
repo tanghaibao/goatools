@@ -15,12 +15,12 @@ from goatools.anno.init.utils import get_date_yyyymmdd
 from goatools.anno.extensions.factory import get_extensions
 from goatools.anno.eco2group import ECO2GRP
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
 # pylint: disable=too-few-public-methods
-class InitAssc(object):
+class InitAssc:
     """Read annotation file and store a list of namedtuples."""
 
     # http://geneontology.org/page/gene-product-association-data-gpad-format
@@ -83,7 +83,8 @@ class InitAssc(object):
         props = self._get_properties(flds[11])
         self._chk_qty_eq_1(flds, [0, 1, 3, 5, 8, 9])
         # Additional Formatting
-        self._chk_qualifier(qualifiers)
+        if qualifiers:
+            self._chk_qualifier(qualifiers)
         # Create list of values
         eco = flds[5]
         goid = flds[3]
@@ -111,12 +112,15 @@ class InitAssc(object):
         return NAMESPACE2NS[goobj.namespace] if goobj else ''
 
     @staticmethod
-    def _get_qualifier(val):
+    def _get_qualifier(valstr):
         """Get qualifiers. Correct for inconsistent capitalization in GAF files"""
         quals = set()
-        if val == '':
+        if valstr == '':
             return quals
-        for val in val.split('|'):
+        # https://github.com/geneontology/go-annotation/issues/2885
+        if valstr[-1] == '|':
+            valstr = valstr[:-1]
+        for val in valstr.split('|'):
             val = val.lower()
             quals.add(val if val != 'not' else 'NOT')
         return quals
@@ -203,8 +207,8 @@ class InitAssc(object):
                     sys.stdout.write("\n  **FATAL: {MSG}\n\n".format(MSG=str(inst)))
                     sys.stdout.write("**FATAL: {FIN}[{LNUM}]:\n{L}\n".format(
                         FIN=self.filename, L=line, LNUM=lnum))
-                    for idx, val in enumerate(flds):
-                        sys.stdout.write('{I:2} {VAL}\n'.format(I=idx, VAL=val))
+                    for idx, (key, val) in enumerate(zip(self.gpadhdr, flds)):
+                        sys.stdout.write('{I:2} {KEY:13} {VAL}\n'.format(I=idx, KEY=key, VAL=val))
                     ## if datobj is not None:
                     ##     datobj.prt_line_detail(sys.stdout, line)
                     sys.exit(1)
@@ -252,8 +256,8 @@ class InitAssc(object):
         """Check that qualifiers are expected values."""
         # http://geneontology.org/page/go-annotation-conventions#qual
         for qual in qualifiers:
-            assert qual in self.exp_qualifiers, "UNEXPECTED QUALIFIER({Q}): {F}".format(
-                Q=qual, F=self.filename)
+            assert qual in self.exp_qualifiers, "UNEXPECTED QUALIFIER({Q}) IN ({Qs}): {F}".format(
+                Qs=qualifiers, Q=qual, F=self.filename)
 
     @staticmethod
     def _chk_qty_eq_1(flds, col_lst):
@@ -263,7 +267,7 @@ class InitAssc(object):
                 V=flds[col], R=col)
 
 
-class GpadHdr(object):
+class GpadHdr:
     """Used to build a GPAD header."""
 
     cmpline = re.compile(r'^!(\w[\w\s-]+:.*)$')
@@ -281,4 +285,4 @@ class GpadHdr(object):
         if mtch:
             self.gpadhdr.append(mtch.group(1))
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
