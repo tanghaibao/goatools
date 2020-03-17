@@ -28,7 +28,7 @@ Unreleased changes
 --------------
 * **Added**
   * Added arg, `--prt_study_gos_only`, to script, `scripts/find_enrichment.py`
-    to print only study GOs when printing all GO terms, regardless of their significance (`--pval=1.0`):
+    to print only study GOs when printing all GO terms, regardless of their significance (`--pval=1.0`):    
     `find_enrichment.py study_genes.txt human_genes.txt gene2go --pval=1.0 --prt_study_gos_only`
 * **Changed**
   * Remove trailing divider ("NOT|"), if it exists in the gpad file ([go-annotation #2885](https://github.com/geneontology/go-annotation/issues/2885))
