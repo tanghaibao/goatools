@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -75,7 +75,7 @@ class DocOptParse(object):
 
     def _err(self, msg, key, val, exp):
         return "{DOC}\n{MSG}: KEY({K}) VAL({V}): {EXP}".format(
-            DOC=self.doc, MSG=msg, K=key, V=val, EXP=" ".join(exp))
+            DOC=self.doc, MSG=msg, K=key, V=val, EXP=" ".join(exp) if exp else '')
 
     @staticmethod
     def _chk_docunknown(args, exp):
@@ -95,4 +95,4 @@ class DocOptParse(object):
         return unknown
 
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved.

@@ -17,7 +17,6 @@ Options:
   --obo=<file.obo>     Ontologies in obo file [default: go-basic.obo].
   --slims=<file.obo>   GO slims in obo file [default: goslim_generic.obo].
 
-  --gpad=<file.gpad>     Annotations from a gpad file
   --gaf=<file.gaf>     Annotations from a gaf file
   --gene2go=<gene2go>  Annotations from a gene2go file downloaded from NCBI
 
@@ -25,7 +24,7 @@ Options:
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
@@ -244,8 +243,15 @@ class _Init(object):
         hdrs = [os.path.splitext(os.path.basename(f))[0] for f in go_fins]
         assert len(go_fins) == len(go_sets)
         assert len(go_fins) == len(hdrs)
+        goids = set()
         for hdr, go_set, go_fin in zip(hdrs, go_sets, go_fins):
+            goids.update(go_set)
+            if not go_set:
+                print('**WARNING: NO GO IDs FOUND IN {FIN}'.format(FIN=go_fin))
             nts.append(ntobj(hdr=hdr, go_set=go_set, go_fin=go_fin))
+        if not goids:
+            print('**WARNING: NO GO IDs FOUND')
+            sys.exit(1)
         return nts
 
     def _init_go_sets(self, go_fins):
@@ -261,4 +267,4 @@ class _Init(object):
         return go_sets
 
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved.
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved.

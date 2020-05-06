@@ -76,7 +76,7 @@ _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
   A detailed description of GOATOOLS GO grouping is found in the
   [manuscript](https://www.nature.com/articles/s41598-018-28948-z).
 - **Compare GO lists**:
-  Compare two or more lists of GO IDs using _scripts/compare_gos.py_.
+  Compare [two](https://github.com/tanghaibao/goatools/issues/162) or more lists of GO IDs using _scripts/compare_gos.py_.
   This script can be used with or without grouping.
 - **Stochastic GOEA simulations**:
   One of the findings resulting from our simulations is:
