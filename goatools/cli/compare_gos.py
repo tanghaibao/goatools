@@ -17,6 +17,7 @@ Options:
   --obo=<file.obo>     Ontologies in obo file [default: go-basic.obo].
   --slims=<file.obo>   GO slims in obo file [default: goslim_generic.obo].
 
+  --gpad=<file.gpad>     Annotations from a gpad file
   --gaf=<file.gaf>     Annotations from a gaf file
   --gene2go=<gene2go>  Annotations from a gene2go file downloaded from NCBI
 
@@ -175,7 +176,7 @@ class CompareGOsCli(object):
         prt.write('\n# GO Namspaces:\n')
         prt.write('#     BP -> Biological Process\n')
         prt.write('#     MF -> Molecular Function\n')
-        prt.write('#     CC -> Cellualr Component\n')
+        prt.write('#     CC -> Cellular Component\n')
         if verbose:
             prt.write('\n# Example fields: 5 uGOs   362  47 L04 D04 R04\n')
             prt.write('#     N uGOs         -> number of user GO IDs under this GO header\n')
