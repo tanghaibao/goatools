@@ -117,9 +117,9 @@ class InitAssc:
         quals = set()
         if valstr == '':
             return quals
-        # https://github.com/geneontology/go-annotation/issues/2885
-        if valstr[-1] == '|':
-            valstr = valstr[:-1]
+        #### # https://github.com/geneontology/go-annotation/issues/2885
+        #### if valstr[-1] == '|':
+        ####     valstr = valstr[:-1]
         for val in valstr.split('|'):
             val = val.lower()
             quals.add(val if val != 'not' else 'NOT')

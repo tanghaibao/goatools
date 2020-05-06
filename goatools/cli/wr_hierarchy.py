@@ -70,36 +70,38 @@ class WrHierCli:
             args, intvals=set(['max_indent', 'dash_len']))
         opt_attrs = OboOptionalAttrs.optional_exp.intersection(self.kws.keys())
         godag = get_godag(self.kws['dag'], prt, optional_attrs=opt_attrs)
-        self.gene2gos = read_annotations(**self.kws)
+        self.gene2gos = read_annotations(namespace='ALL', **self.kws)
         self.tcntobj = TermCounts(godag, self.gene2gos) if self.gene2gos else None
         self.gosubdag = GoSubDag(godag.keys(), godag,
                                  relationships='relationship' in opt_attrs,
                                  tcntobj=self.tcntobj,
                                  children=True,
                                  prt=prt)
-        self.goids = self._init_goids()
+        self.goids = self.init_goids(self.kws.get('GO'), self.kws.get('i'), self.gosubdag.go2nt)
         self._adj_item_marks()
         self._adj_include_only()
         self._adj_for_assc()
 
-    def _init_goids(self):
+    @staticmethod
+    def init_goids(goids_args, infile, go2nt):
+        """Extract GO IDs in the report from arguments"""
         goids_ret = []
-        if 'GO' in self.kws:
-            for goid in self.kws['GO']:
+        if goids_args is not None:
+            for goid in goids_args:
                 if goid[:3] == "GO:":
                     assert len(goid) == 10, "BAD GO ID({GO})".format(GO=goid)
                     goids_ret.append(goid)
                 elif goid in NS2GO:
                     goids_ret.append(NS2GO[goid])
-        if 'i' in self.kws:
-            goids_fin = GetGOs().rdtxt_gos(self.kws['i'], sys.stdout)
+        if infile is not None:
+            goids_fin = GetGOs().rdtxt_gos(infile, sys.stdout)
             if goids_fin:
                 goids_ret.extend(list(goids_fin))
         if goids_ret:
             return goids_ret
         # If GO DAG is small, print hierarchy for the entire DAG
-        if len(self.gosubdag.go2nt) < 100:
-            return set(self.gosubdag.go2nt.keys())
+        if len(go2nt) < 100:
+            return set(go2nt.keys())
         return None
 
     def get_fouts(self):
@@ -176,7 +178,7 @@ class WrHierCli:
         """Return GO IDs from a GO str (e.g., GO:0043473,GO:0009987) or a file."""
         if 'GO:' in gostr:
             return gostr.split(',')
-        elif os.path.exists(gostr):
+        if os.path.exists(gostr):
             return GetGOs().get_goids(None, gostr, sys.stdout)
         return None
 

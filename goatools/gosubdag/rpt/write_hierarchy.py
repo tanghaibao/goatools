@@ -1,6 +1,6 @@
 """Print a GO term's lower-level hierarchy."""
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -10,16 +10,17 @@ from goatools.gosubdag.go_paths import GoPaths
 from goatools.rpt.write_hierarchy_base import WrHierPrt
 
 
-class WrHierGO(object):
+class WrHierGO:
     """Write hierarchy object."""
 
-    kws_dct = set(['max_indent'])
+    kws_dct = set(['max_indent', 'include_only', 'item_marks', 'dash_len', 'sortby'])
     kws_set = set(['no_indent', 'concise'])
+    kws_all = kws_dct.union(kws_set)
 
     def __init__(self, gosubdag, **kws):
         self.gosubdag = gosubdag  # GoSubDag arg, children=True, must be used
         self.usrdct = {k:v for k, v in kws.items() if k in kws}
-        self.usrset = set([k for k, v in kws.items() if k in kws and v])
+        self.usrset = set(k for k, v in kws.items() if k in kws and v)
         # ' {NS} {dcnt:6,} L{level:02} D{depth:02} {D1:5} {GO_name}'
 
     def prt_hier_all(self, prt=sys.stdout):
@@ -40,14 +41,9 @@ class WrHierGO(object):
     def prt_hier_up(self, goids, prt=sys.stdout):
         """Write hierarchy for all GO IDs below GO ID in arg, goid."""
         go2goterm_all = {go:self.gosubdag.go2obj[go] for go in goids}
-        objp = GoPaths()
         items_list = []
         for namespace, go2term_ns in self._get_namespace2go2term(go2goterm_all).items():
-            goids_all = set()  # GO IDs from user-specfied GO to root
-            for goid_usr, goterm in go2term_ns.items():
-                goids_all.add(goid_usr)
-                paths = objp.get_paths_from_to(goterm, goid_end=None, dn0_up1=True)
-                goids_all.update(set(o.id for p in paths for o in p))
+            goids_all = self.get_goids_all(go2term_ns)
             # Only include GO IDs from user-specified GO to the root
             if 'include_only' not in self.usrdct:
                 self.usrdct['include_only'] = set()
@@ -65,6 +61,17 @@ class WrHierGO(object):
             obj.prt_hier_rec(go_root)
             items_list.extend(obj.items_list)
         return items_list
+
+    @staticmethod
+    def get_goids_all(go2term_ns):
+        """GO IDs from user-specfied GO to root"""
+        goids_all = set()  # GO IDs from user-specfied GO to root
+        objp = GoPaths()
+        for goid_usr, goterm in go2term_ns.items():
+            goids_all.add(goid_usr)
+            paths = objp.get_paths_from_to(goterm, goid_end=None, dn0_up1=True)
+            goids_all.update(set(o.id for p in paths for o in p))
+        return goids_all
 
     @staticmethod
     def _get_namespace2go2term(go2terms):
@@ -155,4 +162,4 @@ class WrHierGO(object):
 ####
 #### """.format(SCR='write_hierarchy')
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved.
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved.
