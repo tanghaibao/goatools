@@ -7,12 +7,12 @@ import re
 from collections import namedtuple
 from collections import OrderedDict
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
 #pylint: disable=line-too-long,too-many-instance-attributes,unnecessary-lambda
-class NCBIgeneFileReader(object):
+class NCBIgeneFileReader:
     """Reads an NCBI Gene tsv file.
 
        Generate the NCBI gene file by following these steps:
@@ -32,13 +32,12 @@ class NCBIgeneFileReader(object):
             'start_position_on_the_genomic_accession', # NCBI Gene
             'end_position_on_the_genomic_accession',   # NCBI Gene
             'exon_count',                              # NCBI Gene
-            'OMIM',                                    # NCBI Gene
             'Start', 'start', 'End', 'end',   # Cluster
             'Len', 'len', 'Length', 'length', # cluster
             'Qty', 'qty', '# Genes']          # Cluster
         if 'ints' in kwargs_dict:
             ints = kwargs_dict['ints']
-            if len(ints) != 0:
+            if ints:
                 self.int_hdrs.extend(ints)
             else:
                 self.int_hdrs = []
@@ -88,7 +87,7 @@ class NCBIgeneFileReader(object):
             self._init_hdr(line, hdrs_usr)
             return True
         # If there is a header hint, examine each beginning line until header hint is found.
-        elif self.hdr_ex in line:
+        if self.hdr_ex in line:
             self._init_hdr(line, hdrs_usr)
             return True
         return False
@@ -121,7 +120,9 @@ class NCBIgeneFileReader(object):
                     if nt_obj is not None:
                         flds = re.split(self.sep, line)
                         self.convert_ints_floats(flds)
-                        flds[6] = [s.strip() for s in flds[6].split(',')]
+                        # Aliases
+                        flds[6] = self._get_list(flds[6])
+                        flds[16] = [int(s) for s in self._get_list(flds[16])]
                         ntdata = nt_obj._make(flds)
                         data.append(ntdata)
                     # Obtain the header
@@ -142,6 +143,11 @@ class NCBIgeneFileReader(object):
             if self.log is not None:
                 self.log.write("  {:9} lines READ:  {}\n".format(len(data), self.fin))
         return data
+
+    @staticmethod
+    def _get_list(valstr):
+        """Return a list, given a string containing a list of values"""
+        return [] if valstr == '' else [s.strip() for s in valstr.split(',')]
 
     def hdr_xform(self, hdrs):
         """Transform NCBI Gene header fields into valid namedtuple fields."""
@@ -170,7 +176,8 @@ class NCBIgeneFileReader(object):
         # Init indexes which will be converted to int or float
         self.idxs_int = [idx for idx, hdr in enumerate(hdrs) if hdr in self.int_hdrs]
         self.idxs_float = [idx for idx, hdr in enumerate(hdrs) if hdr in self.float_hdrs]
-        assert hdrs[6] == 'Aliases'
+        if hdrs[6] != 'Aliases':
+            raise RuntimeError('**FATAL: BAD HEADER LINE: {LINE}'.format(LINE=line))
         return namedtuple('ntncbi', ' '.join(hdrs))
 
     @staticmethod
@@ -178,10 +185,9 @@ class NCBIgeneFileReader(object):
         """Uses extension(.tsv, .csv) to determine separator."""
         if '.tsv' in fin:
             return r'\t'
-        elif '.csv' in fin:
+        if '.csv' in fin:
             return r','
-        else:
-            return sep
+        return sep
 
     @staticmethod
     def replace_nulls(hdrs):
@@ -263,4 +269,4 @@ class NCBIgeneFileReader(object):
             Idx for Hdr, Idx in self.hdr2idx.items() if Hdr in usr_hdrs and Hdr in strpat]
 
 
-  # Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.
+  # Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved.

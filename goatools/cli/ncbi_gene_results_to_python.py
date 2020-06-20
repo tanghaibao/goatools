@@ -1,50 +1,93 @@
-"""Read a NCBI Gene gene_result.txt file and write a Python module.
-
-Usage:
-  ncbi_gene_results_to_python.py [options]
-
-Options:
-  -h --help                                 show this help message and exit
-
-  -i <gene_result.txt>   Read NCBI Gene file [default: gene_result.txt]
-  -o <gene_result.py>    Write Python file [default: gene_result.py]
-
-"""
+"""Read a NCBI Gene gene_result.txt file and write a Python module"""
 
 from __future__ import print_function
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import os
 import sys
 import re
 import datetime
-from goatools.cli.docopt_parse import DocOptParse
+import collections as cx
+from argparse import ArgumentParser
 from goatools.parsers.ncbi_gene_file_reader import NCBIgeneFileReader
 
 
 # pylint: disable=too-few-public-methods
-class NCBIgeneToPythonCli(object):
+class NCBIgeneToPythonCli:
     """Read a NCBI Gene gene_result.txt file and write a Python module."""
 
-    kws_dict = set(['i', 'o'])
+    argparser = ArgumentParser(description='Convert a NCBI gene tsv file into a Python module')
+    argparser.add_argument(
+        'NCBI_gene_tsv', type=str, nargs='+',
+        help='gene_result.tsv downloaded from NCBI Gene')
+    argparser.add_argument(
+        '-o', '--outfile',
+        help='Write current citation report to an ASCII text file.')
 
-    def __init__(self):
-        self.objdoc = DocOptParse(__doc__, self.kws_dict, set())
 
     def cli(self, prt=sys.stdout):
         """Command-line interface to print specified GO Terms from the DAG source ."""
-        kws = self.objdoc.get_docargs(prt=None)
-        if os.path.exists(kws['i']):
-            obj = NCBIgeneFileReader(kws['i'])
-            nts = obj.get_nts()
-            if nts:
-                geneid2nt = self._get_geneid2nt(nts)
-                self._wrpy_ncbi_gene_nts(kws['o'], geneid2nt, prt)
-        else:
-            raise RuntimeError("\n{DOC}\n**ERROR: NO FILE FOUND: {NCBI}".format(
-                NCBI=kws['i'], DOC=__doc__))
+        args = self.argparser.parse_args()
+        # Aggregate all NCBI Gene data into a single output file
+        if len(args.NCBI_gene_tsv) > 1 and args.outfile is not None:
+            self._aggregate_all(args.NCBI_gene_tsv, args.outfile, prt)
+            return
+        self._aggregate_each(args.NCBI_gene_tsv, args.outfile, prt)
+
+    def _aggregate_each(self, fin_tsvs, arg_py, prt):
+        """Read each NCBI Gene files. Write data into one Python module per gene file"""
+        in_outs = self._get_io_filenames(fin_tsvs, arg_py)
+        for fin_tsv, fout_py in in_outs:
+            print(fin_tsv, fout_py)
+            nts = NCBIgeneFileReader(fin_tsv).get_nts()
+            geneid2nt = self._get_geneid2nt(nts)
+            self._wrpy_ncbi_gene_nts(fout_py, geneid2nt, prt)
+
+    def _get_io_filenames(self, fin_tsvs, fout_py):
+        """Get one output file for each input file"""
+        nts = []
+        ntobj = cx.namedtuple('NtIO', 'fin_tsv fout_py')
+        ctr = cx.Counter()
+        for fin_tsv in fin_tsvs:
+            if os.path.exists(fin_tsv):
+                if fout_py is not None:
+                    nts.append(ntobj(fin_tsv=fin_tsv, fout_py=fout_py))
+                else:
+                    basename_tsv = os.path.basename(fin_tsv)
+                    base, _ = os.path.splitext(basename_tsv)
+                    fout_py_cur = self._get_foutpy(base, ctr[base])
+                    ctr[base] += 1
+                    nts.append(ntobj(fin_tsv=fin_tsv, fout_py=fout_py_cur))
+            else:
+                print('**ERROR-NOT FOUND: {FIN}'.format(FIN=fin_tsv))
+        return nts
+
+    @staticmethod
+    def _get_foutpy(basename, cnt):
+        """Get Python module name"""
+        if cnt == 0:
+            return '{F}.py'.format(F=basename)
+        return '{F}{N}.py'.format(F=basename, N=cnt)
+
+    def _aggregate_all(self, fin_tsvs, fout_py, prt):
+        """Read all NCBI Gene files. Write all data into one Python module"""
+        nts = self._read_tsvs_all(fin_tsvs)
+        geneid2nt = self._get_geneid2nt(nts)
+        self._wrpy_ncbi_gene_nts(fout_py, geneid2nt, prt)
+
+    @staticmethod
+    def _read_tsvs_all(fin_tsvs):
+        """Read NCBI Gene tsv files. Return namedtuples"""
+        nts_all = []
+        for fin_tsv in fin_tsvs:
+            if os.path.exists(fin_tsv):
+                nts_cur = NCBIgeneFileReader(fin_tsv).get_nts()
+                nts_all.extend(nts_cur)
+            else:
+                print('**ERROR-NOT FOUND: {FIN}'.format(FIN=fin_tsv))
+        return nts_all
 
     @staticmethod
     def _get_geneid2nt(nts):
@@ -54,9 +97,23 @@ class NCBIgeneToPythonCli(object):
             geneid = ntd.GeneID
             if geneid not in geneid2nt:
                 geneid2nt[geneid] = ntd
-            else:
-                print("DUPLICATE GeneID FOUND {N:9} {SYM}".format(N=geneid, SYM=ntd.Symbol))
+            ## TBD: Some genes have more than one location
+            ## elif self._nts_equal(geneid2nt[geneid], ntd):
+            ##      print("DUPLICATE GeneID FOUND {N:9} {SYM}".format(N=geneid, SYM=ntd.Symbol))
         return geneid2nt
+
+    @staticmethod
+    def _nts_equal(nt0, nt1):
+        """Return true if the namedtuples are equal"""
+        return nt0 == nt1
+        ## if nt0.Symbol[:3] != 'LOC':
+        ##     if nt0 != nt1:
+        ##         print('00000000000000000000', nt0)
+        ##         print('11111111111111111111', nt1)
+        ##     return nt0 == nt1
+        ## else:
+        ##     return True
+
 
     @staticmethod
     def _wrpy_ncbi_gene_nts(fout_py, geneid2nt, log):
@@ -80,4 +137,4 @@ class NCBIgeneToPythonCli(object):
             log.write("  {N:9} geneids WROTE: {PY}\n".format(N=num_genes, PY=fout_py))
 
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved.
