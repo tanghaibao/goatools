@@ -2,8 +2,6 @@
 """Test that comparing two identical GO IDs returns true"""
 # https://github.com/tanghaibao/goatools/issues/150
 
-from __future__ import print_function
-
 import os
 ## import sys
 from goatools.obo_parser import GODag

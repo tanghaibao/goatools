@@ -252,6 +252,7 @@ def semantic_similarity(go_id1, go_id2, godag, branch_dist=None):
         return 1.0 / float(dist) if dist != 0 else 1.0
     return None
 
+
 # 1. Schlicker, Andreas et al.
 # "A new measure for functional similarity of gene products based on Gene Ontology"
 # BMC Bioinformatics (2006)
