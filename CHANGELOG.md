@@ -28,7 +28,9 @@ Unreleased changes
 --------------
 * **Fixed**
   * The `scripts/wr_hier.pyi` script can now print the hierarchy for GO IDs in all namespaces. [#163](https://github.com/tanghaibao/goatools/issues/163)
+  * The semantic_similarity function upon comparing a GO term to itself. [#150](https://github.com/tanghaibao/goatools/issues/150)
 * **Added**
+  * Added a new notebook showing how to download background genes from NCBI.
   * Added arg, `--prt_study_gos_only`, to script, `scripts/find_enrichment.py`
     to print only study GOs when printing all GO terms, regardless of their significance (`--pval=1.0`):    
     `find_enrichment.py study_genes.txt human_genes.txt gene2go --pval=1.0 --prt_study_gos_only`
