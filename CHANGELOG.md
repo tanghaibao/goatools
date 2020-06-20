@@ -26,6 +26,8 @@
 
 Unreleased changes
 --------------
+* **Fixed**
+  * The `scripts/wr_hier.pyi` script can now print the hierarchy for GO IDs in all namespaces. [#163](https://github.com/tanghaibao/goatools/issues/163)
 * **Added**
   * Added arg, `--prt_study_gos_only`, to script, `scripts/find_enrichment.py`
     to print only study GOs when printing all GO terms, regardless of their significance (`--pval=1.0`):    

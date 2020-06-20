@@ -123,7 +123,7 @@ class GoSubDag:
             ns2goids[go2nt[goid].NS].add(goid)
         return {ns:gos for ns, gos in ns2goids.items()}
 
-    def prt_objdesc(self, prt=sys.stdout, desc=None):
+    def prt_objdesc(self, prt=sys.stdout, desc=''):
         """Return description of this GoSubDag object."""
         if desc is not None:
             desc += ' '

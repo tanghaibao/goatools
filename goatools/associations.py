@@ -2,7 +2,7 @@
 Routines to read in association file between genes and GO terms.
 """
 
-__copyright__ = "Copyright (C) 2010-2019, H Tang et al. All rights reserved."
+__copyright__ = "Copyright (C) 2010-present, H Tang et al. All rights reserved."
 __author__ = "various"
 
 from collections import defaultdict
@@ -177,7 +177,7 @@ def read_annotations(**kws):
     # Read and save annotation lines
     objanno = get_objanno_g_kws(**kws)
     # Return associations
-    return objanno.get_id2gos() if objanno is not None else {}
+    return objanno.get_id2gos(**kws) if objanno is not None else {}
 
 def get_tcntobj(go2obj, **kws):
     """Return a TermCounts object if the user provides an annotation file, otherwise None."""
@@ -188,4 +188,4 @@ def get_tcntobj(go2obj, **kws):
     return None
 
 
-# Copyright (C) 2010-2019, H Tang et al. All rights reserved."
+# Copyright (C) 2010-present, H Tang et al. All rights reserved."

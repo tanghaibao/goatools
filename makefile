@@ -196,7 +196,7 @@ $(GOSLIM_OBO_FILE):
 
 dnld_gene2go:
 	@echo "Downloading gene2go"
-	#wget ftp://ftp.ncbi.nih.gov/gene/DATA/gene2go.gz
+	wget ftp://ftp.ncbi.nih.gov/gene/DATA/gene2go.gz
 	gunzip gene2go.gz
 
 pylint:
@@ -217,11 +217,11 @@ clean:
 	rm -f data/gaf/goa_human_illegal.gaf.log
 	rm -f gogrp_*.txt
 	rm -f tests/data/gaf_missingsym.mgi.log
-	rm -f tmp_test_sections.py
 	rm -f ?_sec?_hdr*.txt
 	rm -f compare_gos_*.txt
 	rm -f transient_increase_hdrgos.txt
-	rm -f tmp_test_sections_out.txt
+	rm -f tmp_test_*.py
+	rm -f tmp_test_*.txt
 	rm -f *.err
 
 clean_pyc:
@@ -391,11 +391,10 @@ NOSETESTS := \
 
 # Run all tests. If you are submitting a pull request, all tests must pass.
 pytest:
-	#py.test -v tests/
-	# make test_scripts
 	python3 -m pytest -v tests | tee pytest.log
-	# make chk_parsers
-	# py.test tests/ --log-file=pytest.log
+	make chk_parsers
+	py.test tests/ --log-file=pytest.log
+	make test_scripts
 	grep FAIL pytest.log
 
 test_scripts:
@@ -412,4 +411,4 @@ chk_parsers:
 test_ci_subset:
 	py.test --cov=goatools $(NOSETESTS)
 
-# Copyright (C) 2010-2019. Haibao Tang et al. All rights reserved.
+# Ctest_wr_hier_CC.txtopyright (C) 2010-2019. Haibao Tang et al. All rights reserved.
