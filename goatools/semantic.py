@@ -249,7 +249,7 @@ def semantic_similarity(go_id1, go_id2, godag, branch_dist=None):
     '''
     dist = semantic_distance(go_id1, go_id2, godag, branch_dist)
     if dist is not None:
-        return 1.0 / float(dist)
+        return 1.0 / float(dist) if dist != 0 else 1.0
     return None
 
 # 1. Schlicker, Andreas et al.
