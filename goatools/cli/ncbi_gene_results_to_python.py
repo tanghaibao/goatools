@@ -32,18 +32,22 @@ class NCBIgeneToPythonCli:
         args = self.argparser.parse_args()
         # Aggregate all NCBI Gene data into a single output file
         if len(args.NCBI_gene_tsv) > 1 and args.outfile is not None:
-            self._aggregate_all(args.NCBI_gene_tsv, args.outfile, prt)
+            self.tsv_to_py_all(args.NCBI_gene_tsv, args.outfile, prt)
             return
-        self._aggregate_each(args.NCBI_gene_tsv, args.outfile, prt)
+        self.tsv_to_py_each(args.NCBI_gene_tsv, args.outfile, prt)
 
-    def _aggregate_each(self, fin_tsvs, arg_py, prt):
+    def tsv_to_py(self, fin_tsv, fout_py=None, prt=sys.stdout):
         """Read each NCBI Gene files. Write data into one Python module per gene file"""
-        in_outs = self._get_io_filenames(fin_tsvs, arg_py)
-        for fin_tsv, fout_py in in_outs:
-            print(fin_tsv, fout_py)
+        self.tsv_to_py_each([fin_tsv], fout_py, prt)
+
+    def tsv_to_py_each(self, fin_tsvs, fout_py=None, prt=sys.stdout):
+        """Read each NCBI Gene files. Write data into one Python module per gene file"""
+        in_outs = self._get_io_filenames(fin_tsvs, fout_py)
+        for fin_tsv, fo_py in in_outs:
+            print(fin_tsv, fo_py)
             nts = NCBIgeneFileReader(fin_tsv).get_nts()
             geneid2nt = self._get_geneid2nt(nts)
-            self._wrpy_ncbi_gene_nts(fout_py, geneid2nt, prt)
+            self._wrpy_ncbi_gene_nts(fo_py, geneid2nt, prt)
 
     def _get_io_filenames(self, fin_tsvs, fout_py):
         """Get one output file for each input file"""
@@ -71,7 +75,7 @@ class NCBIgeneToPythonCli:
             return '{F}.py'.format(F=basename)
         return '{F}{N}.py'.format(F=basename, N=cnt)
 
-    def _aggregate_all(self, fin_tsvs, fout_py, prt):
+    def tsv_to_py_all(self, fin_tsvs, fout_py=None, prt=sys.stdout):
         """Read all NCBI Gene files. Write all data into one Python module"""
         nts = self._read_tsvs_all(fin_tsvs)
         geneid2nt = self._get_geneid2nt(nts)
