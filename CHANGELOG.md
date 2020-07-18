@@ -3,6 +3,9 @@
 ### Summary
 
 * [**Unreleased changes**](#unreleased-changes)
+* [**Release 2020-06-23 1.0.3**](#release-2020-06-23-103) 
+  * Added code to download background genes from NCBI. 
+  * Fixed the 'write hierarchy' script, wr_hier.py, so it will write MF and CC hierarchies.
 * [**Release 2020-03-13 1.0.3**](#release-2020-03-13-103) GOEAs can be run in quiet mode
 * [**Release 2020-02-20 1.0.2**](#release-2020-02-20-102)
   * Added [Jupyter notebook](https://github.com/tanghaibao/goatools/blob/master/notebooks/godag_obsolete_terms.ipynb) showing how to work with obsolete GO terms
@@ -25,6 +28,12 @@
   * Separate GOEAs into BP, MF, and CC    
 
 Unreleased changes
+--------------
+* **Added**
+  * Added a script to duplicate Table 2 in the [GOATOOLS publication](https://www.nature.com/articles/s41598-018-28948-z)
+
+
+Release 2020-06-23 1.0.6
 --------------
 * **Fixed**
   * The `scripts/wr_hier.pyi` script can now print the hierarchy for GO IDs in all namespaces. [#163](https://github.com/tanghaibao/goatools/issues/163)

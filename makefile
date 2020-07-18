@@ -223,6 +223,7 @@ clean:
 	rm -f tmp_test_*.py
 	rm -f tmp_test_*.txt
 	rm -f *.err
+	rm -f *.tex
 
 clean_pyc:
 	find . -name \*.pyc | xargs rm -f

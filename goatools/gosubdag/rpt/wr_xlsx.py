@@ -1,6 +1,6 @@
 """Used to operate on a sub-graph of a larger GO DAG."""
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import sys
@@ -198,4 +198,4 @@ class GoDepth1LettersWr(object):
         ns_nt = [(o.namespace, ntobj(D1="", dcnt=go2dcnt[o.id], goobj=o)) for o in d0s]
         return cx.OrderedDict(ns_nt)
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved.
