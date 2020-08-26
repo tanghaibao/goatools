@@ -94,28 +94,28 @@ mkdocs_live:
 # GENERATE SPHINX HTML DOCS DISPLAYED ON-LINE.
 #
 # Make target, "gh-pages" does the following:
-#   1. Switches from the "master" branch to the "gh-pages" branch
-#   2. While in the "gh-pages" branch, checks out from the "master" branch:
+#   1. Switches from the "main" branch to the "gh-pages" branch
+#   2. While in the "gh-pages" branch, checks out from the "main" branch:
 #      a. Sphinx control files
 #      b. GOATOOLS source code, which contains docstrings
 #         The docstrings are used to create Sphinx html documentation
 #   3. Creates html documentation using Sphinx in the "gh-pages" branch.
 #   4. Commits and pushes html docs from "gh-pages" branch.
-#   5. Switches back to the master branch
+#   5. Switches back to the main branch
 gh-pages:
 	git checkout gh-pages
 	git rm -rf .
 	git clean -dxf
 	git checkout HEAD .nojekyll
-	git checkout master sphinx goatools scripts
+	git checkout main sphinx goatools scripts
 	make -C sphinx/ apidoc html
 	mv -fv sphinx/_build/html/* .
 	mv -fv _apidoc/* .
 	rm -rf sphinx/ goatools/
 	git add -A
-	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`"
+	git commit -m "Generated gh-pages for `git log main -1 --pretty=short --abbrev-commit`"
 	git push
-	git checkout master
+	git checkout main
 
 
 # -------------------------------------------------------------------------------
@@ -229,7 +229,7 @@ clean_pyc:
 	find . -name \*.pyc | xargs rm -f
 	rm -f py*.*.st*p
 
-# Removes local files in master branch generated using Sphinx
+# Removes local files in main branch generated using Sphinx
 clean_docgen:
 	rm -rf ./_apidoc/
 	rm -rf ./_modules/

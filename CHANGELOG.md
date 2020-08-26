@@ -8,7 +8,7 @@
   * Fixed the 'write hierarchy' script, wr_hier.py, so it will write MF and CC hierarchies.
 * [**Release 2020-03-13 1.0.3**](#release-2020-03-13-103) GOEAs can be run in quiet mode
 * [**Release 2020-02-20 1.0.2**](#release-2020-02-20-102)
-  * Added [Jupyter notebook](https://github.com/tanghaibao/goatools/blob/master/notebooks/godag_obsolete_terms.ipynb) showing how to work with obsolete GO terms
+  * Added [Jupyter notebook](https://github.com/tanghaibao/goatools/blob/main/notebooks/godag_obsolete_terms.ipynb) showing how to work with obsolete GO terms
     [#153](https://github.com/tanghaibao/goatools/issues/153)
     [#154](https://github.com/tanghaibao/goatools/issues/154)
     [#155](https://github.com/tanghaibao/goatools/issues/155)
@@ -51,7 +51,7 @@ Release 2020-03-13 1.0.3
 * **Added**
   * Added quiet mode when running GOEAs using the function, *run_goea*.
     Examples are in section **5a. Quietly Run a GOEA** of the
-[**GOEA Jupyter notebook**](https://github.com/tanghaibao/goatools/blob/master/notebooks/goea_nbt3102.ipynb).
+[**GOEA Jupyter notebook**](https://github.com/tanghaibao/goatools/blob/main/notebooks/goea_nbt3102.ipynb).
 re: See comments ([1](https://github.com/tanghaibao/goatools/issues/133#issuecomment-598334391) and
 [2](https://github.com/tanghaibao/goatools/issues/133#issuecomment-598844019)) in
 [**#133**](https://github.com/tanghaibao/goatools/issues/133)
@@ -60,7 +60,7 @@ Release 2020-02-20 1.0.2
 -------------------------
 
 * **Added**
-  * New [Jupyter notebook](https://github.com/tanghaibao/goatools/blob/master/notebooks/godag_obsolete_terms.ipynb) showing how to work with obsolete GO terms. 
+  * New [Jupyter notebook](https://github.com/tanghaibao/goatools/blob/main/notebooks/godag_obsolete_terms.ipynb) showing how to work with obsolete GO terms. 
     [**#153**](https://github.com/tanghaibao/goatools/issues/153)
     [**#154**](https://github.com/tanghaibao/goatools/issues/154)
     [**#155**](https://github.com/tanghaibao/goatools/issues/155)

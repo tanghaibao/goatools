@@ -46,14 +46,14 @@ This package contains a Python library to
   - GAF ([GO Annotation File](http://geneontology.org/page/go-annotation-file-gaf-format-21))
   - GPAD ([Gene Product Association Data](https://geneontology.github.io/docs/gene-product-association-data-gpad-format/))
   - NCBI's gene2go file
-  - id2gos format. See [example](https://raw.githubusercontent.com/tanghaibao/goatools/master/data/association)
+  - id2gos format. See [example](https://raw.githubusercontent.com/tanghaibao/goatools/main/data/association)
 
 - [Print **_decendants count_** and/or **_information content_**](/notebooks/dcnt_and_tinfo.ipynb)
   for a list of GO terms
 
-- [Get parents or ancestors for a GO term with or without optional relationships](https://nbviewer.jupyter.org/github/tanghaibao/goatools/blob/master/notebooks/parents_and_ancestors.ipynb)
+- [Get parents or ancestors for a GO term with or without optional relationships](https://nbviewer.jupyter.org/github/tanghaibao/goatools/blob/main/notebooks/parents_and_ancestors.ipynb)
 
-  - [Print details about a GO ID's parents](https://github.com/tanghaibao/goatools/blob/master/notebooks/parent_go_terms.ipynb)
+  - [Print details about a GO ID's parents](https://github.com/tanghaibao/goatools/blob/main/notebooks/parent_go_terms.ipynb)
 
 - Compare two or more lists of GO IDs using _scripts/compare_gos.py_
 - [Plot GO hierarchies](https://github.com/tanghaibao/goatools#plot-go-lineage)
@@ -308,35 +308,35 @@ In total 15 tests are available, which can be selected using option
 `--method`. Please note that the default FDR (`fdr`) uses a resampling
 strategy which may lead to slightly different q-values between runs.
 
-## iPython [Notebooks](https://github.com/tanghaibao/goatools/tree/master/notebooks)
+## iPython [Notebooks](https://github.com/tanghaibao/goatools/tree/main/notebooks)
 
 ### Run a Gene Ontology Enrichment Analysis (GOEA)
 
-<https://github.com/tanghaibao/goatools/blob/master/notebooks/goea_nbt3102.ipynb>
+<https://github.com/tanghaibao/goatools/blob/main/notebooks/goea_nbt3102.ipynb>
 
 ### Show many study genes are associated with RNA, translation, mitochondria, and ribosomal
 
-<https://github.com/tanghaibao/goatools/blob/master/notebooks/goea_nbt3102_group_results.ipynb>
+<https://github.com/tanghaibao/goatools/blob/main/notebooks/goea_nbt3102_group_results.ipynb>
 
 ### Report level and depth counts of a set of GO terms
 
-<https://github.com/tanghaibao/goatools/blob/master/notebooks/report_depth_level.ipynb>
+<https://github.com/tanghaibao/goatools/blob/main/notebooks/report_depth_level.ipynb>
 
 ### Find all human protein-coding genes associated with cell cycle
 
-<https://github.com/tanghaibao/goatools/blob/master/notebooks/cell_cycle.ipynb>
+<https://github.com/tanghaibao/goatools/blob/main/notebooks/cell_cycle.ipynb>
 
 ### Calculate annotation coverage of GO terms on various species
 
-<https://github.com/tanghaibao/goatools/blob/master/notebooks/annotation_coverage.ipynb>
+<https://github.com/tanghaibao/goatools/blob/main/notebooks/annotation_coverage.ipynb>
 
 ### Determine the semantic similarities between GO terms
 
-<https://github.com/tanghaibao/goatools/blob/master/notebooks/semantic_similarity.ipynb>
+<https://github.com/tanghaibao/goatools/blob/main/notebooks/semantic_similarity.ipynb>
 
 ### Obsolete GO terms are loaded upon request
 
-<https://github.com/tanghaibao/goatools/blob/master/notebooks/godag_obsolete_terms.ipynb>
+<https://github.com/tanghaibao/goatools/blob/main/notebooks/godag_obsolete_terms.ipynb>
 
 ## Want to Help?
 

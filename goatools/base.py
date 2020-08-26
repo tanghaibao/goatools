@@ -1,6 +1,5 @@
 """Utilities used in Gene Ontology Enrichment Analyses."""
-# Stolen from brentp:
-# <https://github.com/brentp/toolshed/blob/master/toolshed/files.py>
+# Stolen from brentp
 
 import os
 import os.path as op
