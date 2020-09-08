@@ -591,12 +591,12 @@ class GODag(dict):
         if gml:
             import networkx as nx  # use networkx to do the conversion
             gmlbase = lineage_img.rsplit(".", 1)[0]
-            obj = nx.from_agraph(grph) if engine == "pygraphviz" else nx.from_pydot(grph)
+            obj = nx.nx_agraph.from_agraph(grph) if engine == "pygraphviz" else nx.nx_pydot.from_pydot(grph)
 
             del obj.graph['node']
             del obj.graph['edge']
             gmlfile = gmlbase + ".gml"
-            nx.write_gml(self.label_wrap, gmlfile)
+            nx.write_gml(obj, gmlfile)
             sys.stderr.write("GML graph written to {0}\n".format(gmlfile))
 
         sys.stderr.write(("lineage info for terms %s written to %s\n" %
