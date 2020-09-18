@@ -593,8 +593,8 @@ class GODag(dict):
             gmlbase = lineage_img.rsplit(".", 1)[0]
             obj = nx.nx_agraph.from_agraph(grph) if engine == "pygraphviz" else nx.nx_pydot.from_pydot(grph)
 
-            del obj.graph['node']
-            del obj.graph['edge']
+            # del obj.graph['node']
+            # del obj.graph['edge']
             gmlfile = gmlbase + ".gml"
             nx.write_gml(obj, gmlfile)
             sys.stderr.write("GML graph written to {0}\n".format(gmlfile))
