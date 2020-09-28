@@ -1,0 +1,47 @@
+format-version: 1.2
+data-version: releases/2007-07-01
+
+[Term]
+id: GO:0005575
+name: Cellular component
+namespace: cellular_component
+
+[Term]
+id: GO:0005623
+name: Cell
+namespace: cellular_component
+is_a: GO:0005575 ! Cellular component
+
+[Term]
+id: GO:0005622
+name: Intracellular
+namespace: cellular_component
+relationship: part_of GO:0005623 ! Cell
+
+[Term]
+id: GO:0043226
+name: Organelle
+namespace: cellular_component
+is_a: GO:0005575 ! Cellular component
+
+[Term]
+id: GO:0043227
+name: Membrane-bound organelle
+namespace: cellular_component
+is_a: GO:0043226 ! Organelle
+
+[Term]
+id: GO:0043229
+name: Intracellular organelle
+namespace: cellular_component
+is_a: GO:0043226 ! Organelle
+relationship: part_of GO:0005622 ! Intracellular
+
+[Term]
+id: GO:0043231
+name: Intracellular membrance-bound organelle
+namespace: cellular_component
+is_a: GO:0043229 ! Intracellular organelle
+is_a: GO:0043227 ! Membrane-bound organelle
+
+
