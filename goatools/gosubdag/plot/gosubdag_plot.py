@@ -165,12 +165,13 @@ class GoSubDagPlot:
     # pydot
     def _plt_pydot(self, fout_img):
         """Plot using the pydot graphics engine."""
-        dag = self.get_pydot_graph()
+        dag = self.get_pydot_graph()  # pydot.Dot
         self.wr_pydot_dag(fout_img, dag)
 
     def wr_pydot_dag(self, fout_img, dag):
         """Plot using the pydot graphics engine."""
         img_fmt = os.path.splitext(fout_img)[1][1:]
+        ## print('IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIMG FFFFFFFFFFFFFFFFFmt', img_fmt)
         dag.write(fout_img, format=img_fmt)
         self.log.write("  {GO_USR:>3} usr {GO_ALL:>3} GOs  WROTE: {F}\n".format(
             F=fout_img,
