@@ -4,7 +4,9 @@
 __copyright__ = "Copyright (C) 2019-2020, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
-import os
+from os.path import join
+from os.path import dirname
+from os.path import abspath
 import sys
 import timeit
 from datetime import timedelta
@@ -16,7 +18,8 @@ from goatools.semantic import TermCounts
 
 # from goatools_alpha.geneprodsim.semanticcalcs import SemanticCalcs
 
-REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+DIR_TEST = dirname(abspath(__file__))
+REPO = join(DIR_TEST, "..")
 
 def prt_hms(tic, msg, prt=sys.stdout):
     """Print elapsed time and return current time"""
@@ -26,16 +29,16 @@ def prt_hms(tic, msg, prt=sys.stdout):
 
 def repofn(fin):
     """Get a full filename, given a local file name from repo dir root"""
-    return os.path.join(REPO, fin)
+    return join(REPO, fin)
 
 def get_godag(fin_godag, **kws):
     """Get GODAG containing only primary GO IDs (no alternate GO IDs)"""
-    godag = base_get_godag(os.path.join(REPO, fin_godag), loading_bar=False, **kws)
+    godag = base_get_godag(join(REPO, fin_godag), loading_bar=False, **kws)
     return {o.item_id:o for o in godag.values()}
 
 def get_anno_fullname(fin_anno):
     """Get annotation filename"""
-    fin_full = os.path.join(REPO, fin_anno)
+    fin_full = join(REPO, fin_anno)
     dnld_annotation(fin_full)
     return fin_full
 
