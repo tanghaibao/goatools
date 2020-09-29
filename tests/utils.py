@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Test initializing Yang's Random Walk Contribution initialization"""
 
-__copyright__ = "Copyright (C) 2019-2020, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2019-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 from os.path import join
@@ -54,4 +54,4 @@ def get_termcounts(fin_anno, godag, namespace='all', **kws):
     return TermCounts(godag, id2gos)
 
 
-# Copyright (C) 2019-2020, DV Klopfenstein, et al. All rights reserved.
+# Copyright (C) 2019-present, DV Klopfenstein, et al. All rights reserved.
