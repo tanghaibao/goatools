@@ -71,7 +71,7 @@ class RelationshipCombos:
         rels_unexpected = relationships_usr.difference(relationships_dag)
         if not rels_unexpected:
             return
-        print('**WARNING: UNEXPECTED GODag relationships({R}). EXPECTED SET VALUES: {Rs}'.format(
+        print('**NOTE: RELATIONSHIPS IN GODag: SEEN({Rs}) NOT_SEEN({R})'.format(
             R=' '.join(sorted(rels_unexpected)), Rs=' '.join(sorted(relationships_dag))))
 
     def _init_dag_relationships(self):
