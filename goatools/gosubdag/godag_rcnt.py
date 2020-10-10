@@ -10,7 +10,6 @@ class CountRelatives:
     """Get descendant/parent counts for all GO terms in a GODag and broad L0 and L1 terms."""
 
     def __init__(self, go2obj, relationships=None, dcnt=True, go2letter=None):
-        # print("INITIALIZING CountRelatives")
         # Subset go2obj contains only items needed by go_sources
         self.go2obj = go2obj
         # Count of total number of descendants for each GO term
