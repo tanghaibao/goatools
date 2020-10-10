@@ -31,6 +31,7 @@ Unreleased changes
 --------------
 * **Added**
   * Added a script to duplicate Table 2 in the [GOATOOLS publication](https://www.nature.com/articles/s41598-018-28948-z) [#171](https://github.com/tanghaibao/goatools/issues/171)
+  * Added clear documentation to explain GO term text (D and R) in plots [#178](https://github.com/tanghaibao/goatools/issues/178)
 
 
 Release 2020-06-23 1.0.6
