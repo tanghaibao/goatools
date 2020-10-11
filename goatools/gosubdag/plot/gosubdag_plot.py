@@ -192,11 +192,11 @@ class GoSubDagPlot:
         rel2edgekws = self.rel2edgekws
         self.edgesobj.chk_edges()
         edgekws = rel2edgekws.get(rel)
-        _add_edges = self.pydotedge.add_edges
-        _add_edges(self.edgesobj.edges, go2node, dag, **edgekws)
+        s_add_edges = self.pydotedge.add_edges
+        s_add_edges(self.edgesobj.edges, go2node, dag, **edgekws)
         for reltype, edges_list in self.edgesobj.edges_rel.items():
             edgekws = rel2edgekws.get(reltype)
-            _add_edges(edges_list, go2node, dag, **edgekws)
+            s_add_edges(edges_list, go2node, dag, **edgekws)
         return dag
 
     @staticmethod
