@@ -30,7 +30,7 @@ class InitGOs:
         # Process: rcntobj tcntobj go2nt relationships
         self.go2obj_orig = go2obj
         if relationships:
-            assert hasattr(next(iter(go2obj.values())), 'relationship'), "NO DAG RELATIONSHIPS"
+            self._chk_rels(go2obj)
         # Init go2obj and go_sources
         self.go2obj = None
         self.go_sources = None
@@ -38,6 +38,14 @@ class InitGOs:
         self._init_gos(go_sources, relationship_set)
         # Using reduced go2obj, init relationships
         self.relationships = relationship_set
+
+    @staticmethod
+    def _chk_rels(go2obj):
+        """Check if the GODag was loaded with relationships"""
+        if not go2obj:
+            raise RuntimeError('NO GODag')
+        if not hasattr(next(iter(go2obj.values())), 'relationship'):
+            raise RuntimeError('GODag not loaded with relationships')
 
     def _init_gos(self, go_sources_arg, relationships_arg):
         """Initialize GO sources."""
