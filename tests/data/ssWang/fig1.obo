@@ -34,6 +34,7 @@ is_a: GO:0043226 ! Organelle
 id: GO:0043229
 name: Intracellular organelle
 namespace: cellular_component
+alt_id: GO:0042222
 is_a: GO:0043226 ! Organelle
 relationship: part_of GO:0005622 ! Intracellular
 
@@ -41,6 +42,7 @@ relationship: part_of GO:0005622 ! Intracellular
 id: GO:0043231
 name: Intracellular membrance-bound organelle
 namespace: cellular_component
+alt_id: GO:0043333
 is_a: GO:0043229 ! Intracellular organelle
 is_a: GO:0043227 ! Membrane-bound organelle
 

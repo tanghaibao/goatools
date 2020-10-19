@@ -8,7 +8,8 @@ class DagA:
     """A GO term, A, can be represented as DAG_a = (A, T_a, E_a), aka a GoSubDag"""
 
     def __init__(self, go_a, gosubdag, rel2scf):
-        self.go_a = go_a
+        self.go_usr = go_a
+        self.go_a = gosubdag.go2obj[go_a].item_id
         self.gosubdag = gosubdag
         self.go2svalue = self._init_go2svalue(rel2scf)
 

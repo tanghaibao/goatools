@@ -33,6 +33,8 @@ class SsWang:
                 gosubdag = GoSubDag([goid], s_godag, s_rels, prt=prt)
                 dag = DagA(goid, gosubdag, s_rel2scf)
                 s_go2subdag[goid] = dag
+            else:
+                print('**WARNING: {GO} NOT FOUND'.format(GO=goid))
 
     def get_semsim(self, go_a, go_b):
         """Get Wang's semantic similarity between two GO terms"""
