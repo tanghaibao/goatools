@@ -18,31 +18,43 @@ def test_semsim_wang(prt=stdout):
     """Wang Semantic Similarity tests"""
     fin_godag = join(REPO, 'tests/data/ssWang/fig1.obo')
     obj = Run(fin_godag, prt)
-    obj.run_semsim_wang_tbl1('GO:0043231', 'GO:0043229')  # main main
-    obj.run_semsim_wang_tbl1('GO:0043231', 'GO:0042222')  # main  alt
-    obj.run_semsim_wang_tbl1('GO:0043333', 'GO:0043229')  #  alt main
-    obj.run_semsim_wang_tbl1('GO:0043333', 'GO:0042222')  #  alt  alt
+    rels = ['part_of']
+    # pylint: disable=line-too-long
+    assert abs(obj.run_semsim_wang_tbl1('GO:0043231', 'GO:0043229', rels) - 0.7727) < .0001  # main main
+    assert abs(obj.run_semsim_wang_tbl1('GO:0043231', 'GO:0042222', rels) - 0.7727) < .0001  # main  alt
+    assert abs(obj.run_semsim_wang_tbl1('GO:0043333', 'GO:0043229', rels) - 0.7727) < .0001  #  alt main
+    assert abs(obj.run_semsim_wang_tbl1('GO:0043333', 'GO:0042222', rels) - 0.7727) < .0001  #  alt  alt
+    rels = []
+    ss_val0 = obj.run_semsim_wang_tbl1('GO:0043231', 'GO:0043229', rels)  # main main
+    ss_val1 = obj.run_semsim_wang_tbl1('GO:0043231', 'GO:0042222', rels)  # main  alt
+    ss_val2 = obj.run_semsim_wang_tbl1('GO:0043333', 'GO:0043229', rels)  #  alt main
+    ss_val3 = obj.run_semsim_wang_tbl1('GO:0043333', 'GO:0042222', rels)  #  alt  alt
+    assert ss_val0 == ss_val1
+    assert ss_val0 == ss_val2
+    assert ss_val0 == ss_val3
 
 
+# pylint: disable=too-few-public-methods
 class Run:
     """Wang Semantic Similarity tests"""
 
     def __init__(self, fin_godag, prt):
         self.godag = GODag(fin_godag, optional_attrs=['relationship'], prt=prt)
 
-    def run_semsim_wang_tbl1(self, go_a, go_b):
+    def run_semsim_wang_tbl1(self, go_a, go_b, relationships):
         """Test S-value for Table 1 in Wang_2007 (Alt ID)a65Gkk"""
-        print('RUN: {A} {B}'.format(A=go_a, B=go_b))
-        relationships = ['part_of']
         wang = SsWang(self.godag, relationships)
         wang.add_goid(go_a)
         dag_a = wang.go2subdag[go_a]
-        self._chk_svalues_a(dag_a)
+        if relationships == ['part_of']:
+            self._chk_svalues_a(dag_a)
 
         # Wang 2.2 Test Semantic similarity of GO terms
         wang.add_goid(go_b)
-        sim_ab = wang.get_semsim(go_a, go_b)
-        assert abs(sim_ab - 0.7727) < .0001
+        ss_rel = wang.get_semsim(go_a, go_b)
+        print('RUN: {A} {B} rels={R} SS={S:6.4f}'.format(
+            A=go_a, B=go_b, R=relationships, S=ss_rel))
+        return ss_rel
 
     @staticmethod
     def _chk_svalues_a(dag_a):
