@@ -10,6 +10,15 @@ from goatools.semsim.termwise.dag_a import DagA
 class SsWang:
     """Wang's termwise semantic similarity for GO terms"""
 
+    # Default semantic contribution factor (scf) for weights for edge types (w_e)
+    dflt_rel2scf = {
+        'is_a': 0.8,
+        'part_of': 0.6,
+        'regulates': 0.6,
+        'negatively_regulates': 0.6,
+        'positively_regulates': 0.6,
+    }
+
     def __init__(self, godag, relationships=None, rel2scf=None):
         self.godag = godag
         self.rels = relationships
@@ -42,10 +51,10 @@ class SsWang:
             return None
         dag_a = self.go2subdag[go_a]
         dag_b = self.go2subdag[go_b]
-        gos_ab = set(dag_a.go2svalue.keys()).intersection(dag_b.go2svalue.keys())
+        gos_ab = set(dag_a.goids).intersection(dag_b.goids)
         s_a = dag_a.get_svalues(gos_ab)
         s_b = dag_b.get_svalues(gos_ab)
-        s_ab = sum([a + b for a, b in zip(s_a, s_b)])
+        s_ab = sum([*s_a, *s_b])
         return s_ab/(dag_a.get_sv() + dag_b.get_sv())
 
     def _not_loaded(self, go_a, go_b):
@@ -58,15 +67,19 @@ class SsWang:
             return True
         return False
 
-    @staticmethod
-    def _init_edge_weight_factor(rel2scf):
+    def _init_edge_weight_factor(self, rel2scf):
         """Initialize semantic contribution factor (scf) for weights for edge types (w_e)"""
         if rel2scf is None:
-            return {
-                'is_a': 0.8,
-                'part_of': 0.6,
-            }
-        return rel2scf
+            return self.dflt_rel2scf
+        ret = dict(self.dflt_rel2scf)
+        rels_exp = set(self.dflt_rel2scf.keys())
+        for rel, val in rel2scf.items():
+            if rel in rels_exp:
+                ret[rel] = val
+            else:
+                print('**ERROR: UNEXPECTED SEMANTIC CONTRIBUTION FACTOR: {K} = {V}'.format(
+                    K=rel, V=val))
+        return ret
 
 
 # Copyright (C) 2020-present DV Klopfenstein. All rights reserved.
