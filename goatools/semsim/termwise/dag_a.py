@@ -12,6 +12,7 @@ class DagA:
         self.go_a = gosubdag.go2obj[go_a].item_id
         self.gosubdag = gosubdag
         self.go2svalue = self._init_go2svalue(rel2scf)
+        self.goids = set(self.go2svalue.keys())
 
     def get_sv(self):
         """Get the semantic value of GO term A"""
