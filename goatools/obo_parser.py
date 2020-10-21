@@ -413,21 +413,6 @@ class GODag(dict):
         for rec in sorted(self.values()):
             print(rec, file=out)
 
-####    def write_hier_all(self, out=sys.stdout,
-####                       len_dash=1, max_depth=None, num_child=None, short_prt=False):
-####        """Write hierarchy for all GO Terms in obo file."""
-####        # Print: [biological_process, molecular_function, and cellular_component]
-####        for go_id in ['GO:0008150', 'GO:0003674', 'GO:0005575']:
-####            self.write_hier(go_id, out, len_dash, max_depth, num_child, short_prt, None)
-####
-####    def write_hier(self, go_id, out=sys.stdout,
-####                   len_dash=1, max_depth=None, num_child=None, short_prt=False,
-####                   include_only=None, go_marks=None):
-####        """Write hierarchy for a GO Term."""
-####        gos_printed = set()
-####        self[go_id].write_hier_rec(gos_printed, out, len_dash, max_depth, num_child,
-####                                   short_prt, include_only, go_marks)
-
     @staticmethod
     def id2int(go_id):
         """Given a GO ID, return the int value."""
