@@ -45,7 +45,7 @@ class SsWang:
             else:
                 print('**WARNING: {GO} NOT FOUND'.format(GO=goid))
 
-    def get_semsim(self, go_a, go_b):
+    def get_sim(self, go_a, go_b):
         """Get Wang's semantic similarity between two GO terms"""
         if self._not_loaded(go_a, go_b):
             return None

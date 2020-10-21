@@ -51,7 +51,7 @@ class Run:
 
         # Wang 2.2 Test Semantic similarity of GO terms
         wang.add_goid(go_b)
-        ss_rel = wang.get_semsim(go_a, go_b)
+        ss_rel = wang.get_sim(go_a, go_b)
         print('RUN: {A} {B} rels={R} SS={S:6.4f}'.format(
             A=go_a, B=go_b, R=relationships, S=ss_rel))
         return ss_rel
