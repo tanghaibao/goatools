@@ -17,8 +17,6 @@ from goatools.base import get_godag
 from goatools.semsim.termwise.wang import SsWang
 from goatools.godag.consts import RELATIONSHIP_SET
 from goatools.godag.prttime import prt_hms
-from goatools.gosubdag.gosubdag import GoSubDag
-from goatools.godag.go_tasks import get_go2ancestors
 
 from tests.utils import REPO
 
@@ -36,10 +34,6 @@ def test_semsim_wang(seed=None, prt=stdout):
     run = Run(fin_godag, seed, prt)
     run.chk_relationships()
     relationships = {'part_of'}
-    wang = SsWang(run.godag, relationships)
-    wang.add_goids({"GO:0004340", "GO:0019158"})
-    print(similarity.wang(run.graph, "GO:0004340", "GO:0019158"))
-    print(wang.get_sim("GO:0004340", "GO:0019158"))
     run.randoms(100, relationships)
 
 
@@ -69,13 +63,7 @@ class Run:
         shuffle(goids)
         rng = range(0, num_calcs*2, 2)
         tic = timeit.default_timer()
-        s_godag = self.godag
-        goobjs = [s_godag[go] for go in goids[:2*num_calcs]]
-        go2ancestors = get_go2ancestors(goobjs, relationships)
-        tic = prt_hms(tic, 'goatools go2ancestors')
-        gosubdag = GoSubDag(goids[:2*num_calcs], self.godag, relationships)
-        tic = prt_hms(tic, 'goatools gosubdag')
-        wang = SsWang(s_godag, relationships)
+        wang = SsWang(goids[:2*num_calcs], self.godag, relationships)
         wang.add_goids(goids[:2*num_calcs])
         tic = prt_hms(tic, 'goatools wang load')
         acts = [wang.get_sim(goids[i], goids[i+1]) for i in rng]

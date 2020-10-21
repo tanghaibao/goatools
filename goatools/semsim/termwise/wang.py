@@ -5,6 +5,7 @@ __author__ = "DV Klopfenstein"
 
 from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.semsim.termwise.dag_a import DagA
+from goatools.godag.go_tasks import get_go2ancestors
 
 
 class SsWang:
@@ -19,12 +20,12 @@ class SsWang:
         'positively_regulates': 0.6,
     }
 
-    def __init__(self, godag, relationships=None, rel2scf=None):
+    def __init__(self, goids, godag, relationships=None, rel2scf=None):
         self.godag = godag
         self.rels = relationships
-        self.rel2scf = rel2scf
         self.w_e = self._init_edge_weight_factor(rel2scf)
         self.go2subdag = {}
+        self.go2ancestors = self._init_go2ancestors(goids, godag, relationships)
 
     def add_goid(self, goid, prt=None):
         """Add a GO ID which will be compared using semantic similarity"""
@@ -80,6 +81,20 @@ class SsWang:
                 print('**ERROR: UNEXPECTED SEMANTIC CONTRIBUTION FACTOR: {K} = {V}'.format(
                     K=rel, V=val))
         return ret
+
+    def _init_go2ancestors(self, goids, godag, relationships):
+        go_set_all = set(goids)
+        go_set_cur = go_set_all.intersection(godag.keys())
+        if go_set_cur != go_set_all:
+            self._go_not_found(go_set_cur, go_set_all)
+        goobjs = [godag[go] for go in go_set_cur]
+        return get_go2ancestors(goobjs, relationships)
+
+    @staticmethod
+    def _go_not_found(go_set_cur, go_set_all):
+        """GO IDs provided by researcher which are not found"""
+        print('**WARNING: GO IDs NOT FOUND: {GOs}'.format(
+            GOs=sorted(go_set_all.difference(go_set_cur))))
 
 
 # Copyright (C) 2020-present DV Klopfenstein. All rights reserved.
