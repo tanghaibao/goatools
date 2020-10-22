@@ -75,7 +75,6 @@ class InitAssc:
         qualifiers = self._get_qualifier(flds[2])
         assert flds[3][:3] == 'GO:', 'UNRECOGNIZED GO({GO})'.format(GO=flds[3])
         db_reference = self._rd_fld_vals("DB_Reference", flds[4], is_set, 1)
-        assert flds[5][:4] == 'ECO:', 'UNRECOGNIZED ECO({ECO})'.format(ECO=flds[3])
         with_from = self._rd_fld_vals("With_From", flds[6], is_set)
         taxons = self._get_taxon(flds[7])
         assert flds[8].isdigit(), 'UNRECOGNIZED DATE({D})'.format(D=flds[8])
@@ -196,6 +195,7 @@ class InitAssc:
                 try:
                     # pylint: disable=not-callable
                     goid = flds[3]
+                    assert flds[5][:4] == 'ECO:', 'UNRECOGNIZED ECO({ECO})'.format(ECO=flds[5])
                     nspc = self._get_namespace(goid) if _add_ns else None
                     if get_all_nss or nspc in namespaces:
                         ntgpad = ntgpadobj_make(_get_ntgpadvals(flds, goid, nspc, _add_ns))
@@ -207,6 +207,7 @@ class InitAssc:
                     sys.stdout.write("\n  **FATAL: {MSG}\n\n".format(MSG=str(inst)))
                     sys.stdout.write("**FATAL: {FIN}[{LNUM}]:\n{L}\n".format(
                         FIN=self.filename, L=line, LNUM=lnum))
+                    flds.insert(6, ECO2GRP.get(flds[5], '???'))
                     for idx, (key, val) in enumerate(zip(self.gpadhdr, flds)):
                         sys.stdout.write('{I:2} {KEY:13} {VAL}\n'.format(I=idx, KEY=key, VAL=val))
                     ## if datobj is not None:
