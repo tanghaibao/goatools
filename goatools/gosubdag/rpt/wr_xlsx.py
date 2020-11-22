@@ -10,9 +10,8 @@ from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.wr_tbl import wr_xlsx as wr_xlsx_tbl
 from goatools.wr_tbl import wr_xlsx_sections as wr_xlsx_sections_tbl
 from goatools.wr_tbl import get_lines
-#### from goatools.wr_tbl import prt_txt
 
-class GoSubDagWr(object):
+class GoSubDagWr:
     """Contains a sub-graph of the original obo from geneontology.org."""
 
     fld2col_widths = {
@@ -75,7 +74,7 @@ def read_d1_letter(fin_txt):
                 go2letter[mtch.group(1)] = line[:1]
     return go2letter
 
-class GoDepth1LettersWr(object):
+class GoDepth1LettersWr:
     """Writes reports for a GoDepth1Letters object."""
 
     str2ns = {'biological_process': 'BP', 'molecular_function': 'MF', 'cellular_component': 'CC'}
@@ -141,20 +140,20 @@ class GoDepth1LettersWr(object):
             prt.write("\\begin{table}[!ht]\n")
             prt.write("\\begin{tabular}{|p{.5cm} | p{.5cm} | >{\\raggedleft}p{.9cm} ")
             prt.write("|p{.7cm} |p{1.8cm} |p{9cm}|}\n")
-            prt.write("\multicolumn{6}{c}{} \\\\\n")
-            prt.write("\hline\n")
+            prt.write("\\multicolumn{6}{c}{} \\\\\n")
+            prt.write("\\hline\n")
             prt.write("\\rowcolor{gray!10}\n")
             prt.write("{HDRS}{EOL}".format(
                 HDRS=joinchr.join(next(iter(data_nts))._fields), EOL=eol))
-            prt.write("\hline\n")
+            prt.write("\\hline\n")
             for idx, line in enumerate(get_lines(data_nts, joinchr=joinchr, eol=eol)):
                 if idx%2 == 1:
                     prt.write("\\rowcolor{gray!7}\n")
                 line.replace('_', '\\_')
                 prt.write(line)
-            prt.write("\hline\n")
-            prt.write("\end{tabular}\n")
-            caption = ("The descendant counts of GO terms at depth-01 are highly skewed. The "
+            prt.write("\\hline\n")
+            prt.write("\\end{tabular}\n")
+            caption = (r"The descendant counts of GO terms at depth-01 are highly skewed. The "
                        "root term, \textit{biological\_process} has over twenty GO children at "
                        "depth-01 shown in the table sorted by their number of descendants "
                        "(dcnt) with \textit{cellular process} at the top having 18k+ "
@@ -163,9 +162,9 @@ class GoDepth1LettersWr(object):
                        "an alias for each depth-01 GO term. The second column represents the "
                        "number of descendants from the specified GO term from down to the total  "
                        "of its descendant leaf-level GO terms, which have no child GO terms.")
-            prt.write("\caption{{{TEXT}}}\n\n".format(TEXT=caption))
-            prt.write("\label{table:supptbl_d1}\n")
-            prt.write("\end{table}\n")
+            prt.write("\\caption{{{TEXT}}}\n\n".format(TEXT=caption))
+            prt.write("\\label{table:supptbl_d1}\n")
+            prt.write("\\end{table}\n")
             sys.stdout.write("  {N:>5} items WROTE: {TXT}\n".format(
                 N=len(data_nts), TXT=fout_tex))
 
