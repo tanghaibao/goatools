@@ -17,11 +17,11 @@ import collections as cx
 from goatools.godag.consts import NAMESPACE2NS
 from goatools.grouper.grprobj_init import GrouperInit
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
-class Grouper(object):
+class Grouper:
     """Groups the user GO ids under other GO IDs acting as headers for the GO groups."""
 
     fmtsum = ("{GO_DESC} GOs({GOs:6,} in {SECs:2} sections, "
@@ -64,7 +64,7 @@ class Grouper(object):
         hdrgos_act_secs = set()
         if self.hdrobj.sections:
             for section_name, hdrgos_all_lst in self.hdrobj.sections:
-                # print("GGGGGGGGGGGGGGGGG {N:3} {NAME}".format(N=len(hdrgos_all_lst), NAME=section_name))
+                # print("GGGGGGGGGGG {N:3} {NAME}".format(N=len(hdrgos_all_lst), NAME=section_name))
                 hdrgos_all_set = set(hdrgos_all_lst)
                 hdrgos_act_set = hdrgos_all_set.intersection(hdrgos_act_all)
                 if hdrgos_act_set:
@@ -100,7 +100,7 @@ class Grouper(object):
             hdrgos_set = set(hdrgos_lst)
             hdrgos_u = hdrgos_set.intersection(self.hdrgo_is_usrgo)
             hdrgos_h = hdrgos_set.intersection(self.hdrgo2usrgos.keys())
-            usrgos = set([u for h in hdrgos_h for u in self.hdrgo2usrgos.get(h)])
+            usrgos = set(u for h in hdrgos_h for u in self.hdrgo2usrgos.get(h))
             usrgos |= hdrgos_u
             return usrgos
         return set()
@@ -118,7 +118,7 @@ class Grouper(object):
         sec_items = []
         section2usrnts = self.get_section2usrnts()
         for section, usrnts in section2usrnts.items():
-            items = set([e for nt in usrnts for e in getattr(nt, itemkey, set())])
+            items = set(e for nt in usrnts for e in getattr(nt, itemkey, set()))
             sec_items.append((section, items))
         return cx.OrderedDict(sec_items)
 
@@ -260,7 +260,7 @@ class Grouper(object):
     def _get_depthsr(self, goobj):
         """Return DNN or RNN depending on if relationships are loaded."""
         if 'reldepth' in self.gosubdag.prt_attr['flds']:
-            return "R{R:02}".format(R=goobj.reldepth)
+            return "R{R:02}".format(R=self.gosubdag.go2nt[goobj.id].reldepth)
         return "D{D:02}".format(D=goobj.depth)
 
     @staticmethod
@@ -284,4 +284,4 @@ class Grouper(object):
             h=len(self.hdrobj.hdrgos.intersection(self.hdrgo2usrgos.keys())),
             H=self.hdrobj.num_hdrgos()))
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved.
