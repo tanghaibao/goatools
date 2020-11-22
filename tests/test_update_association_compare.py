@@ -5,6 +5,8 @@ __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights re
 __author__ = "DV Klopfenstein"
 
 import os
+from os.path import join
+from sys import stdout
 import timeit
 from goatools.obo_parser import GODag
 from goatools.base import get_godag
@@ -13,7 +15,7 @@ from goatools.anno.update_association import update_association
 from goatools.anno.factory import get_objanno
 from goatools.godag.prttime import prt_hms
 
-REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+REPO = join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 # pylint: disable=superfluous-parens
 def test_update_association():
@@ -21,15 +23,15 @@ def test_update_association():
 
     print('\n1) READ GODAG:')
     assc_name = "goa_human.gaf" # gene_association.fb gene_association.mgi
-    obo = os.path.join(REPO, "go-basic.obo")
+    obo = join(REPO, "go-basic.obo")
     tic = timeit.default_timer()
     godag = get_godag(obo)
     tic = prt_hms(tic, "Created two GODags: One for original and one for new propagate counts")
 
     print('\n2) READ ANNOTATIONS:')
-    assc_orig = dnld_assc(os.path.join(REPO, assc_name), godag)
+    assc_orig = dnld_assc(join(REPO, assc_name), godag, prt=stdout)
     tic = prt_hms(tic, "Associations Read")
-    objanno = get_objanno(os.path.join(REPO, assc_name), 'gaf', godag=godag)
+    objanno = get_objanno(join(REPO, assc_name), 'gaf', godag=godag)
     tic = prt_hms(tic, "Associations Read")
 
     print('\n3) MAKE COPIES OF ASSOCIATIONS:')
@@ -52,7 +54,7 @@ def test_update_association():
 
 def _chk_godag(go2obj_act, obo):
     """Check that the update_association function did not alter godag."""
-    go2obj_exp = GODag(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../..", obo))
+    go2obj_exp = GODag(join(os.path.dirname(os.path.abspath(__file__)), "../..", obo))
     assert len(go2obj_act) == len(go2obj_exp)
     assert set(go2obj_act) == set(go2obj_exp)
     for go_act, obj_act in go2obj_act.items():
