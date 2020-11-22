@@ -3,52 +3,60 @@
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
 
-import os
+from os.path import join
+from os.path import exists
 from collections import defaultdict
 from goatools.base import get_godag
 from goatools.cli.gosubdag_plot import PlotCli
 from goatools.cli.gos_get import get_go2color
 from goatools.godag.consts import RELATIONSHIP_SET
+from tests.utils import REPO
 
-REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-GODAG = get_godag(os.path.join(REPO, "go-basic.obo"), optional_attrs={'relationship'})
+# pylint: disable=line-too-long
+GODAG = get_godag(join(REPO, "tests/data/i126/viral_gene_silence.obo"), optional_attrs={'relationship'})
 
-# pylint: disable=old-style-class,line-too-long
 def test_getgo_color_for_plots():
     """Test getting GO IDs and colors for plots"""
     oplt = PlotCli(gosubdag=None, use_doc=False)
 
     kws_base = {
         'GO': {'GO:0060150'},
-        'obo': os.path.join(REPO, 'tests/data/i126/viral_gene_silence.obo'),
-        'go_color_file': os.path.join(REPO, 'tests/data/i126/viral_gene_silence.txt'),
+        'obo': join(REPO, 'tests/data/i126/viral_gene_silence.obo'),
+        'go_color_file': join(REPO, 'tests/data/i126/viral_gene_silence.txt'),
     }
     okws = _Run(kws_base)
 
-    okws.chk_r0(oplt.plot(GODAG, okws.merge(outfile='tests/data/i126/viral_r0.png')))
+    okws.chk_r0(oplt.plot(GODAG, okws.merge(outfile='viral_r0.png')))
 
     oplt.plot(GODAG, okws.merge(
-        outfile='tests/data/i126/viral_r1.png',
+        outfile='viral_r1.png',
         relationships=RELATIONSHIP_SET))
 
-    okws.chk_partof(oplt.plot(GODAG, okws.merge(outfile='tests/data/i126/viral_r_partof.png', relationships='part_of')))
+    # 24 orange GO ancestors up part_of relationship
+    # 12 green  GO ancestors up is_a    relationship
+    # GO:0008150   biological_process
+    # -GO:0051704  multi-organism process
+    #   ERROR: CHILDREN NOT FOUND
+    # --GO:0051707 response to other organism
+    # --GO:0044419 interspecies interaction between organisms
+    okws.chk_partof(oplt.plot(GODAG, okws.merge(outfile='viral_r_partof.png', relationships='part_of')))
 
     oplt.get_gosubdagplot(GODAG, okws.merge(relationships={'negatively_regulates',}))
-    okws.chk_regp(oplt.plot(GODAG, okws.merge(outfile='tests/data/i126/viral_r_regp.png', relationships='positively_regulates')))
+    okws.chk_regp(oplt.plot(GODAG, okws.merge(outfile='viral_r_regp.png', relationships='positively_regulates')))
 
     okws.chk_reg(oplt.plot(GODAG, okws.merge(
-        outfile='tests/data/i126/viral_r_regrp.png',
+        outfile='viral_r_regrp.png',
         relationships='regulates,positively_regulates')))
 
     okws.chk_reg(oplt.plot(GODAG, okws.merge(
-        outfile='tests/data/i126/viral_r_regrn.png',
+        outfile='viral_r_regrn.png',
         relationships='regulates,negatively_regulates')))
 
     oplt1 = oplt.get_gosubdagplot(GODAG, okws.merge(
         relationships='positively_regulates,negatively_regulates'))
 
     _, oplt2 = oplt.plot(GODAG, okws.merge(
-        outfile='tests/data/i126/viral_r_regrpn.png',
+        outfile='viral_r_regrpn.png',
         relationships='regulates,positively_regulates,negatively_regulates'))
 
     assert set(oplt1.gosubdag.go2nt.keys()) == set(oplt2.gosubdag.go2nt.keys())
@@ -76,14 +84,14 @@ class _Run:
         kws = dict(self.kws_base)
         for key, val in kws_usr.items():
             if key == 'outfile':
-                val = os.path.join(REPO, val)
+                val = join(REPO, val)
             kws[key] = val
         return kws
 
     def chk_reg(self, arg):
         """Check relationship, part_of"""
         png, gosubdagplot = arg
-        assert os.path.exists(png)
+        assert exists(png)
         go2p = gosubdagplot.gosubdag.rcntobj.go2ancestors
         exp_all = set.union(*[self.color2goids[c] for c in ['green', 'purple', 'red', 'blue']])
         self._cmp(go2p[self.goid], exp_all)
@@ -91,7 +99,7 @@ class _Run:
     def chk_regp(self, arg):
         """Check relationship, part_of"""
         png, gosubdagplot = arg
-        assert os.path.exists(png)
+        assert exists(png)
         go2p = gosubdagplot.gosubdag.rcntobj.go2ancestors
         exp_all = set.union(*[self.color2goids[c] for c in ['green', 'purple', 'red']]).difference({'GO:0071704'})
         self._cmp(go2p[self.goid], exp_all)
@@ -99,7 +107,7 @@ class _Run:
     def chk_partof(self, arg):
         """Check relationship, part_of"""
         png, gosubdagplot = arg
-        assert os.path.exists(png)
+        assert exists(png)
         go2p = gosubdagplot.gosubdag.rcntobj.go2ancestors
         exp_all = self.color2goids['green'].union(self.color2goids['orange'])
         self._cmp(go2p[self.goid], exp_all)
@@ -107,11 +115,11 @@ class _Run:
     def chk_r0(self, arg):
         """Check relationship == False"""
         png, gosubdagplot = arg
-        assert os.path.exists(png)
+        assert exists(png)
         go2p = gosubdagplot.gosubdag.rcntobj.go2ancestors
         exp_all = self.color2goids['green']
-        print('AAAAAAAAAAAAAAAAAAAAAAAAA', exp_all)
-        print('AAAAAAAAAAAAAAAAAAAAAAAAA', go2p[self.goid])
+        ## print('AAAAAAAAAAAAAAAAAAAAAAAAA', exp_all)
+        ## print('AAAAAAAAAAAAAAAAAAAAAAAAA', go2p[self.goid])
         self._cmp(go2p[self.goid], exp_all)
         # each
         assert 'GO:0008150' not in go2p
