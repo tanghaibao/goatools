@@ -33,8 +33,14 @@ def test_write_hier_bp_mf_cc():
                         children=True,
                         prt=sys.stdout)
     objwr = WrHierGO(gosubdag)
-    assert len(_wr_hier(['BP', 'MF', 'CC'], gosubdag.go2nt, objwr)) > 680000
-    assert len(_wr_hier(['BP',], gosubdag.go2nt, objwr)) > 650000
+
+    # 2020 11:
+    #     594,748 GO lines under GO:0008150
+    #      23,199 GO lines under GO:0003674
+    #       6,259 GO lines under GO:0005575
+    #     624,206 items WROTE: tmp_test_wr_hier_BP_MF_CC.txt
+    assert len(_wr_hier(['BP', 'MF', 'CC'], gosubdag.go2nt, objwr)) > 600000
+    assert len(_wr_hier(['BP',], gosubdag.go2nt, objwr)) > 500000
     assert len(_wr_hier(['MF',], gosubdag.go2nt, objwr)) > 20000
     assert len(_wr_hier(['CC',], gosubdag.go2nt, objwr)) > 5000
 
