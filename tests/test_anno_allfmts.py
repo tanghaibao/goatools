@@ -21,34 +21,34 @@ def test_anno_read():
     # pylint: disable=superfluous-parens
     print('- DOWNLOAD (if needed) AND LOAD -----------------------------------')
     annoobjs = [
-        # gene2go
-        _get_objanno('gene2go', taxid=10090),
-        _get_objanno('gene2go', taxid=10090, namespaces={'BP'}),
-        _get_objanno('gene2go', taxid=10090, namespaces={'MF'}),
-        _get_objanno('gene2go', taxid=10090, namespaces={'CC'}),
-        # gaf
-        _get_objanno('goa_human.gaf'),
-        _get_objanno('goa_human.gaf', namespaces={'BP'}),
-        _get_objanno('goa_human.gaf', namespaces={'MF'}),
-        _get_objanno('goa_human.gaf', namespaces={'CC'}),
-        # gpad
+        ## gene2go
+        #_get_objanno('gene2go', taxid=10090),
+        #_get_objanno('gene2go', taxid=10090, namespaces={'BP'}),
+        #_get_objanno('gene2go', taxid=10090, namespaces={'MF'}),
+        #_get_objanno('gene2go', taxid=10090, namespaces={'CC'}),
+        ## gaf
+        #_get_objanno('goa_human.gaf'),
+        #_get_objanno('goa_human.gaf', namespaces={'BP'}),
+        #_get_objanno('goa_human.gaf', namespaces={'MF'}),
+        #_get_objanno('goa_human.gaf', namespaces={'CC'}),
+        ## gpad
         _get_objanno('goa_human.gpad', godag=godag),
-        _get_objanno('goa_human.gpad', godag=godag, namespaces={'BP'}),
-        _get_objanno('goa_human.gpad', godag=godag, namespaces={'MF'}),
-        _get_objanno('goa_human.gpad', godag=godag, namespaces={'CC'}),
-        _get_objanno('goa_human.gpad'),
-        _get_objanno('goa_human.gpad', namespaces={'BP'}),
-        _get_objanno('goa_human.gpad', namespaces={'MF'}),
-        _get_objanno('goa_human.gpad', namespaces={'CC'}),
-        # id2gos
-        _get_objanno('data/association', 'id2gos'),
-        _get_objanno('data/association', 'id2gos', namespaces={'BP'}),
-        _get_objanno('data/association', 'id2gos', namespaces={'MF'}),
-        _get_objanno('data/association', 'id2gos', namespaces={'CC'}),
-        _get_objanno('data/association', 'id2gos', godag=godag),
-        _get_objanno('data/association', 'id2gos', godag=godag, namespaces={'BP'}),
-        _get_objanno('data/association', 'id2gos', godag=godag, namespaces={'MF'}),
-        _get_objanno('data/association', 'id2gos', godag=godag, namespaces={'CC'}),
+        #_get_objanno('goa_human.gpad', godag=godag, namespaces={'BP'}),
+        #_get_objanno('goa_human.gpad', godag=godag, namespaces={'MF'}),
+        #_get_objanno('goa_human.gpad', godag=godag, namespaces={'CC'}),
+        #_get_objanno('goa_human.gpad'),
+        #_get_objanno('goa_human.gpad', namespaces={'BP'}),
+        #_get_objanno('goa_human.gpad', namespaces={'MF'}),
+        #_get_objanno('goa_human.gpad', namespaces={'CC'}),
+        ## id2gos
+        #_get_objanno('data/association', 'id2gos'),
+        #_get_objanno('data/association', 'id2gos', namespaces={'BP'}),
+        #_get_objanno('data/association', 'id2gos', namespaces={'MF'}),
+        #_get_objanno('data/association', 'id2gos', namespaces={'CC'}),
+        #_get_objanno('data/association', 'id2gos', godag=godag),
+        #_get_objanno('data/association', 'id2gos', godag=godag, namespaces={'BP'}),
+        #_get_objanno('data/association', 'id2gos', godag=godag, namespaces={'MF'}),
+        #_get_objanno('data/association', 'id2gos', godag=godag, namespaces={'CC'}),
     ]
 
     print('- RUN get_id2gos --------------------------------------------------')
