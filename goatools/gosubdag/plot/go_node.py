@@ -1,6 +1,6 @@
 """Create a pydot Node for a GO Term."""
 
-__copyright__ = "Copyright (C) 2016-2020, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import pydot
@@ -126,7 +126,7 @@ class GoNode:
         if 'depth' in prt_flds:
             hdr.append("D{depth}".format(depth=goobj.depth))
         if 'reldepth' in prt_flds:
-            hdr.append("R{reldepth}".format(reldepth=goobj.reldepth))
+            hdr.append("R{reldepth}".format(reldepth=ntgo.reldepth))
         # Print count of parents for this GO term
         if 'c2ps' in self.kws:
             self._add_parent_cnt(hdr, goobj, self.kws['c2ps'])
@@ -175,4 +175,4 @@ class GoNode:
                 hdr.append("p{N}".format(N=len(set(goobj.parents))))
 
 
-# Copyright (C) 2016-2020, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved.
