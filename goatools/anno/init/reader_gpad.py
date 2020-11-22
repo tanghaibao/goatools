@@ -6,6 +6,8 @@
         http://geneontology.org/page/gene-product-association-data-gpad-format
 """
 
+# https://github.com/geneontology/go-ontology/issues/17470
+
 import sys
 import re
 import collections as cx
@@ -145,11 +147,24 @@ class InitAssc:
         """Return Interacting taxon ID | optional | 0 or 1 | gaf column 13."""
         if not taxon:
             return None
-        # Get taxon number: taxon:9606 NCBITaxon:9606
+        # Get taxon number: 9606 taxon:9606 NCBITaxon:9606
         sep = taxon.find(':')
         taxid = taxon[sep + 1:]
-        assert taxid.isdigit(), "UNEXPECTED TAXON({T})".format(T=taxid)
-        return int(taxid)
+        # pylint: disable=line-too-long
+        ## (replaced by 3373 workaround) assert taxid.isdigit(), "UNEXPECTED TAXON({T})".format(T=taxid)
+        ## (replaced by 3373 workaround) return int(taxid)
+        # https://github.com/geneontology/go-annotation/issues/3373
+        # New taxon format causing our GAF readers to crash: Curie(namespace='NCBITaxon', identity='1280')
+        # $ grep -l Curie *.gpa*
+        if taxid.isdigit():
+            return int(taxid)
+        if taxon[:40] == "[Curie(namespace='NCBITaxon', identity='":
+            sep = taxon[40:].find("'")
+            taxid = taxon[40:sep + 40]
+            if taxid.isdigit():
+                return int(taxid)
+            assert False, "**FATAL: TAXON({})".format(taxon)
+        return None
 
     def _get_properties(self, fldstr):
         """Return optional Annotation Properties (0 or greater)."""
