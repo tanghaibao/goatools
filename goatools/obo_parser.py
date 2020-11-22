@@ -385,22 +385,22 @@ class GODag(dict):
         for rec in self.values():
 
             # Add invert relationships
-            if has_relationship:
-                if rec.depth is None:
-                    #### _init_reldepth(rec)
+            #### if has_relationship:
+            ####     if rec.depth is None:
+            ####         _init_reldepth(rec)
 
-                # print("BBBBBBBBBBB1", rec.item_id, rec.relationship)
-                #for (typedef, terms) in rec.relationship.items():
-                #    invert_typedef = self.typedefs[typedef].inverse_of
-                #    # print("BBBBBBBBBBB2 {} ({}) ({}) ({})".format(
-                #    #    rec.item_id, rec.relationship, typedef, invert_typedef))
-                #    if invert_typedef:
-                #        # Add inverted relationship
-                #        for term in terms:
-                #            if not hasattr(term, 'relationship'):
-                #                term.relationship = defaultdict(set)
-                #            term.relationship[invert_typedef].add(rec)
-                # print("BBBBBBBBBBB3", rec.item_id, rec.relationship)
+            ####     # print("BBBBBBBBBBB1", rec.item_id, rec.relationship)
+            ####     #for (typedef, terms) in rec.relationship.items():
+            ####     #    invert_typedef = self.typedefs[typedef].inverse_of
+            ####     #    # print("BBBBBBBBBBB2 {} ({}) ({}) ({})".format(
+            ####     #    #    rec.item_id, rec.relationship, typedef, invert_typedef))
+            ####     #    if invert_typedef:
+            ####     #        # Add inverted relationship
+            ####     #        for term in terms:
+            ####     #            if not hasattr(term, 'relationship'):
+            ####     #                term.relationship = defaultdict(set)
+            ####     #            term.relationship[invert_typedef].add(rec)
+            ####     # print("BBBBBBBBBBB3", rec.item_id, rec.relationship)
 
             if rec.level is None:
                 _init_level(rec)
