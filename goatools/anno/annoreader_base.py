@@ -256,11 +256,17 @@ class AnnoReaderBase(object):
         id2gos = cx.defaultdict(set)
         goids_annos = set(nt.GO_ID for nt in ntannos)
         go2ancestors = self._get_go2ancestors(goids_annos, relationships, prt)
+        # https://github.com/geneontology/go-annotation/issues/3523
+        exclude = {'GO:2000325', 'GO:2000327'}
         for ntd in ntannos:
             goid = ntd.GO_ID
-            goids = id2gos[ntd.DB_ID]
-            goids.add(goid)
-            goids.update(go2ancestors[goid])
+            # https://github.com/geneontology/go-annotation/issues/3523
+            if goid not in exclude:
+                goids = id2gos[ntd.DB_ID]
+                goids.add(goid)
+                goids.update(go2ancestors[goid])
+            else:
+                print('**WARNING: OBSOLETE GO ID({GO})'.format(GO=goid))
         return dict(id2gos)
 
     @staticmethod
