@@ -90,6 +90,15 @@ def get_go2descendants(terms, relationships, prt=None):
     return get_id2lowerselect(terms, relationships)
 
 # ------------------------------------------------------------------------------------
+def get_go2depth(goobjs, relationships):
+    """Get depth of each object"""
+    if not relationships:
+        return {o.item_id:o.depth for o in goobjs}
+    ## if relationships == RELATIONSHIP_SET or relationships is True:
+    ##     return get_id2upper(terms)
+    return {o.item_id:o.reldepth for o in goobjs}
+
+# ------------------------------------------------------------------------------------
 def get_id2parents(objs):
     """Get all parent IDs up the hierarchy"""
     id2parents = {}
