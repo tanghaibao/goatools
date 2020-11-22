@@ -373,21 +373,21 @@ class GODag(dict):
                     rec.depth = 0
             return rec.depth
 
-        def _init_reldepth(rec):
-            if not hasattr(rec, 'reldepth'):
-                up_terms = rec.get_goterms_upper()
-                if up_terms:
-                    rec.reldepth = max(_init_reldepth(rec) for rec in up_terms) + 1
-                else:
-                    rec.reldepth = 0
-            return rec.reldepth
+        #### def _init_reldepth(rec):
+        ####     if not hasattr(rec, 'reldepth'):
+        ####         up_terms = rec.get_goterms_upper()
+        ####         if up_terms:
+        ####             rec.reldepth = max(_init_reldepth(rec) for rec in up_terms) + 1
+        ####         else:
+        ####             rec.reldepth = 0
+        ####     return rec.reldepth
 
         for rec in self.values():
 
             # Add invert relationships
             if has_relationship:
                 if rec.depth is None:
-                    _init_reldepth(rec)
+                    #### _init_reldepth(rec)
 
                 # print("BBBBBBBBBBB1", rec.item_id, rec.relationship)
                 #for (typedef, terms) in rec.relationship.items():
