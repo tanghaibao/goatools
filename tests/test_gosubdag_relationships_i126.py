@@ -12,7 +12,7 @@ from __future__ import print_function
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
 
 from os.path import join
-from os.path import system
+from os import system
 import sys
 ## import timeit
 ## import datetime
