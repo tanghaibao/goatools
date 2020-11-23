@@ -51,7 +51,7 @@ class RelDepthCalc:
     def _rsome(self, rec, go2reldepth):
         """Get reldepth by tracing some optional relationships using recursive function"""
         if rec.item_id not in go2reldepth:
-            anc = rec.get_goterms_upper_rels()
+            anc = rec.get_goterms_upper_rels(self.relationships)
             reldepth = max(self._rsome(rec, go2reldepth) for rec in anc) + 1 if anc else 0
             go2reldepth[rec.item_id] = reldepth
         return go2reldepth[rec.item_id]
