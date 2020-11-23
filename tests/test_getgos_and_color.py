@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-"""Test GoeaResults in plotting package."""
+"""Test relationships ane depth counted w/relationshipd (reldepths) and plotting"""
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved."
 
 from os.path import join
 from os.path import exists
@@ -16,7 +16,7 @@ from tests.utils import REPO
 GODAG = get_godag(join(REPO, "tests/data/i126/viral_gene_silence.obo"), optional_attrs={'relationship'})
 
 def test_getgo_color_for_plots():
-    """Test getting GO IDs and colors for plots"""
+    """Test relationships ane depth counted w/relationshipd (reldepths) and plotting"""
     oplt = PlotCli(gosubdag=None, use_doc=False)
 
     kws_base = {
@@ -36,7 +36,6 @@ def test_getgo_color_for_plots():
     # 12 green  GO ancestors up is_a    relationship
     # GO:0008150   biological_process
     # -GO:0051704  multi-organism process
-    #   ERROR: CHILDREN NOT FOUND
     # --GO:0051707 response to other organism
     # --GO:0044419 interspecies interaction between organisms
     okws.chk_partof(oplt.plot(GODAG, okws.merge(outfile='viral_r_partof.png', relationships='part_of')))
@@ -52,13 +51,16 @@ def test_getgo_color_for_plots():
         outfile='viral_r_regrn.png',
         relationships='regulates,negatively_regulates')))
 
-    oplt1 = oplt.get_gosubdagplot(GODAG, okws.merge(
+    _, oplt1 = oplt.plot(GODAG, okws.merge(
+        outfile='viral_r_regpn.png',
         relationships='positively_regulates,negatively_regulates'))
 
     _, oplt2 = oplt.plot(GODAG, okws.merge(
         outfile='viral_r_regrpn.png',
         relationships='regulates,positively_regulates,negatively_regulates'))
 
+    assert okws._get_reldepth(oplt1.gosubdag) == 10
+    assert okws._get_reldepth(oplt2.gosubdag) == 11
     assert set(oplt1.gosubdag.go2nt.keys()) == set(oplt2.gosubdag.go2nt.keys())
 
 
@@ -95,6 +97,7 @@ class _Run:
         go2p = gosubdagplot.gosubdag.rcntobj.go2ancestors
         exp_all = set.union(*[self.color2goids[c] for c in ['green', 'purple', 'red', 'blue']])
         self._cmp(go2p[self.goid], exp_all)
+        assert self._get_reldepth(gosubdagplot.gosubdag) == 11
 
     def chk_regp(self, arg):
         """Check relationship, part_of"""
@@ -103,6 +106,7 @@ class _Run:
         go2p = gosubdagplot.gosubdag.rcntobj.go2ancestors
         exp_all = set.union(*[self.color2goids[c] for c in ['green', 'purple', 'red']]).difference({'GO:0071704'})
         self._cmp(go2p[self.goid], exp_all)
+        assert self._get_reldepth(gosubdagplot.gosubdag) == 10
 
     def chk_partof(self, arg):
         """Check relationship, part_of"""
@@ -111,6 +115,19 @@ class _Run:
         go2p = gosubdagplot.gosubdag.rcntobj.go2ancestors
         exp_all = self.color2goids['green'].union(self.color2goids['orange'])
         self._cmp(go2p[self.goid], exp_all)
+        assert self._get_reldepth(gosubdagplot.gosubdag) == 9
+        
+    @staticmethod
+    def _get_source_term(gosubdag):
+        """Get the source term in the GoSubDag"""
+        goid = next(iter(gosubdag.go_sources))
+        return gosubdag.go2obj[goid]
+
+    @staticmethod
+    def _get_reldepth(gosubdag):
+        """Get GO term depth from GoSubDag named tuples"""
+        goid = next(iter(gosubdag.go_sources))
+        return gosubdag.go2nt[goid].reldepth
 
     def chk_r0(self, arg):
         """Check relationship == False"""
@@ -121,7 +138,7 @@ class _Run:
         ## print('AAAAAAAAAAAAAAAAAAAAAAAAA', exp_all)
         ## print('AAAAAAAAAAAAAAAAAAAAAAAAA', go2p[self.goid])
         self._cmp(go2p[self.goid], exp_all)
-        # each
+        assert not hasattr(self._get_source_term(gosubdagplot.gosubdag), 'reldepth')
         assert 'GO:0008150' not in go2p
         exp1 = {'GO:0008150'}  # biological process
         assert go2p['GO:0065007'] == exp1
@@ -171,4 +188,4 @@ class _Run:
 if __name__ == '__main__':
     test_getgo_color_for_plots()
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved.
