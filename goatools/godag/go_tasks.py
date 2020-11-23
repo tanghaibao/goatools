@@ -94,9 +94,8 @@ def get_go2depth(goobjs, relationships):
     """Get depth of each object"""
     if not relationships:
         return {o.item_id:o.depth for o in goobjs}
-    ## if relationships == RELATIONSHIP_SET or relationships is True:
-    ##     return get_id2upper(terms)
-    return {o.item_id:o.reldepth for o in goobjs}
+    from goatools.godag.reldepth import get_go2reldepth
+    return get_go2reldepth(goobjs, relationships)
 
 # ------------------------------------------------------------------------------------
 def get_id2parents(objs):

@@ -106,6 +106,7 @@ class InitFields:
     exp_keys = set(['rcntobj', 'tcntobj', 'go2nt', 'go2letter'])
 
     def __init__(self, ini_main, **kws):
+        self.go2obj_orig = ini_main.go2obj_orig
         self.go2obj = ini_main.go2obj
         self.kws = get_kwargs(kws, self.exp_keys, None)
         if 'rcntobj' not in kws:
@@ -205,7 +206,7 @@ class InitFields:
         tcntobj = self.kws['tcntobj'] if 'tcntobj' in self.kws else None
         b_tcnt = tcntobj is not None
         # b_rcnt = rcntobj is not None and rcntobj
-        objrelstr = RelationshipStr(self.relationships)
+        # fnc for reldepth
         for goid, goobj in self.go2obj.items():
             ns_go = NAMESPACE2NS[goobj.namespace]
             fld2vals = {
@@ -228,14 +229,22 @@ class InitFields:
                 fld2vals['tfreq'] = tfreq
                 fld2vals['tinfo'] = 0.0 - math.log(tfreq) if tfreq else 0
             if self.relationships:
-                fld2vals['childcnt'] = len(goobj.children)
-                fld2vals['reldepth'] = goobj.reldepth
-                fld2vals['REL'] = objrelstr.str_relationships(goobj)
-                fld2vals['REL_short'] = objrelstr.str_rel_short(goobj)
-                fld2vals['rel'] = objrelstr.str_relationships_rev(goobj)
+                self._add_rel_attrs(fld2vals, goobj)
             go2nt[goid] = ntobj(**fld2vals)
         ### tic = _rpt_hms(tic, "GoSubDag: _Init::get_go2nt")
         return go2nt
+
+    def _add_rel_attrs(self, fld2vals, goobj):
+        """Add attributes if optional relationships are requested"""
+        # pylint:disable=line-too-long
+        from goatools.godag.reldepth import get_go2reldepth
+        go2reldepth = get_go2reldepth(self.go2obj_orig, self.relationships)
+        objrelstr = RelationshipStr(self.relationships)
+        fld2vals['childcnt'] = len(goobj.children)
+        fld2vals['reldepth'] = go2reldepth[goobj.item_id]
+        fld2vals['REL'] = objrelstr.str_relationships(goobj)
+        fld2vals['REL_short'] = objrelstr.str_rel_short(goobj)
+        fld2vals['rel'] = objrelstr.str_relationships_rev(goobj)
 
     def _init_kwelems(self):
         """Init set elements."""
