@@ -30,8 +30,14 @@
 Unreleased changes
 --------------
 * **Added**
+  * Added Wang's semantic similarity calculator
   * Added a script to duplicate Table 2 in the [GOATOOLS publication](https://www.nature.com/articles/s41598-018-28948-z) [#171](https://github.com/tanghaibao/goatools/issues/171)
   * Added clear documentation to explain GO term text (D and R) in plots [#178](https://github.com/tanghaibao/goatools/issues/178)
+* **Changed**
+  * Workarounds for errors in the Gene Ontology Consortium (GOC) annotations and opened these issues with GOC:
+    * [Incorrect taxon format](https://github.com/geneontology/go-annotation/issues/3373)
+    * [Obsolete GOs seen in gaf files](https://github.com/geneontology/go-annotation/issues/3523)
+  * Moved calculating the depth using optional relationships from GODag to its own module
 
 
 Release 2020-06-23 1.0.6
