@@ -8,50 +8,53 @@ __author__ = "DV Klopfenstein"
 from goatools.godag.consts import RELATIONSHIP_SET
 
 
-def get_go2reldepth(godag, relationships):
-    """Calculate depth by tracing optional relationships"""
-    return RelDepthCalc(godag, relationships).get_go2reldepth()
+def get_go2reldepth(goterms, relationship_set):
+    """Calculate depth by tracing optional relationship_set"""
+    return RelDepthCalc(relationship_set).get_go2reldepth_main(goterms)
 
 # pylint: disable=too-few-public-methods
 class RelDepthCalc:
-    """Calculate depth by tracing optional relationships"""
+    """Calculate depth by tracing optional relationship_set"""
 
-    def __init__(self, godag, relationships):
-        self.godag = godag
-        self.relationships = relationships
+    def __init__(self, relationship_set):
+        self.relationship_set = relationship_set
 
-    def get_go2reldepth(self):
-        """Calculate depth by tracing optional relationships"""
-        if self.relationships == RELATIONSHIP_SET:
-            return self._get_go2reldepth_rall()
-        return self._get_go2reldepth_rsome()
+    def get_go2reldepth_main(self, goterms):
+        """Calculate depth by tracing optional relationship_set"""
+        if self.relationship_set == RELATIONSHIP_SET:
+            return self._get_go2reldepth_rall(goterms)
+        return self._get_go2reldepth_rsome(goterms)
 
-    def _get_go2reldepth_rall(self):
-        """Calculate depth by tracing all optional relationships"""
+    @staticmethod
+    def _get_go2reldepth_rall(goterms):
+        """Calculate depth by tracing all optional relationship_set"""
+
+        def _rall(rec, go2reldepth):
+            """Get reldepth by tracing all optional relationship_set using recursive function"""
+            if rec.item_id not in go2reldepth:
+                anc = rec.get_goterms_upper()
+                reldepth = max(_rall(rec, go2reldepth) for rec in anc) + 1 if anc else 0
+                go2reldepth[rec.item_id] = reldepth
+            return go2reldepth[rec.item_id]
+
         go2reldepth = {}
-        for rec in self.godag.values():
-            self._rall(rec, go2reldepth)
+        for rec in goterms:
+            if rec.item_id not in go2reldepth:
+                _rall(rec, go2reldepth)
         return go2reldepth
 
-    def _get_go2reldepth_rsome(self):
-        """Calculate depth by tracing some optional relationships"""
+    def _get_go2reldepth_rsome(self, goterms):
+        """Calculate depth by tracing some optional relationship_set"""
         go2reldepth = {}
-        for rec in self.godag.values():
-            self._rsome(rec, go2reldepth)
+        for rec in goterms:
+            if rec.item_id not in go2reldepth:
+                self._rsome(rec, go2reldepth)
         return go2reldepth
-
-    def _rall(self, rec, go2reldepth):
-        """Get reldepth by tracing all optional relationships using recursive function"""
-        if rec.item_id not in go2reldepth:
-            anc = rec.get_goterms_upper()
-            reldepth = max(self._rall(rec, go2reldepth) for rec in anc) + 1 if anc else 0
-            go2reldepth[rec.item_id] = reldepth
-        return go2reldepth[rec.item_id]
 
     def _rsome(self, rec, go2reldepth):
-        """Get reldepth by tracing some optional relationships using recursive function"""
+        """Get reldepth by tracing some optional relationship_set using recursive function"""
         if rec.item_id not in go2reldepth:
-            anc = rec.get_goterms_upper_rels(self.relationships)
+            anc = rec.get_goterms_upper_rels(self.relationship_set)
             reldepth = max(self._rsome(rec, go2reldepth) for rec in anc) + 1 if anc else 0
             go2reldepth[rec.item_id] = reldepth
         return go2reldepth[rec.item_id]

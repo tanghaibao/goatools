@@ -8,7 +8,8 @@
 # -*- coding: UTF-8 -*-
 from __future__ import print_function
 
-import sys
+from sys import stdout
+from sys import stderr
 import os
 from goatools.godag.obo_optional_attributes import OboOptionalAttrs
 from goatools.godag.typedef import TypeDef
@@ -280,7 +281,8 @@ class GOTerm(object):
 class GODag(dict):
     """Holds the GO DAG as a dict."""
 
-    def __init__(self, obo_file="go-basic.obo", optional_attrs=None, load_obsolete=False, prt=sys.stdout):
+    # pylint: disable=line-too-long
+    def __init__(self, obo_file="go-basic.obo", optional_attrs=None, load_obsolete=False, prt=stdout):
         super(GODag, self).__init__()
         self.version, self.data_version = self.load_obo_file(obo_file, optional_attrs, load_obsolete, prt)
 
@@ -373,6 +375,7 @@ class GODag(dict):
                     rec.depth = 0
             return rec.depth
 
+        #### MOVED TO goatools/godag/reldepth.py:
         #### def _init_reldepth(rec):
         ####     if not hasattr(rec, 'reldepth'):
         ####         up_terms = rec.get_goterms_upper()
@@ -384,7 +387,8 @@ class GODag(dict):
 
         for rec in self.values():
 
-            # Add invert relationships
+            #### MOVED TO goatools/godag/reldepth.py:
+            #### # Add invert relationships
             #### if has_relationship:
             ####     if rec.depth is None:
             ####         _init_reldepth(rec)
@@ -408,7 +412,7 @@ class GODag(dict):
             if rec.depth is None:
                 _init_depth(rec)
 
-    def write_dag(self, out=sys.stdout):
+    def write_dag(self, out=stdout):
         """Write info for all GO Terms in obo file, sorted numerically."""
         for rec in sorted(self.values()):
             print(rec, file=out)
@@ -421,15 +425,15 @@ class GODag(dict):
     def query_term(self, term, verbose=False):
         """Given a GO ID, return GO object."""
         if term not in self:
-            sys.stderr.write("Term %s not found!\n" % term)
+            stderr.write("Term %s not found!\n" % term)
             return
 
         rec = self[term]
         if verbose:
             print(rec)
-            sys.stderr.write("all parents: {}\n".format(
+            stderr.write("all parents: {}\n".format(
                 repr(rec.get_all_parents())))
-            sys.stderr.write("all children: {}\n".format(
+            stderr.write("all children: {}\n".format(
                 repr(rec.get_all_children())))
         return rec
 
@@ -452,7 +456,7 @@ class GODag(dict):
         """
         # error handling consistent with original authors
         if term not in self:
-            sys.stderr.write("Term %s not found!\n" % term)
+            stderr.write("Term %s not found!\n" % term)
             return
 
         def _paths_to_top_recursive(rec):
@@ -582,10 +586,10 @@ class GODag(dict):
             # del obj.graph['edge']
             gmlfile = gmlbase + ".gml"
             nx.write_gml(obj, gmlfile)
-            sys.stderr.write("GML graph written to {0}\n".format(gmlfile))
+            stderr.write("GML graph written to {0}\n".format(gmlfile))
 
-        sys.stderr.write(("lineage info for terms %s written to %s\n" %
-                          ([rec.item_id for rec in recs], lineage_img)))
+        stderr.write(("lineage info for terms %s written to %s\n" %
+                      ([rec.item_id for rec in recs], lineage_img)))
 
         if engine == "pygraphviz":
             grph.draw(lineage_img, prog="dot")
@@ -607,7 +611,7 @@ class GODag(dict):
             # Add the GO parents of all GO IDs in the current gene's association
             goids.update(parents)
         if bad_goids:
-            sys.stdout.write("{N} GO IDs in assc. are not found in the GO-DAG: {GOs}\n".format(
+            stdout.write("{N} GO IDs in assc. are not found in the GO-DAG: {GOs}\n".format(
                 N=len(bad_goids), GOs=" ".join(bad_goids)))
 
 # Copyright (C) 2010-2018, H Tang et al., All rights reserved.

@@ -12,6 +12,7 @@ from goatools.godag.consts import NAMESPACE2NS
 from goatools.godag.relationship_combos import RelationshipCombos
 from goatools.godag.relationship_str import RelationshipStr
 from goatools.godag.go_tasks import CurNHigher
+from goatools.godag.reldepth import get_go2reldepth
 from goatools.gosubdag.godag_rcnt import CountRelatives
 from goatools.gosubdag.go_tasks import get_leaf_children
 from goatools.gosubdag.utils import get_kwargs
@@ -114,6 +115,13 @@ class InitFields:
         self.kw_elems = self._init_kwelems()
         self.relationships = ini_main.relationships
         self.prt_flds = self._init_prt_flds()
+        self.go2reldepth = self._init_go2reldepth()
+
+    def _init_go2reldepth(self):
+        """Get the depth of a GO term if optional relationships are requested"""
+        if self.relationships:
+            return get_go2reldepth(set(self.go2obj.values()), self.relationships)
+        return {}
 
     def get_rcntobj(self):
         """Return None or user-provided CountRelatives object."""
@@ -237,11 +245,9 @@ class InitFields:
     def _add_rel_attrs(self, fld2vals, goobj):
         """Add attributes if optional relationships are requested"""
         # pylint:disable=line-too-long
-        from goatools.godag.reldepth import get_go2reldepth
-        go2reldepth = get_go2reldepth(self.go2obj_orig, self.relationships)
         objrelstr = RelationshipStr(self.relationships)
         fld2vals['childcnt'] = len(goobj.children)
-        fld2vals['reldepth'] = go2reldepth[goobj.item_id]
+        fld2vals['reldepth'] = self.go2reldepth[goobj.item_id]
         fld2vals['REL'] = objrelstr.str_relationships(goobj)
         fld2vals['REL_short'] = objrelstr.str_rel_short(goobj)
         fld2vals['rel'] = objrelstr.str_relationships_rev(goobj)
