@@ -32,7 +32,7 @@ from pygosemsim import similarity
 def test_semsim_wang(seed=None, num_calcs=1000, prt=stdout):
     """Wang Semantic Similarity tests"""
     # Log file
-    logfile = join(REPO, 'test_semsim_wang_termwise.log')
+    logfile = join(REPO, 'test_semsim_wang_termwise_{SEED}.log')
     ## assert not exists(logfile), 'REMOVE TO RUN: {}'.format(logfile)
     # Check that all relationships seem in DAG are expected by SsWang
     fin_godag = join(REPO, 'go-basic.obo')
@@ -58,6 +58,7 @@ def test_semsim_wang(seed=None, num_calcs=1000, prt=stdout):
     assert wang.get_sim('GO:0008150', 'GO:0008152') == wang.get_sim('GO:0000004', 'GO:0008152')
 
 
+# pylint: disable=too-many-arguments
 class Run:
     """Wang Semantic Similarity tests"""
 
@@ -72,7 +73,7 @@ class Run:
         self.goids = self._init_goids(num_calcs)
         tic = timeit.default_timer()
         self.wang = SsWang(self.goids, self.godag, relationships, w_e)
-        self.go2reldepth = 
+        self.go2reldepth = get_go2reldepth({self.godag[go] for go in self.godag}, relationships)
         tic = prt_hms(tic, 'GOATOOLS wang setup')
 
     def prt_ancestors(self, goid, prt_if_diff=False):
@@ -84,6 +85,7 @@ class Run:
 
     def randoms(self, logfile):
         """Run random simulations. Compare SsWang in GOATOOLS to pygosemsim"""
+        logfile = logfile.format(SEED=self.seedobj.get_seed_hexstr())
         with open(logfile, 'w') as prt:
             self.seedobj.prt(prt)
             self.seedobj.prt(stdout)
@@ -135,8 +137,8 @@ class Run:
         ## dif = abs(exp - act) if exp is not None and act is not None else 'XXX'
         strm.write('{i:3}) FAIL {x:2} {A}   {y:2} {B} pygosemsim={b:f} GOATOOLS={a:f} DIFF={ab:f}\n'.format(
             i=idx,
-            A=go_a, x=self.godag[go_a].reldepth,
-            B=go_b, y=self.godag[go_a].reldepth,
+            A=go_a, x=self.go2reldepth[go_a],
+            B=go_b, y=self.go2reldepth[go_b],
             a=act, b=exp, ab=abs(exp - act)))
 
     def _init_goids(self, num_calcs):
