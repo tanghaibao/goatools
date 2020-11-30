@@ -41,5 +41,9 @@ class RandomSeed32:
         """Print given random seed."""
         return "0x{S:08x} = {S:,}".format(S=seed)
 
+    def get_seed_hexstr(self):
+        """Return a string representing the random seed in hex format"""
+        return '0x{S:08x}'.format(S=self.seed)
+
 
 # Copyright (C) 2015-present, DV Klopfenstein, Haibao Tang. All rights reserved.
