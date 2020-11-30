@@ -34,9 +34,10 @@ Unreleased changes
   * Added a script to duplicate Table 2 in the [GOATOOLS publication](https://www.nature.com/articles/s41598-018-28948-z) [#171](https://github.com/tanghaibao/goatools/issues/171)
   * Added clear documentation to explain GO term text (D and R) in plots [#178](https://github.com/tanghaibao/goatools/issues/178)
 * **Changed**
-  * Workarounds for errors in the Gene Ontology Consortium (GOC) annotations and opened these issues with GOC:
-    * [Incorrect taxon format](https://github.com/geneontology/go-annotation/issues/3373)
-    * [Obsolete GOs seen in gaf files](https://github.com/geneontology/go-annotation/issues/3523)
+  * Workarounds for errors in the Gene Ontology Consortium (GOC) annotations and opened these issues with GOC.    
+    NOTE: Report annotation issues to https://github.com/geneontology/helpdesk/
+    * [Incorrect taxon format](https://github.com/geneontology/go-annotation/issues/3373) [GO helpdesk #287](https://github.com/geneontology/helpdesk/issues/287)
+    * [Obsolete GOs seen in gaf files](https://github.com/geneontology/go-annotation/issues/3523) 
   * Moved calculating the depth using optional relationships from GODag to its own module [#188](https://github.com/tanghaibao/goatools/issues/188)
 
 Release 2020-06-23 1.0.6
@@ -111,6 +112,7 @@ Release 2019-09-29 0.9.9
     * Users can now provide an *edge2txt* dict to print text on edges between GO Terms    
 * **Fixed**
   * Aspect counts (BP, MF, CC totals) in *TermCounts* object explained in [#156](https://github.com/tanghaibao/goatools/issues/156)
+  * Opened issue: https://github.com/geneontology/go-annotation/issues/2629 -> https://github.com/geneontology/helpdesk/issues/288
 
 Release 2019-07-26 0.9.7
 -------------------------

@@ -16,6 +16,7 @@ from goatools.randseed import RandomSeed32
 from goatools.base import get_godag
 from goatools.semsim.termwise.wang import SsWang
 from goatools.godag.prttime import prt_hms
+from goatools.godag.reldepth import get_go2reldepth
 
 from tests.utils import REPO
 
@@ -71,6 +72,7 @@ class Run:
         self.goids = self._init_goids(num_calcs)
         tic = timeit.default_timer()
         self.wang = SsWang(self.goids, self.godag, relationships, w_e)
+        self.go2reldepth = 
         tic = prt_hms(tic, 'GOATOOLS wang setup')
 
     def prt_ancestors(self, goid, prt_if_diff=False):

@@ -12,11 +12,11 @@ __author__ = "DV Klopfenstein"
 ##import timeit
 ##from goatools.godag.prttime import prt_hms
 
+from sys import stdout
 from goatools.semsim.termwise.dag_a import DagA
 from goatools.godag.go_tasks import get_go2ancestors
 from goatools.godag.go_tasks import get_go2depth
 
-# pylint: disable=too-few-public-methods
 class SsWang:
     """Wang's termwise semantic similarity for GO terms"""
 
@@ -31,9 +31,10 @@ class SsWang:
 
     def __init__(self, goids, godag, relationships=None, rel2scf=None):
         self.godag = godag
-        rels = self._init_rels(relationships)
-        self.w_e = self._init_edge_weight_factor(rel2scf, rels)
-        self.go2dag = self._init_go2dag(goids, rels)
+        self.rels = self._init_rels(relationships)
+        self.w_e = self._init_edge_weight_factor(rel2scf)
+        # Get GO Wang DAGs
+        self.go2dag = self._init_go2dag(goids)
 
     def get_sim(self, go_a, go_b):
         """Get Wang's semantic similarity between two GO terms"""
@@ -47,6 +48,15 @@ class SsWang:
         s_ab = sum([*s_a, *s_b])
         return s_ab/(dag_a.get_sv() + dag_b.get_sv())
 
+    def prt_cfg(self, prt=stdout):
+        """Print reseacher-specified Wang configuration"""
+        prt.write('Wang Semantic Similarity Configuration:\n')
+        prt.write('    Optional relationships: {Rs}\n'.format(Rs=' '.join(sorted(self.rels))))
+        prt.write('    Edge weights:\n')
+        for rel, weight in self.w_e.items():
+            prt.write('        {W:.8f} {REL}\n'.format(W=weight, REL=rel))
+        prt.write('\n')
+
     def _not_loaded(self, go_a, go_b):
         """Check that both GO IDs are in the go2subdag dict"""
         if go_a not in self.go2dag:
@@ -57,9 +67,10 @@ class SsWang:
             return True
         return False
 
-    def _init_edge_weight_factor(self, rel2scf, rels):
+    def _init_edge_weight_factor(self, rel2scf):
         """Initialize semantic contribution factor (scf) for weights for edge types (w_e)"""
         d_rel2scf = self.dflt_rel2scf
+        rels = self.rels
         # If there are no user-provided edge weights
         ret = {'is_a': d_rel2scf['is_a']}
         if not rel2scf:
@@ -77,11 +88,12 @@ class SsWang:
             ret[rel] = rel2scf[rel] if rel in rel2scf else d_rel2scf[rel]
         return ret
 
-    def _init_go2dag(self, goids, rels):
+    def _init_go2dag(self, goids):
         """Get all GO IDs in the DAG above and including GO IDs in goids arg"""
         # GO terms provided by user
         ##tic = timeit.default_timer()
         s_godag = self.godag
+        rels = self.rels
         go_set_all = set(goids)
         go_set_cur = go_set_all.intersection(s_godag.keys())
         if go_set_cur != go_set_all:
