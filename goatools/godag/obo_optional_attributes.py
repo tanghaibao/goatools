@@ -229,6 +229,14 @@ class OboOptionalAttrs:
         # Required attributes are always loaded. All others are optionally loaded.
         # Allow user to specify either: 'def' or 'defn'
         #   'def' is an obo field name, but 'defn' is legal Python attribute name
+        try:
+            iter(optional_attrs)
+        except TypeError:
+            pat = ("**FATAL: GODag's optional_attrs MUST BE A SET CONTAINING ANY OF: {ATTRS}\n"
+                   "           "
+                   "**FATAL: BAD GODag optional_attrs({BADVAL})")
+            msg = pat.format(ATTRS=' '.join(attrs_opt), BADVAL=optional_attrs)
+            raise TypeError(msg)
         getnm = lambda aopt: aopt if aopt != "defn" else "def"
         opts = None
         if isinstance(optional_attrs, str) and optional_attrs in attrs_opt:
