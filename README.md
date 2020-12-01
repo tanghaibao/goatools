@@ -332,7 +332,8 @@ strategy which may lead to slightly different q-values between runs.
 
 ### Determine the semantic similarities between GO terms
 
-<https://github.com/tanghaibao/goatools/blob/main/notebooks/semantic_similarity.ipynb>
+* <https://github.com/tanghaibao/goatools/blob/main/notebooks/semantic_similarity.ipynb>
+* <https://github.com/tanghaibao/goatools/blob/main/notebooks/semantic_similarity_wang.ipynb>
 
 ### Obsolete GO terms are loaded upon request
 
