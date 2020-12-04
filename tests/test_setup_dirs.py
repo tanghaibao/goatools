@@ -16,6 +16,7 @@ def test_setup_dirs():
     pkgs_setup = set(m for m in PACKAGES if 'test_' not in m)
     pkgs_dirs = _get_pkgmods()
     assert pkgs_dirs.issubset(pkgs_setup), _errmsg(pkgs_setup, pkgs_dirs)
+    print('**NOTE: TEST PASSED')
 
 
 def _errmsg(pkgs_setup, pkgs_dirs):
