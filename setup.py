@@ -20,6 +20,27 @@ CLASSIFIERS = [
     "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
 
+PACKAGES = [
+    NAME,
+    NAME + ".godag",
+    NAME + ".gosubdag",
+    NAME + ".gosubdag.plot",
+    NAME + ".gosubdag.rpt",
+    NAME + ".test_data",
+    NAME + ".test_data.sections",
+    NAME + ".test_data.cli",
+    NAME + ".cli",
+    NAME + ".rpt",
+    NAME + ".anno",
+    NAME + ".anno.init",
+    NAME + ".anno.extensions",
+    NAME + ".goea",
+    NAME + ".grouper",
+    NAME + ".parsers",
+    NAME + ".semsim",
+    NAME + ".semsim.termwise",
+]
+
 # Use the helper
 HLPR = SetupHelper(initfile="goatools/__init__.py", readmefile="README.md")
 
@@ -37,24 +58,7 @@ setup(
     long_description=HLPR.long_description,
     long_description_content_type="text/markdown",
     cmdclass=versioneer.get_cmdclass(),
-    packages=[
-        NAME,
-        NAME + ".godag",
-        NAME + ".gosubdag",
-        NAME + ".gosubdag.plot",
-        NAME + ".gosubdag.rpt",
-        NAME + ".test_data",
-        NAME + ".test_data.sections",
-        NAME + ".test_data.cli",
-        NAME + ".cli",
-        NAME + ".rpt",
-        NAME + ".anno",
-        NAME + ".anno.init",
-        NAME + ".anno.extensions",
-        NAME + ".goea",
-        NAME + ".grouper",
-        NAME + ".parsers",
-    ],
+    packages=PACKAGES,
     include_package_data=True,
     package_data={"goatools.test_data.nbt_3102": ["*.*"]},
     scripts=glob("scripts/*.py"),
