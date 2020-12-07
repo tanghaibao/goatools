@@ -392,7 +392,7 @@ NOSETESTS := \
 
 # Run all tests. If you are submitting a pull request, all tests must pass.
 pytest:
-	python3 -m pytest -v tests | tee pytest.log
+	python3.8 --version; python3.8 -m pytest -v tests | tee pytest.log
 	make chk_parsers
 	#py.test tests/ --log-file=pytest.log
 	make test_scripts

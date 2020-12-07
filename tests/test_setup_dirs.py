@@ -4,8 +4,9 @@
 # pylint: disable=wrong-import-position
 from os import walk
 from os.path import join
+from os.path import abspath
 import sys
-sys.argv.append('--url')
+sys.argv = [abspath(__file__), '--help']
 from setup import NAME      # goatools
 from setup import PACKAGES  # modules in goatools
 from tests.utils import REPO

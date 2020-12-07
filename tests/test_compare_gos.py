@@ -12,6 +12,7 @@ REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../")
 def test_example():
     """Test CompareGOsCli"""
     files = ['tat_gos_simple1.tsv', 'tat_gos_simple2.tsv']
+    files = ['502S0.tab', '805S0.tab']
     kws = {
         'GO_FILE': [os.path.join(REPO, 'data/compare_gos', f) for f in files],
         'obo': os.path.join(REPO, 'go-basic.obo'),

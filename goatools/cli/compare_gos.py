@@ -48,7 +48,7 @@ from goatools.grouper.wrxlsx import WrXlsxSortedGos
 
 
 # pylint: disable=too-few-public-methods
-class CompareGOsCli(object):
+class CompareGOsCli:
     """Class for command-line interface for creating GO term diagrams"""
 
     kws_dict = set(['GO_FILE',
@@ -96,6 +96,7 @@ class CompareGOsCli(object):
             kws_xlsx = {'shade_hdrgos':verbose}
             if not verbose:
                 kws_xlsx['prt_flds'] = [f for f in desc2nts['flds'] if f not in self.excl_flds]
+            self._adj_hdrs(kws_xlsx, desc2nts)
             objgowr.wr_xlsx_nts(fout_xlsx, desc2nts, **kws_xlsx)
             fout_desc = '{BASE}_desc.txt'.format(BASE=os.path.splitext(fout_xlsx)[0])
             self._wr_ver_n_key(fout_desc, verbose)
@@ -110,19 +111,24 @@ class CompareGOsCli(object):
                 print("\n{N} GO IDs in {S} sections".format(
                     N=desc2nts['num_items'], S=desc2nts['num_sections']))
 
+    def _adj_hdrs(self, kws_xlsx, desc2nts):
+        """Replace xlsx column header, fileN, with base input filenames"""
+        filehdrs = [nt.hdr for nt in self.go_ntsets]
+        num_files = len(filehdrs)
+        if num_files == len(set(filehdrs)):
+            kws_xlsx['hdrs'] = filehdrs + list(desc2nts['flds'][num_files:])
+
     def _get_prtfmt(self, objgowr, verbose):
         """Get print format containing markers."""
         prtfmt = objgowr.get_prtfmt('fmt')
         prtfmt = prtfmt.replace('# ', '')
-        # print('PPPPPPPPPPP', prtfmt)
         if not verbose:
             prtfmt = prtfmt.replace('{hdr1usr01:2}', '')
             prtfmt = prtfmt.replace('{childcnt:3} L{level:02} ', '')
             prtfmt = prtfmt.replace('{num_usrgos:>4} uGOs ', '')
             prtfmt = prtfmt.replace('{D1:5} {REL} {rel}', '')
             prtfmt = prtfmt.replace('R{reldepth:02} ', '')
-        # print('PPPPPPPPPPP', prtfmt)
-        marks = ''.join(['{{{}}}'.format(nt.hdr) for nt in self.go_ntsets])
+        marks = ''.join(['{{{}}}'.format(nt.fileN) for nt in self.go_ntsets])
         return '{MARKS} {PRTFMT}'.format(MARKS=marks, PRTFMT=prtfmt)
 
     @staticmethod
@@ -197,7 +203,7 @@ class CompareGOsCli(object):
             objd1.prt_txt(prt, pre)
 
 
-class _Init(object):
+class _Init:
     """Initialize object."""
 
     def __init__(self, godag):
@@ -210,6 +216,7 @@ class _Init(object):
             # Get a reduced go2obj set for TermCounts
             _gosubdag = GoSubDag(go_all, self.godag, rcntobj=False, prt=None)
             return get_tcntobj(_gosubdag.go2obj, **kws)  # TermCounts
+        return None
 
     def get_grouped(self, go_ntsets, go_all, gosubdag, **kws):
         """Get Grouped object."""
@@ -221,7 +228,8 @@ class _Init(object):
     def _init_go2ntpresent(go_ntsets, go_all, gosubdag):
         """Mark all GO IDs with an X if present in the user GO list."""
         go2ntpresent = {}
-        ntobj = namedtuple('NtPresent', " ".join(nt.hdr for nt in go_ntsets))
+        flds = " ".join(nt.fileN for nt in go_ntsets)
+        ntobj = namedtuple('NtPresent', flds)
         # Get present marks for GO sources
         for goid_all in go_all:
             present_true = [goid_all in nt.go_set for nt in go_ntsets]
@@ -238,17 +246,18 @@ class _Init(object):
     def get_go_ntsets(self, go_fins):
         """For each file containing GOs, extract GO IDs, store filename and header."""
         nts = []
-        ntobj = namedtuple('NtGOFiles', 'hdr go_set, go_fin')
+        go_fins = list(go_fins)
+        ntobj = namedtuple('NtGOFiles', 'fileN hdr go_set go_fin')
         go_sets = self._init_go_sets(go_fins)
         hdrs = [os.path.splitext(os.path.basename(f))[0] for f in go_fins]
         assert len(go_fins) == len(go_sets)
         assert len(go_fins) == len(hdrs)
         goids = set()
-        for hdr, go_set, go_fin in zip(hdrs, go_sets, go_fins):
+        for idx, (hdr, go_set, go_fin) in enumerate(zip(hdrs, go_sets, go_fins), 1):
             goids.update(go_set)
             if not go_set:
                 print('**WARNING: NO GO IDs FOUND IN {FIN}'.format(FIN=go_fin))
-            nts.append(ntobj(hdr=hdr, go_set=go_set, go_fin=go_fin))
+            nts.append(ntobj(fileN='file{I}'.format(I=idx), hdr=hdr, go_set=go_set, go_fin=go_fin))
         if not goids:
             print('**WARNING: NO GO IDs FOUND')
             sys.exit(1)
