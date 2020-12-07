@@ -3,7 +3,8 @@
 ### Summary
 
 * [**Unreleased changes**](#unreleased-changes)
-* [**Release 2020-06-23 1.0.3**](#release-2020-06-23-103) 
+* [**Release 2020-12-04 1.0.13**](#release-2020-12-04-1013) 
+* [**Release 2020-06-23 1.0.3**](#release-2020-06-23-106) 
   * Added code to download background genes from NCBI. 
   * Fixed the 'write hierarchy' script, wr_hier.py, so it will write MF and CC hierarchies.
 * [**Release 2020-03-13 1.0.3**](#release-2020-03-13-103) GOEAs can be run in quiet mode
@@ -28,6 +29,11 @@
   * Separate GOEAs into BP, MF, and CC    
 
 Unreleased changes
+--------------
+* **Changed**
+  * The "Compare GO terms" script now can use GO terms stored in files of any name. [#187](https://github.com/tanghaibao/goatools/issues/187)
+
+Release 2020-12-04 1.0.13
 --------------
 * **Added**
   * Added Wang's semantic similarity calculator
