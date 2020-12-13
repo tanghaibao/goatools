@@ -513,13 +513,17 @@ class GODag(dict):
         nodecolor,
         edgecolor,
         dpi,
-        img_format="png",
+        format="png",
         draw_parents=True,
         draw_children=True,
     ):
         """draw AMIGO style network, lineage containing one query record."""
         import pydot
 
+        # [#179]: "plot_go_term is not work well if format is svg" due to:
+        # https://github.com/sverweij/atom-graphviz-preview-plus/issues/18
+        if format == "svg":
+            dpi = 72
         grph = pydot.Dot(graph_type="digraph", dpi=str(dpi))
         edgeset = set()
         usr_ids = [rec.item_id for rec in recs]
@@ -621,7 +625,7 @@ class GODag(dict):
         nodecolor="mediumseagreen",
         edgecolor="lightslateblue",
         dpi=96,
-        output_img="GO_lineage.png",
+        output="GO_lineage.png",
         engine="pygraphviz",
         gml=False,
         draw_parents=True,
@@ -630,7 +634,7 @@ class GODag(dict):
         """Draw GO DAG subplot."""
         assert engine in GraphEngines
         grph = None
-        basename, format = output_img.rsplit(".", 1)
+        basename, format = output.rsplit(".", 1)
         if engine == "pygraphviz":
             grph = self.make_graph_pygraphviz(
                 recs,
@@ -641,17 +645,18 @@ class GODag(dict):
                 draw_parents=draw_parents,
                 draw_children=draw_children,
             )
-            grph.draw(output_img, prog="dot")
+            grph.draw(output, prog="dot")
         else:
             grph = self.make_graph_pydot(
                 recs,
                 nodecolor,
                 edgecolor,
                 dpi,
+                format=format,
                 draw_parents=draw_parents,
                 draw_children=draw_children,
             )
-            grph.write(output_img, format=format)
+            grph.write(output, format=format)
 
         if gml:
             import networkx as nx  # use networkx to do the conversion
@@ -670,8 +675,9 @@ class GODag(dict):
 
         stderr.write(
             (
-                "lineage info for terms %s written to %s\n"
-                % ([rec.item_id for rec in recs], output_img)
+                "lineage info for terms {} written to {}\n".format(
+                    [rec.item_id for rec in recs], output
+                )
             )
         )
 

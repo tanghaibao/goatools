@@ -94,7 +94,7 @@ if __name__ == "__main__":
             dpi=opts.dpi,
             engine=opts.engine,
             gml=opts.gml,
-            output_img=opts.output,
+            output=opts.output,
             draw_parents=opts.draw_parents,
             draw_children=opts.draw_children,
         )
