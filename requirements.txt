@@ -1,7 +1,6 @@
 pandas
 numpy
 scipy
-nose
 xlsxwriter
 statsmodels
 xlrd==1.2.0
