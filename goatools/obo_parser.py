@@ -614,7 +614,7 @@ class GODag(dict):
             try:
                 node = grph.get_node(self.label_wrap(rec.item_id))
                 node.attr.update(fillcolor="plum")
-            except:
+            except KeyError:
                 continue
 
         return grph
