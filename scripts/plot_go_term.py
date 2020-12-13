@@ -61,7 +61,7 @@ if __name__ == "__main__":
         "--output",
         "-o",
         default="GO_lineage.pdf",
-        help="Output filename, suffix is image format [default: %default]",
+        help="Output filename, suffix is image format, common formats e.g. pdf|svg|png|jpg|... [default: %default]",
     )
     p.add_option(
         "--dpi",
