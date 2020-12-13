@@ -89,5 +89,5 @@ setup(
     url="http://github.com/tanghaibao/goatools",
     description="Python scripts to find enrichment of GO terms",
     install_requires=REQUIREMENTS,
-    tests_require=["pytest", "pytest-cov"],
+    tests_require=["pytest", "pytest-cov", "nose"],
 )
