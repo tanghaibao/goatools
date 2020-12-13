@@ -2,12 +2,35 @@
 # -*- coding: UTF-8 -*-
 """Setup for PyPI usage."""
 
+import glob
 import os.path as op
-from glob import glob
+import sys
+
 from setuptools import setup
+from setuptools.command.test import test as testCommand
 from setup_helper import SetupHelper
 
 import versioneer
+
+
+class PyTest(testCommand):
+    """Allow testing to be run from setuptools."""
+
+    def initialize_options(self):
+        testCommand.initialize_options(self)
+        self.test_args = []
+
+    def finalize_options(self):
+        testCommand.finalize_options(self)
+        self.test_args += ["--cov", "goatools", "tests"]
+
+    def run_tests(self):
+        # pylint:disable=import-outside-toplevel
+        import pytest
+
+        errno = pytest.main(self.test_args)
+        sys.exit(errno)
+
 
 NAME = "goatools"
 CLASSIFIERS = [
@@ -61,9 +84,10 @@ setup(
     packages=PACKAGES,
     include_package_data=True,
     package_data={"goatools.test_data.nbt_3102": ["*.*"]},
-    scripts=glob("scripts/*.py"),
+    scripts=glob.glob("scripts/*.py"),
     classifiers=CLASSIFIERS,
     url="http://github.com/tanghaibao/goatools",
     description="Python scripts to find enrichment of GO terms",
     install_requires=REQUIREMENTS,
+    tests_require=["pytest", "pytest-cov"],
 )
