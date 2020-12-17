@@ -1,12 +1,9 @@
-pytest
-pytest-cov
 pandas
 numpy
 scipy
-nose
 xlsxwriter
 statsmodels
-xlrd
+xlrd==1.2.0
 docopt
 pydot
 requests
