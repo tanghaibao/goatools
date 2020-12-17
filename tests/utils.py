@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test initializing Yang's Random Walk Contribution initialization"""
+"""Small test utilities used by multiple tests"""
 
 __copyright__ = "Copyright (C) 2019-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
