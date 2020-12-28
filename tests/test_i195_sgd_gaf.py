@@ -24,6 +24,8 @@ def test_i195():
     # Read GAF
     print('READING: {GAF}'.format(GAF=basename(fin_gaf1)))
     ##DVK objanno_sgd1 = GafReader(fin_gaf1)
+
+    print('READING: {GAF}'.format(GAF=basename(fin_gaf2)))
     objanno_sgd2 = GafReader(fin_gaf2)
     ##DVK assert objanno_sgd1 == objanno_sgd2
 
