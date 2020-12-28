@@ -114,7 +114,7 @@ class AnnoReaderBase(object):
                 NS=namespace, CLS=type(self).__name__))
         id2gos = self._get_id2gos(self.associations, **kws)
         if prt:
-            prt.write('{N} IDs in all associations'.format(N=len(id2gos)))
+            prt.write('{N} IDs in all associations\n'.format(N=len(id2gos)))
         return id2gos
 
     def _get_1ns_assn(self, namespace_usr):
