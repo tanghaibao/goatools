@@ -4,6 +4,7 @@
 [![Latest PyPI version](https://img.shields.io/pypi/v/goatools.svg)](https://pypi.python.org/pypi/goatools)
 [![bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools)
 [![Github Actions](https://github.com/tanghaibao/goatools/workflows/build/badge.svg)](https://github.com/tanghaibao/goatools/actions)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftanghaibao%2Fgoatools.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftanghaibao%2Fgoatools?ref=badge_shield)
 
 |         |                                                                       |
 | ------- | --------------------------------------------------------------------- |
@@ -372,3 +373,7 @@ Items that we know we need include:
   ```
 
 Copyright (C) 2010-2018, Haibao Tang et al. All rights reserved.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftanghaibao%2Fgoatools.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftanghaibao%2Fgoatools?ref=badge_large)
