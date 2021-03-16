@@ -22,15 +22,18 @@ class GOEnrichmentStudyNS:
 
     def wr_xlsx(self, fout_xlsx, goea_results, **kws):
         """Write to spreadsheet format"""
-        next(iter(self.ns2objgoea.values())).wr_xlsx(fout_xlsx, goea_results, **kws)
+        if self._chk_len(fout_xlsx, goea_results):
+            next(iter(self.ns2objgoea.values())).wr_xlsx(fout_xlsx, goea_results, **kws)
 
     def wr_tsv(self, fout_tsv, goea_results, **kws):
         """Write to spreadsheet format"""
-        next(iter(self.ns2objgoea.values())).wr_tsv(fout_tsv, goea_results, **kws)
+        if self._chk_len(fout_tsv, goea_results):
+            next(iter(self.ns2objgoea.values())).wr_tsv(fout_tsv, goea_results, **kws)
 
-    def wr_txt(self, fout_tsv, goea_results, **kws):
+    def wr_txt(self, fout_txt, goea_results, **kws):
         """Write to spreadsheet format"""
-        next(iter(self.ns2objgoea.values())).wr_txt(fout_tsv, goea_results, **kws)
+        if self._chk_len(fout_txt, goea_results):
+            next(iter(self.ns2objgoea.values())).wr_txt(fout_txt, goea_results, **kws)
 
     @staticmethod
     def _ns2o(pop, ns2assoc, godag, propagate_counts, alpha, methods, **kws):
@@ -42,5 +45,11 @@ class GOEnrichmentStudyNS:
         """Get a list of all GO sets in all (BP, MF, CC) associations"""
         return {geneid:gos for o in self.ns2objgoea.values() for geneid, gos in o.assoc.items()}
 
+    @staticmethod
+    def _chk_len(fout, goea_results):
+        if not goea_results:
+            print('**WARNING: NOT WRITING {F}; NO ENRICHMENT RESULTS'.format(F=fout))
+            return False
+        return True
 
 # Copyright (C) 2010-2019, H Tang et al., All rights reserved.
