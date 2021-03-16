@@ -45,6 +45,7 @@ class OBOReader(object):
         self.data_version = (
             None  # e.g., "releases/2016-07-07" from "data-version:" line
         )
+        self.default_namespace = 'default'
         self.typedefs = {}
 
         # True if obo file exists or if a link to an obo file exists.
@@ -63,14 +64,16 @@ class OBOReader(object):
         """Return one GO Term record at a time from an obo file."""
         # Wait to open file until needed. Automatically close file when done.
         with open(self.obo_file) as fstream:
+            hdr = True
             rec_curr = None  # Stores current GO Term
             typedef_curr = None  # Stores current typedef
             for line in fstream:
                 # obo lines start with any of: [Term], [Typedef], /^\S+:/, or /^\s*/
-                if self.data_version is None:
-                    self._init_obo_version(line)
+                if hdr:
+                    if not self._init_obo_hdr(line):
+                        hdr = False
                 if rec_curr is None and line[0:6].lower() == "[term]":
-                    rec_curr = GOTerm()
+                    rec_curr = GOTerm(self.default_namespace)
                     if self.optobj:
                         self.optobj.init_datamembers(rec_curr)
                 elif typedef_curr is None and line[0:9].lower() == "[typedef]":
@@ -98,12 +101,20 @@ class OBOReader(object):
         else:
             add_to_typedef(typedef_curr, line)
 
-    def _init_obo_version(self, line):
+    def _init_obo_hdr(self, line):
         """Save obo version and release."""
         if line[0:14] == "format-version":
             self.format_version = line[16:-1]
+            return True
         if line[0:12] == "data-version":
             self.data_version = line[14:-1]
+            return True
+        if line[:17] == 'default-namespace':
+            self.default_namespace = line[18:].strip()
+            return True
+        if line[0:6].lower() == "[term]":
+            return False
+        return True
 
     def _add_to_ref(self, rec_curr, line):
         """Add new fields to the current reference."""
@@ -124,7 +135,6 @@ class OBOReader(object):
             assert not rec_curr.name
             rec_curr.name = line[6:]
         elif line[:11] == "namespace: ":
-            assert not rec_curr.namespace
             rec_curr.namespace = line[11:]
         elif line[:6] == "is_a: ":
             rec_curr._parents.add(line[6:].split()[0])
@@ -150,11 +160,11 @@ class GOTerm(object):
     GO term, actually contain a lot more properties than interfaced here
     """
 
-    def __init__(self):
+    def __init__(self, default_namespace='default'):
         self.id = ""  # GO:NNNNNNN  **DEPRECATED** RESERVED NAME IN PYTHON
         self.item_id = ""  # GO:NNNNNNN (will replace deprecated "id")
         self.name = ""  # description
-        self.namespace = ""  # BP, CC, MF
+        self.namespace = default_namespace  # BP, CC, MF
         self._parents = set()  # is_a basestring of parents
         self.parents = set()  # parent records
         self.children = set()  # children records
@@ -178,7 +188,7 @@ class GOTerm(object):
         """Print GO ID and all attributes in GOTerm class."""
         ret = ["GOTerm('{ID}'):".format(ID=self.item_id)]
         for key, val in self.__dict__.items():
-            if isinstance(val, int) or isinstance(val, str):
+            if isinstance(val, (int, str)):
                 ret.append("{K}:{V}".format(K=key, V=val))
             elif val is not None:
                 ret.append("{K}: {V} items".format(K=key, V=len(val)))
@@ -347,7 +357,7 @@ class GODag(dict):
         data_version = reader.data_version
         if data_version is not None:
             data_version = data_version.replace("releases/", "")
-        desc = "{OBO}: fmt({FMT}) rel({REL}) {N:,} GO Terms".format(
+        desc = "{OBO}: fmt({FMT}) rel({REL}) {N:,} Terms".format(
             OBO=reader.obo_file,
             FMT=reader.format_version,
             REL=data_version,
@@ -367,7 +377,7 @@ class GODag(dict):
         # Make parents and relationships references to the actual GO terms.
         for rec in self.values():
             # Given parent GO IDs, set parent GO Term objects
-            rec.parents = set([self[goid] for goid in rec._parents])
+            rec.parents = set(self[goid] for goid in rec._parents)
 
             # For each parent GO Term object, add it's child GO Term to the children data member
             for parent_rec in rec.parents:
@@ -379,7 +389,7 @@ class GODag(dict):
     def _populate_relationships(self, rec_curr):
         """Convert GO IDs in relationships to GO Term record objects. Populate children."""
         for relationship_type, goids in rec_curr.relationship.items():
-            parent_recs = set([self[goid] for goid in goids])
+            parent_recs = set(self[goid] for goid in goids)
             rec_curr.relationship[relationship_type] = parent_recs
             for parent_rec in parent_recs:
                 if relationship_type not in parent_rec.relationship_rev:
@@ -457,7 +467,7 @@ class GODag(dict):
         """Given a GO ID, return GO object."""
         if term not in self:
             stderr.write("Term %s not found!\n" % term)
-            return
+            return None
 
         rec = self[term]
         if verbose:
@@ -533,7 +543,7 @@ class GODag(dict):
             if draw_children:
                 edgeset.update(rec.get_all_child_edges())
 
-        rec_id_set = set([rec_id for endpts in edgeset for rec_id in endpts])
+        rec_id_set = set(rec_id for endpts in edgeset for rec_id in endpts)
         nodes = {
             str(ID): pydot.Node(
                 self.label_wrap(ID).replace("GO:", ""),  # Node name
