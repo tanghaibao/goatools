@@ -94,7 +94,7 @@ class AnnoReaderBase(object):
         ns2nts = cx.defaultdict(list)
         for nta in annotations:
             ns2nts[nta.NS].append(nta)
-        return {ns:ns2nts[ns] for ns in self.exp_nss.intersection(ns2nts)}
+        return {ns:ns2nts[ns] for ns in ns2nts}
 
     def get_id2gos_nss(self, **kws):
         """Return all associations in a dict, id2gos, regardless of namespace"""
