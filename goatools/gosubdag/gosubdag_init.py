@@ -216,7 +216,8 @@ class InitFields:
         # b_rcnt = rcntobj is not None and rcntobj
         # fnc for reldepth
         for goid, goobj in self.go2obj.items():
-            ns_go = NAMESPACE2NS[goobj.namespace]
+            namespace = goobj.namespace
+            ns_go = NAMESPACE2NS.get(namespace, namespace)
             fld2vals = {
                 'NS' : ns_go,
                 'level' : goobj.level,
@@ -231,7 +232,7 @@ class InitFields:
                 fld2vals['D1'] = rcntobj.get_d1str(goobj)
             if b_tcnt:
                 tcnt = tcntobj.gocnts.get(goid, 0)
-                num_ns = float(tcntobj.aspect_counts[goobj.namespace])
+                num_ns = float(tcntobj.aspect_counts[namespace])
                 tfreq = float(tcnt)/num_ns if num_ns != 0 else 0
                 fld2vals['tcnt'] = tcnt
                 fld2vals['tfreq'] = tfreq

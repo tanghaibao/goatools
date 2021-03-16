@@ -144,7 +144,8 @@ class GOEnrichmentRecord(object):
             self.goterm = goterm
             self.name = goterm.name
             self.depth = goterm.depth
-            self.NS = self.namespace2NS[self.goterm.namespace]
+            namespace = self.goterm.namespace
+            self.NS = self.namespace2NS.get(namespace, namespace)
 
     def _init_enrichment(self):
         """Mark as 'enriched' or 'purified'."""

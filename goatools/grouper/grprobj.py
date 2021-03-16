@@ -248,9 +248,10 @@ class Grouper:
         if name is None:
             name = self.grpname.replace(" ", "_")
         sections = "_".join(self.hdrobj.get_sections(goid))
+        namespace = goobj.namespace
         return "{PRE}_{BP}_{NAME}_{SEC}_{DSTR}_{D1s}_{GO}".format(
             PRE=pre,
-            BP=NAMESPACE2NS[goobj.namespace],
+            BP=NAMESPACE2NS.get(namespace, namespace),
             NAME=self._str_replace(name),
             SEC=self._str_replace(self._str_replace(sections)),
             GO=goid.replace(":", ""),

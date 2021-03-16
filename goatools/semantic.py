@@ -127,7 +127,7 @@ class TermCounts:
     def prt_objdesc(self, prt=sys.stdout):
         """Print TermCount object description"""
         ns_tot = sorted(self.aspect_counts.items())
-        cnts = ['{NS}({N:,})'.format(NS=NAMESPACE2NS[ns], N=n) for ns, n in ns_tot if n != 0]
+        cnts = ['{NS}({N:,})'.format(NS=NAMESPACE2NS.get(ns, ns), N=n) for ns, n in ns_tot if n != 0]
         go_msg = "TermCounts {CNT}".format(CNT=' '.join(cnts))
         prt.write('{GO_MSG} {N:,} genes\n'.format(GO_MSG=go_msg, N=len(self.gene2gos)))
         self.gosubdag.prt_objdesc(prt, go_msg)
