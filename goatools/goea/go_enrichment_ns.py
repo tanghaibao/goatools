@@ -37,6 +37,8 @@ class GOEnrichmentStudyNS:
 
     @staticmethod
     def _ns2o(pop, ns2assoc, godag, propagate_counts, alpha, methods, **kws):
+        if not ns2assoc:
+            print('**WARNING: NO DAG NAMESPACE(S) FOUND')
         return {
             ns:GOEnrichmentStudy(pop, a, godag, propagate_counts, alpha, methods, name=ns, **kws) \
                 for ns, a in sorted(ns2assoc.items())}
@@ -51,5 +53,6 @@ class GOEnrichmentStudyNS:
             print('**WARNING: NOT WRITING {F}; NO ENRICHMENT RESULTS'.format(F=fout))
             return False
         return True
+
 
 # Copyright (C) 2010-2019, H Tang et al., All rights reserved.
