@@ -1,5 +1,6 @@
 """Reads a Annotation File in text format with data in id2gos line"""
 
+from sys import stdout
 import timeit
 import datetime
 import collections as cx
@@ -44,15 +45,23 @@ class InitAssc:
                 nts.append(ntobj(DB_ID=itemid, GO_ID=goid))
         return nts
 
-    def _init_w_godag(self):
+    def _init_w_godag(self, prt=stdout):
         """Get a list of namedtuples, one for each annotation."""
         nts = []
         ntobj = cx.namedtuple('ntanno', self.flds + ['NS'])
+        s_godag = self.godag
+        not_found = set()
         for itemid, gos in self.id2gos.items():
             for goid in gos:
-                goobj = self.godag.get(goid, '')
-                nspc = NAMESPACE2NS[goobj.namespace] if goobj else ''
-                nts.append(ntobj(DB_ID=itemid, GO_ID=goid, NS=nspc))
+                if goid in s_godag:
+                    goobj = s_godag[goid]
+                    namespace = goobj.namespace
+                    nspc = NAMESPACE2NS.get(namespace, namespace) if goobj else ''
+                    nts.append(ntobj(DB_ID=itemid, GO_ID=goid, NS=nspc))
+                else:
+                    not_found.add(goid)
+        for goid in sorted(not_found):
+            prt.write('**WARNING: {GO} NOT FOUND IN DAG\n'.format(GO=goid))
         return nts
 
     @staticmethod
@@ -87,6 +96,7 @@ class InitAssc:
         gene_int = None
         with open(assoc_fn) as ifstrm:
             for row in ifstrm:
+                row = row.rstrip()
                 atoms = row.split()
                 if len(atoms) == 2:
                     gene_id, go_terms = atoms
