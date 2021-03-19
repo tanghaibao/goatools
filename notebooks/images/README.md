@@ -26,4 +26,4 @@ e.g., *32 genes; Ayh, Csdel, Eef2*
 ### A subplot showing signficant GO terms related to apoptosis
 ![apoptoitic](nbt3102_word_apoptotic.png)
 
-Copyright (C) 2010-2018, H Tang et al. All rights reserved.
+Copyright (C) 2010-present, H Tang et al. All rights reserved.
