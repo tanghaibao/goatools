@@ -313,7 +313,7 @@ strategy which may lead to slightly different q-values between runs.
 
 ### Optional attributes
 
-#### The definition attribute
+#### The optional definition attribute
 <https://github.com/tanghaibao/goatools/blob/main/notebooks/Optional_attribute_definition.ipynb>
 
 ### Run a Gene Ontology Enrichment Analysis (GOEA)
