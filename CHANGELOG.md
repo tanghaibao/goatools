@@ -32,6 +32,7 @@ Unreleased changes
 --------------
 * **Changed**
   * The "Compare GO terms" script now can use GO terms stored in files of any name. [#187](https://github.com/tanghaibao/goatools/issues/187)
+  * Improved documentation about using the optional attribute, definition. [#204](https://github.com/tanghaibao/goatools/issues/204)
 
 Release 2020-12-04 1.0.13
 --------------
