@@ -308,7 +308,13 @@ In total 15 tests are available, which can be selected using option
 `--method`. Please note that the default FDR (`fdr`) uses a resampling
 strategy which may lead to slightly different q-values between runs.
 
+
 ## iPython [Notebooks](https://github.com/tanghaibao/goatools/tree/main/notebooks)
+
+### Optional attributes
+
+#### The definition attribute
+<https://github.com/tanghaibao/goatools/blob/main/notebooks/Optional_attribute_definition.ipynb>
 
 ### Run a Gene Ontology Enrichment Analysis (GOEA)
 
