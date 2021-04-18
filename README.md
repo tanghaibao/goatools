@@ -4,6 +4,7 @@
 [![Latest PyPI version](https://img.shields.io/pypi/v/goatools.svg)](https://pypi.python.org/pypi/goatools)
 [![bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools)
 [![Github Actions](https://github.com/tanghaibao/goatools/workflows/build/badge.svg)](https://github.com/tanghaibao/goatools/actions)
+[![Downloads](https://pepy.tech/badge/goatools)](https://pepy.tech/project/goatools)
 
 |         |                                                                       |
 | ------- | --------------------------------------------------------------------- |
