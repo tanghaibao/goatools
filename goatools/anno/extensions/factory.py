@@ -1,6 +1,7 @@
 """Annotation Extension for relational expressions.
 
    https://link.springer.com/protocol/10.1007/978-1-4939-3743-1_17
+   http://wiki.geneontology.org/index.php/Annotation_Extension
 
    Correlated function associations between genes and GOs containing contextual information.
 
@@ -18,7 +19,7 @@ import sys
 from goatools.anno.extensions.extensions import AnnotationExtensions
 from goatools.anno.extensions.extension import AnnotationExtension
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 
@@ -44,4 +45,4 @@ def get_extensions(extstr):
     return AnnotationExtensions(exts)
 
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
