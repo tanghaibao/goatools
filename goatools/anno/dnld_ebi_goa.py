@@ -1,19 +1,20 @@
 """Download GOA files from the Gene Ontology Annotation (GOA) resource http://www.ebi.ac.uk/GOA."""
 
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import os
 import sys
 from goatools.base import dnld_file
 
-class DnldGoa(object):
+class DnldGoa:
     """Download files from the Gene Ontology Annotation (GOA) resource http://www.ebi.ac.uk/GOA."""
 
     # European Bioinformatics Institute (EMBL-EBI) ftp site
     ftp_pub = 'ftp://ftp.ebi.ac.uk/pub/'
 
     # Species available from ftp://ftp.ebi.ac.uk/pub/databases/GO/goa/
+    # Example:             https://ftp.ebi.ac.uk/pub/databases/GO/goa/CHICKEN/
     species = [
         'arabidopsis',
         'chicken',
@@ -57,4 +58,4 @@ class DnldGoa(object):
         return 'goa_{SPECIES}_{ITEM}.{EXT}'.format(SPECIES=species, ITEM=item, EXT=ext)
 
 
-# Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
