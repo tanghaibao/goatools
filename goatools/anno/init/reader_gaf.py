@@ -194,7 +194,7 @@ class GafData:
             'DB': 'database',        #  0 required 1              UniProtKB
             'DB_ID': 1,              #  1 required 1              P12345
             'DB_Symbol': 'Symbol1',  #  2 required 1              PHO3
-            'Qualifier': set(),      #  3 optional 0 or greater   NOT
+            'Qualifier': set(),      #  3 required 1 or 2         NOT|involved_in
             'GO_ID': 'GO:0000001',   #  4 required 1              GO:0003993
             'DB_Reference': {'GO_REF:0000001',},   #  5 required 1 or greater   PMID:2676709
             'Evidence_Code': 'IDA',  #  6 required 1              IMP
@@ -213,7 +213,10 @@ class GafData:
     def chk(self, annotations, fout_err):
         """Check annotations."""
         for idx, ntd in enumerate(annotations):
-            self._chk_fld(ntd, "Qualifier")        # optional 0 or greater
+            if self.ver < "2.2":
+                self._chk_fld(ntd, "Qualifier")        # optional 0 or greater (before 2.2)
+            else:
+                self._chk_fld(ntd, "Qualifier", 1, 2)  # required 1 or 2 (since 2.2)
             self._chk_fld(ntd, "DB_Reference", 1)  # required 1 or greater
             self._chk_fld(ntd, "With_From")        # optional 0 or greater
             self._chk_fld(ntd, "DB_Name", 0, 1)    # optional 0 or 1
