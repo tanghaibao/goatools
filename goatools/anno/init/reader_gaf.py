@@ -16,6 +16,8 @@ from goatools.anno.extensions.factory import get_extensions
 __copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
+LATEST_GAF_VERSION = "2.2"
+
 
 # pylint: disable=too-few-public-methods
 class InitAssc:
@@ -117,9 +119,6 @@ class GafData:
 
     spec_req1 = [0, 1, 2, 4, 6, 8, 11, 13, 14]
 
-    req_str = ["REQ", "REQ", "REQ", "", "REQ", "REQ", "REQ", "", "REQ", "", "",
-               "REQ", "REQ", "REQ", "REQ", "", ""]
-
     aspect2ns = {'P':'BP', 'F':'MF', 'C':'CC'}
 
     gafhdr = [ #           Col Req?     Cardinality    Example
@@ -127,7 +126,7 @@ class GafData:
         'DB',             #  0 required 1              UniProtKB
         'DB_ID',          #  1 required 1              P12345
         'DB_Symbol',      #  2 required 1              PHO3
-        'Qualifier',      #  3 optional 0 or greater   NOT
+        'Qualifier',      #  3 required 1 or 2         NOT|involved_in
         'GO_ID',          #  4 required 1              GO:0003993
         'DB_Reference',   #  5 required 1 or greater   PMID:2676709
         'Evidence_Code',  #  6 required 1              IMP
@@ -147,20 +146,31 @@ class GafData:
         'Gene_Product_Form_ID', # 16 optional 0 or 1       UniProtKB:P12345-2
     ]
 
-    gaf_columns = {
-        "2.1" : gafhdr + gafhdr2, # !gaf-version: 2.1
-        "2.0" : gafhdr + gafhdr2, # !gaf-version: 2.0
-        "1.0" : gafhdr}           # !gaf-version: 1.0
+    gafhdr_ext = gafhdr + gafhdr2
 
-    # Expected numbers of columns for various versions
-    gaf_numcol = {
-        "2.1" : 17,
-        "2.0" : 17,
-        "1.0" : 15}
+    gaf_req_str = ["REQ", "REQ", "REQ", "", "REQ", "REQ", "REQ", "", "REQ", "", "",
+                   "REQ", "REQ", "REQ", "REQ", "", ""]
+    # Since gaf_version: 2.2, column 4 ("Qualifier") is now required
+    gaf_req_str_2_2 = ["REQ", "REQ", "REQ", "REQ", "REQ", "REQ", "REQ", "", "REQ", "", "",
+                       "REQ", "REQ", "REQ", "REQ", "", ""]
+
+    gaf_required_columns = {
+        "2.2" : gaf_req_str_2_2,
+        "2.1" : gaf_req_str,
+        "2.0" : gaf_req_str,
+        "1.0" : gaf_req_str[:-2],
+    }
+
+    gaf_columns = {
+        "2.2" : gafhdr_ext, # !gaf-version: 2.2
+        "2.1" : gafhdr_ext, # !gaf-version: 2.1
+        "2.0" : gafhdr_ext, # !gaf-version: 2.0
+        "1.0" : gafhdr}     # !gaf-version: 1.0
 
     def __init__(self, ver, allow_missing_symbol=False):
         self.ver = ver
         self.is_long = self._init_is_long(ver)
+        self.required_columns = self.gaf_required_columns[self.ver]
         self.flds = self.gaf_columns[self.ver]
         # pylint: disable=line-too-long
         self.req1 = self.spec_req1 if not allow_missing_symbol else [i for i in self.spec_req1 if i != 2]
@@ -168,13 +178,13 @@ class GafData:
         self.ignored = []  # Illegal GAF lines that are ignored (e.g., missing an ID)
         self.illegal_lines = cx.defaultdict(list)  # GAF lines that are missing information (missing taxon)
 
-    def _init_is_long(self, ver):
-        """If the GAF version is 2.0 or 2.1, the GAF format is the long format (2 more cols)"""
+    def _init_is_long(self, ver, fallback=LATEST_GAF_VERSION):
+        """If the GAF version is >2.0, the GAF format is the long format (2 more cols)"""
         if ver is not None:
             return ver[0] == '2'
         print('\n**WARNING: NO VERSION LINE FOUND IN GAF FILE. USING:')
-        print('!gaf-version: 2.1')
-        self.ver = '2.1'
+        print(f'!gaf-version: {fallback}')
+        self.ver = fallback
         return True
 
     @staticmethod
@@ -312,7 +322,7 @@ class GafData:
 
     def _prt_line_detail(self, prt, values, lnum=""):
         """Print header and field values in a readable format."""
-        data = zip(self.req_str, self.flds, values)
+        data = zip(self.required_columns, self.flds, values)
         pat = "{:2}) {:3} {:20} {}"
         txt = [pat.format(i, req, hdr, val) for i, (req, hdr, val) in enumerate(data)]
         prt.write("{LNUM}\n{TXT}\n".format(LNUM=lnum, TXT="\n".join(txt)))
