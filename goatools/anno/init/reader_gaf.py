@@ -185,7 +185,7 @@ class GafData:
         self.illegal_lines = cx.defaultdict(list)  # GAF lines that are missing information (missing taxon)
 
     def _init_is_long(self, ver, fallback=LATEST_GAF_VERSION):
-        """If the GAF version is >2.0, the GAF format is the long format (2 more cols)"""
+        """If the GAF version is >= 2.0, the GAF format is the long format (2 more cols)"""
         if ver is not None:
             return ver[0] == '2'
         print('\n**WARNING: NO VERSION LINE FOUND IN GAF FILE. USING:')
