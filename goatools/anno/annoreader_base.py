@@ -4,6 +4,8 @@ import sys
 import timeit
 import datetime
 import collections as cx
+import logging
+
 from goatools.evidence_codes import EvidenceCodes
 from goatools.anno.opts import AnnoOptions
 from goatools.godag.consts import NAMESPACE2NS
@@ -109,9 +111,9 @@ class AnnoReaderBase(object):
             if prt:
                 prt.write('{N} IDs in loaded association branch, {NS}\n'.format(N=len(id2gos), NS=nspc))
             return id2gos
-        if prt and namespace is not None:
-            print('**ERROR {CLS}(..., godag=None).get_id2gos: GODAG is None. IGNORING namespace({NS})\n'.format(
-                NS=namespace, CLS=type(self).__name__))
+        if prt and self.godag is None:
+            logging.warning('%s(..., godag=None).get_id2gos: GODAG is None. IGNORING namespace(%s)\n',
+                            type(self).__name__, namespace)
         id2gos = self._get_id2gos(self.associations, **kws)
         if prt:
             prt.write('{N} IDs in all associations\n'.format(N=len(id2gos)))
