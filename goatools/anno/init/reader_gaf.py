@@ -9,6 +9,8 @@ import os
 import re
 import collections as cx
 import datetime
+import logging
+
 from goatools.anno.annoreader_base import AnnoReaderBase
 from goatools.anno.init.utils import get_date_yyyymmdd
 from goatools.anno.extensions.factory import get_extensions
@@ -52,7 +54,7 @@ class InitAssc:
         """Read GAF file. Store annotation data in a list of namedtuples."""
         nts = []
         ver = None
-        hdrobj = GafHdr()
+        header = GafHdr()
         datobj = None
         # pylint: disable=not-callable
         ntobj_make = None
@@ -79,15 +81,19 @@ class InitAssc:
                         if line[0] == '!':
                             if ver is None and line[1:13] == 'gaf-version:':
                                 ver = line[13:].strip()
-                            hdrobj.chkaddhdr(line)
+                                header.version = ver
+                            header.chkaddhdr(line)
                         else:
-                            self.hdr = hdrobj.get_hdr()
                             if hdr_only:
-                                return nts
+                                break
                             datobj = GafData(ver, allow_missing_symbol)
                             get_gafvals = datobj.get_gafvals
                             ntobj_make = datobj.get_ntobj()._make
                             self._add_data0(nts, lnum, line, get_all_nss, namespaces, datobj)
+
+            self.hdr = header.get_hdr()
+            if hdr_only:
+                return nts
         # pylint: disable=broad-except
         except Exception as inst:
             import traceback
@@ -390,11 +396,14 @@ class GafHdr:
 
     cmpline = re.compile(r'^!(\w[\w\s-]+:.*)$')
 
-    def __init__(self):
+    def __init__(self, version=LATEST_GAF_VERSION):
         self.gafhdr = []
+        self.version = version
 
     def get_hdr(self):
         """Return GAF header data as a string paragragh."""
+        if not self.validate():
+            logging.error("Failed to validate header as GAF v%s:\n%s", self.version, self.gafhdr)
         return "\n".join(self.gafhdr)
 
     def chkaddhdr(self, line):
@@ -402,6 +411,23 @@ class GafHdr:
         mtch = self.cmpline.search(line)
         if mtch:
             self.gafhdr.append(mtch.group(1))
+
+    def validate(self):
+        """ Since 2.2, the header must also contain 'generated-by' and 'date-generated' lines
+
+        Returns:
+            [bool]: True if header passes validation
+        """
+        if self.version < "2.2":
+            return True
+        generated_by = False
+        date_generated = False
+        for line in self.gafhdr:
+            if line.startswith("generated-by"):
+                generated_by = True
+            elif line.startswith("date-generated"):
+                date_generated = True
+        return generated_by and date_generated
 
 
 # Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
