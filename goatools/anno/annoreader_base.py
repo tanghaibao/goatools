@@ -111,7 +111,7 @@ class AnnoReaderBase(object):
             if prt:
                 prt.write('{N} IDs in loaded association branch, {NS}\n'.format(N=len(id2gos), NS=nspc))
             return id2gos
-        if prt and self.godag is None:
+        if self.godag is None:
             logging.warning('%s(..., godag=None).get_id2gos: GODAG is None. IGNORING namespace(%s)\n',
                             type(self).__name__, namespace)
         id2gos = self._get_id2gos(self.associations, **kws)
