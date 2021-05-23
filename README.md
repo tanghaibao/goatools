@@ -124,8 +124,7 @@ wget http://www.geneontology.org/ontology/subsets/goslim_generic.obo
 - To calculate the uncorrected p-values, there are currently two options:
 
   - [`scipy.stats.fisher_exact`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html)
-  - `statsmodels` (optional) for access to a variety of statistical tests for
-    GOEA
+  - `statsmodels` (optional) for access to a variety of statistical tests for GOEA
 
 - To plot the ontology lineage, install one of these two options:
 
