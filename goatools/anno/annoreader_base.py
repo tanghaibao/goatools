@@ -111,8 +111,8 @@ class AnnoReaderBase(object):
             if prt:
                 prt.write('{N} IDs in loaded association branch, {NS}\n'.format(N=len(id2gos), NS=nspc))
             return id2gos
-        if self.godag is None:
-            logging.warning('%s.get_id2gos: GODAG is None. IGNORING namespace(%s). If you are running `map_to_slim.py`, this warning can be ignored.\n',
+        if prt and self.godag is None:
+            logging.warning('%s.get_id2gos: GODAG is None. IGNORING namespace(%s). If you are running `map_to_slim.py`, this warning can be ignored.',
                             type(self).__name__, namespace)
         id2gos = self._get_id2gos(self.associations, **kws)
         if prt:
