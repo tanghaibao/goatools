@@ -296,7 +296,7 @@ class GOEnrichmentStudy(object):
         if log:
             log.write('\nRun {OBJNAME} Gene Ontology Analysis: {STU} study set of {N} IDs ...'.format(
                 OBJNAME=self.name, N=len(study), STU=study_name))
-        if not study:
+        if len(study) == 0:
             return []
         # Key-word arguments:
         methods = Methods(kws['methods']) if 'methods' in kws else self.methods
