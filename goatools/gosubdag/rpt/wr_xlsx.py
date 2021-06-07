@@ -154,7 +154,7 @@ class GoDepth1LettersWr:
             prt.write("\\hline\n")
             prt.write("\\end{tabular}\n")
             caption = (r"The descendant counts of GO terms at depth-01 are highly skewed. The "
-                       "root term, \textit{biological\_process} has over twenty GO children at "
+                       "root term, \textit{biological process} has over twenty GO children at "
                        "depth-01 shown in the table sorted by their number of descendants "
                        "(dcnt) with \textit{cellular process} at the top having 18k+ "
                        "descendants and \textit{cell killing} near the bottom having only "
