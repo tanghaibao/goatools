@@ -24,21 +24,6 @@ class PvalCalcBase(object):
             FNC_CALL=fnc_call, FNC=self.pval_fnc))
 
 
-class FisherClass(PvalCalcBase):
-    """From the 'fisher' package, use function, pvalue_population."""
-
-    def __init__(self, name, log):
-        import fisher
-        super(FisherClass, self).__init__(name, fisher.pvalue_population, log)
-
-    def calc_pvalue(self, study_count, study_n, pop_count, pop_n):
-        """Calculate uncorrected p-values."""
-        # k, n = study_true, study_tot,
-        # K, N = population_true, population_tot
-        # def pvalue_population(int k, int n, int K, int N): ...
-        return self.pval_fnc(study_count, study_n, pop_count, pop_n).two_tail
-
-
 class FisherScipyStats(PvalCalcBase):
     """From the scipy stats package, use function, fisher_exact."""
 
@@ -78,25 +63,18 @@ class FisherFactory(object):
     """Factory for choosing a fisher function."""
 
     options = cx.OrderedDict([
-        ('fisher', FisherClass),
         ('fisher_scipy_stats', FisherScipyStats),
     ])
 
     def __init__(self, **kws):
         self.log = kws['log'] if 'log' in kws else sys.stdout
-        self.pval_fnc_name = kws["pvalcalc"] if "pvalcalc" in kws else "fisher"
+        self.pval_fnc_name = kws["pvalcalc"] if "pvalcalc" in kws else "fisher_scipy_stats"
         self.pval_obj = self._init_pval_obj()
 
     def _init_pval_obj(self):
         """Returns a Fisher object based on user-input."""
         if self.pval_fnc_name in self.options.keys():
-            try:
-                fisher_obj = self.options[self.pval_fnc_name](self.pval_fnc_name, self.log)
-            except ImportError:
-                print("fisher module not installed.  Falling back on scipy.stats.fisher_exact")
-                fisher_obj = self.options['fisher_scipy_stats']('fisher_scipy_stats', self.log)
-
-            return fisher_obj
+            return self.options[self.pval_fnc_name](self.pval_fnc_name, self.log)
 
         raise Exception("PVALUE FUNCTION({FNC}) NOT FOUND".format(FNC=self.pval_fnc_name))
 

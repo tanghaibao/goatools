@@ -33,7 +33,7 @@ class ArgsDict(object):
             'ns': 'BP,MF,CC',
             'pval' : 0.05,
             'pval_field' : 'uncorrected',
-            'pvalcalc' : 'fisher',
+            'pvalcalc' : 'fisher_scipy_stats',
             'ratio' : None,
             'relationship': False,
             'relationships': None,

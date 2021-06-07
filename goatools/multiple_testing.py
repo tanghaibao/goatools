@@ -215,7 +215,7 @@ class HolmBonferroni(_AbstractCorrection):
         num_pvals = len(self.pvals)
 
         from itertools import groupby
-        for pval, idxs in groupby(pvals_idxs, lambda x: x[0]):
+        for _, idxs in groupby(pvals_idxs, lambda x: x[0]):
             idxs = list(idxs)
             for p, i in idxs:
                 if p * 1. / num_pvals < self.a:
@@ -242,9 +242,6 @@ def mcorrection_factory(pvals, alpha, method):
         return correctioncls(pvals, alpha)
 
 
-
-
-
 def calc_qval(study_n, pop_n,
               pop, assoc, term_pop, obo_dag, T=500):
     """Generate p-value distribution for FDR based on resampling."""
@@ -254,6 +251,7 @@ def calc_qval(study_n, pop_n,
                      "based on resampling (this might take a while)\n")
     distribution = []
     calc_pvalue = FisherFactory().pval_obj.calc_pvalue
+    pop = list(pop)
     for i in range(T):
         new_study = random.sample(pop, study_n)
         new_term_study = count_terms(new_study, assoc, obo_dag)
