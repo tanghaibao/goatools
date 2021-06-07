@@ -121,7 +121,7 @@ wget http://www.geneontology.org/ontology/subsets/goslim_generic.obo
 - Simplest is to install via pip as above or
   [bioconda](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools).
 
-- To calculate the uncorrected p-values, there are currently two options:
+- For statistical testing of GO enrichment:
 
   - [`scipy.stats.fisher_exact`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html)
   - `statsmodels` (optional) for access to a variety of statistical tests for GOEA
@@ -243,10 +243,7 @@ The implementation is similar to
 
 ### Available statistical tests for calculating uncorrected p-values
 
-There are currently two fisher tests available for calculating uncorrected
-p-values. Both fisher options from the fisher package and SciPy's stats package
-calculate the same pvalues, but provide the user an option in installing
-packages.
+For calculating uncorrected p-values, we use SciPy:
 
 - [`scipy.stats.fisher_exact`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html)
 
