@@ -38,6 +38,12 @@ class WrHierPrt(object):
         if self.include_only and item_id not in self.include_only:
             return
 
+        # Do not print hierarchy from this item downwards if the item has already been printed.
+        no_repeat = self.concise_prt and item_id in self.items_printed
+        if no_repeat:
+            return
+
+        # Print content
         obj = self.id2obj[item_id]
         # Optionally space the branches for readability
         if self.space_branches:
@@ -48,8 +54,6 @@ class WrHierPrt(object):
             self.prt.write('{MARK} '.format(
                 MARK=self.item_marks.get(item_id, self.mark_dflt)))
 
-        no_repeat = self.concise_prt and item_id in self.items_printed
-        # Print content
         dashes = self._str_dash(depth, no_repeat, obj)
         if self.do_prtfmt:
             self._prtfmt(item_id, dashes)
@@ -57,9 +61,7 @@ class WrHierPrt(object):
             self._prtstr(obj, dashes)
         self.items_printed.add(item_id)
         self.items_list.append(item_id)
-        # Do not print hierarchy below this turn if it has already been printed
-        if no_repeat:
-            return
+        
         depth += 1
         if self.max_indent is not None and depth > self.max_indent:
             return
