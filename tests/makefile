@@ -42,7 +42,7 @@ run_goea_scripts:
 	cd ..; make goea_all
 
 go-basic.obo:
-	wget http://geneontology.org/ontology/go-basic.obo
+	wget http://purl.obolibrary.org/obo/go/go-basic.obo
 
 gene2go:
 	wget https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz
