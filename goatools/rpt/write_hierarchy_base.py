@@ -22,6 +22,7 @@ class WrHierPrt(object):
         self.item_marks = self._init_item_marks(cfg.get('item_marks'))
         self.mark_dflt = cfg.get('mark_default', ' ')
         self.concise_prt = cfg.get('concise_prt', False)
+        self.no_dup_prt = cfg.get('no_dup_prt', False)
         self.indent = cfg.get('indent', True)
         self.space_branches = cfg.get('space_branches', False)
         self.sortby = cfg.get('sortby')
@@ -38,6 +39,18 @@ class WrHierPrt(object):
         if self.include_only and item_id not in self.include_only:
             return
 
+        # Do not print hierarchy from this item downwards if hierarchy is being
+        # printed as a flat list - that is, with strictly no duplications - and the item has 
+        # already been printed.
+        # Note that, by default, no_dup_prt is False. *However*, if it is set to
+        # True then this will overide the setting for concise_prt. That is,
+        # regardless of whether concise_prt is True or False, the hierarchy will
+        # be printed as a flat list with strictly no duplications.
+        no_repeat_strict = self.no_dup_prt and item_id in self.items_printed
+        if no_repeat_strict:
+            return
+
+        # Print content
         obj = self.id2obj[item_id]
         # Optionally space the branches for readability
         if self.space_branches:
@@ -57,9 +70,11 @@ class WrHierPrt(object):
             self._prtstr(obj, dashes)
         self.items_printed.add(item_id)
         self.items_list.append(item_id)
-        # Do not print hierarchy below this turn if it has already been printed
+        # Do not print hierarchy below this turn if it has already been printed,
+        # and if concise printing is on (concise_prt = True)
         if no_repeat:
             return
+        
         depth += 1
         if self.max_indent is not None and depth > self.max_indent:
             return
