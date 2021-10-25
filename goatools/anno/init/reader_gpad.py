@@ -46,7 +46,7 @@ class InitAssc:
         'Properties',    # 11 optional 0 or greater
     ]
 
-    gpad_columns = {"1.1" : gpadhdr}            # !gpad-version: 1.1
+    ## gpad_columns = {"1.1" : gpadhdr}            # !gpad-version: 1.1
 
     # Expected numbers of columns for various versions
     exp_numcol = 12
@@ -55,6 +55,8 @@ class InitAssc:
     exp_qualifiers = set([
         'NOT', 'contributes_to', 'colocalizes_with', 'enables', 'involved_in',
         'part_of',
+        # Seen starting 2021_0
+        'located_in',
         # Seen starting 2019_03
         'is_active_in',
         # Seen starting 2018_09
@@ -256,7 +258,7 @@ class InitAssc:
 
     def _get_ntgpadnt(self, ver, add_ns):
         """Create a namedtuple object for each annotation"""
-        hdrs = self.gpad_columns[ver]
+        hdrs = self.gpadhdr  # self.gpad_columns[ver]
         if add_ns:
             hdrs = hdrs + ['NS']
         return cx.namedtuple("ntgpadobj", hdrs)
