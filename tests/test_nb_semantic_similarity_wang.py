@@ -8,7 +8,7 @@ from goatools.gosubdag.plot.gosubdag_plot import GoSubDagPlot
 
 
 # pylint: disable=invalid-name
-def test_nb_semantic_similarity_wang():
+def test_nb_ss_wang():
     """Run Jupyter notebook: semantic_similarity_wang"""
 
     go_a = 'GO:0007608'
@@ -70,4 +70,4 @@ class Run:
 
 
 if __name__ == '__main__':
-    test_nb_semantic_similarity_wang()
+    test_nb_ss_wang()
