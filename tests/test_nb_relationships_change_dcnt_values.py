@@ -10,7 +10,7 @@ def test_nb():
     """Test notebook code"""
     godag = get_godag("go-basic.obo", optional_attrs={'relationship'})
     go_leafs = set(o.item_id for o in godag.values() if not o.children)
-    virion = 'GO:0019012'
+    virion = 'GO:0044423'
     gosubdag_r0 = GoSubDag(go_leafs, godag)
     nt_virion = gosubdag_r0.go2nt[virion]
     print(nt_virion)
