@@ -38,7 +38,7 @@ def test_cli():
         print("EXP={EXP}".format(EXP=exp_dict))
         obj = WrHierCli(args)
         print("DCT: {DCT}".format(DCT=obj.kws))
-        print("WWWWWWWWWWWWWWWWWWW WrHierCli", obj.kws)
+        print("TEST ------------------- WrHierCli", obj.kws)
         assert obj.kws == exp_dict, "DCT: ACT({}) != EXP({})".format(obj.kws, exp_dict)
         print("")
         # Test writing to a file
