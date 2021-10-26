@@ -16,15 +16,15 @@ from goatools.utils import read_geneset
 
 def test_i202():
     """Test to re-produce issue#202: Passes currently."""
-    fin_study = 'tests/data/i202_HPO_obo/genes.list'
-    fin_pop = 'tests/data/i202_HPO_obo/gobackground.list'
-    fin_obo = 'tests/data/i202_HPO_obo/hp.obo'
-    fin_anno = 'tests/data/i202_HPO_obo/hpo.annotation.tab'
+    fin_study = 'notebooks/data/hpo/genes.list'
+    fin_pop   = 'notebooks/data/hpo/gobackground.list'
+    fin_obo   = 'notebooks/data/hpo/hp.obo'
+    fin_anno  = 'notebooks/data/hpo/hpo.annotation.tab'
 
     study_ids = read_geneset(join(REPO, fin_study))
     population_ids = read_geneset(join(REPO, fin_pop))
     godag = GODag(join(REPO, fin_obo))
-    annoobj = IdToGosReader(join(REPO, fin_anno), goobj=godag)
+    annoobj = IdToGosReader(join(REPO, fin_anno), godag=godag)
 
     ## obj = _Run(9606, 'gene2go', 'go-basic.obo')
 
