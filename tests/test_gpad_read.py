@@ -14,7 +14,8 @@ from goatools.base import get_godag
 
 # pylint: disable=too-many-locals
 def test_gpad_read(run_desc="mouse", prt=sys.stdout):
-    """Test reading GPAD files from GOA source http://www.ebi.ac.uk/GOA."""
+    """Test reading GPAD files from GOA source http://www.ebi.ac.uk/GOA
+       Test reading GPAD files from GOA source https://ftp.ebi.ac.uk/pub/databases/GO/goa/HUMAN/."""
     objdnld = DnldGoa()
     species2gpad = _dnld_gpad(objdnld, run_desc)
     # Count Annotation Extension Relations across all species
