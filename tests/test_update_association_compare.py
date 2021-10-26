@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Compare new propagate counts function with original function. Test assc results is same."""
 
-__copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
 import os
@@ -69,10 +69,13 @@ def _chk_assc(assc1, assc2):
     assert set(assc1) == set(assc2)
     for gene, gos1 in assc1.items():
         gos2 = assc2[gene]
-        assert gos1 == gos2
+        assert gos1 == gos2, '{}\nGOs1 {}\n GOs2 {}'.format(
+            gos1.symmetric_difference(gos2),
+            sorted(gos1),
+            sorted(gos2))
 
 
 if __name__ == '__main__':
     test_update_association()
 
-# Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.
+# Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights reserved.
