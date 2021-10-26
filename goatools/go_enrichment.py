@@ -253,8 +253,8 @@ class GOEnrichmentStudy(object):
     objprtres = GoeaPrintFunctions()
 
     def __init__(self, pop, assoc, obo_dag, propagate_counts=True, alpha=.05, methods=None, **kws):
-        self.name = kws.get('name', 'GOEA')
-        print('\nLoad {OBJNAME} Gene Ontology Analysis ...'.format(OBJNAME=self.name))
+        self.name = kws.get('name', '')
+        print('\nLoad {NAME} Ontology Enrichment Analysis ...'.format(NAME=self.name))
         self.log = kws['log'] if 'log' in kws else sys.stdout
         self._run_multitest = {
             'local':self._run_multitest_local,
@@ -295,7 +295,7 @@ class GOEnrichmentStudy(object):
         study_name = kws.get('name', 'current')
         log = self._get_log_or_prt(kws)
         if log:
-            log.write('\nRun {OBJNAME} Gene Ontology Analysis: {STU} study set of {N} IDs ...'.format(
+            log.write('\nRuning {OBJNAME} Ontology Analysis: {STU} study set of {N} IDs.\n'.format(
                 OBJNAME=self.name, N=len(study), STU=study_name))
         if len(study) == 0:
             return []
@@ -346,7 +346,7 @@ class GOEnrichmentStudy(object):
         # To convert msg list to string: "\n".join(msg)
         msg = []
         if results:
-            fmt = "{M:6,} GO terms are associated with {N:6,} of {NT:6,}"
+            fmt = "{M:6,} terms are associated with {N:6,} of {NT:6,}"
             stu_items, num_gos_stu = self.get_item_cnt(results, "study_items")
             pop_items, num_gos_pop = self.get_item_cnt(results, "pop_items")
             stu_txt = fmt.format(N=len(stu_items), M=num_gos_stu, NT=len(set(study)))
@@ -364,16 +364,9 @@ class GOEnrichmentStudy(object):
         pop_n, study_n = self.pop_n, len(study_in_pop)
         allterms = set(go2studyitems).union(set(self.go2popitems))
         if log is not None:
-            # Some study genes may not have been found in the population. Report from orig
-            study_n_orig = len(study)
-            perc = 100.0*study_n/study_n_orig if study_n_orig != 0 else 0.0
-            log.write("{R:3.0f}% {N:>6,} of {M:>6,} study items found in population({P})\n".format(
-                N=study_n, M=study_n_orig, P=pop_n, R=perc))
-            if study_n:
-                log.write("Calculating {N:,} uncorrected p-values using {PFNC}\n".format(
-                    N=len(allterms), PFNC=self.pval_obj.name))
+            self._prt_log_items_found(log, study, study_in_pop, allterms)
         # If no study genes were found in the population, return empty GOEA results
-        if not study_n:
+        if not study_in_pop:
             return []
         calc_pvalue = self.pval_obj.calc_pvalue
 
@@ -394,6 +387,18 @@ class GOEnrichmentStudy(object):
             results.append(one_record)
 
         return results
+
+    def _prt_log_items_found(self, log, study, study_in_pop, allterms):
+        """2 GO terms found significant (< 0.05=alpha) (  2 enriched +   0 purified): local bonferroni"""
+        # Some study genes may not have been found in the population. Report from orig
+        study_n_orig = len(study)
+        pop_n, study_n = self.pop_n, len(study_in_pop)
+        perc = 100.0*study_n/study_n_orig if study_n_orig != 0 else 0.0
+        log.write("{R:3.0f}% {N:>6,} of {M:>6,} study items found in population({P})\n".format(
+            N=study_n, M=study_n_orig, P=pop_n, R=perc))
+        if study_n:
+            log.write("Calculating {N:,} uncorrected p-values using {PFNC}\n".format(
+                N=len(allterms), PFNC=self.pval_obj.name))
 
     def _run_multitest_corr(self, results, usrmethod_flds, alpha, study, log):
         """Do multiple-test corrections on uncorrected pvalues."""
