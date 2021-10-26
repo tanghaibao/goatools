@@ -195,7 +195,7 @@ class GafData:
         if ver is not None:
             return ver[0] == '2'
         print('\n**WARNING: NO VERSION LINE FOUND IN GAF FILE. USING:')
-        print(f'!gaf-version: {fallback}')
+        print('!gaf-version: {fallback}'.format(fallback=fallback))
         self.ver = fallback
         return True
 
