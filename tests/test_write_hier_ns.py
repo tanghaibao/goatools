@@ -32,22 +32,32 @@ def test_write_hier_bp_mf_cc():
                         tcntobj=tcntobj,
                         children=True,
                         prt=sys.stdout)
-    objwr = WrHierGO(gosubdag)
 
+    print('Test using no_dup True: concise printing with no GO branches repeated')
+    objwr = WrHierGO(gosubdag, no_dup=True)
+    assert len(_wr_hier('nodup1', ['BP', 'MF', 'CC'], gosubdag.go2nt, objwr)) > 33000
+    assert len(_wr_hier('nodup1', ['BP',], gosubdag.go2nt, objwr)) > 25000
+    assert len(_wr_hier('nodup1', ['MF',], gosubdag.go2nt, objwr)) > 10000
+    assert len(_wr_hier('nodup1', ['CC',], gosubdag.go2nt, objwr)) > 4000
+
+    print('Test using no_dup False: verbose printing with duplicate copies branches')
+    objwr = WrHierGO(gosubdag)
     # 2020 11:
     #     594,748 GO lines under GO:0008150
     #      23,199 GO lines under GO:0003674
     #       6,259 GO lines under GO:0005575
     #     624,206 items WROTE: tmp_test_wr_hier_BP_MF_CC.txt
-    assert len(_wr_hier(['BP', 'MF', 'CC'], gosubdag.go2nt, objwr)) > 600000
-    assert len(_wr_hier(['BP',], gosubdag.go2nt, objwr)) > 500000
-    assert len(_wr_hier(['MF',], gosubdag.go2nt, objwr)) > 20000
-    assert len(_wr_hier(['CC',], gosubdag.go2nt, objwr)) > 5000
+    assert len(_wr_hier('nodup0', ['BP', 'MF', 'CC'], gosubdag.go2nt, objwr)) > 580000
+    assert len(_wr_hier('nodup0', ['BP',], gosubdag.go2nt, objwr)) > 500000
+    assert len(_wr_hier('nodup0', ['MF',], gosubdag.go2nt, objwr)) > 20000
+    assert len(_wr_hier('nodup0', ['CC',], gosubdag.go2nt, objwr)) > 5000
 
-def _wr_hier(nss, go2nt, objwr):
+
+def _wr_hier(desc, nss, go2nt, objwr):
     """Write hierarchy"""
     goids = WrHierCli.init_goids(nss, None, go2nt)
-    fout_rpt = 'tmp_test_wr_hier_{NSs}.txt'.format(NSs='_'.join(nss))
+    fout_rpt = 'tmp_test_wr_hier_{DESC}_{NSs}.txt'.format(
+        DESC=desc, NSs='_'.join(nss))
     items_all = []
     with open(fout_rpt, 'w') as prt:
         for goid in goids:
@@ -65,6 +75,7 @@ def _dnld_anno(file_anno):
     dnld_ncbi_gene_file(file_anno, loading_bar=None)
     assert os.path.isfile(file_anno), "MISSING ANNO({F})".format(F=file_anno)
     assert os.path.getsize(file_anno) > 1000000, "BAD ANNO({F})".format(F=file_anno)
+
 
 if __name__ == '__main__':
     test_write_hier_bp_mf_cc()
