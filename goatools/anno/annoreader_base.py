@@ -235,7 +235,7 @@ class AnnoReaderBase(object):
         goids_missing = goids_assoc_all.difference(goids_avail)
         if goids_missing:
             print("{N} GO IDs NOT FOUND IN ASSOCIATION: {GOs}".format(
-                N=len(goids_missing), GOs=" ".join(goids_missing)))
+                N=len(goids_missing), GOs=" ".join(sorted(goids_missing))))
 
     def get_dbid2goids(self, ntannos, propagate_counts=False, relationships=None, prt=sys.stdout):
         """Return gene2go data for user-specified taxids."""
