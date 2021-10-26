@@ -280,9 +280,10 @@ strategy which may lead to slightly different q-values between runs.
 
 [definition](notebooks/Optional_attribute_definition.ipynb)
 
-### Run a Gene Ontology Enrichment Analysis (GOEA)
+### Run a Ontology Enrichment Analysis (GOEA)
 
-[goea_nbt3102](notebooks/goea_nbt3102.ipynb)
+[goea_nbt3102](notebooks/goea_nbt3102.ipynb)    
+[human phenotype ontologies](notebooks/Enrichment_analyses_human_phenotype_ontology.ipynb)    
 
 ### Show many study genes are associated with RNA, translation, mitochondria, and ribosomal
 
