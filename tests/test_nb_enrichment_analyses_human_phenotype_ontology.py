@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
-"""Test to re-produce issue#202: Passes currently."""
+"""Test fix for issue#202 Enrichment analyses w/human phenotype ontologies"""
 
 from __future__ import print_function
 
-#### import os
 from os.path import join
 from tests.utils import REPO
 
 from goatools.obo_parser import GODag
 from goatools.anno.idtogos_reader import IdToGosReader
-#### from goatools.associations import read_ncbi_gene2go
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.utils import read_geneset
 
