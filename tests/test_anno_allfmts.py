@@ -146,23 +146,24 @@ def _run_get_ns(annoobjs):
         _tst_ns2(obj, idx)
 
 # pylint: disable=too-many-locals
-def _tst_ns2(obj, idx):
+def _tst_ns2(annoobj, idx):
     """Test functions which use ns2 functions."""
     # ALL annotations for a species
-    nts_all = obj.get_associations()
+    nts_all = annoobj.get_associations()
     num_nts_all = len(nts_all)
     num_nts_act = 0
 
     # Separate ALL annotations into BP MF CC
-    ns2ntsanno = obj.get_ns2ntsanno()
-    assert set(ns2ntsanno.keys()).issubset({'BP', 'MF', 'CC'}), ns2ntsanno.keys()
+    ns2ntsanno = annoobj.get_ns2ntsanno()
+    assert set(ns2ntsanno.keys()).issubset({'BP', 'MF', 'CC'}), _get_err_msg_namespace(
+        annoobj, ns2ntsanno)
 
     # Reduce annotations to remove IEA
     ns2anno_exp = {}
     kws = {'ev_include': INC_GOOD}
     for nspc, nts_orig in sorted(ns2ntsanno.items()):
-        opt = AnnoOptions(obj.evobj, **kws)
-        nts_redu = obj.reduce_annotations(nts_orig, opt)
+        opt = AnnoOptions(annoobj.evobj, **kws)
+        nts_redu = annoobj.reduce_annotations(nts_orig, opt)
         num_nts_orig = len(nts_orig)
         # Check that only current namespace is seen on namedtuples
         assert set(nt.NS for nt in nts_orig if nt.NS == nspc) == {nspc}
@@ -170,11 +171,11 @@ def _tst_ns2(obj, idx):
         num_nts_redu = len(nts_redu)
         # pylint: disable=line-too-long
         print('{OPT} {IDX}) ns2ntanno {NS} {ALL:7,}=Loaded -> {N:7,} -> {R:7,} annos: {TYPE}'.format(
-            OPT=opt, IDX=idx, NS=nspc, ALL=num_nts_all, N=num_nts_orig, R=num_nts_redu, TYPE=obj.get_desc()))
-        ns2anno_exp[nspc] = obj.get_dbid2goids(nts_redu)
+            OPT=opt, IDX=idx, NS=nspc, ALL=num_nts_all, N=num_nts_orig, R=num_nts_redu, TYPE=annoobj.get_desc()))
+        ns2anno_exp[nspc] = annoobj.get_dbid2goids(nts_redu)
 
         assert num_nts_all >= num_nts_orig
-        if obj.name == 'id2gos':
+        if annoobj.name == 'id2gos':
             assert num_nts_orig == num_nts_redu
         else:
             assert num_nts_orig > num_nts_redu
@@ -182,13 +183,23 @@ def _tst_ns2(obj, idx):
     assert num_nts_all >= num_nts_act
 
     # Compare step-by-step transformation with top-level function, id2gos
-    ns2anno_act = obj.get_ns2assc(**kws)
+    ns2anno_act = annoobj.get_ns2assc(**kws)
     for nspc, anno_exp in ns2anno_exp.items():
         anno_act = ns2anno_act[nspc]
         assert set(anno_exp.keys()) == set(anno_act.keys())
         for geneid, gos_exp in anno_exp.items():
             gos_act = anno_act[geneid]
             assert gos_exp == gos_act
+
+def _get_err_msg_namespace(annoobj, ns2ntsanno):
+    """Print an informative message if there are unexpected namespaces"""
+    cnts = ['NS({}:{})'.format(ns, len(nts)) for ns, nts in ns2ntsanno.items()]
+    ## goids = sorted(set(nt.GO_ID for nt in ns2ntsanno['']))
+    ## print(goids)
+    return '{} {} {}'.format(
+        ' '.join(sorted(cnts)),
+        annoobj.name,
+        ns2ntsanno.keys())
 
 def _prt_fld(obj, fld, max_num=10):
     """Print examples of field values"""
