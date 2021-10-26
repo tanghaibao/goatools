@@ -151,13 +151,19 @@ class AnnoReaderBase(object):
         # Default reduction is to remove. For all options, see goatools/anno/opts.py:
         #   * Evidence_Code == ND -> No biological data No biological Data available
         #   * Qualifiers contain NOT
-        ntannos_m = self.reduce_annotations(ntannos_usr, options)
+        ntannos_indag = self._get_anno_in_dag(ntannos_usr)
+        ntannos_m = self.reduce_annotations(ntannos_indag, options)
         dbid2goids = self.get_dbid2goids(ntannos_m, propagate_counts, relationships, prt)
         if options.b_geneid2gos:
             return dbid2goids
         # if not a2bs:
         #     raise RuntimeError('**ERROR: NO ASSOCATIONS FOUND: {FILE}'.format(FILE=self.filename))
         return self._get_goid2dbids(dbid2goids)
+
+    def _get_anno_in_dag(self, ntsanno):
+        """Return annotations that are in the GODAG"""
+        s_godag = self.godag
+        return [nt for nt in ntsanno if nt.GO_ID in s_godag] if s_godag else ntsanno
 
     @staticmethod
     def _get_goid2dbids(dbid2goids):
@@ -219,8 +225,8 @@ class AnnoReaderBase(object):
         _godag = self.godag
         # Get GO IDs in annotations that are in GO DAG
         goids_avail = set(_godag)
-        self._rpt_goids_notfound(goids_assoc_usr, goids_avail)
-        goids_assoc_cur = goids_assoc_usr.intersection(goids_avail)
+        goids_missing = self._rpt_goids_notfound(goids_assoc_usr, goids_avail)
+        goids_assoc_cur = goids_assoc_usr.intersection(goids_avail).difference(goids_missing)
         # Get GO Term for each current GO ID in the annotations
         _go2obj_assc = {go:_godag[go] for go in goids_assoc_cur}
         go2ancestors = get_go2parents_go2obj(_go2obj_assc, relationships, prt)
@@ -236,6 +242,7 @@ class AnnoReaderBase(object):
         if goids_missing:
             print("{N} GO IDs NOT FOUND IN ASSOCIATION: {GOs}".format(
                 N=len(goids_missing), GOs=" ".join(sorted(goids_missing))))
+        return goids_missing
 
     def get_dbid2goids(self, ntannos, propagate_counts=False, relationships=None, prt=sys.stdout):
         """Return gene2go data for user-specified taxids."""
@@ -257,16 +264,13 @@ class AnnoReaderBase(object):
         goids_annos = set(nt.GO_ID for nt in ntannos)
         go2ancestors = self._get_go2ancestors(goids_annos, relationships, prt)
         # https://github.com/geneontology/go-annotation/issues/3523
-        exclude = {'GO:2000325', 'GO:2000327'}
+        ## exclude = {'GO:2000325', 'GO:2000327'}
         for ntd in ntannos:
             goid = ntd.GO_ID
-            # https://github.com/geneontology/go-annotation/issues/3523
-            if goid not in exclude:
-                goids = id2gos[ntd.DB_ID]
-                goids.add(goid)
+            goids = id2gos[ntd.DB_ID]
+            goids.add(goid)
+            if goid in go2ancestors:
                 goids.update(go2ancestors[goid])
-            else:
-                print('**WARNING: OBSOLETE GO ID({GO})'.format(GO=goid))
         return dict(id2gos)
 
     @staticmethod
