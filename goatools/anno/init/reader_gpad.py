@@ -112,8 +112,11 @@ class InitAssc:
     def _get_namespace(self, goid):
         """Get the namespace of the GO ID"""
         goobj = self.godag.get(goid, '')
-        namespace = goobj.namespace
-        return NAMESPACE2NS.get(namespace, namespace) if goobj else ''
+        if goid in self.godag:
+            goobj = self.godag[goid]
+            namespace = goobj.namespace
+            return NAMESPACE2NS.get(namespace, namespace)
+        return ''
 
     @staticmethod
     def _get_qualifier(valstr):
