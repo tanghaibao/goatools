@@ -1,5 +1,8 @@
 # Wang 2007
-
+NOTE: Tests available in goatools_alpha
+* tests/test_semsim_wang_tbl1.py
+* tests/test_semsim_wang_termwise.py
+ 
 **A new method to measure the semantic similarity of GO terms**   
 Wang JW et al.     
 2007 | _Bioinformatics_ | PMID: [17344234](https://pubmed.ncbi.nlm.nih.gov/17344234/) | DOI: [10.1093/bioinformatics/btm087](https://academic.oup.com/bioinformatics/article/23/10/1274/197095)    
