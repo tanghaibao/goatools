@@ -5,10 +5,13 @@ __author__ = "DV Klopfenstein"
 
 import os
 import xlrd
+from tests.utils import repofn
 from goatools.test_data.genes_NCBI_10090_ProteinCoding import GENEID2NT as GeneID2nt_mus
 from goatools.base import get_godag
 from goatools.associations import get_assoc_ncbi_taxids
+from goatools.associations import dnld_ncbi_gene_file
 from goatools.go_enrichment import GOEnrichmentStudy
+from goatools.anno.genetogo_reader import Gene2GoReader
 
 def get_goea_results(keep_if=None):
     """Demonstrate printing a subset of all available fields using two methods."""
@@ -41,11 +44,11 @@ def get_geneid2symbol(fin_xlsx):
             gene2symbol[int(geneid)] = symbol
     return gene2symbol
 
-def get_goeaobj(method, geneids_pop, taxid):
+def get_goeaobj(method, geneids_pop, taxid, nspc='BP'):
     """Load: ontologies, associations, and population geneids."""
     fin_obo = os.path.join(os.getcwd(), "go-basic.obo")
     godag = get_godag(fin_obo, loading_bar=None)
-    assoc_geneid2gos = get_assoc_ncbi_taxids([taxid], loading_bar=None)
+    assoc_geneid2gos = get_annotations(taxid, nspc)
     goeaobj = GOEnrichmentStudy(
         geneids_pop,
         assoc_geneid2gos,
@@ -55,6 +58,14 @@ def get_goeaobj(method, geneids_pop, taxid):
         methods=[method])
     # godag is also found in goeaobj.godag
     return goeaobj
+
+def get_annotations(taxid, nspc='BP'):
+    """Download annotations. Return dict of gene-to-GOs"""
+    fin_anno = repofn('gene2go')
+    dnld_ncbi_gene_file(fin_anno)
+    objanno = Gene2GoReader(fin_anno, taxid=taxid)
+    return objanno.get_id2gos(namespace=nspc)
+    #### assoc_geneid2gos = read_ncbi_gene2go(fin_anno, [taxid], loading_bar=None)
 
 
 # Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.
