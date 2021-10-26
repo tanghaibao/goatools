@@ -14,7 +14,9 @@ class WrHierGO:
     """Write hierarchy object."""
 
     kws_dct = set(['max_indent', 'include_only', 'item_marks', 'dash_len', 'sortby'])
-    kws_set = set(['no_indent', 'concise'])
+    kws_set = set(['no_indent', 'concise' , 'no_dup']) 
+    # Note: no_dup overrides concise such that if no_dup=True the value of
+    # concise is ignored.
     kws_all = kws_dct.union(kws_set)
 
     def __init__(self, gosubdag, **kws):
@@ -91,6 +93,7 @@ class WrHierGO:
                 'include_only': self.usrdct.get('include_only'),
                 'item_marks': self.usrdct.get('item_marks', {}),
                 'concise_prt': 'concise' in self.usrset,
+                'no_dup_prt': 'no_dup' in self.usrset, # If no_dup_prt=True, the value of concise_prt will be ignored.
                 'indent': 'no_indent' not in self.usrset,
                 'dash_len': self.usrdct.get('dash_len', 6),
                 'sortby': self.usrdct.get('sortby')

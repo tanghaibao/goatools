@@ -342,12 +342,13 @@ dnld_anno_uniprot:
 #    tests/test_gosubdag_children.py \
 #    tests/test_find_enrichment_overlap.py \
 #    tests/test_find_enrichment_run.py \
-#    tests/test_study_zero.py \
 #    tests/test_gosubdag_mk.py \
 #    tests/test_gpad_read.py \
 #    tests/test_quickgo_xml.py \
 
 NOSETESTS := \
+    tests/test_study_zero.py \
+    tests/test_annotations_gaf.py::test_gaf_read_fb \
 		tests/test_parents_ancestors.py \
     tests/test_rpt_gene2go_evidencecodes.py \
     tests/test_sorter_sections.py \

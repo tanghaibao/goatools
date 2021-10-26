@@ -9,12 +9,16 @@ import os
 import re
 import collections as cx
 import datetime
+import logging
+
 from goatools.anno.annoreader_base import AnnoReaderBase
 from goatools.anno.init.utils import get_date_yyyymmdd
 from goatools.anno.extensions.factory import get_extensions
 
 __copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
+
+LATEST_GAF_VERSION = "2.2"
 
 
 # pylint: disable=too-few-public-methods
@@ -50,7 +54,7 @@ class InitAssc:
         """Read GAF file. Store annotation data in a list of namedtuples."""
         nts = []
         ver = None
-        hdrobj = GafHdr()
+        header = GafHdr()
         datobj = None
         # pylint: disable=not-callable
         ntobj_make = None
@@ -65,7 +69,10 @@ class InitAssc:
                     if get_gafvals:
                         # print(lnum, line)
                         flds = line.split('\t')
-                        nspc = GafData.aspect2ns[flds[8]]  # 8 GAF Aspect -> BP, MF, or CC
+                        try:
+                            nspc = GafData.aspect2ns[flds[8]]  # 8 GAF Aspect -> BP, MF, or CC
+                        except KeyError:
+                            nspc = flds[8]
                         if get_all_nss or nspc in namespaces:
                             gafvals = get_gafvals(flds, nspc)
                             if gafvals:
@@ -77,15 +84,19 @@ class InitAssc:
                         if line[0] == '!':
                             if ver is None and line[1:13] == 'gaf-version:':
                                 ver = line[13:].strip()
-                            hdrobj.chkaddhdr(line)
+                                header.version = ver
+                            header.chkaddhdr(line)
                         else:
-                            self.hdr = hdrobj.get_hdr()
                             if hdr_only:
-                                return nts
+                                break
                             datobj = GafData(ver, allow_missing_symbol)
                             get_gafvals = datobj.get_gafvals
                             ntobj_make = datobj.get_ntobj()._make
                             self._add_data0(nts, lnum, line, get_all_nss, namespaces, datobj)
+
+            self.hdr = header.get_hdr()
+            if hdr_only:
+                return nts
         # pylint: disable=broad-except
         except Exception as inst:
             import traceback
@@ -103,7 +114,10 @@ class InitAssc:
     def _add_data0(nts, lnum, line, get_all_nss, namespaces, datobj):
         """Do tasks upon finding the end of the header"""
         flds = line.split('\t')
-        nspc = GafData.aspect2ns[flds[8]]  # 8 GAF Aspect -> BP, MF, or CC
+        try:
+            nspc = GafData.aspect2ns[flds[8]]  # 8 GAF Aspect -> BP, MF, or CC
+        except KeyError:
+            nspc = flds[8]
         if get_all_nss or nspc in namespaces:
             gafvals = datobj.get_gafvals(flds, nspc)
             if gafvals:
@@ -117,9 +131,6 @@ class GafData:
 
     spec_req1 = [0, 1, 2, 4, 6, 8, 11, 13, 14]
 
-    req_str = ["REQ", "REQ", "REQ", "", "REQ", "REQ", "REQ", "", "REQ", "", "",
-               "REQ", "REQ", "REQ", "REQ", "", ""]
-
     aspect2ns = {'P':'BP', 'F':'MF', 'C':'CC'}
 
     gafhdr = [ #           Col Req?     Cardinality    Example
@@ -127,7 +138,7 @@ class GafData:
         'DB',             #  0 required 1              UniProtKB
         'DB_ID',          #  1 required 1              P12345
         'DB_Symbol',      #  2 required 1              PHO3
-        'Qualifier',      #  3 optional 0 or greater   NOT
+        'Qualifier',      #  3 required 1 or 2         NOT|involved_in
         'GO_ID',          #  4 required 1              GO:0003993
         'DB_Reference',   #  5 required 1 or greater   PMID:2676709
         'Evidence_Code',  #  6 required 1              IMP
@@ -147,20 +158,31 @@ class GafData:
         'Gene_Product_Form_ID', # 16 optional 0 or 1       UniProtKB:P12345-2
     ]
 
-    gaf_columns = {
-        "2.1" : gafhdr + gafhdr2, # !gaf-version: 2.1
-        "2.0" : gafhdr + gafhdr2, # !gaf-version: 2.0
-        "1.0" : gafhdr}           # !gaf-version: 1.0
+    gafhdr_ext = gafhdr + gafhdr2
 
-    # Expected numbers of columns for various versions
-    gaf_numcol = {
-        "2.1" : 17,
-        "2.0" : 17,
-        "1.0" : 15}
+    gaf_req_str = ["REQ", "REQ", "REQ", "", "REQ", "REQ", "REQ", "", "REQ", "", "",
+                   "REQ", "REQ", "REQ", "REQ", "", ""]
+    # Since gaf_version: 2.2, column 4 ("Qualifier") is now required
+    gaf_req_str_2_2 = ["REQ", "REQ", "REQ", "REQ", "REQ", "REQ", "REQ", "", "REQ", "", "",
+                       "REQ", "REQ", "REQ", "REQ", "", ""]
+
+    gaf_required_columns = {
+        "2.2" : gaf_req_str_2_2,
+        "2.1" : gaf_req_str,
+        "2.0" : gaf_req_str,
+        "1.0" : gaf_req_str[:-2],
+    }
+
+    gaf_columns = {
+        "2.2" : gafhdr_ext, # !gaf-version: 2.2
+        "2.1" : gafhdr_ext, # !gaf-version: 2.1
+        "2.0" : gafhdr_ext, # !gaf-version: 2.0
+        "1.0" : gafhdr}     # !gaf-version: 1.0
 
     def __init__(self, ver, allow_missing_symbol=False):
         self.ver = ver
         self.is_long = self._init_is_long(ver)
+        self.required_columns = self.gaf_required_columns[self.ver]
         self.flds = self.gaf_columns[self.ver]
         # pylint: disable=line-too-long
         self.req1 = self.spec_req1 if not allow_missing_symbol else [i for i in self.spec_req1 if i != 2]
@@ -168,13 +190,13 @@ class GafData:
         self.ignored = []  # Illegal GAF lines that are ignored (e.g., missing an ID)
         self.illegal_lines = cx.defaultdict(list)  # GAF lines that are missing information (missing taxon)
 
-    def _init_is_long(self, ver):
-        """If the GAF version is 2.0 or 2.1, the GAF format is the long format (2 more cols)"""
+    def _init_is_long(self, ver, fallback=LATEST_GAF_VERSION):
+        """If the GAF version is >= 2.0, the GAF format is the long format (2 more cols)"""
         if ver is not None:
             return ver[0] == '2'
         print('\n**WARNING: NO VERSION LINE FOUND IN GAF FILE. USING:')
-        print('!gaf-version: 2.1')
-        self.ver = '2.1'
+        print(f'!gaf-version: {fallback}')
+        self.ver = fallback
         return True
 
     @staticmethod
@@ -184,7 +206,7 @@ class GafData:
             'DB': 'database',        #  0 required 1              UniProtKB
             'DB_ID': 1,              #  1 required 1              P12345
             'DB_Symbol': 'Symbol1',  #  2 required 1              PHO3
-            'Qualifier': set(),      #  3 optional 0 or greater   NOT
+            'Qualifier': set(),      #  3 required 1 or 2         NOT|involved_in
             'GO_ID': 'GO:0000001',   #  4 required 1              GO:0003993
             'DB_Reference': {'GO_REF:0000001',},   #  5 required 1 or greater   PMID:2676709
             'Evidence_Code': 'IDA',  #  6 required 1              IMP
@@ -203,7 +225,10 @@ class GafData:
     def chk(self, annotations, fout_err):
         """Check annotations."""
         for idx, ntd in enumerate(annotations):
-            self._chk_fld(ntd, "Qualifier")        # optional 0 or greater
+            if self.ver < "2.2":
+                self._chk_fld(ntd, "Qualifier")        # optional 0 or greater (before 2.2)
+            else:
+                self._chk_fld(ntd, "Qualifier", 1, 2)  # required 1 or 2 (since 2.2)
             self._chk_fld(ntd, "DB_Reference", 1)  # required 1 or greater
             self._chk_fld(ntd, "With_From")        # optional 0 or greater
             self._chk_fld(ntd, "DB_Name", 0, 1)    # optional 0 or 1
@@ -312,7 +337,7 @@ class GafData:
 
     def _prt_line_detail(self, prt, values, lnum=""):
         """Print header and field values in a readable format."""
-        data = zip(self.req_str, self.flds, values)
+        data = zip(self.required_columns, self.flds, values)
         pat = "{:2}) {:3} {:20} {}"
         txt = [pat.format(i, req, hdr, val) for i, (req, hdr, val) in enumerate(data)]
         prt.write("{LNUM}\n{TXT}\n".format(LNUM=lnum, TXT="\n".join(txt)))
@@ -377,11 +402,14 @@ class GafHdr:
 
     cmpline = re.compile(r'^!(\w[\w\s-]+:.*)$')
 
-    def __init__(self):
+    def __init__(self, version=LATEST_GAF_VERSION):
         self.gafhdr = []
+        self.version = version
 
     def get_hdr(self):
         """Return GAF header data as a string paragragh."""
+        if not self.validate():
+            logging.error("Failed to validate header as GAF v%s:\n%s", self.version, self.gafhdr)
         return "\n".join(self.gafhdr)
 
     def chkaddhdr(self, line):
@@ -389,6 +417,23 @@ class GafHdr:
         mtch = self.cmpline.search(line)
         if mtch:
             self.gafhdr.append(mtch.group(1))
+
+    def validate(self):
+        """ Since 2.2, the header must also contain 'generated-by' and 'date-generated' lines
+
+        Returns:
+            [bool]: True if header passes validation
+        """
+        if self.version < "2.2":
+            return True
+        generated_by = False
+        date_generated = False
+        for line in self.gafhdr:
+            if line.startswith("generated-by"):
+                generated_by = True
+            elif line.startswith("date-generated"):
+                date_generated = True
+        return generated_by and date_generated
 
 
 # Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."

@@ -139,7 +139,7 @@ class GoeaCliArgs:
                              '{RELS}').format(RELS=' '.join(RELATIONSHIP_LIST)))
         p.add_argument('--method', default="bonferroni,sidak,holm,fdr_bh", type=str,
                        help=Methods().getmsg_valid_methods())
-        p.add_argument('--pvalcalc', default="fisher", type=str,
+        p.add_argument('--pvalcalc', default="fisher_scipy_stats", choices=FisherFactory.options.keys(),
                        help=str(FisherFactory()))
         p.add_argument('--min_overlap', default=0.7, type=float,
                        help="Check that a minimum amount of study genes are in the population")

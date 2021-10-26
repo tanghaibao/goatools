@@ -14,7 +14,7 @@ from goatools.associations import get_assoc_ncbi_taxids
 
 def test_pvalcalc(prt=sys.stdout):
     """Test P-value calculations."""
-    pvalfnc_names = ['fisher', 'fisher_scipy_stats']
+    pvalfnc_names = ['fisher_scipy_stats']
     fisher2pvals = _get_pvals(pvalfnc_names)
     _chk_pvals(fisher2pvals, prt)
 

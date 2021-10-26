@@ -14,12 +14,26 @@ from collections import defaultdict
 from goatools.associations import read_gaf
 from goatools.base import dnld_gafs
 
-def test_gaf_read(log=sys.stdout):
+
+def test_gaf_read_goa_human():
+    """Get associations for human(9606)."""
+    _test_gaf_read_species(['goa_human'])
+
+
+def test_gaf_read_mgi():
+    """Get associations for mouse(10090)."""
+    _test_gaf_read_species(['mgi'])
+
+
+def test_gaf_read_fb():
+    """Get associations for fly(7227)."""
+    _test_gaf_read_species(['fb'])
+
+
+def _test_gaf_read_species(species_ids, log=sys.stdout):
     """Return GO associations from a GAF file. Download if necessary."""
-    # Get associations for human(9606), mouse(10090), and fly(7227)
     # Read GAF associations
     msg = "Read GAF associations; keepif == None (default behavior)"
-    species_ids = ['goa_human', 'mgi', 'fb']
     _test_gaf_read(msg, species_ids, None, log)
     # Read GAF associations
     msg = "Read GAF associations; keepif is default in goatools.associations.read_gaf"
@@ -73,6 +87,7 @@ def _chk_key(a2bs, pattern):
             P=pattern, K=key))
 
 if __name__ == '__main__':
-    test_gaf_read()
+    test_gaf_read_fb()
+
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved.

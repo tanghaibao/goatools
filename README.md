@@ -1,9 +1,10 @@
 # Tools for Gene Ontology
 
-[![DIO](/doc/images/DOI.svg)](https://www.nature.com/articles/s41598-018-28948-z)
+[![DOI](/doc/images/DOI.svg)](https://www.nature.com/articles/s41598-018-28948-z)
 [![Latest PyPI version](https://img.shields.io/pypi/v/goatools.svg)](https://pypi.python.org/pypi/goatools)
 [![bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools)
 [![Github Actions](https://github.com/tanghaibao/goatools/workflows/build/badge.svg)](https://github.com/tanghaibao/goatools/actions)
+[![Downloads](https://pepy.tech/badge/goatools)](https://pepy.tech/project/goatools)
 
 |         |                                                                       |
 | ------- | --------------------------------------------------------------------- |
@@ -43,7 +44,8 @@ This package contains a Python library to
 
 - Read [GO Association files](http://geneontology.org/page/go-annotation-file-formats):
 
-  - GAF ([GO Annotation File](http://geneontology.org/page/go-annotation-file-gaf-format-21))
+  - GAF ([GO Annotation
+    File](http://geneontology.org/page/go-annotation-file-gaf-format-21))
   - GPAD ([Gene Product Association Data](https://geneontology.github.io/docs/gene-product-association-data-gpad-format/))
   - NCBI's gene2go file
   - id2gos format. See [example](https://raw.githubusercontent.com/tanghaibao/goatools/main/data/association)
@@ -51,11 +53,11 @@ This package contains a Python library to
 - [Print **_decendants count_** and/or **_information content_**](/notebooks/dcnt_and_tinfo.ipynb)
   for a list of GO terms
 
-- [Get parents or ancestors for a GO term with or without optional relationships](https://nbviewer.jupyter.org/github/tanghaibao/goatools/blob/main/notebooks/parents_and_ancestors.ipynb)
+- [Get parents or ancestors for a GO term with or without optional
+  relationships](notebooks/parents_and_ancestors.ipynb), including [Print details about a
+  GO ID's parents](notebooks/parent_go_terms.ipynb)
 
-  - [Print details about a GO ID's parents](https://github.com/tanghaibao/goatools/blob/main/notebooks/parent_go_terms.ipynb)
-
-- Compare two or more lists of GO IDs using _scripts/compare_gos.py_
+- Compare two or more lists of GO IDs
 - [Plot GO hierarchies](https://github.com/tanghaibao/goatools#plot-go-lineage)
 - [Write GO hierarchies to an ASCII text file](https://github.com/tanghaibao/goatools#write-go-hierarchy)
 - Group GO terms for easier viewing
@@ -66,8 +68,6 @@ This package contains a Python library to
 
 ## To Cite
 
-_Please cite the following research paper if you use GOATOOLS in your research_:
-
 Klopfenstein DV, Zhang L, Pedersen BS, ... Tang H [GOATOOLS: A Python library for Gene Ontology analyses](https://www.nature.com/articles/s41598-018-28948-z)
 _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
 
@@ -76,8 +76,9 @@ _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
   A detailed description of GOATOOLS GO grouping is found in the
   [manuscript](https://www.nature.com/articles/s41598-018-28948-z).
 - **Compare GO lists**:
-  Compare [two](https://github.com/tanghaibao/goatools/issues/162) or more lists of GO IDs using _scripts/compare_gos.py_.
-  This script can be used with or without grouping.
+  Compare [two](https://github.com/tanghaibao/goatools/issues/162) or more lists
+  of GO IDs using `compare_gos.py`, which can be used with or without
+  grouping.
 - **Stochastic GOEA simulations**:
   One of the findings resulting from our simulations is:
   [Larger study sizes result in higher GOEA sensitivity](https://github.com/dvklopfenstein/goatools_simulation#manuscript-figures),
@@ -87,7 +88,7 @@ _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
 
 ## Installation
 
-Make sure your Python version >= 2.7, install the latest stable
+Make sure your Python version >= 3.7, install the latest stable
 version via PyPI:
 
 ```bash
@@ -117,43 +118,19 @@ wget http://www.geneontology.org/ontology/subsets/goslim_generic.obo
 
 ## Dependencies
 
-- Simplest is to install via bioconda. See details
-  [here](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools).
+- Simplest is to install via pip as above or
+  [bioconda](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools).
 
-- To calculate the uncorrected p-values, there are currently twooptions:
+- For statistical testing of GO enrichment:
 
-  - [fisher](http://pypi.python.org/pypi/fisher/) for calculating Fisher's exact test:
-
-  ```bash
-  pip install fisher
-  ```
-
-  - [fisher](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html)
-    from [SciPy's](https://docs.scipy.org/doc/scipy/reference/)
-    [stats](https://docs.scipy.org/doc/scipy/reference/tutorial/stats.html) package
-
-  - `statsmodels` (optional) for access to a variety of statistical tests for GOEA:
-
-  ```bash
-  pip install statsmodels
-  ```
+  - [`scipy.stats.fisher_exact`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html)
+  - `statsmodels` (optional) for access to a variety of statistical tests for GOEA
 
 - To plot the ontology lineage, install one of these two options:
 
-  - Graphviz
-
-    - [Graphviz](http://www.graphviz.org/), for graph visualization.
-    - [pygraphviz](http://networkx.lanl.gov/pygraphviz/), Python binding for communicating with Graphviz:
-
-    ```bash
-    pip install pygraphviz
-    ```
-
+  - [Graphviz](http://www.graphviz.org/), for graph visualization.
+  - [pygraphviz](http://networkx.lanl.gov/pygraphviz/), Python binding for communicating with Graphviz:
   - [pydot](https://code.google.com/p/pydot/), a Python interface to Graphviz's Dot language.
-    - [pyparsing](http://pyparsing.wikispaces.com/) is a prerequisite for `pydot`
-    - Images can be viewed using either:
-      - [ImageMagick](http://www.imagemagick.org/)'s _display_
-      - [Graphviz](http://www.graphviz.org/)
 
 ## Cookbook
 
@@ -162,16 +139,16 @@ wget http://www.geneontology.org/ontology/subsets/goslim_generic.obo
 
 ### Find GO enrichment of genes under study
 
-See examples in [find_enrichment examples](/doc/md/README_find_enrichment.md)
+See examples in [find_enrichment](/doc/md/README_find_enrichment.md)
 
-See `find_enrichment.py` for usage. It takes as arguments files
+The `find_enrichment.py` takes as arguments files
 containing:
 
 - gene names in a study
 - gene names in population (or other study if `--compare` is specified)
 - an association file that maps a gene name to a GO category.
 
-Please look at `tests/data/` folder to see examples on how to make these
+Please look at `tests/data` folder to see examples on how to make these
 files. when ready, the command looks like:
 
 ```bash
@@ -183,7 +160,7 @@ and can filter on the significance of (e)nrichment or (p)urification. it
 can report various multiple testing corrected p-values as well as the
 false discovery rate.
 
-The "e" in the "Enrichment" column means "enriched" - the concentration
+The `e` in the "Enrichment" column means "enriched" - the concentration
 of GO term in the study group is significantly _higher_ than those in
 the population. The "p" stands for "purified" - significantly _lower_
 concentration of the GO term in the study group than in the population.
@@ -195,22 +172,18 @@ the output that are not present in their `association` file. Use
 
 ### Write GO hierarchy
 
-- [scripts/wr_hier.py](doc/md/README_wr_hier.md): Given a GO ID, write the hierarchy below (default)
-  or above (--up) the given GO.
+- [`wr_hier.py`](doc/md/README_wr_hier.md): Given a GO ID, write the hierarchy below (default)
+  or above (`--up`) the given GO.
 
 ### Plot GO lineage
 
-- [scripts/go_plot.py](doc/md/README_go_plot.md):
+- [`go_plot.py`](doc/md/README_go_plot.md):
   - Plots user-specified GO term(s) up to root
   - Multiple user-specified GOs
   - User-defined colors
-  - Plot relationships (-r)
+  - Plot relationships (`-r`)
   - Optionally plot children of user-specfied GO terms
-- [scripts/plot_go_term.py](plot_go_term-py)
-
-#### plot_go_term.py
-
-See `plot_go_term.py` for usage. `plot_go_term.py` can plot the lineage
+- `plot_go_term.py` can plot the lineage
 of a certain GO term, by:
 
 ```bash
@@ -263,23 +236,16 @@ python scripts/map_to_slim.py --association_file=data/association go-basic.obo g
 Where the `association` file has the same format as used for
 `find_enrichment.py`.
 
-The implemented algorithm is described in more detail at the go-perl
-documentation of
+The implementation is similar to
 [map2slim](http://search.cpan.org/~cmungall/go-perl/scripts/map2slim).
 
 ## Technical notes
 
 ### Available statistical tests for calculating uncorrected p-values
 
-There are currently two fisher tests available for calculating uncorrected
-p-values. Both fisher options from the fisher package and SciPy's stats package
-calculate the same pvalues, but provide the user an option in installing
-packages.
+For calculating uncorrected p-values, we use SciPy:
 
-- `fisher`, [fisher](http://pypi.python.org/pypi/fisher/) package's `fisher.pvalue_population`
-- `fisher_scipy_stats`:[SciPy](https://docs.scipy.org/doc/scipy/reference/)
-  [stats](https://docs.scipy.org/doc/scipy/reference/tutorial/stats.html) package
-  [fisher_exact](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html)
+- [`scipy.stats.fisher_exact`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html)
 
 ### Available multiple test corrections
 
@@ -308,36 +274,39 @@ In total 15 tests are available, which can be selected using option
 `--method`. Please note that the default FDR (`fdr`) uses a resampling
 strategy which may lead to slightly different q-values between runs.
 
-## iPython [Notebooks](https://github.com/tanghaibao/goatools/tree/main/notebooks)
+## iPython [Notebooks](notebooks)
+
+### Optional attributes
+
+[definition](notebooks/Optional_attribute_definition.ipynb)
 
 ### Run a Gene Ontology Enrichment Analysis (GOEA)
 
-<https://github.com/tanghaibao/goatools/blob/main/notebooks/goea_nbt3102.ipynb>
+[goea_nbt3102](notebooks/goea_nbt3102.ipynb)
 
 ### Show many study genes are associated with RNA, translation, mitochondria, and ribosomal
 
-<https://github.com/tanghaibao/goatools/blob/main/notebooks/goea_nbt3102_group_results.ipynb>
+[goea_nbt3102_group_results](notebooks/goea_nbt3102_group_results.ipynb)
 
 ### Report level and depth counts of a set of GO terms
 
-<https://github.com/tanghaibao/goatools/blob/main/notebooks/report_depth_level.ipynb>
+[report_depth_level](notebooks/report_depth_level.ipynb)
 
 ### Find all human protein-coding genes associated with cell cycle
 
-<https://github.com/tanghaibao/goatools/blob/main/notebooks/cell_cycle.ipynb>
+[cell_cycle](notebooks/cell_cycle.ipynb)
 
 ### Calculate annotation coverage of GO terms on various species
 
-<https://github.com/tanghaibao/goatools/blob/main/notebooks/annotation_coverage.ipynb>
+[annotation_coverage](notebooks/annotation_coverage.ipynb)
 
 ### Determine the semantic similarities between GO terms
 
-* <https://github.com/tanghaibao/goatools/blob/main/notebooks/semantic_similarity.ipynb>
-* <https://github.com/tanghaibao/goatools/blob/main/notebooks/semantic_similarity_wang.ipynb>
+[semantic_similarity](notebooks/semantic_similarity.ipynb) [semantic_similarity_wang](notebooks/semantic_similarity_wang.ipynb)
 
 ### Obsolete GO terms are loaded upon request
 
-<https://github.com/tanghaibao/goatools/blob/main/notebooks/godag_obsolete_terms.ipynb>
+[godag_obsolete_terms](notebooks/godag_obsolete_terms.ipynb)
 
 ## Want to Help?
 
@@ -350,7 +319,7 @@ make test
 Items that we know we need include:
 
 - Add code coverage runs
-- Edit tests in the `makefile` under the comment, `# TBD`, suchthey run using `nosetests`
+- Edit tests in the `makefile` under the comment
 - Help setting up [documentation](http://goatools.readthedocs.io/en/latest/). We
   are using Sphinx and Python docstrings to create documentation.
   For documentation practice, use make targets:
@@ -371,4 +340,4 @@ Items that we know we need include:
   make gh-pages
   ```
 
-Copyright (C) 2010-2018, Haibao Tang et al. All rights reserved.
+Copyright (C) 2010-2021, Haibao Tang et al. All rights reserved.
