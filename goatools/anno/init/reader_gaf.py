@@ -69,7 +69,10 @@ class InitAssc:
                     if get_gafvals:
                         # print(lnum, line)
                         flds = line.split('\t')
-                        nspc = GafData.aspect2ns[flds[8]]  # 8 GAF Aspect -> BP, MF, or CC
+                        try:
+                            nspc = GafData.aspect2ns[flds[8]]  # 8 GAF Aspect -> BP, MF, or CC
+                        except KeyError:
+                            nspc = flds[8]
                         if get_all_nss or nspc in namespaces:
                             gafvals = get_gafvals(flds, nspc)
                             if gafvals:
@@ -111,7 +114,10 @@ class InitAssc:
     def _add_data0(nts, lnum, line, get_all_nss, namespaces, datobj):
         """Do tasks upon finding the end of the header"""
         flds = line.split('\t')
-        nspc = GafData.aspect2ns[flds[8]]  # 8 GAF Aspect -> BP, MF, or CC
+        try:
+            nspc = GafData.aspect2ns[flds[8]]  # 8 GAF Aspect -> BP, MF, or CC
+        except KeyError:
+            nspc = flds[8]
         if get_all_nss or nspc in namespaces:
             gafvals = datobj.get_gafvals(flds, nspc)
             if gafvals:
