@@ -30,6 +30,8 @@
   * Separate GOEAs into BP, MF, and CC
 
 ## Unreleased changes
+* **Added**
+  * Added human phenotype ontologies enrichement analyses [#202](https://github.com/tanghaibao/goatools/issues/202)
 
 ## Release 2021-05-22 1.1.5
 
