@@ -419,6 +419,7 @@ class GoeaCliFnc:
 
     def _read_geneset(self, study_fn, pop_fn):
         """Open files containing genes. Return study genes and population genes."""
+        ## pop = read_geneset(study_fn)
         pop = set(_.strip() for _ in open(pop_fn) if _.strip())
         study = frozenset(_.strip() for _ in open(study_fn) if _.strip())
         if next(iter(pop)).isdigit():
