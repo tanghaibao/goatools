@@ -19,7 +19,7 @@ from goatools.semantic import TermCounts
 # from goatools_alpha.geneprodsim.semanticcalcs import SemanticCalcs
 
 DIR_TEST = dirname(abspath(__file__))
-REPO = join(DIR_TEST, "..")
+REPO = abspath(join(DIR_TEST, ".."))
 
 def prt_hms(tic, msg, prt=sys.stdout):
     """Print elapsed time and return current time"""
