@@ -212,15 +212,16 @@ def dnld_file(src_ftp, dst_file, prt=sys.stdout, loading_bar=True):
     dst_wget = "{DST}.gz".format(DST=dst_file) if do_gunzip else dst_file
     # Write to stderr, not stdout so this message will be seen when running nosetests
     wget_msg = "wget({SRC} out={DST})\n".format(SRC=src_ftp, DST=dst_wget)
-    #### sys.stderr.write("  {WGET}".format(WGET=wget_msg))
-    #### if loading_bar:
-    ####     loading_bar = wget.bar_adaptive
     try:
+        print('$ wget {SRC}'.format(SRC=src_ftp))
         #### wget.download(src_ftp, out=dst_wget, bar=loading_bar)
-        rsp = http_get(src_ftp, dst_wget) if src_ftp[:4] == 'http' else ftp_get(src_ftp, dst_wget)
+        if src_ftp[:4] == 'http':
+            http_get(src_ftp, dst_wget)
+        else:
+            ftp_get(src_ftp, dst_wget)
         if do_gunzip:
             if prt is not None:
-                prt.write("  gunzip {FILE}\n".format(FILE=dst_wget))
+                prt.write("$ gunzip {FILE}\n".format(FILE=dst_wget))
             gzip_open_to(dst_wget, dst_file)
     except IOError as errmsg:
         import traceback
@@ -235,8 +236,14 @@ def gzip_open_to(fin_gz, fout):
         with gzip.open(fin_gz, 'rb') as zstrm:
             with  open(fout, 'wb') as ostrm:
                 ostrm.write(zstrm.read())
-        os.remove(fin_gz)
-    except:
-        raise RuntimeError("COULD NOT GUNZIP({G}) TO FILE({F})".format(G=fin_gz, F=fout))
+    # pylint: disable=broad-except
+    except Exception as errmsg:
+        print("**ERROR: COULD NOT GUNZIP({G}) TO FILE({F})".format(G=fin_gz, F=fout))
+        import traceback
+        traceback.print_exc()
+        sys.stderr.write("**FATAL msg: {ERR}".format(ERR=str(errmsg)))
+        sys.exit(1)
+    os.remove(fin_gz)
+
 
 # Copyright (C) 2013-present, B Pedersen, et al. All rights reserved."
