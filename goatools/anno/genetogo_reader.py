@@ -52,13 +52,20 @@ class Gene2GoReader(AnnoReaderBase):
             return self.taxid2asscs[taxid] if taxid in self.taxid2asscs else []
         # If multiple taxids were loaded, taxid, must be specified
         if taxid is None or not taxid:
-            print('**ERROR: ARG taxid MUST BE AN int, list of ints, OR bool')
-            return {}
+            return self._warning_taxid(taxid)
         # Assume taxid is a list or set and combine those taxids
         taxids = set(taxid).intersection(self.taxid2asscs.keys())
         if taxids:
             # Return user-specified taxids combined
             return list(chain.from_iterable(self.taxid2asscs[t] for t in taxids))
+        return {}
+
+    @staticmethod
+    def _warning_taxid(taxid):
+        """Warn if an unexpected taxid"""
+        pat = ('**WARNING: NO ASSOCIATIONS FOR taxid({TAXID}). '
+               'Taxid MUST BE AN int, list of ints, OR bool')
+        print(pat.format(TAXID=taxid))
         return {}
 
     def get_id2gos_nss(self, **kws):
