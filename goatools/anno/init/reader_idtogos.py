@@ -41,9 +41,6 @@ class InitAssc:
             return nts
         return [nt for nt in nts if nt.NS in namespaces]
 
-        #### get_all_nss = self.godag is None or namespaces is None or namespaces == {'BP', 'MF', 'CC'}
-        return nts if get_all_nss else [nt for nt in nts if nt.NS in nss]
-
     def _init_dflt(self):
         """Get a list of namedtuples, one for each annotation."""
         nts = []
