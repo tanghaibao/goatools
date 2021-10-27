@@ -2,6 +2,7 @@
 # Stolen from brentp
 
 import os
+from os.path import isfile
 import os.path as op
 import sys
 import bz2
@@ -111,7 +112,7 @@ def ungzipper(fh, blocksize=16384):
 
 def download_go_basic_obo(obo="go-basic.obo", prt=sys.stdout, loading_bar=True):
     """Download Ontologies, if necessary."""
-    if not os.path.isfile(obo):
+    if not isfile(obo):
         http = "http://purl.obolibrary.org/obo/go"
         if "slim" in obo:
             http = "http://www.geneontology.org/ontology/subsets"
@@ -127,7 +128,7 @@ def download_ncbi_associations(gene2go="gene2go", prt=sys.stdout, loading_bar=Tr
     """Download associations from NCBI, if necessary"""
     # Download: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz
     gzip_file = "{GENE2GO}.gz".format(GENE2GO=gene2go)
-    if not os.path.isfile(gene2go):
+    if not isfile(gene2go):
         file_remote = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{GZ}".format(
             GZ=os.path.basename(gzip_file))
         dnld_file(file_remote, gene2go, prt, loading_bar)
@@ -205,7 +206,7 @@ def ftp_get(fin_src, fout):
 
 def dnld_file(src_ftp, dst_file, prt=sys.stdout, loading_bar=True):
     """Download specified file if necessary."""
-    if os.path.isfile(dst_file):
+    if isfile(dst_file):
         return
     do_gunzip = src_ftp[-3:] == '.gz' and dst_file[-3:] != '.gz'
     dst_wget = "{DST}.gz".format(DST=dst_file) if do_gunzip else dst_file
@@ -233,7 +234,7 @@ def gzip_open_to(fin_gz, fout):
     with gzip.open(fin_gz, 'rb') as zstrm:
         with  open(fout, 'wb') as ostrm:
             ostrm.write(zstrm.read())
-    assert os.path.isfile(fout), "COULD NOT GUNZIP({G}) TO FILE({F})".format(G=fin_gz, F=fout)
+    assert isfile(fout), "COULD NOT GUNZIP({G}) TO FILE({F})".format(G=fin_gz, F=fout)
     os.remove(fin_gz)
 
-# Copyright (C) 2013-2019, B Pedersen, et al. All rights reserved."
+# Copyright (C) 2013-present, B Pedersen, et al. All rights reserved."
