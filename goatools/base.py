@@ -8,8 +8,8 @@ import sys
 import bz2
 import gzip
 import urllib
-import requests
 from ftplib import FTP
+import requests
 
 
 if sys.version_info[0] < 3:
@@ -231,10 +231,12 @@ def dnld_file(src_ftp, dst_file, prt=sys.stdout, loading_bar=True):
 
 def gzip_open_to(fin_gz, fout):
     """Unzip a file.gz file."""
-    with gzip.open(fin_gz, 'rb') as zstrm:
-        with  open(fout, 'wb') as ostrm:
-            ostrm.write(zstrm.read())
-    assert isfile(fout), "COULD NOT GUNZIP({G}) TO FILE({F})".format(G=fin_gz, F=fout)
-    os.remove(fin_gz)
+    try:
+        with gzip.open(fin_gz, 'rb') as zstrm:
+            with  open(fout, 'wb') as ostrm:
+                ostrm.write(zstrm.read())
+        os.remove(fin_gz)
+    except:
+        raise RuntimeError("COULD NOT GUNZIP({G}) TO FILE({F})".format(G=fin_gz, F=fout))
 
 # Copyright (C) 2013-present, B Pedersen, et al. All rights reserved."
