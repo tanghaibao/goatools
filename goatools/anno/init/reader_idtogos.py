@@ -29,12 +29,20 @@ class InitAssc:
     def init_associations(self, namespaces):
         """Get a list of namedtuples, one for each annotation."""
         # _get_b_all_nss(namespaces)
-        if namespaces is not None and self.godag is None:
-            # pylint: disable=superfluous-parens
-            print('**WARNING: GODAG NOT LOADED. IGNORING namespaces={NS}'.format(NS=namespaces))
-        get_all_nss = self.godag is None or namespaces is None or namespaces == {'BP', 'MF', 'CC'}
         nts = self._init_w_godag() if self.godag else self._init_dflt()
-        return nts if get_all_nss else [nt for nt in nts if nt.NS in namespaces]
+        if self.godag is None:
+            if namespaces is not None:
+                # pylint: disable=superfluous-parens
+                print('**WARNING: GODAG NOT LOADED. IGNORING namespaces={NS}'.format(NS=namespaces))
+            return nts
+        if namespaces == {'BP', 'MF', 'CC'}:
+            return nts
+        if not namespaces:
+            return nts
+        return [nt for nt in nts if nt.NS in namespaces]
+
+        #### get_all_nss = self.godag is None or namespaces is None or namespaces == {'BP', 'MF', 'CC'}
+        return nts if get_all_nss else [nt for nt in nts if nt.NS in nss]
 
     def _init_dflt(self):
         """Get a list of namedtuples, one for each annotation."""
