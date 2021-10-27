@@ -94,8 +94,14 @@ class AnnoReaderBase(object):
             assert self.godag is not None, "{T}: LOAD godag TO USE {C}::ns2ntsanno".format(
                 C=self.__class__.__name__, T=self.name)
         ns2nts = cx.defaultdict(list)
-        for nta in annotations:
-            ns2nts[nta.NS].append(nta)
+        if self.godag:
+            s_godag = self.godag
+            for nta in annotations:
+                if nta.GO_ID in s_godag:
+                    ns2nts[nta.NS].append(nta)
+        else:
+            for nta in annotations:
+                ns2nts[nta.NS].append(nta)
         return {ns:ns2nts[ns] for ns in ns2nts}
 
     def get_id2gos_nss(self, **kws):
@@ -124,7 +130,7 @@ class AnnoReaderBase(object):
         # If all namespaces were loaded
         if self.namespaces is None:
             # Return user-specified namespace, if provided. Otherwise BP
-            nspc = 'BP' if namespace_usr is None else namespace_usr
+            nspc = self._get_biggest_namespace() if namespace_usr is None else namespace_usr
             # Return one namespace
             if nspc in set(NAMESPACE2NS.values()):
                 return nspc, [nt for nt in self.associations if nt.NS == nspc]
@@ -141,6 +147,11 @@ class AnnoReaderBase(object):
             print('**ERROR get_id2gos: GODAG NOT LOADED. USING: {NSs}'.format(
                 NSs=' '.join(sorted(self.namespaces))))
         return namespace_usr, self.associations
+
+    def _get_biggest_namespace(self):
+        """Get the namespace with the most ontology terms"""
+        nspc_ctr = cx.Counter([o.namespace for o in self.godag.values()])
+        return max(nspc_ctr, key=nspc_ctr.get)
 
     def has_ns(self):
         """Return True if namespace field, NS exists on annotation namedtuples"""
