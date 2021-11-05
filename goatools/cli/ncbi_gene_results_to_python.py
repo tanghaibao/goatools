@@ -44,7 +44,6 @@ class NCBIgeneToPythonCli:
         """Read each NCBI Gene files. Write data into one Python module per gene file"""
         in_outs = self._get_io_filenames(fin_tsvs, fout_py)
         for fin_tsv, fo_py in in_outs:
-            print(fin_tsv, fo_py)
             nts = NCBIgeneFileReader(fin_tsv).get_nts()
             geneid2nt = self._get_geneid2nt(nts)
             self._wrpy_ncbi_gene_nts(fo_py, geneid2nt, prt)
@@ -138,7 +137,7 @@ class NCBIgeneToPythonCli:
             for geneid, ntd in sorted(geneid2nt.items(), key=lambda t: t[0]):
                 ofstrm.write("    {GeneID} : {NT},\n".format(GeneID=geneid, NT=ntd))
             ofstrm.write("}\n")
-            log.write("  {N:9} geneids WROTE: {PY}\n".format(N=num_genes, PY=fout_py))
+            log.write("  {N:10,} geneids WROTE: {PY}\n".format(N=num_genes, PY=fout_py))
 
 
 # Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved.

@@ -105,7 +105,7 @@ class NCBIgeneFileReader:
                 else:
                     self.do_hdr(line, hdrs_usr)
             if self.log is not None:
-                self.log.write("  {:9} data READ:  {}\n".format(len(self.ret_list), self.fin))
+                self.log.write("  {:10,} data READ:  {}\n".format(len(self.ret_list), self.fin))
         return self.ret_list, self.hdr2idx
 
     def get_nts(self):
@@ -141,7 +141,7 @@ class NCBIgeneFileReader:
                     sys.stdout.write("**ERROR: {FIN}({LNUM}): {LINE}\n".format(
                         FIN=self.fin, LNUM=lnum, LINE=line))
             if self.log is not None:
-                self.log.write("  {:9} lines READ:  {}\n".format(len(data), self.fin))
+                self.log.write("  {:10,} lines READ:  {}\n".format(len(data), self.fin))
         return data
 
     @staticmethod
