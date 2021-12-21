@@ -167,8 +167,8 @@ def dnld_gafs(species_list, prt=sys.stdout, loading_bar=True):
     for species_txt in species_list: # e.g., goa_human mgi fb
         gaf_base = '{ABC}.gaf'.format(ABC=species_txt) # goa_human.gaf
         gaf_cwd = os.path.join(cwd, gaf_base) # {CWD}/goa_human.gaf
-        wget_cmd = "{HTTP}/{GAF}.gz".format(HTTP=http, GAF=gaf_base)
-        dnld_file(wget_cmd, gaf_cwd, prt, loading_bar)
+        remove_filename = "{HTTP}/{GAF}.gz".format(HTTP=http, GAF=gaf_base)
+        dnld_file(remove_filename, gaf_cwd, prt, loading_bar)
         fin_gafs.append(gaf_cwd)
     return fin_gafs
 
@@ -209,24 +209,24 @@ def dnld_file(src_ftp, dst_file, prt=sys.stdout, loading_bar=True):
     if isfile(dst_file):
         return
     do_gunzip = src_ftp[-3:] == '.gz' and dst_file[-3:] != '.gz'
-    dst_wget = "{DST}.gz".format(DST=dst_file) if do_gunzip else dst_file
+    dst_gz = "{DST}.gz".format(DST=dst_file) if do_gunzip else dst_file
     # Write to stderr, not stdout so this message will be seen when running nosetests
-    wget_msg = "wget({SRC} out={DST})\n".format(SRC=src_ftp, DST=dst_wget)
+    cmd_msg = "get({SRC} out={DST})\n".format(SRC=src_ftp, DST=dst_gz)
     try:
-        print('$ wget {SRC}'.format(SRC=src_ftp))
-        #### wget.download(src_ftp, out=dst_wget, bar=loading_bar)
+        print('$ get {SRC}'.format(SRC=src_ftp))
+        #### wget.download(src_ftp, out=dst_gz, bar=loading_bar)
         if src_ftp[:4] == 'http':
-            http_get(src_ftp, dst_wget)
+            http_get(src_ftp, dst_gz)
         else:
-            ftp_get(src_ftp, dst_wget)
+            ftp_get(src_ftp, dst_gz)
         if do_gunzip:
             if prt is not None:
-                prt.write("$ gunzip {FILE}\n".format(FILE=dst_wget))
-            gzip_open_to(dst_wget, dst_file)
+                prt.write("$ gunzip {FILE}\n".format(FILE=dst_gz))
+            gzip_open_to(dst_gz, dst_file)
     except IOError as errmsg:
         import traceback
         traceback.print_exc()
-        sys.stderr.write("**FATAL cmd: {WGET}".format(WGET=wget_msg))
+        sys.stderr.write("**FATAL cmd: {CMD}".format(CMD=cmd_msg))
         sys.stderr.write("**FATAL msg: {ERR}".format(ERR=str(errmsg)))
         sys.exit(1)
 
