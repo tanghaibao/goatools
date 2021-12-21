@@ -21,8 +21,7 @@ def dnld_eco2group():
     eco2group = obj.read_ecomap(fin_ecomap)
     obj.wrpy(fout_py, eco2group)
 
-# pylint: disable=superfluous-parens
-class _Run(object):
+class _Run:
     """Holds annotation filenames, downloads files if necessary"""
 
     REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -47,13 +46,17 @@ class _Run(object):
         ecos = set()
         with open(fin_ecomap) as ifstrm:
             for line in ifstrm:
+                if line[:4] != 'ECO:':
+                    continue
+                # Line has trailing tab: ECO:0000278\tEXP\t\n
+                line = line.rstrip()
                 vals = line.split('\t')
-                # print(vals)
+                ## print(vals)
                 assert len(vals) >= 2
-                eco = vals[0]
-                grp = vals[1]
+                eco = vals[0]  # Ex: ECO:0007706
+                grp = vals[1]  # Ex: IPI
                 len_grp = len(grp)
-                assert len_grp == 2 or len_grp == 3, line
+                assert len_grp in (2, 3), line
                 ecos.add(eco)
                 eco2group[eco] = grp
         num_keys = len(eco2group)

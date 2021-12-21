@@ -392,6 +392,9 @@ NOSETESTS := \
     tests/test_mapslim.py
 
 # Run all tests. If you are submitting a pull request, all tests must pass.
+update:
+	python3 tests/dnld_gaf_eco_mapping_derived.py
+
 pytest:
 	python3.8 --version; python3.8 -m pytest -v tests | tee pytest.log
 	make chk_parsers
