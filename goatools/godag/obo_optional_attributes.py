@@ -1,6 +1,8 @@
 """Manage optional GO-DAG attributes."""
 
-__copyright__ = "Copyright (C) 2015-present, DV Klopfenstein, H Tang, All rights reserved."
+__copyright__ = (
+    "Copyright (C) 2015-present, DV Klopfenstein, H Tang, All rights reserved."
+)
 __author__ = "DV Klopfenstein"
 
 import re
@@ -10,8 +12,17 @@ import collections as cx
 class OboOptionalAttrs:
     """Manage optional GO-DAG attributes."""
 
-    optional_exp = set(['def', 'defn', 'synonym', 'relationship', 'xref', 'subset', 'comment',
-                        'consider', 'replaced_by'])
+    optional_exp = {
+        "def",
+        "defn",
+        "synonym",
+        "relationship",
+        "xref",
+        "subset",
+        "comment",
+        "consider",
+        "replaced_by",
+    }
 
     def __init__(self, optional_attrs):
         assert optional_attrs
@@ -29,21 +40,21 @@ class OboOptionalAttrs:
         """Initialize functions to check for optional attributes and update GOTerm"""
         fncs = set()
         optional_attrs = self.optional_attrs
-        if 'def' in optional_attrs:
+        if "def" in optional_attrs:
             fncs.add(self._get_fncs_def())
-        if 'synonym' in optional_attrs:
+        if "synonym" in optional_attrs:
             fncs.add(self._get_fncs_synonym())
-        if 'relationship' in optional_attrs:
+        if "relationship" in optional_attrs:
             fncs.add(self._get_fncs_relationship())
-        if 'xref' in optional_attrs:
+        if "xref" in optional_attrs:
             fncs.add(self._get_fncs_xref())
-        if 'subset' in optional_attrs:
+        if "subset" in optional_attrs:
             fncs.add(self._get_fncs_subset())
-        if 'comment' in optional_attrs:
+        if "comment" in optional_attrs:
             fncs.add(self._get_fncs_comment())
-        if 'consider' in optional_attrs:
+        if "consider" in optional_attrs:
             fncs.add(self._get_fncs_consider())
-        if 'replaced_by' in optional_attrs:
+        if "replaced_by" in optional_attrs:
             fncs.add(self._get_fncs_replaced_by())
         return fncs
 
@@ -51,16 +62,21 @@ class OboOptionalAttrs:
     def _get_fncs_def():
         def fnc_chkline(line):
             return line[:5] == "def: "
+
         def fnc_updaterec(rec, line):
-            assert not hasattr(rec, 'defn'), "ATTR(defn) ALREADY SET({VAL})".format(VAL=rec.defn)
+            assert not hasattr(rec, "defn"), "ATTR(defn) ALREADY SET({VAL})".format(
+                VAL=rec.defn
+            )
             # Use 'defn' because 'def' is a reserved word in python
             rec.defn = line[5:]
+
         return fnc_chkline, fnc_updaterec
 
     @staticmethod
     def _get_fncs_synonym():
         def fnc_chkline(line):
             return line[:9] == "synonym: "
+
         def fnc_updaterec(rec, line):
             """Given line, return optional attribute synonym value in a namedtuple.
 
@@ -79,9 +95,10 @@ class OboOptionalAttrs:
             mtch = fnc_updaterec.cmpd.match(line[9:])
             text, scope, typename, dbxrefs, _ = mtch.groups()
             typename = typename.strip()
-            dbxrefs = set(dbxrefs.split(', ')) if dbxrefs else set()
+            dbxrefs = set(dbxrefs.split(", ")) if dbxrefs else set()
             ntd = fnc_updaterec.ntobj._make([text, scope, typename, dbxrefs])
             rec.synonym.append(ntd)
+
         fnc_updaterec.cmpd = re.compile(r'"(\S.*\S)" ([A-Z]+) (.*)\[(.*)\](.*)$')
         fnc_updaterec.ntobj = cx.namedtuple("synonym", "text scope typename dbxrefs")
         return fnc_chkline, fnc_updaterec
@@ -91,6 +108,7 @@ class OboOptionalAttrs:
         # http://geneontology.org/page/ontology-relations
         def fnc_chkline(line):
             return line[:14] == "relationship: "
+
         def fnc_updaterec(rec, line):
             # relationships are stored in a dict of sets, mirroring
             # the structure implied in the GO DAG. Example:
@@ -103,69 +121,75 @@ class OboOptionalAttrs:
             # }
             rel, goid = line[14:].split()[:2]
             if rel not in rec.relationship:
-                rec.relationship[rel] = set([goid])
+                rec.relationship[rel] = {goid}
             else:
                 rec.relationship[rel].add(goid)
+
         return fnc_chkline, fnc_updaterec
 
     @staticmethod
     def _get_fncs_xref():
         def fnc_chkline(line):
             return line[:6] == "xref: "
+
         def fnc_updaterec(rec, line):
-            mtch = fnc_updaterec.cmpd.match(line[6:])
-            rec.xref.add(mtch.group(1).replace(' ', ''))
-        fnc_updaterec.cmpd = re.compile(r'^(\S+:\s*\S+)\b(.*)$')
+            s = line[6:]
+            match = fnc_updaterec.cmpd.match(s)
+            if match:
+                s = match.group(1)
+                rec.xref.add(s.replace(" ", ""))
+            else:  # occasionally just 'EC 2.7.1.190'
+                rec.xref.add(s.replace(" ", ":"))
+
+        fnc_updaterec.cmpd = re.compile(r"^(\S+:\s*\S+)\b(.*)$")
         return fnc_chkline, fnc_updaterec
 
     @staticmethod
     def _get_fncs_subset():
         def fnc_chkline(line):
             return line[:8] == "subset: "
+
         def fnc_updaterec(rec, line):
             rec.subset.add(line[8:])
+
         return fnc_chkline, fnc_updaterec
 
     @staticmethod
     def _get_fncs_comment():
         def fnc_chkline(line):
             return line[:9] == "comment: "
+
         def fnc_updaterec(rec, line):
             rec.comment = line[9:]
+
         return fnc_chkline, fnc_updaterec
 
     @staticmethod
     def _get_fncs_consider():
         """Get optional attribute functions"""
+
         def fnc_chkline(line):
             return line[:10] == "consider: "
+
         def fnc_updaterec(rec, line):
             rec.consider.add(line[10:])
+
         return fnc_chkline, fnc_updaterec
 
     @staticmethod
     def _get_fncs_replaced_by():
         def fnc_chkline(line):
             return line[:13] == "replaced_by: "
+
         def fnc_updaterec(rec, line):
             rec.replaced_by = line[13:]
+
         return fnc_chkline, fnc_updaterec
 
     def init_datamembers(self, rec):
         """Initialize current GOTerm with data members for storing optional attributes."""
         for fnc_ini in self.fncs_inirec:
             fnc_ini(rec)
-
-        #### # pylint: disable=multiple-statements
-        #### if 'synonym'      in self.optional_attrs: rec.synonym = []
-        #### if 'xref'         in self.optional_attrs: rec.xref = set()
-        #### if 'subset'       in self.optional_attrs: rec.subset = set()
-        #### if 'comment'      in self.optional_attrs: rec.comment = ""
-        #### if 'replaced_by'  in self.optional_attrs: rec.replaced_by = ""
-        #### if 'consider'     in self.optional_attrs: rec.consider = set()
-        #### if 'relationship' in self.optional_attrs:
-        ####     rec.relationship = {}
-        ####     rec.relationship_rev = {}
 
     @staticmethod
     def _init_synonym(rec):
@@ -200,19 +224,19 @@ class OboOptionalAttrs:
         """Initialize functions to check for optional attributes and update GOTerm"""
         fncs = set()
         optional_attrs = self.optional_attrs
-        if 'synonym' in optional_attrs:
+        if "synonym" in optional_attrs:
             fncs.add(self._init_synonym)
-        if 'relationship' in optional_attrs:
+        if "relationship" in optional_attrs:
             fncs.add(self._init_relationship)
-        if 'xref' in optional_attrs:
+        if "xref" in optional_attrs:
             fncs.add(self._init_xref)
-        if 'subset' in optional_attrs:
+        if "subset" in optional_attrs:
             fncs.add(self._init_subset)
-        if 'comment' in optional_attrs:
+        if "comment" in optional_attrs:
             fncs.add(self._init_comment)
-        if 'consider' in optional_attrs:
+        if "consider" in optional_attrs:
             fncs.add(self._init_consider)
-        if 'replaced_by' in optional_attrs:
+        if "replaced_by" in optional_attrs:
             fncs.add(self._init_replaced_by)
         return fncs
 
@@ -220,11 +244,11 @@ class OboOptionalAttrs:
     def get_optional_attrs(optional_attrs, attrs_opt):
         """Prepare to store data from user-desired optional fields.
 
-          Not loading these optional fields by default saves in space and speed.
-          But allow the possibility for saving these fields, if the user desires,
-            Including:
-              comment consider def is_class_level is_metadata_tag is_transitive
-              relationship replaced_by subset synonym transitive_over xref
+        Not loading these optional fields by default saves in space and speed.
+        But allow the possibility for saving these fields, if the user desires,
+          Including:
+            comment consider def is_class_level is_metadata_tag is_transitive
+            relationship replaced_by subset synonym transitive_over xref
         """
         # Required attributes are always loaded. All others are optionally loaded.
         # Allow user to specify either: 'def' or 'defn'
@@ -232,15 +256,17 @@ class OboOptionalAttrs:
         try:
             iter(optional_attrs)
         except TypeError:
-            pat = ("**FATAL: GODag's optional_attrs MUST BE A SET CONTAINING ANY OF: {ATTRS}\n"
-                   "           "
-                   "**FATAL: BAD GODag optional_attrs({BADVAL})")
-            msg = pat.format(ATTRS=' '.join(attrs_opt), BADVAL=optional_attrs)
+            pat = (
+                "**FATAL: GODag's optional_attrs MUST BE A SET CONTAINING ANY OF: {ATTRS}\n"
+                "           "
+                "**FATAL: BAD GODag optional_attrs({BADVAL})"
+            )
+            msg = pat.format(ATTRS=" ".join(attrs_opt), BADVAL=optional_attrs)
             raise TypeError(msg)
         getnm = lambda aopt: aopt if aopt != "defn" else "def"
         opts = None
         if isinstance(optional_attrs, str) and optional_attrs in attrs_opt:
-            opts = set([getnm(optional_attrs)])
+            opts = {getnm(optional_attrs)}
         else:
             opts = set(getnm(f) for f in optional_attrs if f in attrs_opt)
         return opts
