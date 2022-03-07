@@ -138,8 +138,10 @@ class OboOptionalAttrs:
             if match:
                 s = match.group(1)
                 rec.xref.add(s.replace(" ", ""))
-            else:  # occasionally just 'EC 2.7.1.190'
-                rec.xref.add(s.replace(" ", ":"))
+            else:
+                # occasionally just 'EC 2.7.1.190'
+                # or 'EC.5.3.3.21'
+                rec.xref.add(re.sub(r"^EC[ \.]", "EC:", s))
 
         fnc_updaterec.cmpd = re.compile(r"^(\S+:\s*\S+)\b(.*)$")
         return fnc_chkline, fnc_updaterec
