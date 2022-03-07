@@ -72,7 +72,7 @@ Klopfenstein DV, Zhang L, Pedersen BS, ... Tang H [GOATOOLS: A Python library fo
 _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
 
 - **GO Grouping**:
-  Visualize the major findings in a gene ontology enrichment analysis (GEOA) more easily with grouping.
+  Visualize the major findings in a gene ontology enrichment analysis (GOEA) more easily with grouping.
   A detailed description of GOATOOLS GO grouping is found in the
   [manuscript](https://www.nature.com/articles/s41598-018-28948-z).
 - **Compare GO lists**:
@@ -88,8 +88,25 @@ _Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
 
 ## Installation
 
-Make sure your Python version >= 3.7, install the latest stable
-version via PyPI:
+Make sure your Python version >= 3.7, and download an
+`.obo` file of the most current
+[GO](http://geneontology.org/docs/download-ontology):
+
+```bash
+wget http://current.geneontology.org/ontology/go-basic.obo
+```
+
+or `.obo` file for the most current [GO
+Slim](http://geneontology.org/docs/go-subset-guide/) terms (e.g.
+generic GOslim) :
+
+```bash
+wget http://current.geneontology.org/ontology/subsets/goslim_generic.obo
+```
+
+
+
+### [PyPI](https://pypi.org/project/goatools/)
 
 ```bash
 pip install goatools
@@ -101,33 +118,22 @@ To install the development version:
 pip install git+git://github.com/tanghaibao/goatools.git
 ```
 
-`.obo` file for the most current
-[GO](http://geneontology.org/page/download-ontology):
-
+### [Bioconda](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools)
 ```bash
-wget http://geneontology.org/ontology/go-basic.obo
-```
-
-`.obo` file for the most current [GO
-Slim](http://geneontology.org/page/go-slim-and-subset-guide) terms (e.g.
-generic GOslim) :
-
-```bash
-wget http://www.geneontology.org/ontology/subsets/goslim_generic.obo
+conda install -c bioconda goatools
 ```
 
 ## Dependencies
 
-- Simplest is to install via pip as above or
-  [bioconda](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools).
+When installing via PyPI or Bioconda as described above, all dependencies are automatically downloaded.
+Alternatively, you can manually install:
 
 - For statistical testing of GO enrichment:
-
   - [`scipy.stats.fisher_exact`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html)
   - `statsmodels` (optional) for access to a variety of statistical tests for GOEA
 
-- To plot the ontology lineage, install one of these two options:
 
+- To plot the ontology lineage, install one of these two options:
   - [Graphviz](http://www.graphviz.org/), for graph visualization.
   - [pygraphviz](http://networkx.lanl.gov/pygraphviz/), Python binding for communicating with Graphviz:
   - [pydot](https://code.google.com/p/pydot/), a Python interface to Graphviz's Dot language.
@@ -282,8 +288,8 @@ strategy which may lead to slightly different q-values between runs.
 
 ### Run a Ontology Enrichment Analysis (GOEA)
 
-[goea_nbt3102](notebooks/goea_nbt3102.ipynb)    
-[human phenotype ontologies](notebooks/Enrichment_analyses_human_phenotype_ontology.ipynb)    
+[goea_nbt3102](notebooks/goea_nbt3102.ipynb)
+[human phenotype ontologies](notebooks/Enrichment_analyses_human_phenotype_ontology.ipynb)
 
 ### Show many study genes are associated with RNA, translation, mitochondria, and ribosomal
 
