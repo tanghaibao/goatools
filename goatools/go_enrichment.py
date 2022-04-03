@@ -37,8 +37,6 @@ from goatools.godag.prtfncs import GoeaPrintFunctions
 from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
 from goatools.rpt.prtfmt import PrtFmt
 
-# from goatools.goea.results import GoeaResults
-
 
 class GOEnrichmentRecord(object):
     """Represents one result (from a single GOTerm) in the GOEnrichmentStudy"""
