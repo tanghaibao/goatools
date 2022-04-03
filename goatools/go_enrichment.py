@@ -27,6 +27,7 @@ from goatools.multiple_testing import FDR
 from goatools.multiple_testing import calc_qval
 from goatools.anno.update_association import update_association
 from goatools.anno.update_association import remove_assc_goids
+
 # BROAD from goatools.anno.update_association import get_goids_to_remove
 from goatools.ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
@@ -35,15 +36,18 @@ from goatools.pvalcalc import FisherFactory
 from goatools.godag.prtfncs import GoeaPrintFunctions
 from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
 from goatools.rpt.prtfmt import PrtFmt
-# from goatools.goea.results import GoeaResults
+
 
 class GOEnrichmentRecord(object):
-    """Represents one result (from a single GOTerm) in the GOEnrichmentStudy
-    """
-    namespace2NS = cx.OrderedDict([
-        ('biological_process', 'BP'),
-        ('molecular_function', 'MF'),
-        ('cellular_component', 'CC')])
+    """Represents one result (from a single GOTerm) in the GOEnrichmentStudy"""
+
+    namespace2NS = cx.OrderedDict(
+        [
+            ("biological_process", "BP"),
+            ("molecular_function", "MF"),
+            ("cellular_component", "CC"),
+        ]
+    )
 
     # Fields seen in every enrichment result
     _fldsdefprt = [
@@ -56,28 +60,32 @@ class GOEnrichmentRecord(object):
         "p_uncorrected",
         "depth",
         "study_count",
-        "study_items"]
-    _fldsdeffmt = ["%s"]*3 + ["%-30s"] + ["%d/%d"] * 2 + ["%.3g"] + ["%d"] * 2 + ["%15s"]
+        "study_items",
+    ]
+    _fldsdeffmt = (
+        ["%s"] * 3 + ["%-30s"] + ["%d/%d"] * 2 + ["%.3g"] + ["%d"] * 2 + ["%15s"]
+    )
 
     _flds = set(_fldsdefprt).intersection(
-        set(['study_items', 'study_count', 'study_n', 'pop_items', 'pop_count', 'pop_n']))
+        {"study_items", "study_count", "study_n", "pop_items", "pop_count", "pop_n"}
+    )
 
     def __init__(self, goid, **kwargs):
         # Methods seen in current enrichment result
         # pylint: disable=invalid-name
         self.GO = goid
-        self.name = 'n.a'
-        self.NS = 'XX'
-        self.depth = 'n.a'
+        self.name = "n.a"
+        self.NS = "XX"
+        self.depth = "n.a"
         self.method_flds = []
         self.kws = kwargs
         # Ex: ratio_in_pop ratio_in_study study_items p_uncorrected pop_items
         for key, val in kwargs.items():
             setattr(self, key, val)
-        _stucnt = kwargs.get('ratio_in_study', (0, 0))
+        _stucnt = kwargs.get("ratio_in_study", (0, 0))
         self.study_count = _stucnt[0]
         self.study_n = _stucnt[1]
-        _popcnt = kwargs.get('ratio_in_pop', (0, 0))
+        _popcnt = kwargs.get("ratio_in_pop", (0, 0))
         self.pop_count = _popcnt[0]
         self.pop_n = _popcnt[1]
         self.enrichment = self._init_enrichment()
@@ -100,11 +108,19 @@ class GOEnrichmentRecord(object):
         setattr(self, fieldname, pvalue)
 
     def __str__(self, indent=False):
-        field_data = [getattr(self, f, "n.a.") for f in self._fldsdefprt[:-1]] + \
-                     [getattr(self, "p_{}".format(m.fieldname)) for m in self.method_flds] + \
-                     [", ".join(str(e) for e in sorted(getattr(self, self._fldsdefprt[-1], set())))]
+        field_data = (
+            [getattr(self, f, "n.a.") for f in self._fldsdefprt[:-1]]
+            + [getattr(self, "p_{}".format(m.fieldname)) for m in self.method_flds]
+            + [
+                ", ".join(
+                    str(e) for e in sorted(getattr(self, self._fldsdefprt[-1], set()))
+                )
+            ]
+        )
         fldsdeffmt = self._fldsdeffmt
-        field_formatter = fldsdeffmt[:-1] + ["%.3g"]*len(self.method_flds) + [fldsdeffmt[-1]]
+        field_formatter = (
+            fldsdeffmt[:-1] + ["%.3g"] * len(self.method_flds) + [fldsdeffmt[-1]]
+        )
         self._chk_fields(field_data, field_formatter)
 
         # default formatting only works for non-"n.a" data
@@ -131,7 +147,8 @@ class GOEnrichmentRecord(object):
         msg = [
             "FIELD DATA({d}) != FORMATTER({f})".format(d=len_dat, f=len_fmt),
             "DAT({N}): {D}".format(N=len_dat, D=field_data),
-            "FMT({N}): {F}".format(N=len_fmt, F=field_formatter)]
+            "FMT({N}): {F}".format(N=len_fmt, F=field_formatter),
+        ]
         raise Exception("\n".join(msg))
 
     def __repr__(self):
@@ -150,28 +167,36 @@ class GOEnrichmentRecord(object):
     def _init_enrichment(self):
         """Mark as 'enriched' or 'purified'."""
         if self.study_n:
-            return 'e' if ((1.0 * self.study_count / self.study_n) >
-                           (1.0 * self.pop_count / self.pop_n)) else 'p'
-        return 'p'
+            return (
+                "e"
+                if (
+                    (1.0 * self.study_count / self.study_n)
+                    > (1.0 * self.pop_count / self.pop_n)
+                )
+                else "p"
+            )
+        return "p"
 
     def update_remaining_fldsdefprt(self, min_ratio=None):
         """Finish updating self (GOEnrichmentRecord) field, is_ratio_different."""
-        self.is_ratio_different = is_ratio_different(min_ratio, self.study_count,
-                                                     self.study_n, self.pop_count, self.pop_n)
-
+        self.is_ratio_different = is_ratio_different(
+            min_ratio, self.study_count, self.study_n, self.pop_count, self.pop_n
+        )
 
     # -------------------------------------------------------------------------------------
     # Methods for getting flat namedtuple values from GOEnrichmentRecord object
     def get_prtflds_default(self):
         """Get default fields."""
-        return self._fldsdefprt[:-1] + \
-               ["p_{M}".format(M=m.fieldname) for m in self.method_flds] + \
-               [self._fldsdefprt[-1]]
+        return (
+            self._fldsdefprt[:-1]
+            + ["p_{M}".format(M=m.fieldname) for m in self.method_flds]
+            + [self._fldsdefprt[-1]]
+        )
 
     def get_prtflds_all(self):
         """When converting to a namedtuple, get all possible fields in their original order."""
         flds = []
-        dont_add = set(['_parents', 'method_flds', 'relationship_rev', 'relationship'])
+        dont_add = {"_parents", "method_flds", "relationship_rev", "relationship"}
         # Fields: GO NS enrichment name ratio_in_study ratio_in_pop p_uncorrected
         #         depth study_count p_sm_bonferroni p_fdr_bh study_items
         self._flds_append(flds, self.get_prtflds_default(), dont_add)
@@ -213,9 +238,11 @@ class GOEnrichmentRecord(object):
                     # 3. Field not found, raise Exception
                     self._err_fld(fld, fldnames)
             if rpt_fmt:
-                assert not isinstance(val, list), \
-                   "UNEXPECTED LIST: FIELD({F}) VALUE({V}) FMT({P})".format(
-                       P=rpt_fmt, F=fld, V=val)
+                assert not isinstance(
+                    val, list
+                ), "UNEXPECTED LIST: FIELD({F}) VALUE({V}) FMT({P})".format(
+                    P=rpt_fmt, F=fld, V=val
+                )
         return row
 
     @staticmethod
@@ -223,7 +250,7 @@ class GOEnrichmentRecord(object):
         """Return values in a format amenable to printing in a table."""
         if fld.startswith("ratio_"):
             return "{N}/{TOT}".format(N=val[0], TOT=val[1])
-        if fld in set(['study_items', 'pop_items', 'alt_ids']):
+        if fld in {"study_items", "pop_items", "alt_ids"}:
             if itemid2name is not None:
                 val = [itemid2name.get(v, v) for v in val]
             return ", ".join([str(v) for v in sorted(val)])
@@ -231,14 +258,17 @@ class GOEnrichmentRecord(object):
 
     def _err_fld(self, fld, fldnames):
         """Unrecognized field. Print detailed Failure message."""
-        msg = ['ERROR. UNRECOGNIZED FIELD({F})'.format(F=fld)]
+        msg = ["ERROR. UNRECOGNIZED FIELD({F})".format(F=fld)]
         actual_flds = set(self.get_prtflds_default() + self.goterm.__dict__.keys())
         bad_flds = set(fldnames).difference(set(actual_flds))
         if bad_flds:
             msg.append("\nGOEA RESULT FIELDS: {}".format(" ".join(self._fldsdefprt)))
             msg.append("GO FIELDS: {}".format(" ".join(self.goterm.__dict__.keys())))
-            msg.append("\nFATAL: {N} UNEXPECTED FIELDS({F})\n".format(
-                N=len(bad_flds), F=" ".join(bad_flds)))
+            msg.append(
+                "\nFATAL: {N} UNEXPECTED FIELDS({F})\n".format(
+                    N=len(bad_flds), F=" ".join(bad_flds)
+                )
+            )
             msg.append("  {N} User-provided fields:".format(N=len(fldnames)))
             for idx, fldname in enumerate(fldnames, 1):
                 mrk = "ERROR -->" if fldname in bad_flds else ""
@@ -247,18 +277,32 @@ class GOEnrichmentRecord(object):
 
 
 class GOEnrichmentStudy(object):
-    """Runs Fisher's exact test, as well as multiple corrections
-    """
+    """Runs Fisher's exact test, as well as multiple corrections"""
 
     objprtres = GoeaPrintFunctions()
 
-    def __init__(self, pop, assoc, obo_dag, propagate_counts=True, alpha=.05, methods=None, **kws):
-        self.name = kws.get('name', '')
-        print('\nLoad {NAME} Ontology Enrichment Analysis ...'.format(NAME=self.name))
-        self.log = kws['log'] if 'log' in kws else sys.stdout
+    def __init__(
+        self,
+        pop,
+        assoc,
+        obo_dag,
+        propagate_counts=True,
+        alpha=0.05,
+        methods=None,
+        **kws
+    ):
+        self.name = kws.get("name", "")
+        self.log = kws["log"] if "log" in kws else sys.stdout
+        if self.log:
+            self.log.write(
+                "\nLoad {NAME} Ontology Enrichment Analysis ...\n".format(
+                    NAME=self.name
+                )
+            )
         self._run_multitest = {
-            'local':self._run_multitest_local,
-            'statsmodels':self._run_multitest_statsmodels}
+            "local": self._run_multitest_local,
+            "statsmodels": self._run_multitest_statsmodels,
+        }
         self.pop = set(pop)
         self.pop_n = len(pop)
         self.assoc = assoc
@@ -270,45 +314,49 @@ class GOEnrichmentStudy(object):
         self.pval_obj = FisherFactory(**kws).pval_obj
 
         if propagate_counts:
-            update_association(assoc, obo_dag, kws.get('relationships', None))
-        ## BROAD broad_goids = get_goids_to_remove(kws.get('remove_goids'))
-        ## BROAD if broad_goids:
-        ## BROAD     assoc = self._remove_assc_goids(assoc, broad_goids)
+            update_association(assoc, obo_dag, kws.get("relationships", None))
+        # BROAD broad_goids = get_goids_to_remove(kws.get('remove_goids'))
+        # BROAD if broad_goids:
+        # BROAD     assoc = self._remove_assc_goids(assoc, broad_goids)
         self.go2popitems = get_terms("population", pop, assoc, obo_dag, self.log)
-
-    # def get_objresults(self, name, study, **kws):
-    #     """Run GOEA, return results in an object"""
-    #     results = self.run_study(study, **kws)
-    #     study_in_pop = self.pop.intersection(study)
-    #     return GoeaResults(study_in_pop, results, self, name)
 
     def _remove_assc_goids(self, assoc, broad_goids):
         """Remove broad GO IDs"""
         ret = remove_assc_goids(assoc, broad_goids)
         if self.log:
-            self.log.write('**NOTE: {N} of {M} Broad GO IDs remove from association\n'.format(
-                N=len(ret['goids_removed']), M=len(broad_goids)))
-        return ret['assoc_reduced']
+            self.log.write(
+                "**NOTE: {N} of {M} Broad GO IDs remove from association\n".format(
+                    N=len(ret["goids_removed"]), M=len(broad_goids)
+                )
+            )
+        return ret["assoc_reduced"]
 
     def run_study(self, study, **kws):
         """Run Gene Ontology Enrichment Study (GOEA) on study ids."""
-        study_name = kws.get('name', 'current')
+        study_name = kws.get("name", "current")
         log = self._get_log_or_prt(kws)
         if log:
-            log.write('\nRuning {OBJNAME} Ontology Analysis: {STU} study set of {N} IDs.\n'.format(
-                OBJNAME=self.name, N=len(study), STU=study_name))
+            log.write(
+                "\nRuning {OBJNAME} Ontology Analysis: {STU} study set of {N} IDs.\n".format(
+                    OBJNAME=self.name, N=len(study), STU=study_name
+                )
+            )
         if len(study) == 0:
             return []
         # Key-word arguments:
-        methods = Methods(kws['methods']) if 'methods' in kws else self.methods
-        alpha = kws['alpha'] if 'alpha' in kws else self.alpha
+        methods = Methods(kws["methods"]) if "methods" in kws else self.methods
+        alpha = kws["alpha"] if "alpha" in kws else self.alpha
         # Calculate uncorrected pvalues
         results = self.get_pval_uncorr(study, log)
         if not results:
             return []
 
         if log is not None:
-            log.write("  {MSG}\n".format(MSG="\n  ".join(self.get_results_msg(results, study))))
+            log.write(
+                "  {MSG}\n".format(
+                    MSG="\n  ".join(self.get_results_msg(results, study))
+                )
+            )
 
         # Do multipletest corrections on uncorrected pvalues and update results
         self._run_multitest_corr(results, methods, alpha, study, log)
@@ -320,20 +368,20 @@ class GOEnrichmentStudy(object):
         # 'keep_if' can be used to keep only significant GO terms. Example:
         #     >>> keep_if = lambda nt: nt.p_fdr_bh < 0.05 # if results are significant
         #     >>> goea_results = goeaobj.run_study(geneids_study, keep_if=keep_if)
-        if 'keep_if' in kws:
-            keep_if = kws['keep_if']
+        if "keep_if" in kws:
+            keep_if = kws["keep_if"]
             results = [r for r in results if keep_if(r)]
 
         # Default sort order:
         results.sort(key=lambda r: [r.enrichment, r.NS, r.p_uncorrected])
-        return results # list of GOEnrichmentRecord objects
+        return results  # list of GOEnrichmentRecord objects
 
     def _get_log_or_prt(self, kws):
         """Allow either keyword, 'log', or 'prt' to be used to suppress or redirect printing"""
-        if 'log' in kws:
-            return kws['log']
-        if 'prt' in kws:
-            return kws['prt']
+        if "log" in kws:
+            return kws["log"]
+        if "prt" in kws:
+            return kws["prt"]
         return self.log
 
     def run_study_nts(self, study, **kws):
@@ -382,7 +430,8 @@ class GOEnrichmentStudy(object):
                 study_items=study_items,
                 pop_items=pop_items,
                 ratio_in_study=(study_count, study_n),
-                ratio_in_pop=(pop_count, pop_n))
+                ratio_in_pop=(pop_count, pop_n),
+            )
 
             results.append(one_record)
 
@@ -393,12 +442,18 @@ class GOEnrichmentStudy(object):
         # Some study genes may not have been found in the population. Report from orig
         study_n_orig = len(study)
         pop_n, study_n = self.pop_n, len(study_in_pop)
-        perc = 100.0*study_n/study_n_orig if study_n_orig != 0 else 0.0
-        log.write("{R:3.0f}% {N:>6,} of {M:>6,} study items found in population({P})\n".format(
-            N=study_n, M=study_n_orig, P=pop_n, R=perc))
+        perc = 100.0 * study_n / study_n_orig if study_n_orig != 0 else 0.0
+        log.write(
+            "{R:3.0f}% {N:>6,} of {M:>6,} study items found in population({P})\n".format(
+                N=study_n, M=study_n_orig, P=pop_n, R=perc
+            )
+        )
         if study_n:
-            log.write("Calculating {N:,} uncorrected p-values using {PFNC}\n".format(
-                N=len(allterms), PFNC=self.pval_obj.name))
+            log.write(
+                "Calculating {N:,} uncorrected p-values using {PFNC}\n".format(
+                    N=len(allterms), PFNC=self.pval_obj.name
+                )
+            )
 
     def _run_multitest_corr(self, results, usrmethod_flds, alpha, study, log):
         """Do multiple-test corrections on uncorrected pvalues."""
@@ -418,15 +473,24 @@ class GOEnrichmentStudy(object):
         eps = [r for r in results if getattr(r, attr_mult) < alpha]
         sig_cnt = len(eps)
         ctr = cx.Counter([r.enrichment for r in eps])
-        log.write('  METHOD {M}:\n'.format(M=ntm.method))
-        log.write("{N:8,} GO terms found significant (< {A}=alpha) ".format(
-            N=sig_cnt, A=alpha))
-        log.write('({E:3} enriched + {P:3} purified): '.format(E=ctr['e'], P=ctr['p']))
+        log.write("  METHOD {M}:\n".format(M=ntm.method))
+        log.write(
+            "{N:8,} GO terms found significant (< {A}=alpha) ".format(
+                N=sig_cnt, A=alpha
+            )
+        )
+        log.write("({E:3} enriched + {P:3} purified): ".format(E=ctr["e"], P=ctr["p"]))
         log.write("{MSRC} {METHOD}\n".format(MSRC=ntm.source, METHOD=ntm.method))
-        log.write("{N:8,} study items associated with significant GO IDs (enriched)\n".format(
-            N=len(self.get_study_items(r for r in eps if r.enrichment == 'e'))))
-        log.write("{N:8,} study items associated with significant GO IDs (purified)\n".format(
-            N=len(self.get_study_items(r for r in eps if r.enrichment == 'p'))))
+        log.write(
+            "{N:8,} study items associated with significant GO IDs (enriched)\n".format(
+                N=len(self.get_study_items(r for r in eps if r.enrichment == "e"))
+            )
+        )
+        log.write(
+            "{N:8,} study items associated with significant GO IDs (purified)\n".format(
+                N=len(self.get_study_items(r for r in eps if r.enrichment == "p"))
+            )
+        )
 
     @staticmethod
     def get_study_items(results):
@@ -441,7 +505,9 @@ class GOEnrichmentStudy(object):
         # Only load statsmodels if it is used
         multipletests = self.methods.get_statsmodels_multipletests()
         results = multipletests(ntmt.pvals, ntmt.alpha, ntmt.nt_method.method)
-        pvals_corrected = results[1] # reject_lst, pvals_corrected, alphacSidak, alphacBonf
+        pvals_corrected = results[
+            1
+        ]  # reject_lst, pvals_corrected, alphacSidak, alphacBonf
         self._update_pvalcorr(ntmt, pvals_corrected)
 
     def _run_multitest_local(self, ntmt):
@@ -456,15 +522,20 @@ class GOEnrichmentStudy(object):
             corrected_pvals = HolmBonferroni(ntmt.pvals, ntmt.alpha).corrected_pvals
         elif method == "fdr":
             # get the empirical p-value distributions for FDR
-            term_pop = getattr(self, 'term_pop', None)
+            term_pop = getattr(self, "term_pop", None)
             if term_pop is None:
                 term_pop = count_terms(self.pop, self.assoc, self.obo_dag)
-            p_val_distribution = calc_qval(len(ntmt.study),
-                                           self.pop_n,
-                                           self.pop, self.assoc,
-                                           term_pop, self.obo_dag)
-            corrected_pvals = FDR(p_val_distribution,
-                                  ntmt.results, ntmt.alpha).corrected_pvals
+            p_val_distribution = calc_qval(
+                len(ntmt.study),
+                self.pop_n,
+                self.pop,
+                self.assoc,
+                term_pop,
+                self.obo_dag,
+            )
+            corrected_pvals = FDR(
+                p_val_distribution, ntmt.results, ntmt.alpha
+            ).corrected_pvals
 
         self._update_pvalcorr(ntmt, corrected_pvals)
 
@@ -480,25 +551,38 @@ class GOEnrichmentStudy(object):
     def wr_txt(self, fout_txt, goea_results, prtfmt=None, **kws):
         """Print GOEA results to text file."""
         if not goea_results:
-            sys.stdout.write("      0 GOEA results. NOT WRITING {FOUT}\n".format(FOUT=fout_txt))
+            sys.stdout.write(
+                "      0 GOEA results. NOT WRITING {FOUT}\n".format(FOUT=fout_txt)
+            )
             return
-        with open(fout_txt, 'w') as prt:
-            if 'title' in kws:
-                prt.write("{TITLE}\n".format(TITLE=kws['title']))
+        with open(fout_txt, "w") as prt:
+            if "title" in kws:
+                prt.write("{TITLE}\n".format(TITLE=kws["title"]))
             data_nts = self.prt_txt(prt, goea_results, prtfmt, **kws)
             log = self.log if self.log is not None else sys.stdout
-            log.write("  {N:>5} GOEA results for {CUR:5} study items. WROTE: {F}\n".format(
-                N=len(data_nts),
-                CUR=len(MgrNtGOEAs(goea_results).get_study_items()),
-                F=fout_txt))
+            log.write(
+                "  {N:>5} GOEA results for {CUR:5} study items. WROTE: {F}\n".format(
+                    N=len(data_nts),
+                    CUR=len(MgrNtGOEAs(goea_results).get_study_items()),
+                    F=fout_txt,
+                )
+            )
 
     @staticmethod
     def prt_txt(prt, goea_results, prtfmt=None, **kws):
         """Print GOEA results in text format."""
         objprt = PrtFmt()
         if prtfmt is None:
-            flds = ['GO', 'NS', 'p_uncorrected',
-                    'ratio_in_study', 'ratio_in_pop', 'depth', 'name', 'study_items']
+            flds = [
+                "GO",
+                "NS",
+                "p_uncorrected",
+                "ratio_in_study",
+                "ratio_in_pop",
+                "depth",
+                "name",
+                "study_items",
+            ]
             prtfmt = objprt.get_prtfmt_str(flds)
         prtfmt = objprt.adjust_prtfmt(prtfmt)
         prt_flds = RPT.get_fmtflds(prtfmt)
@@ -510,21 +594,23 @@ class GOEnrichmentStudy(object):
         """Write a xlsx file."""
         # kws: prt_if indent itemid2name(study_items)
         objprt = PrtFmt()
-        prt_flds = kws.get('prt_flds', self.objprtres.get_prtflds_default(goea_results))
+        prt_flds = kws.get("prt_flds", self.objprtres.get_prtflds_default(goea_results))
         xlsx_data = MgrNtGOEAs(goea_results).get_goea_nts_prt(prt_flds, **kws)
-        if 'fld2col_widths' not in kws:
-            kws['fld2col_widths'] = {f:objprt.default_fld2col_widths.get(f, 8) for f in prt_flds}
+        if "fld2col_widths" not in kws:
+            kws["fld2col_widths"] = {
+                f: objprt.default_fld2col_widths.get(f, 8) for f in prt_flds
+            }
         RPT.wr_xlsx(fout_xlsx, xlsx_data, **kws)
 
     def wr_tsv(self, fout_tsv, goea_results, **kws):
         """Write tab-separated table data to file"""
-        prt_flds = kws.get('prt_flds', self.objprtres.get_prtflds_default(goea_results))
+        prt_flds = kws.get("prt_flds", self.objprtres.get_prtflds_default(goea_results))
         tsv_data = MgrNtGOEAs(goea_results).get_goea_nts_prt(prt_flds, **kws)
         RPT.wr_tsv(fout_tsv, tsv_data, **kws)
 
     def prt_tsv(self, prt, goea_results, **kws):
         """Write tab-separated table data"""
-        prt_flds = kws.get('prt_flds', self.objprtres.get_prtflds_default(goea_results))
+        prt_flds = kws.get("prt_flds", self.objprtres.get_prtflds_default(goea_results))
         tsv_data = MgrNtGOEAs(goea_results).get_goea_nts_prt(prt_flds, **kws)
         RPT.prt_tsv(prt, tsv_data, **kws)
 
@@ -558,17 +644,23 @@ class GOEnrichmentStudy(object):
         sortby = kws.get("sortby", None)
         if goea_results:
             from goatools.nt_utils import wr_py_nts
+
             nts_goea = goea_results
             # If list has GOEnrichmentRecords or verbose namedtuples, exclude some fields.
-            if hasattr(goea_results[0], "_fldsdefprt") or hasattr(goea_results[0], 'goterm'):
+            if hasattr(goea_results[0], "_fldsdefprt") or hasattr(
+                goea_results[0], "goterm"
+            ):
                 # Exclude some attributes from the namedtuple when saving results
                 # to a Python file because the information is redundant or verbose.
                 nts_goea = MgrNtGOEAs(goea_results).get_goea_nts_prt(**kws)
-            docstring = "\n".join([docstring, "# {VER}\n\n".format(VER=self.obo_dag.version)])
-            assert hasattr(nts_goea[0], '_fields')
+            docstring = "\n".join(
+                [docstring, "# {VER}\n\n".format(VER=self.obo_dag.version)]
+            )
+            assert hasattr(nts_goea[0], "_fields")
             if sortby is None:
                 sortby = MgrNtGOEAs.dflt_sortby_objgoea
             nts_goea = sorted(nts_goea, key=sortby)
             wr_py_nts(fout_py, nts_goea, docstring, var_name)
+
 
 # Copyright (C) 2010-2019, H Tang et al., All rights reserved.
