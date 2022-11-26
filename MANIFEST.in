@@ -1,3 +1,7 @@
 recursive-exclude .github *
+recursive-exclude data *
+recursive-exclude doc *
+recursive-exclude notebooks *
+recursive-exclude sphinx *
 recursive-exclude tests *
 exclude .*
