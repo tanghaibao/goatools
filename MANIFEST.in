@@ -1,3 +1,7 @@
-include README* LICENSE requirements.txt goatools/test_data/nbt_3102/* requirements.txt setup_helper.py
-include versioneer.py
-include goatools/_version.py
+recursive-exclude .github *
+recursive-exclude data *
+recursive-exclude doc *
+recursive-exclude notebooks *
+recursive-exclude sphinx *
+recursive-exclude tests *
+exclude .*

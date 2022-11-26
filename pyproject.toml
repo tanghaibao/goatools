@@ -1,0 +1,13 @@
+[build-system]
+requires = [
+    "setuptools",
+    "setuptools_scm[toml]",
+    "setuptools_scm_git_archive",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "goatools/version.py"
+git_describe_command = "git describe --dirty --tags --long --match v* --first-parent"
+version_scheme = "no-guess-dev"
