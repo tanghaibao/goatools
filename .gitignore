@@ -1,4 +1,5 @@
 # Ontologies and Annotations
+tmp_pylint
 *.gpad
 *.owl
 *.obo
