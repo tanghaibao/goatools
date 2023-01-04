@@ -5,53 +5,32 @@
 from os.path import join
 from os.path import dirname
 from os.path import abspath
-from os.path import exists
-import collections as cx
 from goatools.obo_parser import GODag
-from goatools.utils import get_b2aset
-from goatools.anno.idtogos_reader import IdToGosReader
-from goatools.semantic import TermCounts
+from goatools.semantic import deepest_common_ancestor
+from goatools.semantic import semantic_distance
 
 
 REPO = join(dirname(abspath(__file__)), "..")
 
-def test_semantic_similarity():
+
+def test_i256_mca_dist():
     """Test faster version of sematic similarity"""
     godag = GODag(join(REPO, 'tests/data/yangRWC/fig1b.obo'))
-    name2go = {o.name: o.item_id for o in godag.values()}
-    assoc = _get_id2gos(join(REPO, 'tests/data/yangRWC/fig1b.anno'), godag, name2go)
-    tcntobj = TermCounts(godag, assoc)
-    assert tcntobj.gocnts[name2go['I']] == 20
-    assert tcntobj.gocnts[name2go['L']] == 21
-    assert tcntobj.gocnts[name2go['M']] == 20
-    assert tcntobj.gocnts[name2go['N']] == 20
 
-def _get_id2gos(file_id2gos, godag, name2go):
-    """Get annotations"""
-    if exists(file_id2gos):
-        return IdToGosReader(file_id2gos, godag=godag).get_id2gos('CC')
-    id2num = {
-        name2go['A']:  1,
-        name2go['B']:  1,
-        name2go['C']: 10,
-        name2go['D']: 10,
-        name2go['E']: 10,
-        name2go['F']: 10,
-        name2go['G']: 10,
-        name2go['H']: 10,
-        name2go['I']: 18,
-    }
-    go2genes = cx.defaultdict(set)
-    genenum = 0
-    for goid, qty in id2num.items():
-        for _ in range(qty):
-            go2genes[goid].add(genenum)
-            genenum += 1
-    id2gos = get_b2aset(go2genes)
-    IdToGosReader.wr_id2gos(file_id2gos, id2gos)
-    return id2gos
+    go_ids = [
+        'GO:0000006',
+        'GO:0000007',
+    ]
 
+    mca = deepest_common_ancestor(go_ids, godag)
+    dist = semantic_distance(*go_ids, godag)
+
+    print(f'{mca} is the Most Recent Common Ancestor of {go_ids}')
+    print(f'{dist} minimum number of connecting branches aka semantic distance between {go_ids}')
+
+    assert mca == 'GO:0000014'
+    assert dist == 4
 
 
 if __name__ == '__main__':
-    test_semantic_similarity()
+    test_i256_mca_dist()
