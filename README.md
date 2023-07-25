@@ -347,4 +347,8 @@ Items that we know we need include:
   make gh-pages
   ```
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=tanghaibao/goatools&type=Date)](https://star-history.com/#tanghaibao/goatools&Date)
+
 Copyright (C) 2010-2021, Haibao Tang et al. All rights reserved.
