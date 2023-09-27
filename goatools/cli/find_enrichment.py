@@ -608,6 +608,8 @@ class GoeaCliFnc:
             return {
                 "relationship",
             }
+        if self.args.obsolete == "replace":
+            return {"replaced_by", "consider"}
         return None
 
     def _get_remove_goids(self):

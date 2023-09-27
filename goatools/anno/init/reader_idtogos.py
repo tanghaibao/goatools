@@ -72,13 +72,18 @@ class InitAssc:
                             to_add.add(goid)
                         elif self.obsolete == "replace":
                             to_replace = set()
-                            if "replaced_by" in goobj.__dict__:
-                                to_replace |= set(goobj.replaced_by)
+                            if "replaced_by" in goobj.__dict__ and goobj.replaced_by:
+                                to_replace |= set(goobj.replaced_by.split(","))
                             if "consider" in goobj.__dict__:
-                                to_replace |= set(goobj.consider)
-                            prt.write(
-                                f"**WARNING: {goid} obsolete in DAG, replaced by {to_replace}\n"
-                            )
+                                to_replace |= goobj.consider
+                            if to_replace:
+                                prt.write(
+                                    f"**WARNING: {goid} obsolete in DAG, replaced by {to_replace}\n"
+                                )
+                            else:
+                                prt.write(
+                                    f"**WARNING: {goid} obsolete in DAG, no replacement\n"
+                                )
                             to_add |= to_replace
                         elif self.obsolete == "skip":
                             prt.write(f"**WARNING: {goid} obsolete in DAG, skipped\n")
