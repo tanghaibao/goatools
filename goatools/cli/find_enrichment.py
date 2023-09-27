@@ -354,7 +354,7 @@ class GoeaCliFnc:
         self.godag = GODag(
             obo_file=self.args.obo,
             optional_attrs=godag_optional_attrs,
-            load_obsolete=self.args.obsolete in ("keep", "replace"),
+            load_obsolete=True,
         )
         # GET: Gene2GoReader, GafReader, GpadReader, or IdToGosReader
         self.objanno = self._get_objanno(self.args.filenames[2])

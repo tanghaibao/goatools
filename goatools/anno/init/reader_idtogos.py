@@ -64,31 +64,33 @@ class InitAssc:
         for itemid, gos in self.id2gos.items():
             to_add = set()
             for goid in gos:
-                if goid in s_godag:
-                    goobj = s_godag[goid]
-                    if goobj.is_obsolete:
-                        if self.obsolete == "keep":
-                            prt.write(f"**WARNING: {goid} obsolete in DAG, kept\n")
-                            to_add.add(goid)
-                        elif self.obsolete == "replace":
-                            to_replace = set()
-                            if "replaced_by" in goobj.__dict__ and goobj.replaced_by:
-                                to_replace |= set(goobj.replaced_by.split(","))
-                            if "consider" in goobj.__dict__ and goobj.consider:
-                                to_replace |= goobj.consider
-                            if to_replace:
-                                prt.write(
-                                    f"**WARNING: {goid} obsolete in DAG, replaced by {to_replace}\n"
-                                )
-                            else:
-                                prt.write(
-                                    f"**WARNING: {goid} obsolete in DAG, no replacement\n"
-                                )
-                            to_add |= to_replace
-                        elif self.obsolete == "skip":
-                            prt.write(f"**WARNING: {goid} obsolete in DAG, skipped\n")
-                    else:
+                if goid not in s_godag:
+                    prt.write(f"**WARNING: {goid} NOT FOUND IN DAG\n")
+                    continue
+                goobj = s_godag[goid]
+                if goobj.is_obsolete:
+                    if self.obsolete == "keep":
+                        prt.write(f"**WARNING: {goid} obsolete in DAG, kept\n")
                         to_add.add(goid)
+                    elif self.obsolete == "replace":
+                        to_replace = set()
+                        if "replaced_by" in goobj.__dict__ and goobj.replaced_by:
+                            to_replace |= set(goobj.replaced_by.split(","))
+                        if "consider" in goobj.__dict__ and goobj.consider:
+                            to_replace |= goobj.consider
+                        if to_replace:
+                            prt.write(
+                                f"**WARNING: {goid} obsolete in DAG, replaced by {to_replace}\n"
+                            )
+                        else:
+                            prt.write(
+                                f"**WARNING: {goid} obsolete in DAG, no replacement\n"
+                            )
+                        to_add |= to_replace
+                    elif self.obsolete == "skip":
+                        prt.write(f"**WARNING: {goid} obsolete in DAG, skipped\n")
+                else:
+                    to_add.add(goid)
             for goid in to_add:
                 goobj = s_godag[goid]
                 namespace = goobj.namespace
