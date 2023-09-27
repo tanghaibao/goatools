@@ -6,11 +6,11 @@
 
 """Read and store Gene Ontology's obo file."""
 # -*- coding: UTF-8 -*-
-from __future__ import print_function
-
-from sys import stdout
-from sys import stderr
 import os
+
+from sys import stderr, stdout
+from typing import Optional
+
 from goatools.godag.obo_optional_attributes import OboOptionalAttrs
 from goatools.godag.typedef import TypeDef
 from goatools.godag.typedef import add_to_typedef
@@ -312,9 +312,9 @@ class GODag(dict):
     # pylint: disable=line-too-long
     def __init__(
         self,
-        obo_file="go-basic.obo",
-        optional_attrs=None,
-        load_obsolete: str = False,
+        obo_file: str = "go-basic.obo",
+        optional_attrs: Optional[set] = None,
+        load_obsolete: bool = False,
         prt=stdout,
     ):
         super(GODag, self).__init__()
@@ -416,39 +416,9 @@ class GODag(dict):
                     rec.depth = 0
             return rec.depth
 
-        #### MOVED TO goatools/godag/reldepth.py:
-        #### def _init_reldepth(rec):
-        ####     if not hasattr(rec, 'reldepth'):
-        ####         up_terms = rec.get_goterms_upper()
-        ####         if up_terms:
-        ####             rec.reldepth = max(_init_reldepth(rec) for rec in up_terms) + 1
-        ####         else:
-        ####             rec.reldepth = 0
-        ####     return rec.reldepth
-
         for rec in self.values():
-            #### MOVED TO goatools/godag/reldepth.py:
-            #### # Add invert relationships
-            #### if has_relationship:
-            ####     if rec.depth is None:
-            ####         _init_reldepth(rec)
-
-            ####     # print("BBBBBBBBBBB1", rec.item_id, rec.relationship)
-            ####     #for (typedef, terms) in rec.relationship.items():
-            ####     #    invert_typedef = self.typedefs[typedef].inverse_of
-            ####     #    # print("BBBBBBBBBBB2 {} ({}) ({}) ({})".format(
-            ####     #    #    rec.item_id, rec.relationship, typedef, invert_typedef))
-            ####     #    if invert_typedef:
-            ####     #        # Add inverted relationship
-            ####     #        for term in terms:
-            ####     #            if not hasattr(term, 'relationship'):
-            ####     #                term.relationship = defaultdict(set)
-            ####     #            term.relationship[invert_typedef].add(rec)
-            ####     # print("BBBBBBBBBBB3", rec.item_id, rec.relationship)
-
             if rec.level is None:
                 _init_level(rec)
-
             if rec.depth is None:
                 _init_depth(rec)
 
