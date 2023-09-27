@@ -74,7 +74,7 @@ class InitAssc:
                             to_replace = set()
                             if "replaced_by" in goobj.__dict__ and goobj.replaced_by:
                                 to_replace |= set(goobj.replaced_by.split(","))
-                            if "consider" in goobj.__dict__:
+                            if "consider" in goobj.__dict__ and goobj.consider:
                                 to_replace |= goobj.consider
                             if to_replace:
                                 prt.write(
