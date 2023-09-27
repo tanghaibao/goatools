@@ -45,7 +45,7 @@ class OBOReader(object):
         self.data_version = (
             None  # e.g., "releases/2016-07-07" from "data-version:" line
         )
-        self.default_namespace = 'default'
+        self.default_namespace = "default"
         self.typedefs = {}
 
         # True if obo file exists or if a link to an obo file exists.
@@ -109,7 +109,7 @@ class OBOReader(object):
         if line[0:12] == "data-version":
             self.data_version = line[14:-1]
             return True
-        if line[:17] == 'default-namespace':
+        if line[:17] == "default-namespace":
             self.default_namespace = line[18:].strip()
             return True
         if line[0:6].lower() == "[term]":
@@ -160,7 +160,7 @@ class GOTerm(object):
     GO term, actually contain a lot more properties than interfaced here
     """
 
-    def __init__(self, default_namespace='default'):
+    def __init__(self, default_namespace="default"):
         self.id = ""  # GO:NNNNNNN  **DEPRECATED** RESERVED NAME IN PYTHON
         self.item_id = ""  # GO:NNNNNNN (will replace deprecated "id")
         self.name = ""  # description
@@ -197,7 +197,7 @@ class GOTerm(object):
                         for elem in val:
                             ret.append("  {ELEM}".format(ELEM=elem))
                     else:
-                        for (typedef, terms) in val.items():
+                        for typedef, terms in val.items():
                             ret.append(
                                 "  {TYPEDEF}: {NTERMS} items".format(
                                     TYPEDEF=typedef, NTERMS=len(terms)
@@ -314,7 +314,7 @@ class GODag(dict):
         self,
         obo_file="go-basic.obo",
         optional_attrs=None,
-        load_obsolete=False,
+        load_obsolete: str = False,
         prt=stdout,
     ):
         super(GODag, self).__init__()
@@ -427,7 +427,6 @@ class GODag(dict):
         ####     return rec.reldepth
 
         for rec in self.values():
-
             #### MOVED TO goatools/godag/reldepth.py:
             #### # Add invert relationships
             #### if has_relationship:

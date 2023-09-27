@@ -351,8 +351,11 @@ class GoeaCliFnc:
             read_sections(self.args.sections) if self.args.sections else None
         )
         godag_optional_attrs = self._get_optional_attrs()
-        self.godag = GODag(obo_file=self.args.obo, optional_attrs=godag_optional_attrs)
-        ## print('ARGS GoeaCliFnc ', self.args)
+        self.godag = GODag(
+            obo_file=self.args.obo,
+            optional_attrs=godag_optional_attrs,
+            load_obsolete=True,
+        )
         # GET: Gene2GoReader, GafReader, GpadReader, or IdToGosReader
         self.objanno = self._get_objanno(self.args.filenames[2])
         _study, _pop = self.rd_files(*self.args.filenames[:2])
@@ -377,6 +380,7 @@ class GoeaCliFnc:
             anno_type = self.args.annofmt if self.args.annofmt else "id2gos"
         # kws: namespaces taxid godag
         kws = self._get_kws_objanno(anno_type)
+        kws["obsolete"] = self.args.obsolete
         return get_objanno(assoc_fn, anno_type, **kws)
 
     def _get_ns(self):
