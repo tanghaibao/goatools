@@ -354,7 +354,7 @@ class GoeaCliFnc:
         self.godag = GODag(
             obo_file=self.args.obo,
             optional_attrs=godag_optional_attrs,
-            load_obsolete=True,
+            load_obsolete=self.args.obsolete in ("keep", "replace"),
         )
         # GET: Gene2GoReader, GafReader, GpadReader, or IdToGosReader
         self.objanno = self._get_objanno(self.args.filenames[2])
@@ -387,10 +387,8 @@ class GoeaCliFnc:
         """Return namespaces."""
         exp_nss = {"BP", "MF", "CC"}
         act_nss = set(self.args.ns.split(","))
-        assert not act_nss.difference(
-            exp_nss
-        ), "EXPECTED NAMESPACES({E}); GOT({A})".format(
-            E=",".join(exp_nss), A=",".join(act_nss.difference(exp_nss))
+        assert not act_nss - exp_nss, "EXPECTED NAMESPACES({E}); GOT({A})".format(
+            E=",".join(exp_nss), A=",".join(act_nss - exp_nss)
         )
         return None if act_nss == exp_nss else act_nss
 
@@ -437,8 +435,6 @@ class GoeaCliFnc:
         for outfile in outfiles:
             if outfile.endswith(".xlsx"):
                 self.objgoeans.wr_xlsx(outfile, goea_results, **kws)
-            # elif outfile.endswith(".txt"):  # TBD
-            #    pass
             else:
                 self.objgoeans.wr_tsv(outfile, goea_results, **kws)
 
@@ -502,13 +498,13 @@ class GoeaCliFnc:
         overlap = self.get_overlap(study, pop)
         if overlap < 0.95:
             sys.stderr.write(
-                "\nWARNING: only {} fraction of genes/proteins in study are found in "
-                "the population background.\n\n".format(overlap)
+                f"\nWARNING: only {overlap} fraction of genes/proteins in study are found in "
+                "the population background.\n\n"
             )
         if overlap <= self.args.min_overlap:
             exit(
-                "\nERROR: only {} of genes/proteins in the study are found in the "
-                "background population. Please check.\n".format(overlap)
+                f"\nERROR: only {overlap} of genes/proteins in the study are found in the "
+                "background population. Please check.\n"
             )
         # Population and associations
         if ntsassoc is not None:
@@ -571,7 +567,7 @@ class GoeaCliFnc:
     def rd_files(self, study_fn, pop_fn):
         """Read files and return study and population."""
         study, pop = self._read_geneset(study_fn, pop_fn)
-        print("Study: {0} vs. Population {1}\n".format(len(study), len(pop)))
+        print(f"Study: {len(study)} vs. Population {len(pop)}\n")
         return study, pop
 
     def _read_geneset(self, study_fn, pop_fn):
@@ -597,17 +593,11 @@ class GoeaCliFnc:
     def _get_optional_attrs(self):
         """Given keyword args, return optional_attributes to be loaded into the GODag."""
         if self.args.relationship:
-            return {
-                "relationship",
-            }
+            return {"relationship"}
         if self.args.relationships is not None:
-            return {
-                "relationship",
-            }
+            return {"relationship"}
         if self.sections:
-            return {
-                "relationship",
-            }
+            return {"relationship"}
         if self.args.obsolete == "replace":
             return {"replaced_by", "consider"}
         return None
@@ -649,9 +639,8 @@ class GroupItems:
         self.ver_list = [
             godag_version,
             self.grprdflt.ver_goslims,
-            "Sections: {S}".format(S=objcli.args.sections),
+            f"Sections: {objcli.args.sections}",
         ]
-        # self.objaartall = self._init_objaartall()
 
     def get_objgrpwr(self, goea_results):
         """Get a GrpWr object to write grouped GOEA results."""
@@ -671,17 +660,10 @@ class GroupItems:
         sortobj = Sorter(grprobj, section_sortby=lambda nt: getattr(nt, self.pval_fld))
         return sortobj
 
-    # @staticmethod
-    # def get_objaart(goea_results, **kws):
-    #     """Return a AArtGeneProductSetsOne object."""
-    #     nts_goea = MgrNtGOEAs(goea_results).get_goea_nts_prt(**kws)
-    #     # objaart = AArtGeneProductSetsOne(name, goea_nts, self)
-
     def _init_objaartall(self):
         """Get background database info for making ASCII art."""
         kws = {
             "sortgo": lambda nt: [nt.NS, nt.dcnt],
-            # fmtgo=('{p_fdr_bh:8.2e} {GO} '
             # Formatting for GO terms in grouped GO list
             "fmtgo": (
                 "{hdr1usr01:2} {NS} {GO} {s_fdr_bh:8} "
@@ -694,7 +676,6 @@ class GroupItems:
                 "{dcnt:5} R{reldepth:02} "
                 "{GO_name} ({study_count} study genes)\n"
             ),
-            # itemid2name=ensmusg2symbol}
         }
         return AArtGeneProductSetsAll(self.grprdflt, self.hdrobj, **kws)
 
@@ -725,18 +706,9 @@ class GrpWr:
     def wr_xlsx(self, fout_xlsx):
         """Print grouped GOEA results into an xlsx file."""
         objwr = WrXlsxSortedGos("GOEA", self.sortobj)
-        #### fld2fmt['ratio_in_study'] = '{:>8}'
-        #### fld2fmt['ratio_in_pop'] = '{:>12}'
-        #### ntfld2wbfmtdict = {
-        # ntfld_wbfmt = {
-        #     'ratio_in_study': {'align':'right'},
-        #     'ratio_in_pop':{'align':'right'}}
         kws_xlsx = {
             "title": self.ver_list,
             "fld2fmt": {f: "{:8.2e}" for f in self.flds_cur if f[:2] == "p_"},
-            #'ntfld_wbfmt': ntfld_wbfmt,
-            #### 'ntval2wbfmtdict': ntval2wbfmtdict,
-            #'hdrs': [],
             "prt_flds": self.flds_cur,
         }
         objwr.wr_xlsx_nts(fout_xlsx, self.desc2nts, **kws_xlsx)
@@ -749,7 +721,7 @@ class GrpWr:
                 "prt_flds": self.flds_cur,
             }
             prt_tsv_sections(prt, self.desc2nts["sections"], **kws_tsv)
-            print("  WROTE: {TSV}".format(TSV=fout_tsv))
+            print(f"  WROTE: {fout_tsv}")
 
     def wr_txt(self, fout_txt):
         """Write to a file GOEA results in an ASCII text format."""

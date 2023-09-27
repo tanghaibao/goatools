@@ -53,11 +53,11 @@ class OBOReader(object):
             self.obo_file = obo_file
             # GOTerm attributes that are necessary for any operations:
         else:
-            raise Exception(
-                "COULD NOT READ({OBO})\n"
+            raise ValueError(
+                f"COULD NOT READ({obo_file})\n"
                 "download obo file first\n "
                 "[http://geneontology.org/ontology/"
-                "go-basic.obo]".format(OBO=obo_file)
+                "go-basic.obo]"
             )
 
     def __iter__(self):
@@ -186,27 +186,23 @@ class GOTerm(object):
 
     def __repr__(self):
         """Print GO ID and all attributes in GOTerm class."""
-        ret = ["GOTerm('{ID}'):".format(ID=self.item_id)]
+        ret = [f"GOTerm('{self.item_id}'):"]
         for key, val in self.__dict__.items():
             if isinstance(val, (int, str)):
-                ret.append("{K}:{V}".format(K=key, V=val))
+                ret.append(f"{key}:{val}")
             elif val is not None:
-                ret.append("{K}: {V} items".format(K=key, V=len(val)))
+                ret.append(f"{key}: {len(val)} items")
                 if len(val) < 10:
                     if not isinstance(val, dict):
                         for elem in val:
-                            ret.append("  {ELEM}".format(ELEM=elem))
+                            ret.append(f"  {elem}")
                     else:
                         for typedef, terms in val.items():
-                            ret.append(
-                                "  {TYPEDEF}: {NTERMS} items".format(
-                                    TYPEDEF=typedef, NTERMS=len(terms)
-                                )
-                            )
+                            ret.append(f"  {typedef}: {len(terms)} items")
                             for term in terms:
-                                ret.append("    {TERM}".format(TERM=term))
+                                ret.append(f"    {term}")
             else:
-                ret.append("{K}: None".format(K=key))
+                ret.append(f"{key}: None")
         return "\n  ".join(ret)
 
     def has_parent(self, term):

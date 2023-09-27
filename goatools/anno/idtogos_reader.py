@@ -31,13 +31,11 @@ class IdToGosReader(AnnoReaderBase):
                 prt.write(
                     "{GENE}\t{GOs}\n".format(GENE=geneid, GOs=";".join(sorted(goset)))
                 )
-        print("  {N} annotations WROTE: {TXT}".format(N=len(id2gos), TXT=fout_txt))
+        print(f"  {len(id2gos)} annotations WROTE: {fout_txt}")
 
     def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print a summary of all Evidence Codes seen in annotations"""
-        prt.write(
-            "**NOTE: No evidence codes in associations: {F}\n".format(F=self.filename)
-        )
+        prt.write(f"**NOTE: No evidence codes in associations: {self.filename}\n")
 
     # pylint: disable=unused-argument
     def reduce_annotations(self, associations, options):

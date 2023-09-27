@@ -26,15 +26,12 @@ class AnnoReaderBase(object):
     tic = timeit.default_timer()
 
     # Expected values for a Qualifier
-    exp_qualifiers = set(
-        [
-            # Seen in both GAF and gene2go
-            "not",
-            "contributes_to",
-            "colocalizes_with",
-        ]
-    )
-
+    exp_qualifiers = {
+        # Seen in both GAF and gene2go
+        "not",
+        "contributes_to",
+        "colocalizes_with",
+    }
     valid_formats = {"gpad", "gaf", "gene2go", "id2gos"}
     exp_nss = {"BP", "MF", "CC"}
 
@@ -123,11 +120,7 @@ class AnnoReaderBase(object):
             nspc, assoc = self._get_1ns_assn(namespace)
             id2gos = self._get_id2gos(assoc, **kws)
             if prt:
-                prt.write(
-                    "{N} IDs in loaded association branch, {NS}\n".format(
-                        N=len(id2gos), NS=nspc
-                    )
-                )
+                prt.write(f"{len(id2gos)} IDs in loaded association branch, {nspc}\n")
             return id2gos
         if prt and self.godag is None:
             logging.warning(
@@ -137,7 +130,7 @@ class AnnoReaderBase(object):
             )
         id2gos = self._get_id2gos(self.associations, **kws)
         if prt:
-            prt.write("{N} IDs in all associations\n".format(N=len(id2gos)))
+            prt.write(f"{len(id2gos)} IDs in all associations\n")
         return id2gos
 
     def _get_1ns_assn(self, namespace_usr):
@@ -145,11 +138,7 @@ class AnnoReaderBase(object):
         # If all namespaces were loaded
         if self.namespaces is None:
             # Return user-specified namespace, if provided. Otherwise BP
-            nspc = (
-                self._get_biggest_namespace()
-                if namespace_usr is None
-                else namespace_usr
-            )
+            nspc = namespace_usr or self._get_biggest_namespace()
             # Return one namespace
             if nspc in set(NAMESPACE2NS.values()):
                 return nspc, [nt for nt in self.associations if nt.NS == nspc]
@@ -159,11 +148,7 @@ class AnnoReaderBase(object):
         if len(self.namespaces) == 1:
             nspc = next(iter(self.namespaces))
             if namespace_usr is not None and nspc != namespace_usr:
-                print(
-                    "**WARNING: IGNORING {ns}; ONLY {NS} WAS LOADED".format(
-                        ns=namespace_usr, NS=nspc
-                    )
-                )
+                print(f"**WARNING: IGNORING {namespace_usr}; ONLY {nspc} WAS LOADED")
             return nspc, self.associations
         if namespace_usr is None:
             print(
@@ -180,9 +165,9 @@ class AnnoReaderBase(object):
 
     def has_ns(self):
         """Return True if namespace field, NS exists on annotation namedtuples"""
-        assert self.associations, "NO ASSOCIATIONS IN file({}): {}".format(
-            self.filename, self.associations
-        )
+        assert (
+            self.associations
+        ), f"NO ASSOCIATIONS IN file({self.filename}): {self.associations}"
         return hasattr(next(iter(self.associations)), "NS")
 
     def _get_id2gos(
@@ -191,7 +176,7 @@ class AnnoReaderBase(object):
         propagate_counts=False,
         relationships=None,
         prt=sys.stdout,
-        **kws
+        **kws,
     ):
         """Return given ntannos_usr in a dict, id2gos"""
         options = AnnoOptions(self.evobj, **kws)
@@ -205,8 +190,6 @@ class AnnoReaderBase(object):
         )
         if options.b_geneid2gos:
             return dbid2goids
-        # if not a2bs:
-        #     raise RuntimeError('**ERROR: NO ASSOCATIONS FOUND: {FILE}'.format(FILE=self.filename))
         return self._get_goid2dbids(dbid2goids)
 
     def _get_anno_in_dag(self, ntsanno):
@@ -252,7 +235,7 @@ class AnnoReaderBase(object):
         for fld, cnt in cx.Counter(
             q for nt in associations for q in nt.Qualifier
         ).most_common():
-            prt.write("    {N:6,} {FLD}\n".format(N=cnt, FLD=fld))
+            prt.write(f"    {cnt:6,} {fld}\n")
 
     def reduce_annotations(self, annotations, options):
         """Reduce annotations to ones used to identify enrichment (normally exclude ND and NOT)."""
@@ -279,18 +262,12 @@ class AnnoReaderBase(object):
         # Get GO IDs in annotations that are in GO DAG
         goids_avail = set(_godag)
         goids_missing = self._rpt_goids_notfound(goids_assoc_usr, goids_avail)
-        goids_assoc_cur = goids_assoc_usr.intersection(goids_avail).difference(
-            goids_missing
-        )
+        goids_assoc_cur = goids_assoc_usr & goids_avail - goids_missing
         # Get GO Term for each current GO ID in the annotations
         _go2obj_assc = {go: _godag[go] for go in goids_assoc_cur}
         go2ancestors = get_go2parents_go2obj(_go2obj_assc, relationships, prt)
         if prt:
-            prt.write(
-                "{N} GO IDs -> {M} go2ancestors\n".format(
-                    N=len(goids_avail), M=len(go2ancestors)
-                )
-            )
+            prt.write("{len(goids_avail)} GO IDs -> {len(go2ancestors)} go2ancestors\n")
         return go2ancestors
 
     @staticmethod
@@ -350,7 +327,7 @@ class AnnoReaderBase(object):
             tic = self.tic
         now = timeit.default_timer()
         hms = str(datetime.timedelta(seconds=now - tic))
-        prt.write("{HMS}: {MSG}\n".format(HMS=hms, MSG=msg))
+        prt.write(f"{hms}: {msg}\n")
         return now
 
     def chk_associations(self, fout_err=None):
@@ -374,7 +351,7 @@ class AnnoReaderBase(object):
             qual = ntd.Qualifier
             assert isinstance(
                 qual, set
-            ), "{NAME}: QUALIFIER MUST BE A LIST: {NT}".format(NAME=self.name, NT=ntd)
+            ), f"{self.name}: QUALIFIER MUST BE A LIST: {ntd}"
             assert qual != set([""]), ntd
             assert qual != set(["-"]), ntd
             assert "always" not in qual, "SPEC SAID IT WOULD BE THERE"
@@ -402,7 +379,7 @@ class AnnoReaderBase(object):
         """Print the number of taxids stored."""
         num_annos = len(self.associations)
         # 792,891 annotations for 3 taxids stored: 10090 7227 9606
-        prt.write("{A:8,} annotations\n".format(A=num_annos))
+        prt.write(f"{num_annos:8,} annotations\n")
 
 
 # Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
