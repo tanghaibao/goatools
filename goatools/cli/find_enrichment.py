@@ -50,6 +50,7 @@ from goatools.grouper.sorter import Sorter
 from goatools.grouper.aart_geneproducts_all import AArtGeneProductSetsAll
 from goatools.grouper.wr_sections import WrSectionsTxt
 from goatools.grouper.wrxlsx import WrXlsxSortedGos
+
 OBJPRTRES = GoeaPrintFunctions()
 
 
@@ -63,96 +64,218 @@ class GoeaCliArgs:
     def _init_args(self):
         """Get enrichment arg parser."""
 
-        #pylint: disable=invalid-name
-        p = argparse.ArgumentParser(__doc__,
-                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        # pylint: disable=invalid-name
+        p = argparse.ArgumentParser(
+            __doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        )
 
-        p.add_argument('filenames', type=str, nargs=3,
-                       help='data/study data/population data/association')
-        p.add_argument('--annofmt', default=None, type=str,
-                       help=('Annotation file format. '
-                             'Not needed if type can be determined using filename'),
-                       choices=['gene2go', 'gaf', 'gpad', 'id2gos'])
-        p.add_argument('--taxid', default=9606, type=int,
-                       help="When using NCBI's gene2go annotation file, specify desired taxid")
-        p.add_argument('--alpha', default=0.05, type=float,
-                       help='Test-wise alpha for multiple testing')
-        p.add_argument('--pval', default=.05, type=float,
-                       help=('Only print results with uncorrected p-value < PVAL. '
-                             'Print all results, significant and otherwise, '
-                             'by setting --pval=1.0'))
-        p.add_argument('--pval_field', type=str,
-                       help='Only print results when PVAL_FIELD < PVAL.')
-        p.add_argument('--outfile', default=None, type=str,
-                       help='Write enrichment results into xlsx or tsv file')
-        p.add_argument('--ns', default='BP,MF,CC', type=str,
-                       help='Limit GOEA to specified branch categories. '
-                            'BP=Biological Process; '
-                            'MF=Molecular Function; '
-                            'CC=Cellular Component')
-        p.add_argument('--id2sym', default=None, type=str,
-                       help='ASCII file containing one geneid and its symbol per line')
-        p.add_argument('--sections', default=None, type=str,
-                       help=('Use sections file for printing grouped GOEA results. '
-                             'Example SECTIONS values:\n'
-                             'goatools.test_data.sections.gjoneska_pfenning \n'
-                             'goatools/test_data/sections/gjoneska_pfenning.py \n'
-                             'data/gjoneska_pfenning/sections_in.txt\n'))
-        p.add_argument('--outfile_detail', type=str,
-                       help=('Write enrichment results into a text file \n'
-                             'containing the following information: \n'
-                             '1) GOEA GO terms, grouped into sections \n\n'
-                             '2) List of genes and ASCII art showing section membership \n'
-                             '3) Detailed list of each gene and GO terms w/their P-values \n'))
-        p.add_argument('--compare', dest='compare', default=False,
-                       action='store_true',
-                       help="the population file as a comparison group. if this "
-                       "flag is specified, the population is used as the study "
-                       "plus the `population/comparison`")
-        p.add_argument('--ratio', dest='ratio', type=float, default=None,
-                       help="only show values where the difference between study "
-                       "and population ratios is greater than this. useful for "
-                       "excluding GO categories with small differences, but "
-                       "containing large numbers of genes. should be a value "
-                       "between 1 and 2. ")
-        p.add_argument('--prt_study_gos_only', default=False, action='store_true',
-                       help=('Print GO terms only if they are associated with study genes. '
-                             'This is useful if printng all GO results '
-                             'regardless of their significance (--pval=1.0). '))
-        p.add_argument('--indent', dest='indent', default=False,
-                       action='store_true', help="indent GO terms")
-        p.add_argument('--obo', default="go-basic.obo", type=str,
-                       help="Specifies location and name of the obo file")
-        p.add_argument('--no_propagate_counts', default=False, action='store_true',
-                       help="Do not propagate counts to parent terms")
+        p.add_argument(
+            "filenames",
+            type=str,
+            nargs=3,
+            help="data/study data/population data/association",
+        )
+        p.add_argument(
+            "--annofmt",
+            default=None,
+            type=str,
+            help=(
+                "Annotation file format. "
+                "Not needed if type can be determined using filename"
+            ),
+            choices=["gene2go", "gaf", "gpad", "id2gos"],
+        )
+        p.add_argument(
+            "--taxid",
+            default=9606,
+            type=int,
+            help="When using NCBI's gene2go annotation file, specify desired taxid",
+        )
+        p.add_argument(
+            "--alpha",
+            default=0.05,
+            type=float,
+            help="Test-wise alpha for multiple testing",
+        )
+        p.add_argument(
+            "--pval",
+            default=0.05,
+            type=float,
+            help=(
+                "Only print results with uncorrected p-value < PVAL. "
+                "Print all results, significant and otherwise, "
+                "by setting --pval=1.0"
+            ),
+        )
+        p.add_argument(
+            "--pval_field", type=str, help="Only print results when PVAL_FIELD < PVAL."
+        )
+        p.add_argument(
+            "--outfile",
+            default=None,
+            type=str,
+            help="Write enrichment results into xlsx or tsv file",
+        )
+        p.add_argument(
+            "--ns",
+            default="BP,MF,CC",
+            type=str,
+            help="Limit GOEA to specified branch categories. "
+            "BP=Biological Process; "
+            "MF=Molecular Function; "
+            "CC=Cellular Component",
+        )
+        p.add_argument(
+            "--id2sym",
+            default=None,
+            type=str,
+            help="ASCII file containing one geneid and its symbol per line",
+        )
+        p.add_argument(
+            "--sections",
+            default=None,
+            type=str,
+            help=(
+                "Use sections file for printing grouped GOEA results. "
+                "Example SECTIONS values:\n"
+                "goatools.test_data.sections.gjoneska_pfenning \n"
+                "goatools/test_data/sections/gjoneska_pfenning.py \n"
+                "data/gjoneska_pfenning/sections_in.txt\n"
+            ),
+        )
+        p.add_argument(
+            "--outfile_detail",
+            type=str,
+            help=(
+                "Write enrichment results into a text file \n"
+                "containing the following information: \n"
+                "1) GOEA GO terms, grouped into sections \n\n"
+                "2) List of genes and ASCII art showing section membership \n"
+                "3) Detailed list of each gene and GO terms w/their P-values \n"
+            ),
+        )
+        p.add_argument(
+            "--compare",
+            dest="compare",
+            default=False,
+            action="store_true",
+            help="the population file as a comparison group. if this "
+            "flag is specified, the population is used as the study "
+            "plus the `population/comparison`",
+        )
+        p.add_argument(
+            "--ratio",
+            dest="ratio",
+            type=float,
+            default=None,
+            help="only show values where the difference between study "
+            "and population ratios is greater than this. useful for "
+            "excluding GO categories with small differences, but "
+            "containing large numbers of genes. should be a value "
+            "between 1 and 2. ",
+        )
+        p.add_argument(
+            "--prt_study_gos_only",
+            default=False,
+            action="store_true",
+            help=(
+                "Print GO terms only if they are associated with study genes. "
+                "This is useful if printng all GO results "
+                "regardless of their significance (--pval=1.0). "
+            ),
+        )
+        p.add_argument(
+            "--indent",
+            dest="indent",
+            default=False,
+            action="store_true",
+            help="indent GO terms",
+        )
+        p.add_argument(
+            "--obo",
+            default="go-basic.obo",
+            type=str,
+            help="Specifies location and name of the obo file",
+        )
+        p.add_argument(
+            "--no_propagate_counts",
+            default=False,
+            action="store_true",
+            help="Do not propagate counts to parent terms",
+        )
         # no -r:   args.relationship == False
         # -r seen: args.relationship == True
-        p.add_argument('-r', '--relationship', action='store_true',
-                       help='Propagate counts up all relationships,')
+        p.add_argument(
+            "-r",
+            "--relationship",
+            action="store_true",
+            help="Propagate counts up all relationships,",
+        )
         # NO --relationships                -> None
         # --relationships part_of regulates -> relationships=['part_of', 'regulates']
         # --relationships=part_of           -> relationships=['part_of']
         # --relationships=part_of,regulates -> relationships=['part_of', 'regulates']
         # --relationships=part_of regulates -> NOT VALID
-        p.add_argument('--relationships', nargs='*',
-                       help=('Propagate counts up user-specified relationships, which include: '
-                             '{RELS}').format(RELS=' '.join(RELATIONSHIP_LIST)))
-        p.add_argument('--method', default="bonferroni,sidak,holm,fdr_bh", type=str,
-                       help=Methods().getmsg_valid_methods())
-        p.add_argument('--pvalcalc', default="fisher_scipy_stats", choices=FisherFactory.options.keys(),
-                       help=str(FisherFactory()))
-        p.add_argument('--min_overlap', default=0.7, type=float,
-                       help="Check that a minimum amount of study genes are in the population")
-        p.add_argument('--goslim', default='goslim_generic.obo', type=str,
-                       help="The GO slim file is used when grouping GO terms.")
-        p.add_argument('--ev_inc', type=str,
-                       help="Include specified evidence codes and groups separated by commas")
-        p.add_argument('--ev_exc', type=str,
-                       help="Exclude specified evidence codes and groups separated by commas")
-        p.add_argument('--ev_help', dest='ev_help', action='store_false',
-                       help="Print all Evidence codes, with descriptions")
-        p.add_argument('--ev_help_short', dest='ev_help_short', action='store_false',
-                       help="Print all Evidence codes")
+        p.add_argument(
+            "--relationships",
+            nargs="*",
+            help=(
+                "Propagate counts up user-specified relationships, which include: "
+                "{RELS}"
+            ).format(RELS=" ".join(RELATIONSHIP_LIST)),
+        )
+        p.add_argument(
+            "--method",
+            default="bonferroni,sidak,holm,fdr_bh",
+            type=str,
+            help=Methods().getmsg_valid_methods(),
+        )
+        p.add_argument(
+            "--obsolete",
+            choices=("keep", "replace", "skip"),
+            default="keep",
+            help="Strategy for handling obsolete GO terms",
+        )
+        p.add_argument(
+            "--pvalcalc",
+            default="fisher_scipy_stats",
+            choices=FisherFactory.options.keys(),
+            help=str(FisherFactory()),
+        )
+        p.add_argument(
+            "--min_overlap",
+            default=0.7,
+            type=float,
+            help="Check that a minimum amount of study genes are in the population",
+        )
+        p.add_argument(
+            "--goslim",
+            default="goslim_generic.obo",
+            type=str,
+            help="The GO slim file is used when grouping GO terms.",
+        )
+        p.add_argument(
+            "--ev_inc",
+            type=str,
+            help="Include specified evidence codes and groups separated by commas",
+        )
+        p.add_argument(
+            "--ev_exc",
+            type=str,
+            help="Exclude specified evidence codes and groups separated by commas",
+        )
+        p.add_argument(
+            "--ev_help",
+            dest="ev_help",
+            action="store_false",
+            help="Print all Evidence codes, with descriptions",
+        )
+        p.add_argument(
+            "--ev_help_short",
+            dest="ev_help_short",
+            action="store_false",
+            help="Print all Evidence codes",
+        )
         # remove_goids: TBD
         #   None (Default) Remove a small number (~14) of broad GO IDs from the association
         #   True           Remove a slightly larger number of broad GO IDs (~100)
@@ -170,17 +293,17 @@ class GoeaCliArgs:
 
     @staticmethod
     def _prt_evidence_codes(args):
-        if not {'--ev_help', '--ev_help_short'}.isdisjoint(args):
-            print('\nEVIDENCE CODE HELP: --ev_exc --ev_inc')
-            print('Use any of these group names, ')
-            print('like Experimental or Similarity or Experimental,Similarity,')
-            print('or evidence codes, like IEA or ISS,ISO,ISA in --ev_exc or --ev_inc:')
+        if not {"--ev_help", "--ev_help_short"}.isdisjoint(args):
+            print("\nEVIDENCE CODE HELP: --ev_exc --ev_inc")
+            print("Use any of these group names, ")
+            print("like Experimental or Similarity or Experimental,Similarity,")
+            print("or evidence codes, like IEA or ISS,ISO,ISA in --ev_exc or --ev_inc:")
             obj = EvidenceCodes()
-            if '--ev_help' in args:
-                print('')
+            if "--ev_help" in args:
+                print("")
                 obj.prt_details()
-            if '--ev_help_short' in args:
-                print('')
+            if "--ev_help_short" in args:
+                print("")
                 obj.prt_summary_code()
             sys.exit(0)
 
@@ -192,7 +315,9 @@ class GoeaCliArgs:
             parser.print_help()
             msg = """
       3 Expected files; Expected content: study population association",
-      {} Actual   files: {}""".format(len(nspc.filenames), ' '.join(nspc.filenames))
+      {} Actual   files: {}""".format(
+                len(nspc.filenames), " ".join(nspc.filenames)
+            )
             raise Exception(msg)
         for fin in nspc.filenames:
             if not os.path.exists(fin):
@@ -210,11 +335,10 @@ class GoeaCliArgs:
         if args.relationship:
             args.relationships = RELATIONSHIP_SET
         if args.relationships is not None:
-            if len(args.relationships) == 1 and ',' in args.relationships[0]:
-                args.relationships = args.relationships[0].split(',')
+            if len(args.relationships) == 1 and "," in args.relationships[0]:
+                args.relationships = args.relationships[0].split(",")
             args.relationships = set(args.relationships)
             chk_relationships(args.relationships)
-
 
 
 class GoeaCliFnc:
@@ -223,7 +347,9 @@ class GoeaCliFnc:
     # pylint: disable=too-many-instance-attributes
     def __init__(self, args):
         self.args = args
-        self.sections = read_sections(self.args.sections) if self.args.sections else None
+        self.sections = (
+            read_sections(self.args.sections) if self.args.sections else None
+        )
         godag_optional_attrs = self._get_optional_attrs()
         self.godag = GODag(obo_file=self.args.obo, optional_attrs=godag_optional_attrs)
         ## print('ARGS GoeaCliFnc ', self.args)
@@ -248,34 +374,37 @@ class GoeaCliFnc:
         anno_type = get_anno_desc(assoc_fn, None)
         # Default annotation file format is id2gos
         if anno_type is None:
-            anno_type = self.args.annofmt if self.args.annofmt else 'id2gos'
+            anno_type = self.args.annofmt if self.args.annofmt else "id2gos"
         # kws: namespaces taxid godag
         kws = self._get_kws_objanno(anno_type)
         return get_objanno(assoc_fn, anno_type, **kws)
 
     def _get_ns(self):
         """Return namespaces."""
-        exp_nss = {'BP', 'MF', 'CC'}
-        act_nss = set(self.args.ns.split(','))
-        assert not act_nss.difference(exp_nss), 'EXPECTED NAMESPACES({E}); GOT({A})'.format(
-            E=','.join(exp_nss), A=','.join(act_nss.difference(exp_nss)))
+        exp_nss = {"BP", "MF", "CC"}
+        act_nss = set(self.args.ns.split(","))
+        assert not act_nss.difference(
+            exp_nss
+        ), "EXPECTED NAMESPACES({E}); GOT({A})".format(
+            E=",".join(exp_nss), A=",".join(act_nss.difference(exp_nss))
+        )
         return None if act_nss == exp_nss else act_nss
 
     def _get_kws_objanno(self, anno_type):
         """Get keyword-args for creating an Annotation object"""
-        kws = {'namespaces': self._get_ns(), 'godag': self.godag}
-        if anno_type == 'gene2go':
-            kws['taxid'] = self.args.taxid
+        kws = {"namespaces": self._get_ns(), "godag": self.godag}
+        if anno_type == "gene2go":
+            kws["taxid"] = self.args.taxid
         return kws
 
     def _init_itemid2name(self):
         """Print gene symbols instead of gene IDs, if provided."""
-        if not hasattr(self.args, 'id2sym'):
+        if not hasattr(self.args, "id2sym"):
             return None
         fin_id2sym = self.args.id2sym
         if fin_id2sym is not None and os.path.exists(fin_id2sym):
             id2sym = {}
-            cmpl = re.compile(r'^\s*(\S+)[\s,;]+(\S+)')
+            cmpl = re.compile(r"^\s*(\S+)[\s,;]+(\S+)")
             with open(fin_id2sym) as ifstrm:
                 for line in ifstrm:
                     mtch = cmpl.search(line)
@@ -300,11 +429,11 @@ class GoeaCliFnc:
 
     def prt_outfiles_flat(self, goea_results, outfiles):
         """Write to outfiles."""
-        kws = {'indent':self.args.indent, 'itemid2name':self.itemid2name}
+        kws = {"indent": self.args.indent, "itemid2name": self.itemid2name}
         for outfile in outfiles:
             if outfile.endswith(".xlsx"):
                 self.objgoeans.wr_xlsx(outfile, goea_results, **kws)
-            #elif outfile.endswith(".txt"):  # TBD
+            # elif outfile.endswith(".txt"):  # TBD
             #    pass
             else:
                 self.objgoeans.wr_tsv(outfile, goea_results, **kws)
@@ -325,7 +454,9 @@ class GoeaCliFnc:
 
     def get_results(self):
         """Return the significant GOEA results (< pval), unless user wants all."""
-        results = self.get_results_sig() if 0 <= self.args.pval < 1.0 else self.results_all
+        results = (
+            self.get_results_sig() if 0 <= self.args.pval < 1.0 else self.results_all
+        )
         if self.args.prt_study_gos_only:
             results = [r for r in results if r.study_count != 0]
         return results
@@ -335,55 +466,73 @@ class GoeaCliFnc:
         ns2assoc = self.objanno.get_ns2assc(**self._get_anno_kws())
         ## BROAD rm_goids = self._get_remove_goids()
         rm_goids = False  # BROAD
-        return GOEnrichmentStudyNS(pop, ns2assoc, self.godag,
-                                   propagate_counts=not self.args.no_propagate_counts,
-                                   relationships=self.args.relationships,
-                                   alpha=self.args.alpha,
-                                   pvalcalc=self.args.pvalcalc,
-                                   methods=self.methods,
-                                   remove_goids=rm_goids)
+        return GOEnrichmentStudyNS(
+            pop,
+            ns2assoc,
+            self.godag,
+            propagate_counts=not self.args.no_propagate_counts,
+            relationships=self.args.relationships,
+            alpha=self.args.alpha,
+            pvalcalc=self.args.pvalcalc,
+            methods=self.methods,
+            remove_goids=rm_goids,
+        )
+
     def _get_anno_kws(self):
         """Return keyword options to obtain id2gos"""
         kws = {}
         if self.args.ev_inc is not None:
-            kws['ev_include'] = set(self.args.ev_inc.split(','))
+            kws["ev_include"] = set(self.args.ev_inc.split(","))
         if self.args.ev_exc is not None:
-            kws['ev_exclude'] = set(self.args.ev_exc.split(','))
+            kws["ev_exclude"] = set(self.args.ev_exc.split(","))
         return kws
 
     def chk_genes(self, study, pop, ntsassoc=None):
         """Compare population and study gene product sets"""
         if len(pop) < len(study):
-            exit("\nERROR: The study file contains more elements than the population file. "
-                 "Please check that the study file is a subset of the population file.\n")
+            exit(
+                "\nERROR: The study file contains more elements than the population file. "
+                "Please check that the study file is a subset of the population file.\n"
+            )
         # check the fraction of genomic ids that overlap between study and population
         overlap = self.get_overlap(study, pop)
         if overlap < 0.95:
-            sys.stderr.write("\nWARNING: only {} fraction of genes/proteins in study are found in "
-                             "the population background.\n\n".format(overlap))
+            sys.stderr.write(
+                "\nWARNING: only {} fraction of genes/proteins in study are found in "
+                "the population background.\n\n".format(overlap)
+            )
         if overlap <= self.args.min_overlap:
-            exit("\nERROR: only {} of genes/proteins in the study are found in the "
-                 "background population. Please check.\n".format(overlap))
+            exit(
+                "\nERROR: only {} of genes/proteins in the study are found in the "
+                "background population. Please check.\n".format(overlap)
+            )
         # Population and associations
         if ntsassoc is not None:
             assc_ids = set(nt.DB_ID for nt in ntsassoc)
             if pop.isdisjoint(assc_ids):
-                if self.objanno.name == 'gene2go':
-                    err = ('**FATAL: NO POPULATION ITEMS SEEN IN THE NCBI gene2go ANNOTATIONS '
-                           'FOR taxid({T}). TRY: --taxid=<taxid number>')
+                if self.objanno.name == "gene2go":
+                    err = (
+                        "**FATAL: NO POPULATION ITEMS SEEN IN THE NCBI gene2go ANNOTATIONS "
+                        "FOR taxid({T}). TRY: --taxid=<taxid number>"
+                    )
                     exit(err.format(T=next(iter(self.objanno.taxid2asscs.keys()))))
                 else:
-                    exit('**FATAL: NO POPULATION ITEMS SEEN IN THE ANNOTATIONS')
+                    exit("**FATAL: NO POPULATION ITEMS SEEN IN THE ANNOTATIONS")
 
     def get_results_sig(self):
         """Get significant results."""
         # Only print results when uncorrected p-value < this value.
-        print("{N:7,} of {M:,} results have uncorrected P-values <= {PVAL}=pval\n".format(
-            N=sum(1 for r in self.results_all if r.p_uncorrected < self.args.pval),
-            M=len(self.results_all),
-            PVAL=self.args.pval))
+        print(
+            "{N:7,} of {M:,} results have uncorrected P-values <= {PVAL}=pval\n".format(
+                N=sum(1 for r in self.results_all if r.p_uncorrected < self.args.pval),
+                M=len(self.results_all),
+                PVAL=self.args.pval,
+            )
+        )
         pval_fld = self.get_pval_field()
-        results = [r for r in self.results_all if getattr(r, pval_fld) <= self.args.pval]
+        results = [
+            r for r in self.results_all if getattr(r, pval_fld) <= self.args.pval
+        ]
         return results
 
     @staticmethod
@@ -396,19 +545,23 @@ class GoeaCliFnc:
         pval_fld = self.args.pval_field
         # If --pval_field [VAL] was specified
         if pval_fld is not None:
-            if pval_fld[:2] != 'p_':
-                pval_fld = 'p_' + pval_fld
+            if pval_fld[:2] != "p_":
+                pval_fld = "p_" + pval_fld
         # If only one method was used, use that instead of the uncorrected pvalue
         elif len(self.methods) == 1:
-            pval_fld = 'p_' + self.methods[0]
+            pval_fld = "p_" + self.methods[0]
         # Use 'uncorrected pvalue' if there are many methods & none chosen using --pval_field
         else:
-            pval_fld = 'p_uncorrected'
+            pval_fld = "p_uncorrected"
         if self.results_all:
-            assert hasattr(next(iter(self.results_all)), pval_fld), \
-                'NO PVAL({P}). EXPECTED ONE OF: {E}'.format(
-                    P=self.args.pval_field,
-                    E=" ".join([k for k in dir(next(iter(self.results_all))) if k[:2] == 'p_']))
+            assert hasattr(
+                next(iter(self.results_all)), pval_fld
+            ), "NO PVAL({P}). EXPECTED ONE OF: {E}".format(
+                P=self.args.pval_field,
+                E=" ".join(
+                    [k for k in dir(next(iter(self.results_all))) if k[:2] == "p_"]
+                ),
+            )
         return pval_fld
 
     def rd_files(self, study_fn, pop_fn):
@@ -434,18 +587,23 @@ class GoeaCliFnc:
             pop -= common
             study -= common
             sys.stderr.write("removed %d overlapping items\n" % (len(common)))
-            sys.stderr.write("Set 1: {0}, Set 2: {1}\n".format(
-                len(study), len(pop)))
+            sys.stderr.write("Set 1: {0}, Set 2: {1}\n".format(len(study), len(pop)))
         return study, pop
 
     def _get_optional_attrs(self):
         """Given keyword args, return optional_attributes to be loaded into the GODag."""
         if self.args.relationship:
-            return {'relationship',}
+            return {
+                "relationship",
+            }
         if self.args.relationships is not None:
-            return {'relationship',}
+            return {
+                "relationship",
+            }
         if self.sections:
-            return {'relationship',}
+            return {
+                "relationship",
+            }
         return None
 
     def _get_remove_goids(self):
@@ -454,16 +612,17 @@ class GoeaCliFnc:
         if self.args.remove_goids is None:
             return self.args.remove_goids
         # True: Remove a slightly larger number of broad GO IDs (~100)
-        if self.args.remove_goids.lower() == 'true':
+        if self.args.remove_goids.lower() == "true":
             return True
         # False: Do not remove any broad GO IDs
-        if self.args.remove_goids.lower() == 'false':
+        if self.args.remove_goids.lower() == "false":
             return False
         if os.path.exists(self.args.remove_goids):
             GetGOs.rdtxt_gos(self.args.remove_goids, sys.stdout)
-        if isinstance(self.args.remove_goids, str) and 'GO' in self.args.remove_goids:
-            return self.args.remove_goids.split(',')
+        if isinstance(self.args.remove_goids, str) and "GO" in self.args.remove_goids:
+            return self.args.remove_goids.split(",")
         return None
+
 
 class GroupItems:
     """Prepare for grouping, if specified by the user."""
@@ -473,13 +632,19 @@ class GroupItems:
         _goids = set(r.GO for r in objcli.results_all)
         _tobj = TermCounts(objcli.godag, objcli.objgoeans.get_assoc())
         # pylint: disable=line-too-long
-        self.gosubdag = GoSubDag(_goids, objcli.godag, relationships=True, tcntobj=_tobj, prt=sys.stdout)
+        self.gosubdag = GoSubDag(
+            _goids, objcli.godag, relationships=True, tcntobj=_tobj, prt=sys.stdout
+        )
         self.grprdflt = GrouperDflts(self.gosubdag, objcli.args.goslim)
-        self.hdrobj = HdrgosSections(self.grprdflt.gosubdag, self.grprdflt.hdrgos_dflt, objcli.sections)
+        self.hdrobj = HdrgosSections(
+            self.grprdflt.gosubdag, self.grprdflt.hdrgos_dflt, objcli.sections
+        )
         self.pval_fld = objcli.get_pval_field()  # primary pvalue of interest
-        self.ver_list = [godag_version,
-                         self.grprdflt.ver_goslims,
-                         "Sections: {S}".format(S=objcli.args.sections)]
+        self.ver_list = [
+            godag_version,
+            self.grprdflt.ver_goslims,
+            "Sections: {S}".format(S=objcli.args.sections),
+        ]
         # self.objaartall = self._init_objaartall()
 
     def get_objgrpwr(self, goea_results):
@@ -491,8 +656,10 @@ class GroupItems:
         """Return a Grouper object, given a list of GOEnrichmentRecord."""
         nts_goea = MgrNtGOEAs(goea_results).get_goea_nts_prt(**kws)
         goids = set(nt.GO for nt in nts_goea)
-        go2nt = {nt.GO:nt for nt in nts_goea}
-        grprobj = Grouper("GOEA", goids, self.hdrobj, self.grprdflt.gosubdag, go2nt=go2nt)
+        go2nt = {nt.GO: nt for nt in nts_goea}
+        grprobj = Grouper(
+            "GOEA", goids, self.hdrobj, self.grprdflt.gosubdag, go2nt=go2nt
+        )
         grprobj.prt_summary(sys.stdout)
         # hdrgo_prt", "section_prt", "top_n", "use_sections"
         sortobj = Sorter(grprobj, section_sortby=lambda nt: getattr(nt, self.pval_fld))
@@ -507,19 +674,24 @@ class GroupItems:
     def _init_objaartall(self):
         """Get background database info for making ASCII art."""
         kws = {
-            'sortgo':lambda nt: [nt.NS, nt.dcnt],
+            "sortgo": lambda nt: [nt.NS, nt.dcnt],
             # fmtgo=('{p_fdr_bh:8.2e} {GO} '
             # Formatting for GO terms in grouped GO list
-            'fmtgo':('{hdr1usr01:2} {NS} {GO} {s_fdr_bh:8} '
-                     '{dcnt:5} {childcnt:3} R{reldepth:02} '
-                     '{D1:5} {GO_name} ({study_count} study genes)\n'),
+            "fmtgo": (
+                "{hdr1usr01:2} {NS} {GO} {s_fdr_bh:8} "
+                "{dcnt:5} {childcnt:3} R{reldepth:02} "
+                "{D1:5} {GO_name} ({study_count} study genes)\n"
+            ),
             # Formatting for GO terms listed under each gene
-            'fmtgo2':('{hdr1usr01:2} {NS} {GO} {s_fdr_bh:8} '
-                      '{dcnt:5} R{reldepth:02} '
-                      '{GO_name} ({study_count} study genes)\n'),
+            "fmtgo2": (
+                "{hdr1usr01:2} {NS} {GO} {s_fdr_bh:8} "
+                "{dcnt:5} R{reldepth:02} "
+                "{GO_name} ({study_count} study genes)\n"
+            ),
             # itemid2name=ensmusg2symbol}
-            }
+        }
         return AArtGeneProductSetsAll(self.grprdflt, self.hdrobj, **kws)
+
 
 class GrpWr:
     """Write GO term GOEA information, grouped."""
@@ -554,26 +726,28 @@ class GrpWr:
         #     'ratio_in_study': {'align':'right'},
         #     'ratio_in_pop':{'align':'right'}}
         kws_xlsx = {
-            'title': self.ver_list,
-            'fld2fmt': {f:'{:8.2e}' for f in self.flds_cur if f[:2] == 'p_'},
+            "title": self.ver_list,
+            "fld2fmt": {f: "{:8.2e}" for f in self.flds_cur if f[:2] == "p_"},
             #'ntfld_wbfmt': ntfld_wbfmt,
             #### 'ntval2wbfmtdict': ntval2wbfmtdict,
             #'hdrs': [],
-            'prt_flds': self.flds_cur}
+            "prt_flds": self.flds_cur,
+        }
         objwr.wr_xlsx_nts(fout_xlsx, self.desc2nts, **kws_xlsx)
 
     def wr_tsv(self, fout_tsv):
         """Print grouped GOEA results into a tab-separated file."""
-        with open(fout_tsv, 'w') as prt:
+        with open(fout_tsv, "w") as prt:
             kws_tsv = {
-                'fld2fmt': {f:'{:8.2e}' for f in self.flds_cur if f[:2] == 'p_'},
-                'prt_flds':self.flds_cur}
-            prt_tsv_sections(prt, self.desc2nts['sections'], **kws_tsv)
+                "fld2fmt": {f: "{:8.2e}" for f in self.flds_cur if f[:2] == "p_"},
+                "prt_flds": self.flds_cur,
+            }
+            prt_tsv_sections(prt, self.desc2nts["sections"], **kws_tsv)
             print("  WROTE: {TSV}".format(TSV=fout_tsv))
 
     def wr_txt(self, fout_txt):
         """Write to a file GOEA results in an ASCII text format."""
-        with open(fout_txt, 'w') as prt:
+        with open(fout_txt, "w") as prt:
             for line in self.ver_list:
                 prt.write("{LINE}\n".format(LINE=line))
             self.prt_txt(prt)
@@ -583,13 +757,13 @@ class GrpWr:
         """Print an ASCII text format."""
         prtfmt = self.objprtfmt.get_prtfmt_str(self.flds_cur)
         prt.write("{FLDS}\n".format(FLDS=" ".join(self.flds_cur)))
-        WrSectionsTxt.prt_sections(prt, self.desc2nts['sections'], prtfmt, secspc=True)
+        WrSectionsTxt.prt_sections(prt, self.desc2nts["sections"], prtfmt, secspc=True)
 
     def prt_txt(self, prt=sys.stdout):
         """Print an ASCII text format."""
         prtfmt = self.objprtfmt.get_prtfmt_str(self.flds_cur)
         prt.write("{FLDS}\n".format(FLDS=" ".join(self.flds_cur)))
-        WrSectionsTxt.prt_sections(prt, self.desc2nts['sections'], prtfmt, secspc=True)
+        WrSectionsTxt.prt_sections(prt, self.desc2nts["sections"], prtfmt, secspc=True)
 
     def _init_flds_cur(self):
         """Choose fields to print from a multitude of available fields."""
@@ -603,14 +777,24 @@ class GrpWr:
         # 'is_hdrgo', 'is_usrgo', 'num_usrgos', 'hdr1usr01', 'alt', 'GO_name',
         # 'dcnt', 'D1', 'tcnt', 'tfreq', 'tinfo', 'childcnt', 'REL',
         # 'REL_short', 'rel', 'id')
-        flds0 = ['GO', 'NS', 'enrichment', self.pval_fld, 'dcnt', 'tinfo', 'depth',
-                 'ratio_in_study', 'ratio_in_pop', 'name']
-        flds_p = [f for f in self.flds_all if f[:2] == 'p_' and f != self.pval_fld]
+        flds0 = [
+            "GO",
+            "NS",
+            "enrichment",
+            self.pval_fld,
+            "dcnt",
+            "tinfo",
+            "depth",
+            "ratio_in_study",
+            "ratio_in_pop",
+            "name",
+        ]
+        flds_p = [f for f in self.flds_all if f[:2] == "p_" and f != self.pval_fld]
         flds.extend(flds0)
         if flds_p:
             flds.extend(flds_p)
-        flds.append('study_count')
-        flds.append('study_items')
+        flds.append("study_count")
+        flds.append("study_items")
         return flds
 
 
