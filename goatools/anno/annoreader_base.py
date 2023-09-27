@@ -11,51 +11,50 @@ from goatools.anno.opts import AnnoOptions
 from goatools.godag.consts import NAMESPACE2NS
 from goatools.gosubdag.go_tasks import get_go2parents_go2obj
 
-__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = (
+    "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
+)
 __author__ = "DV Klopfenstein"
 
 
 # pylint: disable=useless-object-inheritance,too-many-public-methods
 class AnnoReaderBase(object):
     """Reads a Gene Association File. Returns a Python object."""
+
     # pylint: disable=broad-except,line-too-long,too-many-instance-attributes
 
     tic = timeit.default_timer()
 
     # Expected values for a Qualifier
-    exp_qualifiers = set([
+    exp_qualifiers = {
         # Seen in both GAF and gene2go
-        'not', 'contributes_to', 'colocalizes_with',
-    ])
-
-    valid_formats = {'gpad', 'gaf', 'gene2go', 'id2gos'}
-
-    exp_nss = set(['BP', 'MF', 'CC'])
+        "not",
+        "contributes_to",
+        "colocalizes_with",
+    }
+    valid_formats = {"gpad", "gaf", "gene2go", "id2gos"}
+    exp_nss = {"BP", "MF", "CC"}
 
     def __init__(self, name, filename=None, **kws):
         # kws: allow_missing_symbol
         self.name = name  # name is one of valid_formats
         self.filename = filename
-        self.godag = kws.get('godag')
-        self.namespaces = kws.get('namespaces')
+        self.godag = kws.get("godag")
+        self.namespaces = kws.get("namespaces")
         self.evobj = EvidenceCodes()
-        # Read anotation file, store namedtuples:
-        #     Gene2GoReader(filename=None, taxids=None):
-        #     GafReader(filename=None, hdr_only=False, prt=sys.stdout, allow_missing_symbol=False):
-        #     GpadReader(filename=None, hdr_only=False):
         self.hdr = None
         self.datobj = None
         # pylint: disable=no-member
         self.associations = self._init_associations(filename, **kws)
-        # assert self.associations, 'NO ANNOTATIONS FOUND: {ANNO}'.format(ANNO=filename)
         assert self.namespaces is None or isinstance(self.namespaces, set)
 
     def get_desc(self):
         """Get description"""
-        return '{NAME} {NSs} {GODAG}'.format(
+        return "{NAME} {NSs} {GODAG}".format(
             NAME=self.name,
-            NSs='' if self.namespaces is None else ','.join(self.namespaces),
-            GODAG='' if self.godag is None else 'godag')
+            NSs="" if self.namespaces is None else ",".join(self.namespaces),
+            GODAG="" if self.godag is None else "godag",
+        )
 
     # pylint: disable=unused-argument
     def get_associations(self, taxid=None):
@@ -79,7 +78,10 @@ class AnnoReaderBase(object):
     # Arg, taxid, is used by NCBI's annotations, but not by gpad, gaf, etc.
     def get_ns2assc(self, taxid=None, **kws):
         """Return given associations into 3 (BP, MF, CC) dicts, id2gos"""
-        return {ns:self._get_id2gos(nts, **kws) for ns, nts in self.get_ns2ntsanno().items()}
+        return {
+            ns: self._get_id2gos(nts, **kws)
+            for ns, nts in self.get_ns2ntsanno().items()
+        }
 
     # pylint: disable=unused-argument
     # Arg, taxid, is used by NCBI's annotations, but not by gpad, gaf, etc.
@@ -90,9 +92,12 @@ class AnnoReaderBase(object):
     # Used by gpad, gaf, etc., but not used by NCBI's annotation reader
     def _get_ns2ntsanno(self, annotations):
         """Split list of annotations into 3 lists: BP, MF, CC"""
-        if self.name in {'gpad', 'id2gos'}:
-            assert self.godag is not None, "{T}: LOAD godag TO USE {C}::ns2ntsanno".format(
-                C=self.__class__.__name__, T=self.name)
+        if self.name in {"gpad", "id2gos"}:
+            assert (
+                self.godag is not None
+            ), "{T}: LOAD godag TO USE {C}::ns2ntsanno".format(
+                C=self.__class__.__name__, T=self.name
+            )
         ns2nts = cx.defaultdict(list)
         if self.godag:
             s_godag = self.godag
@@ -102,7 +107,7 @@ class AnnoReaderBase(object):
         else:
             for nta in annotations:
                 ns2nts[nta.NS].append(nta)
-        return {ns:ns2nts[ns] for ns in ns2nts}
+        return {ns: ns2nts[ns] for ns in ns2nts}
 
     def get_id2gos_nss(self, **kws):
         """Return all associations in a dict, id2gos, regardless of namespace"""
@@ -115,14 +120,17 @@ class AnnoReaderBase(object):
             nspc, assoc = self._get_1ns_assn(namespace)
             id2gos = self._get_id2gos(assoc, **kws)
             if prt:
-                prt.write('{N} IDs in loaded association branch, {NS}\n'.format(N=len(id2gos), NS=nspc))
+                prt.write(f"{len(id2gos)} IDs in loaded association branch, {nspc}\n")
             return id2gos
         if prt and self.godag is None:
-            logging.warning('%s.get_id2gos: GODAG is None. IGNORING namespace(%s). If you are running `map_to_slim.py`, this warning can be ignored.',
-                            type(self).__name__, namespace)
+            logging.warning(
+                "%s.get_id2gos: GODAG is None. IGNORING namespace(%s). If you are running `map_to_slim.py`, this warning can be ignored.",
+                type(self).__name__,
+                namespace,
+            )
         id2gos = self._get_id2gos(self.associations, **kws)
         if prt:
-            prt.write('{N} IDs in all associations\n'.format(N=len(id2gos)))
+            prt.write(f"{len(id2gos)} IDs in all associations\n")
         return id2gos
 
     def _get_1ns_assn(self, namespace_usr):
@@ -130,7 +138,7 @@ class AnnoReaderBase(object):
         # If all namespaces were loaded
         if self.namespaces is None:
             # Return user-specified namespace, if provided. Otherwise BP
-            nspc = self._get_biggest_namespace() if namespace_usr is None else namespace_usr
+            nspc = namespace_usr or self._get_biggest_namespace()
             # Return one namespace
             if nspc in set(NAMESPACE2NS.values()):
                 return nspc, [nt for nt in self.associations if nt.NS == nspc]
@@ -140,12 +148,14 @@ class AnnoReaderBase(object):
         if len(self.namespaces) == 1:
             nspc = next(iter(self.namespaces))
             if namespace_usr is not None and nspc != namespace_usr:
-                print('**WARNING: IGNORING {ns}; ONLY {NS} WAS LOADED'.format(
-                    ns=namespace_usr, NS=nspc))
+                print(f"**WARNING: IGNORING {namespace_usr}; ONLY {nspc} WAS LOADED")
             return nspc, self.associations
         if namespace_usr is None:
-            print('**ERROR get_id2gos: GODAG NOT LOADED. USING: {NSs}'.format(
-                NSs=' '.join(sorted(self.namespaces))))
+            print(
+                "**ERROR get_id2gos: GODAG NOT LOADED. USING: {NSs}".format(
+                    NSs=" ".join(sorted(self.namespaces))
+                )
+            )
         return namespace_usr, self.associations
 
     def _get_biggest_namespace(self):
@@ -155,10 +165,19 @@ class AnnoReaderBase(object):
 
     def has_ns(self):
         """Return True if namespace field, NS exists on annotation namedtuples"""
-        assert self.associations, 'NO ASSOCIATIONS IN file({}): {}'.format(self.filename, self.associations)
-        return hasattr(next(iter(self.associations)), 'NS')
+        assert (
+            self.associations
+        ), f"NO ASSOCIATIONS IN file({self.filename}): {self.associations}"
+        return hasattr(next(iter(self.associations)), "NS")
 
-    def _get_id2gos(self, ntannos_usr, propagate_counts=False, relationships=None, prt=sys.stdout, **kws):
+    def _get_id2gos(
+        self,
+        ntannos_usr,
+        propagate_counts=False,
+        relationships=None,
+        prt=sys.stdout,
+        **kws,
+    ):
         """Return given ntannos_usr in a dict, id2gos"""
         options = AnnoOptions(self.evobj, **kws)
         # Default reduction is to remove. For all options, see goatools/anno/opts.py:
@@ -166,11 +185,11 @@ class AnnoReaderBase(object):
         #   * Qualifiers contain NOT
         ntannos_indag = self._get_anno_in_dag(ntannos_usr)
         ntannos_m = self.reduce_annotations(ntannos_indag, options)
-        dbid2goids = self.get_dbid2goids(ntannos_m, propagate_counts, relationships, prt)
+        dbid2goids = self.get_dbid2goids(
+            ntannos_m, propagate_counts, relationships, prt
+        )
         if options.b_geneid2gos:
             return dbid2goids
-        # if not a2bs:
-        #     raise RuntimeError('**ERROR: NO ASSOCATIONS FOUND: {FILE}'.format(FILE=self.filename))
         return self._get_goid2dbids(dbid2goids)
 
     def _get_anno_in_dag(self, ntsanno):
@@ -205,21 +224,25 @@ class AnnoReaderBase(object):
     @staticmethod
     def _prt_qualifiers(associations, prt=sys.stdout):
         """Print Qualifiers found in the annotations.
-           QUALIFIERS:
-                1,462 colocalizes_with
-                1,454 contributes_to
-                1,157 not
-                   13 not colocalizes_with   (TBD: CHK - Seen in gene2go, but not gafs)
-                    4 not contributes_to     (TBD: CHK - Seen in gene2go, but not gafs)
+        QUALIFIERS:
+             1,462 colocalizes_with
+             1,454 contributes_to
+             1,157 not
+                13 not colocalizes_with   (TBD: CHK - Seen in gene2go, but not gafs)
+                 4 not contributes_to     (TBD: CHK - Seen in gene2go, but not gafs)
         """
-        prt.write('QUALIFIERS:\n')
-        for fld, cnt in cx.Counter(q for nt in associations for q in nt.Qualifier).most_common():
-            prt.write('    {N:6,} {FLD}\n'.format(N=cnt, FLD=fld))
+        prt.write("QUALIFIERS:\n")
+        for fld, cnt in cx.Counter(
+            q for nt in associations for q in nt.Qualifier
+        ).most_common():
+            prt.write(f"    {cnt:6,} {fld}\n")
 
     def reduce_annotations(self, annotations, options):
         """Reduce annotations to ones used to identify enrichment (normally exclude ND and NOT)."""
         getfnc_qual_ev = options.getfnc_qual_ev()
-        return [nt for nt in annotations if getfnc_qual_ev(nt.Qualifier, nt.Evidence_Code)]
+        return [
+            nt for nt in annotations if getfnc_qual_ev(nt.Qualifier, nt.Evidence_Code)
+        ]
 
     @staticmethod
     def update_association(assc_goidsets, go2ancestors, prt=sys.stdout):
@@ -239,13 +262,12 @@ class AnnoReaderBase(object):
         # Get GO IDs in annotations that are in GO DAG
         goids_avail = set(_godag)
         goids_missing = self._rpt_goids_notfound(goids_assoc_usr, goids_avail)
-        goids_assoc_cur = goids_assoc_usr.intersection(goids_avail).difference(goids_missing)
+        goids_assoc_cur = goids_assoc_usr & goids_avail - goids_missing
         # Get GO Term for each current GO ID in the annotations
-        _go2obj_assc = {go:_godag[go] for go in goids_assoc_cur}
+        _go2obj_assc = {go: _godag[go] for go in goids_assoc_cur}
         go2ancestors = get_go2parents_go2obj(_go2obj_assc, relationships, prt)
         if prt:
-            prt.write('{N} GO IDs -> {M} go2ancestors\n'.format(
-                N=len(goids_avail), M=len(go2ancestors)))
+            prt.write("{len(goids_avail)} GO IDs -> {len(go2ancestors)} go2ancestors\n")
         return go2ancestors
 
     @staticmethod
@@ -253,11 +275,16 @@ class AnnoReaderBase(object):
         """Report the number of GO IDs in the association, but not in the GODAG"""
         goids_missing = goids_assoc_all.difference(goids_avail)
         if goids_missing:
-            print("{N} GO IDs NOT FOUND IN ASSOCIATION: {GOs}".format(
-                N=len(goids_missing), GOs=" ".join(sorted(goids_missing))))
+            print(
+                "{N} GO IDs NOT FOUND IN ASSOCIATION: {GOs}".format(
+                    N=len(goids_missing), GOs=" ".join(sorted(goids_missing))
+                )
+            )
         return goids_missing
 
-    def get_dbid2goids(self, ntannos, propagate_counts=False, relationships=None, prt=sys.stdout):
+    def get_dbid2goids(
+        self, ntannos, propagate_counts=False, relationships=None, prt=sys.stdout
+    ):
         """Return gene2go data for user-specified taxids."""
         if propagate_counts:
             return self._get_dbid2goids_p1(ntannos, relationships, prt)
@@ -299,8 +326,8 @@ class AnnoReaderBase(object):
         if tic is None:
             tic = self.tic
         now = timeit.default_timer()
-        hms = str(datetime.timedelta(seconds=(now-tic)))
-        prt.write('{HMS}: {MSG}\n'.format(HMS=hms, MSG=msg))
+        hms = str(datetime.timedelta(seconds=now - tic))
+        prt.write(f"{hms}: {msg}\n")
         return now
 
     def chk_associations(self, fout_err=None):
@@ -310,7 +337,7 @@ class AnnoReaderBase(object):
 
     def nts_ev_nd(self):
         """Get annotations where Evidence_code == 'ND' (No biological data)"""
-        return [nt for nt in self.associations if nt.Evidence_Code == 'ND']
+        return [nt for nt in self.associations if nt.Evidence_Code == "ND"]
 
     def nts_qual_not(self):
         """Get annotations having Qualifiers containing NOT"""
@@ -318,30 +345,33 @@ class AnnoReaderBase(object):
 
     def chk_qualifiers(self):
         """Check format of qualifier"""
-        if self.name == 'id2gos':
+        if self.name == "id2gos":
             return
         for ntd in self.associations:
-            # print(ntd)
             qual = ntd.Qualifier
-            assert isinstance(qual, set), '{NAME}: QUALIFIER MUST BE A LIST: {NT}'.format(
-                NAME=self.name, NT=ntd)
-            assert qual != set(['']), ntd
-            assert qual != set(['-']), ntd
-            assert 'always' not in qual, 'SPEC SAID IT WOULD BE THERE'
+            assert isinstance(
+                qual, set
+            ), f"{self.name}: QUALIFIER MUST BE A LIST: {ntd}"
+            assert qual != {""}, ntd
+            assert qual != {"-"}, ntd
+            assert "always" not in qual, "SPEC SAID IT WOULD BE THERE"
 
     def chk_godag(self):
         """Check that a GODag was loaded"""
         if not self.godag:
-            raise RuntimeError('{CLS} MUST INCLUDE GODag: {CLS}(file.anno, godag=godag)'.format(
-                CLS=self.__class__.__name__))
+            raise RuntimeError(
+                "{CLS} MUST INCLUDE GODag: {CLS}(file.anno, godag=godag)".format(
+                    CLS=self.__class__.__name__
+                )
+            )
 
     @staticmethod
     def _has_not_qual(ntd):
         """Return True if the qualifiers contain a 'NOT'"""
         for qual in ntd.Qualifier:
-            if 'not' in qual:
+            if "not" in qual:
                 return True
-            if 'NOT' in qual:
+            if "NOT" in qual:
                 return True
         return False
 
@@ -349,7 +379,7 @@ class AnnoReaderBase(object):
         """Print the number of taxids stored."""
         num_annos = len(self.associations)
         # 792,891 annotations for 3 taxids stored: 10090 7227 9606
-        prt.write('{A:8,} annotations\n'.format(A=num_annos))
+        prt.write(f"{num_annos:8,} annotations\n")
 
 
 # Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."

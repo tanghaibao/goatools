@@ -6,7 +6,9 @@ import datetime
 import collections as cx
 from goatools.godag.consts import NAMESPACE2NS
 
-__copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
+__copyright__ = (
+    "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
+)
 __author__ = "DV Klopfenstein"
 
 
@@ -14,28 +16,32 @@ __author__ = "DV Klopfenstein"
 class InitAssc:
     """Initialize associations."""
 
-    flds = ['DB_ID', 'GO_ID']
+    flds = ["DB_ID", "GO_ID"]
 
-    def __init__(self, fin_anno, godag, namespaces):
+    def __init__(self, fin_anno, godag, namespaces, obsolete: str):
         tic = timeit.default_timer()
         self.godag = godag
+        self.obsolete = obsolete
         self.id2gos = self._init_id2gos(fin_anno)
         self.nts = self.init_associations(namespaces)
-        print('HMS:{HMS} {N:7,} annotations READ: {ANNO} {NSs}'.format(
-            N=len(self.nts), ANNO=fin_anno,
-            NSs=','.join(namespaces) if namespaces else '',
-            HMS=str(datetime.timedelta(seconds=(timeit.default_timer()-tic)))))
+        print(
+            "HMS:{HMS} {N:7,} annotations READ: {ANNO} {NSs}".format(
+                N=len(self.nts),
+                ANNO=fin_anno,
+                NSs=",".join(namespaces) if namespaces else "",
+                HMS=str(datetime.timedelta(seconds=timeit.default_timer() - tic)),
+            )
+        )
 
     def init_associations(self, namespaces):
         """Get a list of namedtuples, one for each annotation."""
-        # _get_b_all_nss(namespaces)
         nts = self._init_w_godag() if self.godag else self._init_dflt()
         if self.godag is None:
             if namespaces is not None:
                 # pylint: disable=superfluous-parens
-                print('**WARNING: GODAG NOT LOADED. IGNORING namespaces={NS}'.format(NS=namespaces))
+                print(f"**WARNING: GODAG NOT LOADED. IGNORING namespaces={namespaces}")
             return nts
-        if namespaces == {'BP', 'MF', 'CC'}:
+        if namespaces == {"BP", "MF", "CC"}:
             return nts
         if not namespaces:
             return nts
@@ -44,7 +50,7 @@ class InitAssc:
     def _init_dflt(self):
         """Get a list of namedtuples, one for each annotation."""
         nts = []
-        ntobj = cx.namedtuple('ntanno', self.flds)
+        ntobj = cx.namedtuple("ntanno", self.flds)
         for itemid, gos in self.id2gos.items():
             for goid in gos:
                 nts.append(ntobj(DB_ID=itemid, GO_ID=goid))
@@ -53,24 +59,46 @@ class InitAssc:
     def _init_w_godag(self, prt=stdout):
         """Get a list of namedtuples, one for each annotation."""
         nts = []
-        ntobj = cx.namedtuple('ntanno', self.flds + ['NS'])
+        ntobj = cx.namedtuple("ntanno", self.flds + ["NS"])
         s_godag = self.godag
-        not_found = set()
         for itemid, gos in self.id2gos.items():
+            to_add = set()
             for goid in gos:
-                if goid in s_godag:
-                    goobj = s_godag[goid]
-                    namespace = goobj.namespace
-                    nspc = NAMESPACE2NS.get(namespace, namespace) if goobj else ''
-                    nts.append(ntobj(DB_ID=itemid, GO_ID=goid, NS=nspc))
+                if goid not in s_godag:
+                    prt.write(f"**WARNING: {goid} NOT FOUND IN DAG\n")
+                    continue
+                goobj = s_godag[goid]
+                if goobj.is_obsolete:
+                    if self.obsolete == "keep":
+                        prt.write(f"**WARNING: {goid} obsolete in DAG, kept\n")
+                        to_add.add(goid)
+                    elif self.obsolete == "replace":
+                        to_replace = set()
+                        if "replaced_by" in goobj.__dict__ and goobj.replaced_by:
+                            to_replace |= set(goobj.replaced_by.split(","))
+                        if "consider" in goobj.__dict__ and goobj.consider:
+                            to_replace |= goobj.consider
+                        if to_replace:
+                            prt.write(
+                                f"**WARNING: {goid} obsolete in DAG, replaced by {to_replace}\n"
+                            )
+                        else:
+                            prt.write(
+                                f"**WARNING: {goid} obsolete in DAG, no replacement\n"
+                            )
+                        to_add |= to_replace
+                    elif self.obsolete == "skip":
+                        prt.write(f"**WARNING: {goid} obsolete in DAG, skipped\n")
                 else:
-                    not_found.add(goid)
-        for goid in sorted(not_found):
-            prt.write('**WARNING: {GO} NOT FOUND IN DAG\n'.format(GO=goid))
+                    to_add.add(goid)
+            for goid in to_add:
+                goobj = s_godag[goid]
+                namespace = goobj.namespace
+                nspc = NAMESPACE2NS.get(namespace, namespace) if goobj else ""
+                nts.append(ntobj(DB_ID=itemid, GO_ID=goid, NS=nspc))
         return nts
 
     @staticmethod
-    #### def read_associations(assoc_fn, no_top=False):
     def _init_id2gos(assoc_fn):  ##, no_top=False):
         """
         Reads a gene id go term association file. The format of the file
@@ -105,7 +133,7 @@ class InitAssc:
                 atoms = row.split()
                 if len(atoms) == 2:
                     gene_id, go_terms = atoms
-                elif len(atoms) > 2 and row.count('\t') == 1:
+                elif len(atoms) > 2 and row.count("\t") == 1:
                     gene_id, go_terms = row.split("\t")
                 else:
                     continue

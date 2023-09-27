@@ -6,11 +6,11 @@
 
 """Read and store Gene Ontology's obo file."""
 # -*- coding: UTF-8 -*-
-from __future__ import print_function
-
-from sys import stdout
-from sys import stderr
 import os
+
+from sys import stderr, stdout
+from typing import Optional
+
 from goatools.godag.obo_optional_attributes import OboOptionalAttrs
 from goatools.godag.typedef import TypeDef
 from goatools.godag.typedef import add_to_typedef
@@ -45,7 +45,7 @@ class OBOReader(object):
         self.data_version = (
             None  # e.g., "releases/2016-07-07" from "data-version:" line
         )
-        self.default_namespace = 'default'
+        self.default_namespace = "default"
         self.typedefs = {}
 
         # True if obo file exists or if a link to an obo file exists.
@@ -53,11 +53,11 @@ class OBOReader(object):
             self.obo_file = obo_file
             # GOTerm attributes that are necessary for any operations:
         else:
-            raise Exception(
-                "COULD NOT READ({OBO})\n"
+            raise ValueError(
+                f"COULD NOT READ({obo_file})\n"
                 "download obo file first\n "
                 "[http://geneontology.org/ontology/"
-                "go-basic.obo]".format(OBO=obo_file)
+                "go-basic.obo]"
             )
 
     def __iter__(self):
@@ -109,7 +109,7 @@ class OBOReader(object):
         if line[0:12] == "data-version":
             self.data_version = line[14:-1]
             return True
-        if line[:17] == 'default-namespace':
+        if line[:17] == "default-namespace":
             self.default_namespace = line[18:].strip()
             return True
         if line[0:6].lower() == "[term]":
@@ -160,7 +160,7 @@ class GOTerm(object):
     GO term, actually contain a lot more properties than interfaced here
     """
 
-    def __init__(self, default_namespace='default'):
+    def __init__(self, default_namespace="default"):
         self.id = ""  # GO:NNNNNNN  **DEPRECATED** RESERVED NAME IN PYTHON
         self.item_id = ""  # GO:NNNNNNN (will replace deprecated "id")
         self.name = ""  # description
@@ -186,27 +186,23 @@ class GOTerm(object):
 
     def __repr__(self):
         """Print GO ID and all attributes in GOTerm class."""
-        ret = ["GOTerm('{ID}'):".format(ID=self.item_id)]
+        ret = [f"GOTerm('{self.item_id}'):"]
         for key, val in self.__dict__.items():
             if isinstance(val, (int, str)):
-                ret.append("{K}:{V}".format(K=key, V=val))
+                ret.append(f"{key}:{val}")
             elif val is not None:
-                ret.append("{K}: {V} items".format(K=key, V=len(val)))
+                ret.append(f"{key}: {len(val)} items")
                 if len(val) < 10:
                     if not isinstance(val, dict):
                         for elem in val:
-                            ret.append("  {ELEM}".format(ELEM=elem))
+                            ret.append(f"  {elem}")
                     else:
-                        for (typedef, terms) in val.items():
-                            ret.append(
-                                "  {TYPEDEF}: {NTERMS} items".format(
-                                    TYPEDEF=typedef, NTERMS=len(terms)
-                                )
-                            )
+                        for typedef, terms in val.items():
+                            ret.append(f"  {typedef}: {len(terms)} items")
                             for term in terms:
-                                ret.append("    {TERM}".format(TERM=term))
+                                ret.append(f"    {term}")
             else:
-                ret.append("{K}: None".format(K=key))
+                ret.append(f"{key}: None")
         return "\n  ".join(ret)
 
     def has_parent(self, term):
@@ -312,9 +308,9 @@ class GODag(dict):
     # pylint: disable=line-too-long
     def __init__(
         self,
-        obo_file="go-basic.obo",
-        optional_attrs=None,
-        load_obsolete=False,
+        obo_file: str = "go-basic.obo",
+        optional_attrs: Optional[set] = None,
+        load_obsolete: bool = False,
         prt=stdout,
     ):
         super(GODag, self).__init__()
@@ -416,37 +412,7 @@ class GODag(dict):
                     rec.depth = 0
             return rec.depth
 
-        #### MOVED TO goatools/godag/reldepth.py:
-        #### def _init_reldepth(rec):
-        ####     if not hasattr(rec, 'reldepth'):
-        ####         up_terms = rec.get_goterms_upper()
-        ####         if up_terms:
-        ####             rec.reldepth = max(_init_reldepth(rec) for rec in up_terms) + 1
-        ####         else:
-        ####             rec.reldepth = 0
-        ####     return rec.reldepth
-
         for rec in self.values():
-
-            #### MOVED TO goatools/godag/reldepth.py:
-            #### # Add invert relationships
-            #### if has_relationship:
-            ####     if rec.depth is None:
-            ####         _init_reldepth(rec)
-
-            ####     # print("BBBBBBBBBBB1", rec.item_id, rec.relationship)
-            ####     #for (typedef, terms) in rec.relationship.items():
-            ####     #    invert_typedef = self.typedefs[typedef].inverse_of
-            ####     #    # print("BBBBBBBBBBB2 {} ({}) ({}) ({})".format(
-            ####     #    #    rec.item_id, rec.relationship, typedef, invert_typedef))
-            ####     #    if invert_typedef:
-            ####     #        # Add inverted relationship
-            ####     #        for term in terms:
-            ####     #            if not hasattr(term, 'relationship'):
-            ####     #                term.relationship = defaultdict(set)
-            ####     #            term.relationship[invert_typedef].add(rec)
-            ####     # print("BBBBBBBBBBB3", rec.item_id, rec.relationship)
-
             if rec.level is None:
                 _init_level(rec)
 

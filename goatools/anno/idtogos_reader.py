@@ -11,25 +11,31 @@ __author__ = "DV Klopfenstein"
 class IdToGosReader(AnnoReaderBase):
     """Reads a Annotation File in text format with data in id2gos line"""
 
-    exp_kws = {'godag', 'namespaces'}
+    exp_kws = {"godag", "namespaces", "obsolete"}
 
     def __init__(self, filename=None, **kws):
         self.id2gos = None  # ID to GO ID set as loaded from annotations file
-        super(IdToGosReader, self).__init__('id2gos', filename,
-                                            godag=kws.get('godag'),
-                                            namespaces=kws.get('namespaces'))
+        super(IdToGosReader, self).__init__(
+            "id2gos",
+            filename,
+            godag=kws.get("godag"),
+            namespaces=kws.get("namespaces"),
+            obsolete=kws.get("obsolete"),
+        )
 
     @staticmethod
     def wr_id2gos(fout_txt, id2gos):
         """Write annotations into a text file"""
-        with open(fout_txt, 'w') as prt:
+        with open(fout_txt, "w") as prt:
             for geneid, goset in sorted(id2gos.items()):
-                prt.write('{GENE}\t{GOs}\n'.format(GENE=geneid, GOs=';'.join(sorted(goset))))
-        print('  {N} annotations WROTE: {TXT}'.format(N=len(id2gos), TXT=fout_txt))
+                prt.write(
+                    "{GENE}\t{GOs}\n".format(GENE=geneid, GOs=";".join(sorted(goset)))
+                )
+        print(f"  {len(id2gos)} annotations WROTE: {fout_txt}")
 
     def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print a summary of all Evidence Codes seen in annotations"""
-        prt.write('**NOTE: No evidence codes in associations: {F}\n'.format(F=self.filename))
+        prt.write(f"**NOTE: No evidence codes in associations: {self.filename}\n")
 
     # pylint: disable=unused-argument
     def reduce_annotations(self, associations, options):
@@ -46,7 +52,7 @@ class IdToGosReader(AnnoReaderBase):
 
     def _init_associations(self, fin_anno, **kws):
         """Read annotation file and store a list of namedtuples."""
-        ini = InitAssc(fin_anno, kws['godag'], kws['namespaces'])
+        ini = InitAssc(fin_anno, kws["godag"], kws["namespaces"], kws["obsolete"])
         self.id2gos = ini.id2gos
         return ini.nts
 
