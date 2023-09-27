@@ -233,7 +233,7 @@ class GoeaCliArgs:
         p.add_argument(
             "--obsolete",
             choices=("keep", "replace", "skip"),
-            default="keep",
+            default="skip",
             help="Strategy for handling obsolete GO terms",
         )
         p.add_argument(
