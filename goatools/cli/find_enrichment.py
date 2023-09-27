@@ -586,8 +586,8 @@ class GoeaCliFnc:
             pop |= study
             pop -= common
             study -= common
-            sys.stderr.write("removed %d overlapping items\n" % (len(common)))
-            sys.stderr.write("Set 1: {0}, Set 2: {1}\n".format(len(study), len(pop)))
+            sys.stderr.write(f"removed {len(common)} overlapping items\n")
+            sys.stderr.write(f"Set 1: {len(study)}, Set 2: {len(pop)}\n")
         return study, pop
 
     def _get_optional_attrs(self):

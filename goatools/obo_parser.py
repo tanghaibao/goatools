@@ -415,6 +415,7 @@ class GODag(dict):
         for rec in self.values():
             if rec.level is None:
                 _init_level(rec)
+
             if rec.depth is None:
                 _init_depth(rec)
 

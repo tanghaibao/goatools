@@ -352,8 +352,8 @@ class AnnoReaderBase(object):
             assert isinstance(
                 qual, set
             ), f"{self.name}: QUALIFIER MUST BE A LIST: {ntd}"
-            assert qual != set([""]), ntd
-            assert qual != set(["-"]), ntd
+            assert qual != {""}, ntd
+            assert qual != {"-"}, ntd
             assert "always" not in qual, "SPEC SAID IT WOULD BE THERE"
 
     def chk_godag(self):
