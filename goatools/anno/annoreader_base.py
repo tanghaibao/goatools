@@ -36,8 +36,7 @@ class AnnoReaderBase(object):
     )
 
     valid_formats = {"gpad", "gaf", "gene2go", "id2gos"}
-
-    exp_nss = set(["BP", "MF", "CC"])
+    exp_nss = {"BP", "MF", "CC"}
 
     def __init__(self, name, filename=None, **kws):
         # kws: allow_missing_symbol
@@ -46,15 +45,10 @@ class AnnoReaderBase(object):
         self.godag = kws.get("godag")
         self.namespaces = kws.get("namespaces")
         self.evobj = EvidenceCodes()
-        # Read anotation file, store namedtuples:
-        #     Gene2GoReader(filename=None, taxids=None):
-        #     GafReader(filename=None, hdr_only=False, prt=sys.stdout, allow_missing_symbol=False):
-        #     GpadReader(filename=None, hdr_only=False):
         self.hdr = None
         self.datobj = None
         # pylint: disable=no-member
         self.associations = self._init_associations(filename, **kws)
-        # assert self.associations, 'NO ANNOTATIONS FOUND: {ANNO}'.format(ANNO=filename)
         assert self.namespaces is None or isinstance(self.namespaces, set)
 
     def get_desc(self):
