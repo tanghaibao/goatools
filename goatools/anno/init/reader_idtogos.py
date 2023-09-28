@@ -1,6 +1,5 @@
 """Reads a Annotation File in text format with data in id2gos line"""
 
-from sys import stdout
 import timeit
 import datetime
 import collections as cx

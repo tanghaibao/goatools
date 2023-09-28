@@ -6,10 +6,11 @@ import datetime
 import collections as cx
 import logging
 
-from goatools.evidence_codes import EvidenceCodes
-from goatools.anno.opts import AnnoOptions
-from goatools.godag.consts import NAMESPACE2NS
-from goatools.gosubdag.go_tasks import get_go2parents_go2obj
+from ..base import logger
+from ..anno.opts import AnnoOptions
+from ..evidence_codes import EvidenceCodes
+from ..godag.consts import NAMESPACE2NS
+from ..gosubdag.go_tasks import get_go2parents_go2obj
 
 __copyright__ = (
     "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
@@ -148,13 +149,12 @@ class AnnoReaderBase(object):
         if len(self.namespaces) == 1:
             nspc = next(iter(self.namespaces))
             if namespace_usr is not None and nspc != namespace_usr:
-                print(f"**WARNING: IGNORING {namespace_usr}; ONLY {nspc} WAS LOADED")
+                logger.warning("IGNORING %s; ONLY %s WAS LOADED", namespace_usr, nspc)
             return nspc, self.associations
         if namespace_usr is None:
-            print(
-                "**ERROR get_id2gos: GODAG NOT LOADED. USING: {NSs}".format(
-                    NSs=" ".join(sorted(self.namespaces))
-                )
+            logger.error(
+                "get_id2gos: GODAG NOT LOADED. USING: %s",
+                " ".join(sorted(self.namespaces)),
             )
         return namespace_usr, self.associations
 
