@@ -2,6 +2,7 @@
 
 import bz2
 import gzip
+import io
 import logging
 import os
 import os.path as op
@@ -16,9 +17,6 @@ from urllib.request import urlopen
 import requests
 
 from rich.logging import RichHandler
-
-int_types = (int,)
-basestring = str
 
 
 def get_logger(name: str):
@@ -55,10 +53,10 @@ def nopen(f, mode="r"):
     >>> files = list(nopen("|ls"))
     >>> assert 'setup.py\n' in files or b'setup.py\n' in files, files
     """
-    if isinstance(f, int_types):
+    if isinstance(f, int):
         return nopen(sys.argv[f], mode)
 
-    if not isinstance(f, basestring):
+    if not isinstance(f, str):
         return f
     if f.startswith("|"):
         # using shell explicitly makes things like process substitution work:
@@ -75,13 +73,10 @@ def nopen(f, mode="r"):
             close_fds=False,
             executable=os.environ.get("SHELL"),
         )
-        if sys.version_info[0] > 2:
-            import io
-
-            p.stdout = io.TextIOWrapper(p.stdout)
-            p.stdin = io.TextIOWrapper(p.stdin)
-            if mode != "r":
-                p.stderr = io.TextIOWrapper(p.stderr)
+        p.stdout = io.TextIOWrapper(p.stdout)
+        p.stdin = io.TextIOWrapper(p.stdin)
+        if mode != "r":
+            p.stderr = io.TextIOWrapper(p.stderr)
 
         if mode and mode[0] == "r":
             return process_iter(p, f[1:])
@@ -91,25 +86,13 @@ def nopen(f, mode="r"):
         fh = urlopen(f)
         if f.endswith(".gz"):
             return ungzipper(fh)
-        if sys.version_info[0] < 3:
-            return fh
-        import io
-
         return io.TextIOWrapper(fh)
     f = op.expanduser(op.expandvars(f))
     if f.endswith((".gz", ".Z", ".z")):
         fh = gzip.open(f, mode)
-        if sys.version_info[0] < 3:
-            return fh
-        import io
-
         return io.TextIOWrapper(fh)
     elif f.endswith((".bz", ".bz2", ".bzip2")):
         fh = bz2.BZ2File(f, mode)
-        if sys.version_info[0] < 3:
-            return fh
-        import io
-
         return io.TextIOWrapper(fh)
 
     return {"r": sys.stdin, "w": sys.stdout}[mode[0]] if f == "-" else open(f, mode)
