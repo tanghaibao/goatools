@@ -1,12 +1,13 @@
 """Utilities used in Gene Ontology Enrichment Analyses."""
-# Stolen from brentp
 
-import os
-from os.path import isfile
-import sys
-import logging
 import gzip
+import logging
+import os
+import sys
+import traceback
+
 from ftplib import FTP
+from os.path import isfile
 
 import requests
 
@@ -177,11 +178,9 @@ def dnld_file(src_ftp, dst_file, prt=sys.stdout, loading_bar=True):
                 prt.write("$ gunzip {FILE}\n".format(FILE=dst_gz))
             gzip_open_to(dst_gz, dst_file)
     except IOError as errmsg:
-        import traceback
-
         traceback.print_exc()
-        sys.stderr.write("**FATAL cmd: {CMD}".format(CMD=cmd_msg))
-        sys.stderr.write("**FATAL msg: {ERR}".format(ERR=str(errmsg)))
+        logger.fatal("cmd: %s", cmd_msg)
+        logger.fatal("msg: %s", str(errmsg))
         sys.exit(1)
 
 
@@ -193,11 +192,9 @@ def gzip_open_to(fin_gz, fout):
                 ostrm.write(zstrm.read())
     # pylint: disable=broad-except
     except Exception as errmsg:
-        print("**ERROR: COULD NOT GUNZIP({G}) TO FILE({F})".format(G=fin_gz, F=fout))
-        import traceback
-
+        logger.error("COULD NOT GUNZIP(%s) TO FILE(%s)", fin_gz, fout)
         traceback.print_exc()
-        sys.stderr.write("**FATAL msg: {ERR}".format(ERR=str(errmsg)))
+        logger.fatal("msg: %s", str(errmsg))
         sys.exit(1)
     os.remove(fin_gz)
 
