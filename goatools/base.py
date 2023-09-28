@@ -8,6 +8,7 @@ import os
 import os.path as op
 import sys
 import traceback
+import zlib
 
 from ftplib import FTP
 from os.path import isfile
@@ -102,8 +103,6 @@ def ungzipper(fh, blocksize=16384):
     """
     work-around to get streaming download of http://.../some.gz
     """
-    import zlib
-
     uzip = zlib.decompressobj(16 + zlib.MAX_WBITS)
     data = uzip.decompress(fh.read(blocksize)).split("\n")
 
@@ -123,8 +122,7 @@ def download_go_basic_obo(obo="go-basic.obo", prt=sys.stdout, loading_bar=True):
         http = "http://purl.obolibrary.org/obo/go"
         if "slim" in obo:
             http = "http://www.geneontology.org/ontology/subsets"
-            # http = 'http://current.geneontology.org/ontology/subsets'
-        obo_remote = "{HTTP}/{OBO}".format(HTTP=http, OBO=os.path.basename(obo))
+        obo_remote = f"{http}/{op.basename(obo)}"
         dnld_file(obo_remote, obo, prt, loading_bar)
     else:
         if prt:
@@ -159,7 +157,7 @@ def get_godag(
     fin_obo="go-basic.obo", prt=sys.stdout, loading_bar=True, optional_attrs=None
 ):
     """Return GODag object. Initialize, if necessary."""
-    from goatools.obo_parser import GODag
+    from .obo_parser import GODag
 
     download_go_basic_obo(fin_obo, prt, loading_bar)
     return GODag(fin_obo, optional_attrs, load_obsolete=False, prt=prt)
