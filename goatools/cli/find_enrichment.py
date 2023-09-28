@@ -23,33 +23,31 @@ import sys
 import re
 import argparse
 
-from goatools.evidence_codes import EvidenceCodes
 
-from goatools.obo_parser import GODag
-from goatools.goea.go_enrichment_ns import GOEnrichmentStudyNS
-from goatools.multiple_testing import Methods
-from goatools.pvalcalc import FisherFactory
-from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
-from goatools.rpt.prtfmt import PrtFmt
-from goatools.semantic import TermCounts
-from goatools.wr_tbl import prt_tsv_sections
-from goatools.godag.consts import RELATIONSHIP_SET
-from goatools.godag.consts import RELATIONSHIP_LIST
-from goatools.godag.consts import chk_relationships
-from goatools.godag.prtfncs import GoeaPrintFunctions
-from goatools.anno.factory import get_anno_desc
-from goatools.anno.factory import get_objanno
-from goatools.cli.gos_get import GetGOs
+from ..anno.factory import get_anno_desc, get_objanno
+from ..base import logger
+from ..evidence_codes import EvidenceCodes
+from ..godag.consts import RELATIONSHIP_LIST, RELATIONSHIP_SET, chk_relationships
+from ..godag.prtfncs import GoeaPrintFunctions
+from ..goea.go_enrichment_ns import GOEnrichmentStudyNS
+from ..gosubdag.gosubdag import GoSubDag
+from ..grouper.aart_geneproducts_all import AArtGeneProductSetsAll
+from ..grouper.grprdflts import GrouperDflts
+from ..grouper.grprobj import Grouper
+from ..grouper.hdrgos import HdrgosSections
+from ..grouper.read_goids import read_sections
+from ..grouper.sorter import Sorter
+from ..grouper.wr_sections import WrSectionsTxt
+from ..grouper.wrxlsx import WrXlsxSortedGos
+from ..multiple_testing import Methods
+from ..obo_parser import GODag
+from ..pvalcalc import FisherFactory
+from ..rpt.goea_nt_xfrm import MgrNtGOEAs
+from ..rpt.prtfmt import PrtFmt
+from ..semantic import TermCounts
+from ..wr_tbl import prt_tsv_sections
 
-from goatools.gosubdag.gosubdag import GoSubDag
-from goatools.grouper.read_goids import read_sections
-from goatools.grouper.grprdflts import GrouperDflts
-from goatools.grouper.hdrgos import HdrgosSections
-from goatools.grouper.grprobj import Grouper
-from goatools.grouper.sorter import Sorter
-from goatools.grouper.aart_geneproducts_all import AArtGeneProductSetsAll
-from goatools.grouper.wr_sections import WrSectionsTxt
-from goatools.grouper.wrxlsx import WrXlsxSortedGos
+from .gos_get import GetGOs
 
 OBJPRTRES = GoeaPrintFunctions()
 
@@ -511,13 +509,14 @@ class GoeaCliFnc:
             assc_ids = set(nt.DB_ID for nt in ntsassoc)
             if pop.isdisjoint(assc_ids):
                 if self.objanno.name == "gene2go":
-                    err = (
-                        "**FATAL: NO POPULATION ITEMS SEEN IN THE NCBI gene2go ANNOTATIONS "
-                        "FOR taxid({T}). TRY: --taxid=<taxid number>"
+                    logger.fatal(
+                        "NO POPULATION ITEMS SEEN IN THE NCBI gene2go ANNOTATIONS "
+                        "FOR taxid(%s). TRY: --taxid=<taxid number>",
+                        next(iter(self.objanno.taxid2asscs.keys())),
                     )
-                    exit(err.format(T=next(iter(self.objanno.taxid2asscs.keys()))))
                 else:
-                    exit("**FATAL: NO POPULATION ITEMS SEEN IN THE ANNOTATIONS")
+                    logger.fatal("NO POPULATION ITEMS SEEN IN THE ANNOTATIONS")
+                exit()
 
     def get_results_sig(self):
         """Get significant results."""

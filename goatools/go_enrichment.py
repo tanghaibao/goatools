@@ -9,33 +9,22 @@ study genes using Fisher's exact test, and corrected for multiple testing
 (including Bonferroni, Holm, Sidak, and false discovery rate)
 """
 
-from __future__ import print_function
-from __future__ import absolute_import
-
-
 __copyright__ = "Copyright (C) 2010-2019, H Tang et al., All rights reserved."
 __author__ = "various"
 
 import sys
 import collections as cx
 
-from goatools.multiple_testing import Methods
-from goatools.multiple_testing import Bonferroni
-from goatools.multiple_testing import Sidak
-from goatools.multiple_testing import HolmBonferroni
-from goatools.multiple_testing import FDR
-from goatools.multiple_testing import calc_qval
-from goatools.anno.update_association import update_association
-from goatools.anno.update_association import remove_assc_goids
-
-# BROAD from goatools.anno.update_association import get_goids_to_remove
-from goatools.ratio import get_terms, count_terms, is_ratio_different
 import goatools.wr_tbl as RPT
-from goatools.pvalcalc import FisherFactory
 
-from goatools.godag.prtfncs import GoeaPrintFunctions
-from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs
-from goatools.rpt.prtfmt import PrtFmt
+from .anno.update_association import remove_assc_goids, update_association
+from .base import logger
+from .godag.prtfncs import GoeaPrintFunctions
+from .multiple_testing import Bonferroni, FDR, HolmBonferroni, Methods, Sidak, calc_qval
+from .pvalcalc import FisherFactory
+from .ratio import get_terms, count_terms, is_ratio_different
+from .rpt.goea_nt_xfrm import MgrNtGOEAs
+from .rpt.prtfmt import PrtFmt
 
 
 class GOEnrichmentRecord(object):
@@ -323,12 +312,11 @@ class GOEnrichmentStudy(object):
     def _remove_assc_goids(self, assoc, broad_goids):
         """Remove broad GO IDs"""
         ret = remove_assc_goids(assoc, broad_goids)
-        if self.log:
-            self.log.write(
-                "**NOTE: {N} of {M} Broad GO IDs remove from association\n".format(
-                    N=len(ret["goids_removed"]), M=len(broad_goids)
-                )
-            )
+        logger.info(
+            "%d of %d Broad GO IDs remove from association",
+            len(ret["goids_removed"]),
+            len(broad_goids),
+        )
         return ret["assoc_reduced"]
 
     def run_study(self, study, **kws):
