@@ -4,7 +4,9 @@ from sys import stdout
 import timeit
 import datetime
 import collections as cx
-from goatools.godag.consts import NAMESPACE2NS
+
+from ...base import logger
+from ...godag.consts import NAMESPACE2NS
 
 __copyright__ = (
     "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
@@ -39,7 +41,7 @@ class InitAssc:
         if self.godag is None:
             if namespaces is not None:
                 # pylint: disable=superfluous-parens
-                print(f"**WARNING: GODAG NOT LOADED. IGNORING namespaces={namespaces}")
+                logger.warning("GODAG NOT LOADED. IGNORING namespaces=%s", namespaces)
             return nts
         if namespaces == {"BP", "MF", "CC"}:
             return nts
@@ -56,7 +58,7 @@ class InitAssc:
                 nts.append(ntobj(DB_ID=itemid, GO_ID=goid))
         return nts
 
-    def _init_w_godag(self, prt=stdout):
+    def _init_w_godag(self):
         """Get a list of namedtuples, one for each annotation."""
         nts = []
         ntobj = cx.namedtuple("ntanno", self.flds + ["NS"])
@@ -65,12 +67,12 @@ class InitAssc:
             to_add = set()
             for goid in gos:
                 if goid not in s_godag:
-                    prt.write(f"**WARNING: {goid} NOT FOUND IN DAG\n")
+                    logger.warning("%s NOT FOUND IN DAG", goid)
                     continue
                 goobj = s_godag[goid]
                 if goobj.is_obsolete:
                     if self.obsolete == "keep":
-                        prt.write(f"**WARNING: {goid} obsolete in DAG, kept\n")
+                        logger.warning("%s obsolete in DAG, kept", goid)
                         to_add.add(goid)
                     elif self.obsolete == "replace":
                         to_replace = set()
@@ -79,16 +81,14 @@ class InitAssc:
                         if "consider" in goobj.__dict__ and goobj.consider:
                             to_replace |= goobj.consider
                         if to_replace:
-                            prt.write(
-                                f"**WARNING: {goid} obsolete in DAG, replaced by {to_replace}\n"
+                            logger.warning(
+                                "%s obsolete in DAG, replaced by %s", goid, to_replace
                             )
                         else:
-                            prt.write(
-                                f"**WARNING: {goid} obsolete in DAG, no replacement\n"
-                            )
+                            logger.warning("%s obsolete in DAG, no replacement", goid)
                         to_add |= to_replace
                     elif self.obsolete == "skip":
-                        prt.write(f"**WARNING: {goid} obsolete in DAG, skipped\n")
+                        logger.warning("%s obsolete in DAG, skipped", goid)
                 else:
                     to_add.add(goid)
             for goid in to_add:
