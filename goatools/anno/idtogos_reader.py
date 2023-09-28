@@ -1,8 +1,10 @@
 """Reads a Annotation File in text format with data in id2gos line"""
 
 import sys
-from goatools.anno.annoreader_base import AnnoReaderBase
-from goatools.anno.init.reader_idtogos import InitAssc
+
+from ..base import logger
+from .annoreader_base import AnnoReaderBase
+from .init.reader_idtogos import InitAssc
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
@@ -35,7 +37,7 @@ class IdToGosReader(AnnoReaderBase):
 
     def prt_summary_anno2ev(self, prt=sys.stdout):
         """Print a summary of all Evidence Codes seen in annotations"""
-        prt.write(f"**NOTE: No evidence codes in associations: {self.filename}\n")
+        logger.info("No evidence codes in associations: %s", self.filename)
 
     # pylint: disable=unused-argument
     def reduce_annotations(self, associations, options):
