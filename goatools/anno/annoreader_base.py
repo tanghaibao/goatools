@@ -6,8 +6,8 @@ import datetime
 import collections as cx
 import logging
 
-from ..base import logger
 from ..anno.opts import AnnoOptions
+from ..base import logger
 from ..evidence_codes import EvidenceCodes
 from ..godag.consts import NAMESPACE2NS
 from ..gosubdag.go_tasks import get_go2parents_go2obj

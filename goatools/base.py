@@ -135,9 +135,7 @@ def download_ncbi_associations(gene2go="gene2go", prt=sys.stdout, loading_bar=Tr
     # Download: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz
     gzip_file = "{GENE2GO}.gz".format(GENE2GO=gene2go)
     if not isfile(gene2go):
-        file_remote = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{GZ}".format(
-            GZ=os.path.basename(gzip_file)
-        )
+        file_remote = f"ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{op.basename(gzip_file)}"
         dnld_file(file_remote, gene2go, prt, loading_bar)
     else:
         if prt is not None:
