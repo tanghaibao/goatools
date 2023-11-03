@@ -202,7 +202,10 @@ class HolmBonferroni(_AbstractCorrection):
     def set_correction(self):
         """Do Holm-Bonferroni multiple test correction on original p-values."""
         if len(self.pvals):
-            idxs, correction = list(zip(*self._generate_significant()))
+            if all(p==1. for p in self.pvals):
+                idxs, correction = [(0,), (1,)]
+            else:
+                idxs, correction = list(zip(*self._generate_significant()))
             idxs = list(idxs)
             self.corrected_pvals[idxs] *= correction
 
@@ -218,7 +221,7 @@ class HolmBonferroni(_AbstractCorrection):
         for _, idxs in groupby(pvals_idxs, lambda x: x[0]):
             idxs = list(idxs)
             for p, i in idxs:
-                if p * 1. / num_pvals < self.a:
+                if p < 1.:
                     yield (i, num_pvals)
             num_pvals -= len(idxs)
 
