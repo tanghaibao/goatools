@@ -349,7 +349,7 @@ dnld_anno_uniprot:
 NOSETESTS := \
     tests/test_study_zero.py \
     tests/test_annotations_gaf.py::test_gaf_read_fb \
-		tests/test_parents_ancestors.py \
+	tests/test_parents_ancestors.py \
     tests/test_rpt_gene2go_evidencecodes.py \
     tests/test_sorter_sections.py \
     tests/test_sorter_desc2nts.py \
@@ -376,7 +376,7 @@ NOSETESTS := \
     tests/test_wr_tbl_subset.py \
     tests/test_goea_local.py \
     tests/test_write_hier.py \
-		tests/test_cli_write_hierarchy.py \
+	tests/test_cli_write_hierarchy.py \
     tests/test_go_print.py \
     tests/test_read_gaf_allow_nd.py \
     tests/test_write_summary_cnts.py \
@@ -389,7 +389,8 @@ NOSETESTS := \
     tests/test_goea_statsmodels.py \
     tests/test_goea_rpt_bonferroni.py \
     tests/test_wr_py_goea_results.py \
-    tests/test_mapslim.py
+    tests/test_mapslim.py \
+	tests/test_multiple_testing.py
 
 # Run all tests. If you are submitting a pull request, all tests must pass.
 update:
