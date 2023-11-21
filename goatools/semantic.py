@@ -179,6 +179,44 @@ def lin_sim_calc(goid1, goid2, sim_r, termcnts, dfltval=None):
             return 0.0
     return dfltval
 
+def get_freq_msca(go_id1, go_id2, godag, termcounts):
+    '''
+        Retrieve the frequency of the MSCA of two GO terms.
+    '''
+    goterm1 = godag[go_id1]
+    goterm2 = godag[go_id2]
+    if goterm1.namespace == goterm2.namespace:
+        msca_goid = deepest_common_ancestor([go_id1, go_id2], godag)
+        ntd = termcounts.gosubdag.go2nt.get(msca_goid)
+        return ntd.tfreq
+    return 0
+
+def schlicker_sim(goid1, goid2, godag, termcnts, dfltval=None):
+    '''
+        Computes Schlicker's similarity measure.
+    '''
+    sim_r = resnik_sim(goid1, goid2, godag, termcnts)
+    tfreq = get_tfreq_msca(goid1, goid2, godag, termcnts)
+    return schlicker_sim_calc(goid1, goid2, sim_r, tfreq, termcnts, dfltval)
+
+def schlicker_sim_calc(goid1, goid2, sim_r, tfreq, termcnts, dfltval=None):
+    '''
+        Computes Schlicker's similarity measure using pre-calculated Resnik's similarities.
+    '''
+    # If goid1 and goid2 are in the same namespace
+    if sim_r is not None:
+        tinfo1 = get_info_content(goid1, termcnts)
+        tinfo2 = get_info_content(goid2, termcnts)
+        info = tinfo1 + tinfo2
+        # Both GO IDs must be annotated
+        if tinfo1 != 0.0 and tinfo2 != 0.0 and info != 0:
+            return (2*sim_r)/(info) * (1 - tfreq)
+        if termcnts.go2obj[goid1].item_id == termcnts.go2obj[goid2].item_id:
+            return (1.0 - tfreq)
+        # The GOs are separated by the root term, so are not similar
+        if sim_r == 0.0:
+            return 0.0
+    return dfltval
 
 def common_parent_go_ids(goids, godag):
     '''
