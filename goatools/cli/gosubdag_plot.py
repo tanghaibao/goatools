@@ -17,6 +17,7 @@ Usage:
              [--draw-children]
              [--norel]
              [--go_color_file=<file.txt>]
+             [--rankdir=<rankdir>]
   go_plot.py [GO ...] [--obo=<file.obo>] [-o <file.png>] [-t <title>]
              [--shorten] [-p] [-c]
   go_plot.py [GO ...] [-o <file.png>] [--draw-children]
@@ -58,6 +59,7 @@ Options:
   --draw-children                      Draw children. By default, they are not drawn.
   --go_aliases=<go_aliases.txt>        ASCII file containing letter alias
   --go_color_file=<file.txt>           GO color file. GO and color (eg #cafffb)
+  --rankdir=TB|LR|BT|RL                Choose orientation of graph; Top->Bottom, Left->Right, ... [default: TB]
 
   --norel                              Don't load relationship from the GO DAG
 """
@@ -151,7 +153,9 @@ class PlotCli(object):
                     'obo',
                     'relationships',
                     'go_color_file',
-                    'go_aliases'])
+                    'go_aliases',
+                    'rankdir',
+                    ])
     kws_set = set(['relationship',
                    'parentcnt', 'childcnt', 'mark_alt_id', 'shorten',
                    'draw-children',
