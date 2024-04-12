@@ -152,6 +152,7 @@ class GoSubDagPlot:
             kws_self['dag']['labelloc'] = 't'
         dpi = str(kws_self['dag'].get('dpi', self.dflts['dpi']))
         kws_self['dag']['dpi'] = dpi
+        kws_self['dag']['rankdir'] = kws_usr.get('rankdir', 'TB')
         return kws_self
 
     def plt_dag(self, fout_img, engine="pydot"):

@@ -114,4 +114,22 @@ scripts/go_plot.py GO:0003304 GO:0003146#d6fffa --r -o heart_jogging_ice_r1.png
 ![heart_jogging_r1](../images/plot_go/heart_jogging_ice_r1.png)
 
 
+## Chage orietation of plot output
+With graphviz, it is possible to change the orientation of the graph output, which may be convenient for large graphs.
+Options are TB, LR, BT and RL mirroring GraphViz ![https://graphviz.org/docs/attrs/rankdir/](https://graphviz.org/docs/attrs/rankdir/)
+
+```
+# top -> bottom (default)
+scripts/go_plot.py GO:0000010 -o orientation_TB.png --obo=tests/data/mini_obo.obo --rankdir=TB
+```
+![TB](../images/plot_go/rankdir_TB.png)
+
+```
+# left -> right
+scripts/go_plot.py GO:0000010 -o orientation_LR.png --obo=tests/data/mini_obo.obo --rankdir=LR
+```
+![LR](../images/plot_go/rankdir_LR.png)
+
+
+
 Copyright (C) 2010-2018, DV Klopfenstein, Haibao Tang et al. All rights reserved.
