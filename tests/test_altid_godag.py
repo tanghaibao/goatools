@@ -2,13 +2,15 @@
 
 from goatools.base import get_godag
 
+
 def test_alt_id():
     """Ensure that alternate GO IDs."""
-    obo_dag = get_godag("go-basic.obo", loading_bar=None)
+    obo_dag = get_godag("go-basic.obo")
     alt_ids = get_altids(obo_dag)
     obo_goids = obo_dag.keys()
     obo_goids_set = set(obo_goids)
     assert len(alt_ids.intersection(obo_goids_set)) == len(alt_ids)
+
 
 def get_altids(obo_dag):
     """Get all alternate GO ids for entire go-basic.obo DAG."""
@@ -19,5 +21,6 @@ def get_altids(obo_dag):
             alt_ids_all |= set(alt_ids_cur)
     return alt_ids_all
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     test_alt_id()

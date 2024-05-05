@@ -16,23 +16,26 @@ __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights re
 __author__ = "DV Klopfenstein"
 
 import sys
-from goatools.base import get_godag
-from goatools.gosubdag.gosubdag import GoSubDag
+
+from ..base import get_godag
+from ..gosubdag.gosubdag import GoSubDag
 
 
 class GrouperDflts(object):
     """Holds objects that we would like to load and initialize once.
 
-       Files used for grouping GO IDs:
+    Files used for grouping GO IDs:
 
-           http://geneontology.org/ontology/go-basic.obo
-           http://geneontology.org/ontology/subsets/goslim_generic.obo
+        http://geneontology.org/ontology/go-basic.obo
+        http://geneontology.org/ontology/subsets/goslim_generic.obo
 
     """
 
-    def __init__(self, gosubdag=None, goslim_filename="goslim_generic.obo", hdrgos=None):
+    def __init__(
+        self, gosubdag=None, goslim_filename="goslim_generic.obo", hdrgos=None
+    ):
         self.gosubdag = self.get_gosubdag(gosubdag)
-        _dagslim = get_godag(goslim_filename, prt=sys.stdout, loading_bar=False)
+        _dagslim = get_godag(goslim_filename, prt=sys.stdout)
         self.ver_goslims = _dagslim.version
         self.goslims = self._init_goslims(_dagslim)
         self.hdrgos_dflt = self._init_hdrgos() if hdrgos is None else hdrgos  # goid set
@@ -42,7 +45,6 @@ class GrouperDflts(object):
         # Get all GO terms that are at depth-00 or depth-01
         hdrgos = self.get_gos_d0d1()
         hdrgos |= self.goslims
-        # self.gosubdag.prt_goids(hdrgos)
         return hdrgos
 
     def _init_goslims(self, dagslim):
@@ -55,7 +57,9 @@ class GrouperDflts(object):
 
     def get_gos_d0d1(self):
         """Return GO IDs whose depth is 0 (BP, MF, CC) or depth is 1."""
-        return set([o.id for d in [0, 1] for o in self.gosubdag.rcntobj.depth2goobjs.get(d)])
+        return set(
+            [o.id for d in [0, 1] for o in self.gosubdag.rcntobj.depth2goobjs.get(d)]
+        )
 
     def _get_goslimids_norel(self, dagslim):
         """Get all GO slim GO IDs that do not have a relationship."""
