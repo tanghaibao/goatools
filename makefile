@@ -330,7 +330,6 @@ dnld_anno_uniprot:
 #    tests/test_nbt3102.py \
 #    tests/test_optional_fields.py \
 #    tests/test_dnlds.py \
-#    tests/test_get_godag.py \
 #    tests/test_gpad_dnld.py \
 #
 #    tests/test_plot_get_parents.py \
@@ -347,50 +346,51 @@ dnld_anno_uniprot:
 #    tests/test_quickgo_xml.py \
 
 NOSETESTS := \
-    tests/test_study_zero.py \
-    tests/test_annotations_gaf.py::test_gaf_read_fb \
-	tests/test_parents_ancestors.py \
-    tests/test_rpt_gene2go_evidencecodes.py \
-    tests/test_sorter_sections.py \
-    tests/test_sorter_desc2nts.py \
-    tests/test_compare_gos.py \
-    tests/test_wr_sections_txt.py \
-    tests/test_altid_gosubdag.py \
-    tests/test_dcnt_r01.py \
-    tests/test_grprobj.py \
-    tests/test_grpr_get_sections_2d.py \
-    tests/test_sorter.py \
-    tests/test_gosubdag_relationships.py \
-    tests/test_go_depth1.py \
-    tests/test_i92_relationship_parentchild.py \
-    tests/test_i96_goea_ncbi.py \
-    tests/test_gosearch_emptydict.py \
-    tests/test_david_nts.py \
-    tests/test_get_parents.py \
-    tests/test_get_children.py \
-    tests/test_optional_attributes.py \
-    tests/test_genes_cell_cycle.py \
-    tests/test_semantic_similarity.py \
-    tests/test_goea_errors.py \
-    tests/test_ncbi_entrez_annotations.py \
-    tests/test_wr_tbl_subset.py \
-    tests/test_goea_local.py \
-    tests/test_write_hier.py \
+	tests/test_altid_godag.py \
+	tests/test_altid_gosubdag.py \
+	tests/test_annotations_gaf.py::test_gaf_read_fb \
 	tests/test_cli_write_hierarchy.py \
-    tests/test_go_print.py \
-    tests/test_read_gaf_allow_nd.py \
-    tests/test_write_summary_cnts.py \
-    tests/test_pvalcalc.py \
-    tests/test_altid_godag.py \
-    tests/test_combine_nt_lists.py \
-    tests/test_get_paths.py \
-    tests/test_get_unique_fields.py \
-    tests/test_go_draw.py \
-    tests/test_goea_statsmodels.py \
-    tests/test_goea_rpt_bonferroni.py \
-    tests/test_wr_py_goea_results.py \
-    tests/test_mapslim.py \
-	tests/test_multiple_testing.py
+	tests/test_combine_nt_lists.py \
+	tests/test_compare_gos.py \
+	tests/test_david_nts.py \
+	tests/test_dcnt_r01.py \
+	tests/test_genes_cell_cycle.py \
+	tests/test_get_children.py \
+	tests/test_get_godag.py \
+	tests/test_get_parents.py \
+	tests/test_get_paths.py \
+	tests/test_get_unique_fields.py \
+	tests/test_go_depth1.py \
+	tests/test_go_draw.py \
+	tests/test_go_print.py \
+	tests/test_goea_errors.py \
+	tests/test_goea_local.py \
+	tests/test_goea_rpt_bonferroni.py \
+	tests/test_goea_statsmodels.py \
+	tests/test_gosearch_emptydict.py \
+	tests/test_gosubdag_relationships.py \
+	tests/test_grpr_get_sections_2d.py \
+	tests/test_grprobj.py \
+	tests/test_i92_relationship_parentchild.py \
+	tests/test_i96_goea_ncbi.py \
+	tests/test_mapslim.py \
+	tests/test_multiple_testing.py \
+	tests/test_ncbi_entrez_annotations.py \
+	tests/test_optional_attributes.py \
+	tests/test_parents_ancestors.py \
+	tests/test_pvalcalc.py \
+	tests/test_read_gaf_allow_nd.py \
+	tests/test_rpt_gene2go_evidencecodes.py \
+	tests/test_semantic_similarity.py \
+	tests/test_sorter_desc2nts.py \
+	tests/test_sorter_sections.py \
+	tests/test_sorter.py \
+	tests/test_study_zero.py \
+	tests/test_wr_py_goea_results.py \
+	tests/test_wr_sections_txt.py \
+	tests/test_wr_tbl_subset.py \
+	tests/test_write_hier.py \
+	tests/test_write_summary_cnts.py
 
 # Run all tests. If you are submitting a pull request, all tests must pass.
 update:
