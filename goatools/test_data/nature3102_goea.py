@@ -7,11 +7,13 @@ import os
 import pandas as pd
 
 from tests.utils import repofn
-from goatools.test_data.genes_NCBI_10090_ProteinCoding import GENEID2NT as GeneID2nt_mus
-from goatools.base import get_godag
-from goatools.associations import dnld_ncbi_gene_file
-from goatools.go_enrichment import GOEnrichmentStudy
-from goatools.anno.genetogo_reader import Gene2GoReader
+
+from ..anno.genetogo_reader import Gene2GoReader
+from ..associations import dnld_ncbi_gene_file
+from ..base import get_godag
+from ..go_enrichment import GOEnrichmentStudy
+
+from .genes_NCBI_10090_ProteinCoding import GENEID2NT as GeneID2nt_mus
 
 
 def get_goea_results(keep_if=None):
@@ -55,7 +57,7 @@ def get_geneid2symbol(fin_xlsx):
 def get_goeaobj(method, geneids_pop, taxid, nspc="BP"):
     """Load: ontologies, associations, and population geneids."""
     fin_obo = os.path.join(os.getcwd(), "go-basic.obo")
-    godag = get_godag(fin_obo, loading_bar=None)
+    godag = get_godag(fin_obo)
     assoc_geneid2gos = get_annotations(taxid, nspc)
     goeaobj = GOEnrichmentStudy(
         geneids_pop,

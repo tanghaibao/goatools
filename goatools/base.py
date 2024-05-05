@@ -21,14 +21,16 @@ from rich.logging import RichHandler
 
 
 def get_logger(name: str):
-    """Return a logger with a default ColoredFormatter."""
-    logger = logging.getLogger(name)
-    if logger.hasHandlers():
-        logger.handlers.clear()
-    logger.addHandler(RichHandler())
-    logger.propagate = False
-    logger.setLevel(logging.INFO)
-    return logger
+    """
+    Return a logger with a default ColoredFormatter.
+    """
+    log = logging.getLogger(name)
+    if log.hasHandlers():
+        log.handlers.clear()
+    log.addHandler(RichHandler())
+    log.propagate = False
+    log.setLevel(logging.INFO)
+    return log
 
 
 logger = get_logger("goatools")
@@ -70,7 +72,6 @@ def nopen(f, mode="r"):
             stderr=sys.stderr if mode == "r" else PIPE,
             shell=True,
             bufsize=-1,  # use system default for buffering
-            preexec_fn=prefunc,
             close_fds=False,
             executable=os.environ.get("SHELL"),
         )
@@ -79,8 +80,6 @@ def nopen(f, mode="r"):
         if mode != "r":
             p.stderr = io.TextIOWrapper(p.stderr)
 
-        if mode and mode[0] == "r":
-            return process_iter(p, f[1:])
         return p
 
     if f.startswith(("http://", "https://", "ftp://")):
@@ -96,7 +95,11 @@ def nopen(f, mode="r"):
         fh = bz2.BZ2File(f, mode)
         return io.TextIOWrapper(fh)
 
-    return {"r": sys.stdin, "w": sys.stdout}[mode[0]] if f == "-" else open(f, mode)
+    return (
+        {"r": sys.stdin, "w": sys.stdout}[mode[0]]
+        if f == "-"
+        else open(f, mode, encoding="utf-8")
+    )
 
 
 def ungzipper(fh, blocksize=16384):
@@ -116,27 +119,27 @@ def ungzipper(fh, blocksize=16384):
         data[0] = save + data[0]
 
 
-def download_go_basic_obo(obo="go-basic.obo", prt=sys.stdout, loading_bar=True):
+def download_go_basic_obo(obo="go-basic.obo", prt=sys.stdout):
     """Download Ontologies, if necessary."""
     if not isfile(obo):
         http = "http://purl.obolibrary.org/obo/go"
         if "slim" in obo:
             http = "http://www.geneontology.org/ontology/subsets"
         obo_remote = f"{http}/{op.basename(obo)}"
-        dnld_file(obo_remote, obo, prt, loading_bar)
+        dnld_file(obo_remote, obo, prt)
     else:
         if prt:
             prt.write("  EXISTS: {FILE}\n".format(FILE=obo))
     return obo
 
 
-def download_ncbi_associations(gene2go="gene2go", prt=sys.stdout, loading_bar=True):
+def download_ncbi_associations(gene2go="gene2go", prt=sys.stdout):
     """Download associations from NCBI, if necessary"""
     # Download: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz
     gzip_file = "{GENE2GO}.gz".format(GENE2GO=gene2go)
     if not isfile(gene2go):
         file_remote = f"ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/{op.basename(gzip_file)}"
-        dnld_file(file_remote, gene2go, prt, loading_bar)
+        dnld_file(file_remote, gene2go, prt)
     else:
         if prt is not None:
             prt.write("  EXISTS: {FILE}\n".format(FILE=gene2go))
@@ -151,22 +154,20 @@ def gunzip(gzip_file, file_gunzip=None):
         return file_gunzip
 
 
-def get_godag(
-    fin_obo="go-basic.obo", prt=sys.stdout, loading_bar=True, optional_attrs=None
-):
+def get_godag(fin_obo="go-basic.obo", prt=sys.stdout, optional_attrs=None):
     """Return GODag object. Initialize, if necessary."""
     from .obo_parser import GODag
 
-    download_go_basic_obo(fin_obo, prt, loading_bar)
+    download_go_basic_obo(fin_obo, prt)
     return GODag(fin_obo, optional_attrs, load_obsolete=False, prt=prt)
 
 
-def dnld_gaf(species_txt, prt=sys.stdout, loading_bar=True):
+def dnld_gaf(species_txt, prt=sys.stdout):
     """Download GAF file if necessary."""
-    return dnld_gafs([species_txt], prt, loading_bar)[0]
+    return dnld_gafs([species_txt], prt)[0]
 
 
-def dnld_gafs(species_list, prt=sys.stdout, loading_bar=True):
+def dnld_gafs(species_list, prt=sys.stdout):
     """Download GAF files if necessary."""
     # Example GAF files in  http://current.geneontology.org/annotations/:
     #   http://current.geneontology.org/annotations/mgi.gaf.gz
@@ -180,7 +181,7 @@ def dnld_gafs(species_list, prt=sys.stdout, loading_bar=True):
         gaf_base = "{ABC}.gaf".format(ABC=species_txt)  # goa_human.gaf
         gaf_cwd = os.path.join(cwd, gaf_base)  # {CWD}/goa_human.gaf
         remove_filename = "{HTTP}/{GAF}.gz".format(HTTP=http, GAF=gaf_base)
-        dnld_file(remove_filename, gaf_cwd, prt, loading_bar)
+        dnld_file(remove_filename, gaf_cwd, prt)
         fin_gafs.append(gaf_cwd)
     return fin_gafs
 
@@ -188,7 +189,7 @@ def dnld_gafs(species_list, prt=sys.stdout, loading_bar=True):
 def http_get(url, fout=None):
     """Download a file from http. Save it in a file named by fout"""
     print("requests.get({URL}, stream=True)".format(URL=url))
-    rsp = requests.get(url, stream=True)
+    rsp = requests.get(url, stream=True, timeout=10)
     if rsp.status_code == 200 and fout is not None:
         with open(fout, "wb") as prt:
             for chunk in rsp:  # .iter_content(chunk_size=128):
@@ -221,7 +222,7 @@ def ftp_get(fin_src, fout):
     ftp.quit()
 
 
-def dnld_file(src_ftp, dst_file, prt=sys.stdout, loading_bar=True):
+def dnld_file(src_ftp, dst_file, prt=sys.stdout):
     """Download specified file if necessary."""
     if isfile(dst_file):
         return
@@ -231,7 +232,6 @@ def dnld_file(src_ftp, dst_file, prt=sys.stdout, loading_bar=True):
     cmd_msg = "get({SRC} out={DST})\n".format(SRC=src_ftp, DST=dst_gz)
     try:
         print("$ get {SRC}".format(SRC=src_ftp))
-        #### wget.download(src_ftp, out=dst_gz, bar=loading_bar)
         if src_ftp[:4] == "http":
             http_get(src_ftp, dst_gz)
         else:
