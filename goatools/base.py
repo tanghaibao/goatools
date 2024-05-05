@@ -10,13 +10,13 @@ import sys
 import traceback
 import zlib
 
-from ftplib import FTP
 from os.path import isfile
 from subprocess import PIPE, Popen
 from urllib.request import urlopen
 
 import requests
 
+from ftpretty import ftpretty
 from rich.logging import RichHandler
 
 
@@ -201,8 +201,10 @@ def http_get(url, fout=None):
     return rsp
 
 
-def ftp_get(fin_src, fout):
-    """Download a file from an ftp server"""
+def ftp_get(fin_src: str, fout: str):
+    """
+    Download a file from an ftp server, e.g., ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz
+    """
     assert fin_src[:6] == "ftp://", fin_src
     dir_full, fin_ftp = os.path.split(fin_src[6:])
     pt0 = dir_full.find("/")
@@ -214,12 +216,8 @@ def ftp_get(fin_src, fout):
             HOST=ftphost, DIR=chg_dir, SRC=fin_ftp, DST=fout
         )
     )
-    ftp = FTP(ftphost)  # connect to host, default port      ftp.ncbi.nlm.nih.gov
-    ftp.login()  # user anonymous, passwd anonymous@
-    ftp.cwd(chg_dir)  # change into "debian" directory     gene/DATA
-    cmd = "RETR {F}".format(F=fin_ftp)  #                   gene2go.gz
-    ftp.retrbinary(cmd, open(fout, "wb").write)  #           /usr/home/gene2go.gz
-    ftp.quit()
+    ftp = ftpretty(ftphost, "anonymous", "anonymous@")
+    ftp.get(chg_dir + "/" + fin_ftp, fout)
 
 
 def dnld_file(src_ftp, dst_file, prt=sys.stdout):
