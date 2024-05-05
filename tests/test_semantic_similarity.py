@@ -1,44 +1,47 @@
 #!/usr/bin/env python
-"""Code as found in notebooks/semantic_similarity.ipynb."""
+"""Code as found in notebooks/semantic_similarity.ipynb.
 
-from __future__ import print_function
+Computing basic semantic similarities between GO terms
+Adapted from book chapter written by _Alex Warwick Vesztrocy and Christophe Dessimoz_
+How to compute semantic similarity between GO terms.
+"""
 
-# Computing basic semantic similarities between GO terms
+import os
 
-# Adapted from book chapter written by _Alex Warwick Vesztrocy and Christophe Dessimoz_
+from goatools.associations import dnld_assc
+from goatools.base import get_godag
+from goatools.godag.consts import NS2GO
+from goatools.semantic import (
+    deepest_common_ancestor,
+    get_info_content,
+    lin_sim,
+    resnik_sim,
+    semantic_similarity,
+    TermCounts,
+)
 
-# How to compute semantic similarity between GO terms.
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 # First we need to write a function that calculates the minimum number
 # of branches connecting two GO terms.
 
-import os
-from goatools.base import get_godag
-from goatools.associations import dnld_assc
-from goatools.semantic import semantic_similarity
-from goatools.semantic import TermCounts
-from goatools.semantic import get_info_content
-from goatools.semantic import deepest_common_ancestor
-from goatools.semantic import resnik_sim
-from goatools.semantic import lin_sim
-from goatools.godag.consts import NS2GO
-
-REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 def test_semantic_similarity():
     """Computing basic semantic similarities between GO terms."""
-    godag = get_godag(os.path.join(REPO, "go-basic.obo"), loading_bar=None)
+    godag = get_godag(os.path.join(REPO, "go-basic.obo"))
     # Get all the annotations from arabidopsis.
-    associations = dnld_assc(os.path.join(REPO, 'tair.gaf'), godag)
-
+    associations = dnld_assc(os.path.join(REPO, "tair.gaf"), godag)
 
     # Now we can calculate the semantic distance and semantic similarity, as so:
     #       "The semantic similarity between terms GO:0048364 and GO:0044707 is 0.25.
-    go_id3 = 'GO:0048364' # BP level-03 depth-04 root development
-    go_id4 = 'GO:0044707' # BP level-02 depth-02 single-multicellular organism process
+    go_id3 = "GO:0048364"  # BP level-03 depth-04 root development
+    go_id4 = "GO:0044707"  # BP level-02 depth-02 single-multicellular organism process
     sim = semantic_similarity(go_id3, go_id4, godag)
-    print('\nThe semantic similarity between terms {GO1} and {GO2} is {VAL}.'.format(
-        GO1=go_id3, GO2=go_id4, VAL=sim))
+    print(
+        "\nThe semantic similarity between terms {GO1} and {GO2} is {VAL}.".format(
+            GO1=go_id3, GO2=go_id4, VAL=sim
+        )
+    )
     print(godag[go_id3])
     print(godag[go_id4])
 
@@ -51,7 +54,7 @@ def test_semantic_similarity():
     # Calculate the information content
     go_id = "GO:0048364"
     infocontent = get_info_content(go_id, termcounts)
-    print('\nInformation content ({GO}) = {INFO}\n'.format(GO=go_id, INFO=infocontent))
+    print("\nInformation content ({GO}) = {INFO}\n".format(GO=go_id, INFO=infocontent))
     assert infocontent, "FATAL INFORMATION CONTENT"
 
     # Resnik's similarity measure is defined as the information content of the most
@@ -60,25 +63,30 @@ def test_semantic_similarity():
     #       Resnik similarity score (GO:0048364, GO:0044707) = 0.0 because DCA is BP top
     sim_r = resnik_sim(go_id3, go_id4, godag, termcounts)
     dca = deepest_common_ancestor([go_id3, go_id4], godag)
-    assert dca == NS2GO['BP']
+    assert dca == NS2GO["BP"]
     assert sim_r == get_info_content(dca, termcounts)
     assert sim_r == 0.0
-    print('Resnik similarity score ({GO1}, {GO2}) = {VAL}'.format(
-        GO1=go_id3, GO2=go_id4, VAL=sim_r))
+    print(
+        "Resnik similarity score ({GO1}, {GO2}) = {VAL}".format(
+            GO1=go_id3, GO2=go_id4, VAL=sim_r
+        )
+    )
 
     # Lin similarity score (GO:0048364, GO:0044707) = 0.0 because they are similar through BP top
     sim_l = lin_sim(go_id3, go_id4, godag, termcounts)
-    print('Lin similarity score ({GO1}, {GO2}) = {VAL}'.format(GO1=go_id3, GO2=go_id4, VAL=sim_l))
+    print(
+        "Lin similarity score ({GO1}, {GO2}) = {VAL}".format(
+            GO1=go_id3, GO2=go_id4, VAL=sim_l
+        )
+    )
     assert sim_l == 0.0, "FATAL LIN SCORE"
 
-    # 
-    go_top_cc = NS2GO['CC']
+    go_top_cc = NS2GO["CC"]
     sim_r = resnik_sim(go_top_cc, go_top_cc, godag, termcounts)
     assert sim_r == 0.0
     sim_l = lin_sim(go_top_cc, go_top_cc, godag, termcounts)
     assert sim_l == 1.0
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_semantic_similarity()
