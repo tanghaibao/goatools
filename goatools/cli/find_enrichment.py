@@ -316,7 +316,7 @@ class GoeaCliArgs:
       {} Actual   files: {}""".format(
                 len(nspc.filenames), " ".join(nspc.filenames)
             )
-            raise Exception(msg)
+            raise ValueError(msg)
         for fin in nspc.filenames:
             if not os.path.exists(fin):
                 return "*{}* does not exist".format(fin)
@@ -405,7 +405,7 @@ class GoeaCliFnc:
         if fin_id2sym is not None and os.path.exists(fin_id2sym):
             id2sym = {}
             cmpl = re.compile(r"^\s*(\S+)[\s,;]+(\S+)")
-            with open(fin_id2sym) as ifstrm:
+            with open(fin_id2sym, encoding="utf-8") as ifstrm:
                 for line in ifstrm:
                     mtch = cmpl.search(line)
                     if mtch:
@@ -569,11 +569,12 @@ class GoeaCliFnc:
         print(f"Study: {len(study)} vs. Population {len(pop)}\n")
         return study, pop
 
-    def _read_geneset(self, study_fn, pop_fn):
+    def _read_geneset(self, study_fn: str, pop_fn: str):
         """Open files containing genes. Return study genes and population genes."""
-        ## pop = read_geneset(study_fn)
-        pop = set(_.strip() for _ in open(pop_fn) if _.strip())
-        study = frozenset(_.strip() for _ in open(study_fn) if _.strip())
+        pop = set(_.strip() for _ in open(pop_fn, encoding="utf-8") if _.strip())
+        study = frozenset(
+            _.strip() for _ in open(study_fn, encoding="utf-8") if _.strip()
+        )
         if next(iter(pop)).isdigit():
             pop = set(int(g) for g in pop)
             study = frozenset(int(g) for g in study)
@@ -714,7 +715,7 @@ class GrpWr:
 
     def wr_tsv(self, fout_tsv):
         """Print grouped GOEA results into a tab-separated file."""
-        with open(fout_tsv, "w") as prt:
+        with open(fout_tsv, "w", encoding="utf-8") as prt:
             kws_tsv = {
                 "fld2fmt": {f: "{:8.2e}" for f in self.flds_cur if f[:2] == "p_"},
                 "prt_flds": self.flds_cur,
@@ -724,7 +725,7 @@ class GrpWr:
 
     def wr_txt(self, fout_txt):
         """Write to a file GOEA results in an ASCII text format."""
-        with open(fout_txt, "w") as prt:
+        with open(fout_txt, "w", encoding="utf-8") as prt:
             for line in self.ver_list:
                 prt.write("{LINE}\n".format(LINE=line))
             self.prt_txt(prt)
