@@ -1,12 +1,13 @@
 """Options for calculating uncorrected p-values."""
 
-from __future__ import print_function
-
-__copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang et al., All rights reserved."
+__copyright__ = (
+    "Copyright (C) 2016-2018, DV Klopfenstein, H Tang et al., All rights reserved."
+)
 __author__ = "DV Klopfenstein"
 
 import collections as cx
 import sys
+
 
 class PvalCalcBase(object):
     """Base class for initial p-value calculations."""
@@ -19,19 +20,22 @@ class PvalCalcBase(object):
     def calc_pvalue(self, study_count, study_n, pop_count, pop_n):
         """pvalues are calculated in derived classes."""
         fnc_call = "calc_pvalue({SCNT}, {STOT}, {PCNT} {PTOT})".format(
-            SCNT=study_count, STOT=study_n, PCNT=pop_count, PTOT=pop_n)
-        raise Exception("NOT IMPLEMENTED: {FNC_CALL} using {FNC}.".format(
-            FNC_CALL=fnc_call, FNC=self.pval_fnc))
+            SCNT=study_count, STOT=study_n, PCNT=pop_count, PTOT=pop_n
+        )
+        raise NotImplementedError(f"NOT IMPLEMENTED: {fnc_call} using {self.pval_fnc}.")
 
 
 class FisherScipyStats(PvalCalcBase):
     """From the scipy stats package, use function, fisher_exact."""
 
-    fmterr = "STUDY={A}/{B} POP={C}/{D} scnt({scnt}) stot({stot}) pcnt({pcnt}) ptot({ptot})"
+    fmterr = (
+        "STUDY={A}/{B} POP={C}/{D} scnt({scnt}) stot({stot}) pcnt({pcnt}) ptot({ptot})"
+    )
 
     def __init__(self, name, log):
         from scipy import stats
-        super(FisherScipyStats, self).__init__(name, stats.fisher_exact, log)
+
+        super().__init__(name, stats.fisher_exact, log)
 
     def calc_pvalue(self, study_count, study_n, pop_count, pop_n):
         """Calculate uncorrected p-values."""
@@ -53,7 +57,15 @@ class FisherScipyStats(PvalCalcBase):
         cvar = pop_count - study_count
         dvar = pop_n - pop_count - bvar
         assert cvar >= 0, self.fmterr.format(
-            A=avar, B=bvar, C=cvar, D=dvar, scnt=study_count, stot=study_n, pcnt=pop_count, ptot=pop_n)
+            A=avar,
+            B=bvar,
+            C=cvar,
+            D=dvar,
+            scnt=study_count,
+            stot=study_n,
+            pcnt=pop_count,
+            ptot=pop_n,
+        )
         # stats.fisher_exact returns oddsratio, pval_uncorrected
         _, p_uncorrected = self.pval_fnc([[avar, bvar], [cvar, dvar]])
         return p_uncorrected
@@ -62,13 +74,17 @@ class FisherScipyStats(PvalCalcBase):
 class FisherFactory(object):
     """Factory for choosing a fisher function."""
 
-    options = cx.OrderedDict([
-        ('fisher_scipy_stats', FisherScipyStats),
-    ])
+    options = cx.OrderedDict(
+        [
+            ("fisher_scipy_stats", FisherScipyStats),
+        ]
+    )
 
     def __init__(self, **kws):
-        self.log = kws['log'] if 'log' in kws else sys.stdout
-        self.pval_fnc_name = kws["pvalcalc"] if "pvalcalc" in kws else "fisher_scipy_stats"
+        self.log = kws["log"] if "log" in kws else sys.stdout
+        self.pval_fnc_name = (
+            kws["pvalcalc"] if "pvalcalc" in kws else "fisher_scipy_stats"
+        )
         self.pval_obj = self._init_pval_obj()
 
     def _init_pval_obj(self):
@@ -76,7 +92,9 @@ class FisherFactory(object):
         if self.pval_fnc_name in self.options.keys():
             return self.options[self.pval_fnc_name](self.pval_fnc_name, self.log)
 
-        raise Exception("PVALUE FUNCTION({FNC}) NOT FOUND".format(FNC=self.pval_fnc_name))
+        raise Exception(
+            "PVALUE FUNCTION({FNC}) NOT FOUND".format(FNC=self.pval_fnc_name)
+        )
 
     def __str__(self):
         return " ".join(self.options.keys())

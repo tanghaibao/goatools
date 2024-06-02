@@ -22,10 +22,11 @@ def get_edgesobj(gosubdag, **kws):
     #     get_edgesobj(go2obj, go_sources=..., traverse_child=...,)
     #     get_edgesobj(go2obj, go_sources=..., traverse_parent=..., traverse_child=...,)
     edgeobj = _get_edgesobj(gosubdag, **kws)
-    rm_gos = kws.get('rm_gos')
+    rm_gos = kws.get("rm_gos")
     if rm_gos is not None:
         edgeobj.rm_gos(rm_gos)
     return edgeobj
+
 
 def _get_edgesobj(gosubdag, **kws):
     """Return specfied GoSubDag initialization object."""
@@ -42,12 +43,13 @@ def _get_edgesobj(gosubdag, **kws):
     #     get_edgesobj(go2obj, go_sources=..., traverse_parent=...,)
     #     get_edgesobj(go2obj, go_sources=..., traverse_child=...,)
     #     get_edgesobj(go2obj, go_sources=..., traverse_parent=..., traverse_child=...,)
-    dst_srcs_list = kws.get('dst_srcs_list', None)
+    dst_srcs_list = kws.get("dst_srcs_list", None)
     if dst_srcs_list is not None:
         return EdgesPath(gosubdag, dst_srcs_list)
-    return EdgesRelatives(gosubdag,
-                          kws.get('traverse_parent', True),
-                          kws.get('traverse_child', False))
+    return EdgesRelatives(
+        gosubdag, kws.get("traverse_parent", True), kws.get("traverse_child", False)
+    )
+
 
 # -- Base Class ----------------------------------------------------------------
 class EdgesBase(object):
@@ -104,8 +106,11 @@ class EdgesBase(object):
         """Check that user specified edges have a node which exists."""
         edge_nodes = set(e for es in edges for e in es)
         missing_nodes = edge_nodes.difference(nodes)
-        assert not missing_nodes, "MISSING: {GOs}\n{NM} EDGES MISSING {N} NODES (OF {T})".format(
-            NM=name, N=len(missing_nodes), T=len(edge_nodes), GOs=missing_nodes)
+        assert (
+            not missing_nodes
+        ), "MISSING: {GOs}\n{NM} EDGES MISSING {N} NODES (OF {T})".format(
+            NM=name, N=len(missing_nodes), T=len(edge_nodes), GOs=missing_nodes
+        )
 
     def get_c2ps(self):
         """Set child2parents dict for all parents used in this set of edges."""
@@ -123,7 +128,6 @@ class EdgesBase(object):
         return goobjs_higher
 
 
-
 # -- Initialization by considering all child and/or parent relatives -----------
 class EdgesRelatives(EdgesBase):
     """Inits GO-to-GO edges using all relatives above and/or below source GOs."""
@@ -131,7 +135,7 @@ class EdgesRelatives(EdgesBase):
     # pylint: disable=too-many-arguments
     # def __init__(self, go2obj, relationships, go_sources, traverse_parent, traverse_child):
     def __init__(self, gosubdag, traverse_parent, traverse_child):
-        super(EdgesRelatives, self).__init__(gosubdag)
+        super().__init__(gosubdag)
         # go2obj contain GO IDs in subset
         _gos = set(gosubdag.go2obj)
         assert traverse_child or traverse_parent, "NO EDGES IN GRAPH"
@@ -143,15 +147,12 @@ class EdgesRelatives(EdgesBase):
         rel2src2dsts = self._init_rel2src2dsts(_gos, traverse_parent)
         rel2dst2srcs = self._init_rel2dst2srcs(_gos, traverse_child)
         # Set by derived edge class
-        # self.edges = self._init_edges(_gos, p2cs, c2ps)
         self.edges = self._init_edges(p2cs, c2ps)
         self.edges_rel = self._init_edges_relationships(rel2src2dsts, rel2dst2srcs)
         assert _gos == set(self.go2obj)
-        # self.chk_edges()
 
     @staticmethod
     # Too slow to check goids_present as we go. Only minor init modes need checking.
-    # def _init_edges(goids_present, p2cs, c2ps):
     def _init_edges(p2cs, c2ps):
         """Get the directed edges from GO term to GO term."""
         edge_from_to = []
@@ -183,12 +184,11 @@ class EdgesRelatives(EdgesBase):
             edge_rel2fromto[reltype] = edge_from_to
         return edge_rel2fromto
 
-    # -------------------------------------------------------------------
     def _init_rel2src2dsts(self, go_sources, traverse_parent):
         """Traverse up parents."""
         if not traverse_parent or not self.relationships:
             return {}
-        rel2src2dsts = {r:defaultdict(set) for r in self.relationships}
+        rel2src2dsts = {r: defaultdict(set) for r in self.relationships}
         goids_seen = set()
         go2obj = self.go2obj
         for goid_src in go_sources:
@@ -201,11 +201,9 @@ class EdgesRelatives(EdgesBase):
         """Traverse from source GO up relationships."""
         child_id = goobj_child.id
         goids_seen.add(child_id)
-        ##A self.go2obj[child_id] = goobj_child
         # Update goids_seen and go2obj with child alt_ids
         for goid_altid in goobj_child.alt_ids:
             goids_seen.add(goid_altid)
-            ##A self.go2obj[goid_altid] = goobj_child
         # Loop through relationships of child object
         for reltype, recs in goobj_child.relationship.items():
             if reltype in self.relationships:
@@ -214,31 +212,32 @@ class EdgesRelatives(EdgesBase):
                     rel2src2dsts[reltype][relationship_id].add(child_id)
                     # If relationship has not been seen, traverse
                     if relationship_id not in goids_seen:
-                        self._traverse_relationship_objs(rel2src2dsts, relationship_obj, goids_seen)
+                        self._traverse_relationship_objs(
+                            rel2src2dsts, relationship_obj, goids_seen
+                        )
 
-    # -------------------------------------------------------------------
     def _init_rel2dst2srcs(self, go_sources, traverse_child):
         """Traverse through reverse relationships."""
         if not traverse_child or not self.relationships:
             return {}
-        rel2dst2srcs = {r:defaultdict(set) for r in self.relationships}
+        rel2dst2srcs = {r: defaultdict(set) for r in self.relationships}
         goids_seen = set()
         go2obj = self.go2obj
         for goid_src in go_sources:
             goobj_src = go2obj[goid_src]
             if goid_src not in goids_seen:
-                self._traverse_relationship_rev_objs(rel2dst2srcs, goobj_src, goids_seen)
+                self._traverse_relationship_rev_objs(
+                    rel2dst2srcs, goobj_src, goids_seen
+                )
         return rel2dst2srcs
 
     def _traverse_relationship_rev_objs(self, rel2dst2srcs, goobj_parent, goids_seen):
         """Traverse from source GO down children."""
         parent_id = goobj_parent.id
         goids_seen.add(parent_id)
-        ##A self.go2obj[parent_id] = goobj_parent
         # Update goids_seen and go2obj with parent alt_ids
         for goid_altid in goobj_parent.alt_ids:
             goids_seen.add(goid_altid)
-            ##A self.go2obj[goid_altid] = goobj_parent
         # Loop through children
         for reltype, recs in goobj_parent.relationship.items():
             if reltype in self.relationships:
@@ -247,10 +246,10 @@ class EdgesRelatives(EdgesBase):
                     rel2dst2srcs[relrev_id].add(parent_id)
                     # If child has not been seen, traverse
                     if relrev_id not in goids_seen:
-                        ##F self._traverse_relrev_objs(rel2dst2srcs, relrev_obj, go2obj, goids_seen)
-                        self._traverse_relationship_rev_objs(rel2dst2srcs, relrev_obj, goids_seen)
+                        self._traverse_relationship_rev_objs(
+                            rel2dst2srcs, relrev_obj, goids_seen
+                        )
 
-    # -------------------------------------------------------------------
     def _init_p2cs(self, go_sources, traverse_parent):
         """Traverse up parents."""
         if not traverse_parent:
@@ -261,32 +260,26 @@ class EdgesRelatives(EdgesBase):
         for goid_src in go_sources:
             goobj_src = go2obj[goid_src]
             if goid_src not in goids_seen:
-                ##F self._traverse_parent_objs(p2cs, goobj_src, go2obj, goids_seen)
                 self._traverse_parent_objs(p2cs, goobj_src, goids_seen)
         return p2cs
 
-    ##F def _traverse_parent_objs(self, p2cs, goobj_child, go2obj, goids_seen):
     def _traverse_parent_objs(self, p2cs, goobj_child, goids_seen):
         """Traverse from source GO up parents."""
         # Update public(go2obj p2cs), private(goids_seen)
         child_id = goobj_child.id
         # mark child as seen
         goids_seen.add(child_id)
-        ##A self.go2obj[child_id] = goobj_child
         # Update goids_seen and go2obj with child alt_ids
         for goid_altid in goobj_child.alt_ids:
             goids_seen.add(goid_altid)
-            ##A self.go2obj[goid_altid] = goobj_child
         # Loop through parents of child object
         for parent_obj in goobj_child.parents:
             parent_id = parent_obj.id
             p2cs[parent_id].add(child_id)
             # If parent has not been seen, traverse
             if parent_id not in goids_seen:
-                ##F self._traverse_parent_objs(p2cs, parent_obj, go2obj, goids_seen)
                 self._traverse_parent_objs(p2cs, parent_obj, goids_seen)
 
-    # -------------------------------------------------------------------
     def _init_c2ps(self, go_sources, traverse_child):
         """Traverse up children."""
         if not traverse_child:
@@ -297,29 +290,24 @@ class EdgesRelatives(EdgesBase):
         for goid_src in go_sources:
             goobj_src = go2obj[goid_src]
             if goid_src not in goids_seen:
-                ##F self._traverse_child_objs(c2ps, goobj_src, go2obj, goids_seen)
                 self._traverse_child_objs(c2ps, goobj_src, goids_seen)
         return c2ps
 
-    ##F def _traverse_child_objs(self, c2ps, goobj_parent, go2obj, goids_seen):
     def _traverse_child_objs(self, c2ps, goobj_parent, goids_seen):
         """Traverse from source GO down children."""
         # Update public(godag.go2obj godag.c2ps), private(_seen_pids)
         parent_id = goobj_parent.id
         # mark parent as seen
         goids_seen.add(parent_id)
-        ##A self.go2obj[parent_id] = goobj_parent
         # Update goids_seen and go2obj with parent alt_ids
         for goid_altid in goobj_parent.alt_ids:
             goids_seen.add(goid_altid)
-            ##A self.go2obj[goid_altid] = goobj_parent
         # Loop through children
         for child_obj in goobj_parent.children:
             child_id = child_obj.id
             c2ps[child_id].add(parent_id)
             # If child has not been seen, traverse
             if child_id not in goids_seen:
-                ##F self._traverse_child_objs(c2ps, child_obj, go2obj, goids_seen)
                 self._traverse_child_objs(c2ps, child_obj, goids_seen)
 
 
@@ -328,14 +316,10 @@ class EdgesPath(EdgesBase):
     """Inits GO-to-GO edges using a list of (parent destination, child sources)"""
 
     def __init__(self, gosubdag, dst_srcs_list):
-        super(EdgesPath, self).__init__(gosubdag)
+        super().__init__(gosubdag)
         self.edges = None
         self.goid_all = None
         self._init_edges(dst_srcs_list)
-        # GO IDs for child->parents
-        # self.p2cs = self._init_p2cs(go_sources, traverse_parent)
-        # GO IDs for parent->children
-        # self.c2ps = self._init_c2ps(go_sources, traverse_child)
 
     def get_edges(self):
         """Get the directed edges from GO term to GO term."""
@@ -343,7 +327,8 @@ class EdgesPath(EdgesBase):
 
     def _init_edges(self, dst_srcs_list):
         """Create all GO edges given a list of (dst, srcs)."""
-        from goatools.gosubdag.go_paths import get_paths_goobjs, paths2edges
+        from .go_paths import get_paths_goobjs, paths2edges
+
         edges_all = set()
         goid_all = set()
         go2obj = self.go2obj
@@ -351,10 +336,13 @@ class EdgesPath(EdgesBase):
             go2obj_srcs = {}
             for goid in srcs:
                 go2obj_srcs[goid] = go2obj[goid]
-            go_paths, go_all = get_paths_goobjs(go2obj_srcs.values(), go_top=dst, go2obj=go2obj)
+            go_paths, go_all = get_paths_goobjs(
+                go2obj_srcs.values(), go_top=dst, go2obj=go2obj
+            )
             edges_all |= paths2edges(go_paths)
             goid_all |= go_all
         self.edges = [(a.id, b.id) for a, b in edges_all]
         self.goid_all = goid_all
+
 
 # Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.

@@ -7,8 +7,9 @@
 """
 
 import collections as cx
-from goatools.anno.annoreader_base import AnnoReaderBase
-from goatools.anno.init.reader_gpad import InitAssc
+
+from .annoreader_base import AnnoReaderBase
+from .init.reader_gpad import InitAssc
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
@@ -17,13 +18,16 @@ __author__ = "DV Klopfenstein"
 class GpadReader(AnnoReaderBase):
     """dRead a Gene Product Association Data (GPAD) and store the data in a Python object."""
 
-    exp_kws = {'hdr_only', 'godag', 'namespaces'}
+    exp_kws = {"hdr_only", "godag", "namespaces"}
 
     def __init__(self, filename=None, **kws):
-        super(GpadReader, self).__init__('gpad', filename,
-                                         hdr_only=kws.get('hdr_only', False),
-                                         godag=kws.get('godag'),
-                                         namespaces=kws.get('namespaces'))
+        super().__init__(
+            "gpad",
+            filename,
+            hdr_only=kws.get("hdr_only", False),
+            godag=kws.get("godag"),
+            namespaces=kws.get("namespaces"),
+        )
         self.qty = len(self.associations)
 
     def get_relation_cnt(self):
@@ -36,8 +40,8 @@ class GpadReader(AnnoReaderBase):
 
     def _init_associations(self, fin_gpad, **kws):
         """Read annotation file and store a list of namedtuples."""
-        ini = InitAssc(fin_gpad, kws['godag'])
-        nts = ini.init_associations(kws['hdr_only'], kws['namespaces'])
+        ini = InitAssc(fin_gpad, kws["godag"])
+        nts = ini.init_associations(kws["hdr_only"], kws["namespaces"])
         self.hdr = ini.hdr
         return nts
 
