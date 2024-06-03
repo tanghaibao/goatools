@@ -11,9 +11,8 @@ import os
 from sys import stderr, stdout
 from typing import Optional
 
-from goatools.godag.obo_optional_attributes import OboOptionalAttrs
-from goatools.godag.typedef import TypeDef
-from goatools.godag.typedef import add_to_typedef
+from .godag.obo_optional_attributes import OboOptionalAttrs
+from .godag.typedef import TypeDef, add_to_typedef
 
 GraphEngines = ("pygraphviz", "pydot")
 
@@ -313,7 +312,7 @@ class GODag(dict):
         load_obsolete: bool = False,
         prt=stdout,
     ):
-        super(GODag, self).__init__()
+        super().__init__()
         self.version, self.data_version = self.load_obo_file(
             obo_file, optional_attrs, load_obsolete, prt
         )

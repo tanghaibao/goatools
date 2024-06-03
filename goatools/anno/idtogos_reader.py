@@ -17,7 +17,7 @@ class IdToGosReader(AnnoReaderBase):
 
     def __init__(self, filename=None, **kws):
         self.id2gos = None  # ID to GO ID set as loaded from annotations file
-        super(IdToGosReader, self).__init__(
+        super().__init__(
             "id2gos",
             filename,
             godag=kws.get("godag"),
