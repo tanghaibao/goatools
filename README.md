@@ -45,6 +45,8 @@
   The code for the stochastic GOEA simulations
   described in the paper is found [here](https://github.com/dvklopfenstein/goatools_simulation)
 
+![GOATOOLS example](https://www.dropbox.com/scl/fi/m6c3ckv1vzj3tgy31b1l4/41598_2018_28948_Fig2_HTML.png?rlkey=ud8n05c1dcejtg32z6jy2m4lt&raw=1)
+
 ## Contents
 
 This package contains a Python library to
