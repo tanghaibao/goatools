@@ -1,6 +1,5 @@
 # Tools for Gene Ontology
 
-[![DOI](/doc/images/DOI.svg)](https://www.nature.com/articles/s41598-018-28948-z)
 [![Latest PyPI version](https://img.shields.io/pypi/v/goatools.svg)](https://pypi.python.org/pypi/goatools)
 [![bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools)
 [![Github Actions](https://github.com/tanghaibao/goatools/workflows/build/badge.svg)](https://github.com/tanghaibao/goatools/actions)
@@ -23,7 +22,32 @@
 | Email   | <tanghaibao@gmail.com>                                                |
 | License | BSD                                                                   |
 
-## Description
+## How to cite
+
+> [!TIP]
+> GOATOOLS is now published in Scientific Reports!
+>
+> _Klopfenstein DV, ... Tang H (2018) GOATOOLS: A Python library for Gene
+> Ontology analyses [Scientific reports](https://www.nature.com/articles/s41598-018-28948-z)_
+
+- **GO Grouping**:
+  Visualize the major findings in a gene ontology enrichment analysis (GOEA) more easily with grouping.
+  A detailed description of GOATOOLS GO grouping is found in the
+  [manuscript](https://www.nature.com/articles/s41598-018-28948-z).
+- **Compare GO lists**:
+  Compare [two](https://github.com/tanghaibao/goatools/issues/162) or more lists
+  of GO IDs using `compare_gos.py`, which can be used with or without
+  grouping.
+- **Stochastic GOEA simulations**:
+  One of the findings resulting from our simulations is:
+  [Larger study sizes result in higher GOEA sensitivity](https://github.com/dvklopfenstein/goatools_simulation#manuscript-figures),
+  meaning fewer truly significant observations go unreported.
+  The code for the stochastic GOEA simulations
+  described in the paper is found [here](https://github.com/dvklopfenstein/goatools_simulation)
+
+![GOATOOLS example](https://www.dropbox.com/scl/fi/m6c3ckv1vzj3tgy31b1l4/41598_2018_28948_Fig2_HTML.png?rlkey=ud8n05c1dcejtg32z6jy2m4lt&raw=1)
+
+## Contents
 
 This package contains a Python library to
 
@@ -65,26 +89,6 @@ This package contains a Python library to
 - Map GO terms (or protein products with multiple associations to
   GO terms) to GOslim terms (analog to the map2slim.pl script supplied
   by geneontology.org)
-
-## To Cite
-
-Klopfenstein DV, Zhang L, Pedersen BS, ... Tang H [GOATOOLS: A Python library for Gene Ontology analyses](https://www.nature.com/articles/s41598-018-28948-z)
-_Scientific reports_ | (2018) 8:10872 | DOI:10.1038/s41598-018-28948-z
-
-- **GO Grouping**:
-  Visualize the major findings in a gene ontology enrichment analysis (GOEA) more easily with grouping.
-  A detailed description of GOATOOLS GO grouping is found in the
-  [manuscript](https://www.nature.com/articles/s41598-018-28948-z).
-- **Compare GO lists**:
-  Compare [two](https://github.com/tanghaibao/goatools/issues/162) or more lists
-  of GO IDs using `compare_gos.py`, which can be used with or without
-  grouping.
-- **Stochastic GOEA simulations**:
-  One of the findings resulting from our simulations is:
-  [Larger study sizes result in higher GOEA sensitivity](https://github.com/dvklopfenstein/goatools_simulation#manuscript-figures),
-  meaning fewer truly significant observations go unreported.
-  The code for the stochastic GOEA simulations
-  described in the paper is found [here](https://github.com/dvklopfenstein/goatools_simulation)
 
 ## Installation
 
