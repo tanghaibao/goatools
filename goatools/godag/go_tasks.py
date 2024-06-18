@@ -8,7 +8,6 @@ __author__ = "DV Klopfenstein"
 from ..godag.consts import RELATIONSHIP_SET
 
 
-# ------------------------------------------------------------------------------------
 def get_go2parents(go2obj, relationships):
     """Get set of parents GO IDs, including parents through user-specfied relationships"""
     if (
@@ -28,7 +27,6 @@ def get_go2parents(go2obj, relationships):
     return go2parents
 
 
-# ------------------------------------------------------------------------------------
 def get_go2children(go2obj, relationships):
     """Get set of children GO IDs, including children through user-specfied relationships"""
     if (
@@ -48,7 +46,6 @@ def get_go2children(go2obj, relationships):
     return go2children
 
 
-# ------------------------------------------------------------------------------------
 def get_go2parents_isa(go2obj):
     """Get set of immediate parents GO IDs"""
     go2parents = {}
@@ -59,7 +56,6 @@ def get_go2parents_isa(go2obj):
     return go2parents
 
 
-# ------------------------------------------------------------------------------------
 def get_go2children_isa(go2obj):
     """Get set of immediate children GO IDs"""
     go2children = {}
@@ -70,7 +66,6 @@ def get_go2children_isa(go2obj):
     return go2children
 
 
-# ------------------------------------------------------------------------------------
 def get_go2ancestors(terms, relationships, prt=None):
     """Get GO-to- ancestors (all parents)"""
     if not relationships:
@@ -105,7 +100,6 @@ def get_go2descendants(terms, relationships, prt=None):
     return get_id2lowerselect(terms, relationships)
 
 
-# ------------------------------------------------------------------------------------
 def get_go2depth(goobjs, relationships):
     """Get depth of each object"""
     if not relationships:
@@ -115,7 +109,6 @@ def get_go2depth(goobjs, relationships):
     return get_go2reldepth(goobjs, relationships)
 
 
-# ------------------------------------------------------------------------------------
 def get_id2parents(objs):
     """Get all parent IDs up the hierarchy"""
     id2parents = {}
@@ -177,7 +170,6 @@ def get_relationship_targets(item_ids, relationships, id2rec):
     return reltgt_objs_all
 
 
-# ------------------------------------------------------------------------------------
 # pylint: disable=too-few-public-methods
 class IdToUpperSelect:
     """Get all ancestor IDs, including all parents and IDs up selected relationships"""
@@ -237,9 +229,6 @@ class IdToLowerSelect:
         return child_ids
 
 
-# ------------------------------------------------------------------------------------
-
-
 def _get_id2parents(id2parents, item_id, item_obj):
     """Add the parent item IDs for one item object and their parents."""
     if item_id in id2parents:
@@ -295,7 +284,6 @@ def _get_id2lower(id2lower, item_id, item_obj, cache: set):
     return lower_ids
 
 
-# ------------------------------------------------------------------------------------
 class CurNHigher:
     """Fill id2obj with item IDs in relationships."""
 
