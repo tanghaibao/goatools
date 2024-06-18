@@ -143,8 +143,12 @@ def get_id2upper(objs):
 def get_id2lower(objs):
     """Get all descendant IDs, including all children and IDs down all relationships"""
     id2lower = {}
+    cache = set()
     for obj in objs:
-        _get_id2lower(id2lower, obj.item_id, obj)
+        item_id = obj.item_id
+        if item_id in cache:
+            continue
+        _get_id2lower(id2lower, obj.item_id, obj, cache)
     return {e: es for e, es in id2lower.items() if es}
 
 
@@ -275,15 +279,18 @@ def _get_id2upper(id2upper, item_id, item_obj):
     return upper_ids
 
 
-def _get_id2lower(id2lower, item_id, item_obj):
+def _get_id2lower(id2lower, item_id, item_obj, cache: set):
     """Add the lower item IDs for one item object and the objects below them."""
     if item_id in id2lower:
         return id2lower[item_id]
     lower_ids = set()
+    cache.add(item_id)
     for lower_obj in item_obj.get_goterms_lower():
         lower_id = lower_obj.item_id
         lower_ids.add(lower_id)
-        lower_ids |= _get_id2lower(id2lower, lower_id, lower_obj)
+        if lower_id in cache:
+            continue
+        lower_ids |= _get_id2lower(id2lower, lower_id, lower_obj, cache)
     id2lower[item_id] = lower_ids
     return lower_ids
 
