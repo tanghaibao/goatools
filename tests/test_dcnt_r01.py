@@ -5,6 +5,8 @@ import os
 import sys
 import timeit
 import numpy as np
+import pytest
+
 from numpy.random import shuffle
 from scipy import stats
 
@@ -14,6 +16,7 @@ from goatools.gosubdag.gosubdag import GoSubDag
 from goatools.obo_parser import GODag
 
 
+@pytest.mark.skip(reason="Latest obo (`releases/2024-06-10`) is not DAG")
 def test_go_pools():
     """Print a comparison of GO terms from different species in two different comparisons."""
     objr = _Run()
