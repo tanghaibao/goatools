@@ -362,6 +362,7 @@ NOSETESTS := \
 	tests/test_get_unique_fields.py \
 	tests/test_go_depth1.py \
 	tests/test_go_draw.py \
+	tests/test_go_name_shorten.py \
 	tests/test_go_print.py \
 	tests/test_goea_errors.py \
 	tests/test_goea_local.py \
