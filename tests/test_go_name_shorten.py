@@ -1,6 +1,6 @@
 import pytest
 
-from goatools.gosubdag.plot.go_name_shorten import ShortenText
+from goatools.gosubdag.plot.go_name_shorten import get_short_plot_name
 
 
 @pytest.mark.parametrize(
@@ -27,4 +27,4 @@ from goatools.gosubdag.plot.go_name_shorten import ShortenText
 )
 def test_get_short_plot_name(inp: str, outp: str):
     goobj = type("goobj", (object,), {"name": inp, "depth": 6, "id": "GO:0000000"})
-    assert ShortenText.get_short_plot_name(goobj) == outp
+    assert get_short_plot_name(goobj) == outp

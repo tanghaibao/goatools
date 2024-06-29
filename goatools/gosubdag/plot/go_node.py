@@ -6,8 +6,9 @@ __copyright__ = (
 __author__ = "DV Klopfenstein"
 
 import pydot
-from goatools.gosubdag.plot.go_name_shorten import ShortenText
-from goatools.gosubdag.utils import extract_kwargs
+
+from ..utils import extract_kwargs
+from .go_name_shorten import get_short_plot_name
 
 
 class GoNodeOpts:
@@ -37,7 +38,7 @@ class GoNodeOpts:
         ret = self.kws["dict"].copy()
         act_set = self.kws["set"]
         if "shorten" in act_set and "goobj2fncname" not in ret:
-            ret["goobj2fncname"] = ShortenText.get_short_plot_name
+            ret["goobj2fncname"] = get_short_plot_name
         if "dict" in self.kws and "go2txt" in self.kws["dict"]:
             self._init_go2txt_altgos(self.kws["dict"]["go2txt"])
         return ret
