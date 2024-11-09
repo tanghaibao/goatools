@@ -11,7 +11,7 @@ __status__ = "Development"
 
 try:
     VERSION = version(__name__)
-except DistributionNotFound:  # pragma: no cover
+except PackageNotFoundError:  # pragma: no cover
     try:
         from .version import version as VERSION  # noqa
     except ImportError:  # pragma: no cover
