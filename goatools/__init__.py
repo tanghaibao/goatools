@@ -1,5 +1,5 @@
 from datetime import datetime
-from pkg_resources import get_distribution, DistributionNotFound
+from importlib.metadata import version, PackageNotFoundError
 
 __author__ = ("Haibao Tang", "DV Klopfenstein")
 __copyright__ = "Copyright (C) 2009-{}, Haibao Tang, DV Klopfenstein".format(
@@ -10,7 +10,7 @@ __license__ = "BSD"
 __status__ = "Development"
 
 try:
-    VERSION = get_distribution(__name__).version
+    VERSION = version(__name__)
 except DistributionNotFound:  # pragma: no cover
     try:
         from .version import version as VERSION  # noqa
