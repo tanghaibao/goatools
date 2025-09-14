@@ -382,6 +382,7 @@ NOSETESTS := \
 	tests/test_pvalcalc.py \
 	tests/test_read_gaf_allow_nd.py \
 	tests/test_rpt_gene2go_evidencecodes.py \
+	tests/test_semantic.py \
 	tests/test_semantic_similarity.py \
 	tests/test_sorter_desc2nts.py \
 	tests/test_sorter_sections.py \
