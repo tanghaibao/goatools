@@ -50,17 +50,19 @@ print("\n2. Using go_tasks functions (for batch processing):")
 print("-" * 70)
 
 # Get descendants for ALL GO terms in the DAG
+# Extract godag.values() once for efficiency
+goterms = godag.values()
 
 # Option A: is_a only
-go2descendants_isa = get_go2descendants(godag.values(), relationships=None)
+go2descendants_isa = get_go2descendants(goterms, relationships=None)
 print(f"   is_a only:              {sorted(go2descendants_isa.get(GO_ID, set()))}")
 
 # Option B: is_a + ALL relationships
-go2descendants_all = get_go2descendants(godag.values(), relationships=True)
+go2descendants_all = get_go2descendants(goterms, relationships=True)
 print(f"   is_a + all relations:   {sorted(go2descendants_all.get(GO_ID, set()))}")
 
 # Option C: is_a + SELECTED relationships (e.g., only part_of)
-go2descendants_partof = get_go2descendants(godag.values(), relationships={'part_of'})
+go2descendants_partof = get_go2descendants(goterms, relationships={'part_of'})
 print(f"   is_a + part_of only:    {sorted(go2descendants_partof.get(GO_ID, set()))}")
 
 # ============================================================================
