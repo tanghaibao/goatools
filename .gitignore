@@ -17,6 +17,11 @@ gene2go
 /*.txt
 *.bac
 
+# Python build artifacts
+*.egg-info/
+goatools/version.py
+__pycache__/
+
 # Sphinx working directories
 _static
 _templates

@@ -85,16 +85,16 @@ print("""
 2. MUST use go.obo (not go-basic.obo) to include all relationships
 
 For single GO term:
-  • goterm.get_all_children()  → descendants via is_a only
-  • goterm.get_all_lower()     → descendants via is_a + all relationships
+  - goterm.get_all_children()  -> descendants via is_a only
+  - goterm.get_all_lower()     -> descendants via is_a + all relationships
 
 For multiple GO terms:
-  • get_go2descendants(terms, relationships=None)         → is_a only
-  • get_go2descendants(terms, relationships=True)         → is_a + all
-  • get_go2descendants(terms, relationships={'part_of'})  → is_a + selected
+  - get_go2descendants(terms, relationships=None)         -> is_a only
+  - get_go2descendants(terms, relationships=True)         -> is_a + all
+  - get_go2descendants(terms, relationships={'part_of'})  -> is_a + selected
 
 For visualization:
-  • wr_hier.py GO_ID --dag=go.obo -r  → hierarchy with relationships
+  - wr_hier.py GO_ID --dag=go.obo -r  -> hierarchy with relationships
 
 See notebooks/children_and_descendants.ipynb for more examples!
 """)
