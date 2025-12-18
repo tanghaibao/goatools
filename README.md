@@ -81,6 +81,9 @@ This package contains a Python library to
   relationships](notebooks/parents_and_ancestors.ipynb), including [Print details about a
   GO ID's parents](notebooks/parent_go_terms.ipynb)
 
+- [Get children or descendants for a GO term with or without optional
+  relationships](notebooks/children_and_descendants.ipynb)
+
 - Compare two or more lists of GO IDs
 - [Plot GO hierarchies](https://github.com/tanghaibao/goatools#plot-go-lineage)
 - [Write GO hierarchies to an ASCII text file](https://github.com/tanghaibao/goatools#write-go-hierarchy)
