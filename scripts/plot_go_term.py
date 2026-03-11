@@ -69,6 +69,12 @@ if __name__ == "__main__":
         type="int",
         help="Output figure dpi, ignored by vector image formats like svg and pdf [default: %default]",
     )
+    p.add_option(
+        "--wrap-width",
+        default=999,
+        type="int",
+        help="Max width of graph nodes in characters [default: %default]",
+    )
 
     p.set_defaults(draw_parents=True)
     p.set_defaults(draw_children=True)
@@ -97,4 +103,5 @@ if __name__ == "__main__":
             output=opts.output,
             draw_parents=opts.draw_parents,
             draw_children=opts.draw_children,
+            wrap_width=opts.wrap_width
         )
