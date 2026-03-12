@@ -9,7 +9,7 @@ jobs:
       max-parallel: 4
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: ["3.12"]
+        python-version: ["3.13"]
 
     steps:
       - uses: actions/checkout@v6
@@ -23,14 +23,20 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           cache-dependency-glob: |
+            uv.lock
             pyproject.toml
             setup.cfg
             setup.py
 
       - name: Install dependencies
         run: |
-          uv pip install --system -e . pytest pytest-cov nose
+          if [ -f uv.lock ]; then
+            uv sync --frozen --group test
+          else
+            uv sync --group test
+          fi
+          uv pip install --python .venv/bin/python -e .
 
       - name: Test with pytest
         run: |
-          make test_ci_subset
+          uv run pytest
