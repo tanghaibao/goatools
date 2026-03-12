@@ -1,5 +1,7 @@
 """Test fold_enrichment property on GOEnrichmentRecord."""
 
+import pytest
+
 from goatools.go_enrichment import GOEnrichmentRecord
 
 __copyright__ = "Copyright (C) 2010-2019, H Tang et al., All rights reserved."
@@ -123,6 +125,13 @@ def test_get_field_values_fold_enrichment_float():
     assert abs(row[0] - 10.0) < 1e-10
 
 
+def test_get_field_values_raises_for_unknown_field():
+    """get_field_values raises for an unknown field, not silently returning 'n.a.'."""
+    rec = _make_rec(ratio_in_study=(10, 100), ratio_in_pop=(10, 1000))
+    with pytest.raises(Exception):
+        rec.get_field_values(["nonexistent_field_xyz"], rpt_fmt=True)
+
+
 if __name__ == "__main__":
     test_fold_enrichment_zero_pop_count()
     test_fold_enrichment_zero_study_n()
@@ -136,4 +145,5 @@ if __name__ == "__main__":
     test_get_field_values_with_none_fold_enrichment()
     test_get_field_values_fold_enrichment_raw()
     test_get_field_values_fold_enrichment_float()
+    test_get_field_values_raises_for_unknown_field()
     print("All fold_enrichment tests passed.")

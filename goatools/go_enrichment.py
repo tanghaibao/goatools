@@ -237,10 +237,11 @@ class GOEnrichmentRecord(object):
                 row.append(val)
             else:
                 # 2. Check the GO object for the field
-                val = getattr(self.goterm, fld, None)
-                if rpt_fmt:
-                    val = self._get_rpt_fmt(fld, val, itemid2name)
-                if val is not None:
+                goterm_val = getattr(self.goterm, fld, self._SENTINEL)
+                if goterm_val is not self._SENTINEL:
+                    val = goterm_val
+                    if rpt_fmt:
+                        val = self._get_rpt_fmt(fld, val, itemid2name)
                     row.append(val)
                 else:
                     # 3. Field not found, raise Exception
