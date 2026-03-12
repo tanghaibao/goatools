@@ -8,6 +8,7 @@ __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights re
 __author__ = "DV Klopfenstein"
 
 import os
+import pytest
 import sys
 
 from collections import defaultdict
@@ -19,6 +20,7 @@ from goatools.test_data.genes_NCBI_9606_ProteinCoding import GENEID2NT as GeneID
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 
+@pytest.mark.skip(reason="[makefile:419: test_ci_subset] Killed")
 def test_ncbi_gene2go(log=sys.stdout):
     """Return GO associations to Entrez GeneIDs. Download if necessary.
 
