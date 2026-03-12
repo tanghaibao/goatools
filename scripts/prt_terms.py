@@ -4,12 +4,12 @@
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
-from goatools.cli.prt_terms import PrtGOterms
+from goatools.cli.prt_terms import main as cli_main
 
 
 def run():
     """Print GO terms."""
-    PrtGOterms().cli()
+    cli_main()
 
 
 if __name__ == '__main__':

@@ -13,19 +13,19 @@ GO = GO:0008135
 # ---- Run GOEA -----------------------------------------------------------------
 # -------------------------------------------------------------------------------
 goea: $(GO_OBO_FILE)
-	python scripts/find_enrichment.py --pval=0.05 --indent $(GOEA_FILES) --outfile results.txt
+	find_enrichment --pval=0.05 --indent $(GOEA_FILES) --outfile results.txt
 
 # -------------------------------------------------------------------------------
 # ---- Compare 2+ GOEAS ---------------------------------------------------------
 # -------------------------------------------------------------------------------
 compare_gos:
-	python scripts/compare_gos.py \
+	compare_gos \
 	data/compare_gos/tat_gos_simple1.tsv \
 	data/compare_gos/tat_gos_simple2.tsv \
 	-s data/compare_gos/sections.txt
 
 compare_gos_wr:
-	python scripts/compare_gos.py \
+	compare_gos \
 	data/compare_gos/tat_gos_simple1.tsv \
 	data/compare_gos/tat_gos_simple2.tsv \
 	-s data/compare_gos/sections.txt \
@@ -43,7 +43,7 @@ SECIN  := $(SEC)_sections_in.txt
 SECOUT := $(SEC)_sections.txt
 SECTXT := $(SEC)_grouped_gos.txt
 SECPY := $(SEC)_sections.py
-GO_PLOT := scripts/go_plot.py
+GO_PLOT := go_plot
 
 grpsec:
 	echo $(SEC)
@@ -122,31 +122,31 @@ gh-pages:
 # ---- Run Scripts --------------------------------------------------------------
 # -------------------------------------------------------------------------------
 goea_scipy_pval: $(GO_OBO_FILE)
-	python scripts/find_enrichment.py --pval=0.05 --indent $(GOEA_FILES) --pvalcalc fisher_scipy_stats
+	find_enrichment --pval=0.05 --indent $(GOEA_FILES) --pvalcalc fisher_scipy_stats
 
 goea_basic: $(GO_OBO_FILE)
-	python scripts/find_enrichment.py $(GOEA_FILES)
+	find_enrichment $(GOEA_FILES)
 
 goea_xlsx: $(GO_OBO_FILE)
-	python scripts/find_enrichment.py --pval=0.05 --indent $(GOEA_FILES) --outfile=goea.xlsx
+	find_enrichment --pval=0.05 --indent $(GOEA_FILES) --outfile=goea.xlsx
 
 goea_xlsx_bonferroni: $(GO_OBO_FILE)
-	python scripts/find_enrichment.py --pval=0.05 --indent $(GOEA_FILES) --method=bonferroni --outfile=goea_bonferroni.xlsx
+	find_enrichment --pval=0.05 --indent $(GOEA_FILES) --method=bonferroni --outfile=goea_bonferroni.xlsx
 
 goea_tsv: $(GO_OBO_FILE)
-	python scripts/find_enrichment.py --pval=0.05 --indent $(GOEA_FILES) --outfile=goea.tsv
+	find_enrichment --pval=0.05 --indent $(GOEA_FILES) --outfile=goea.tsv
 
 goea_files: $(GO_OBO_FILE)
-	python scripts/find_enrichment.py --pval=0.05 --indent $(GOEA_FILES) --outfile=goea.tsv,goea.xlsx
+	find_enrichment --pval=0.05 --indent $(GOEA_FILES) --outfile=goea.tsv,goea.xlsx
 
 plot_go_pygraphviz: $(GO_OBO_FILE)
-	python scripts/plot_go_term.py --term=$(GO)
+	plot_go_term --term=$(GO)
 
 plot_go_pydot: $(GO_OBO_FILE)
-	python scripts/plot_go_term.py --term=$(GO) --engine=pydot
+	plot_go_term --term=$(GO) --engine=pydot
 
 map_slim: $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
-	python scripts/map_to_slim.py --association_file=data/association --slim_out=direct $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
+	map_to_slim --association_file=data/association --slim_out=direct $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
 
 
 goea_all: goea goea_basic goea_xlsx goea_xlsx_bonferroni goea_tsv goea_files

@@ -17,27 +17,12 @@ About significance cutoff:
 __copyright__ = "Copyright (C) 2010-present, H Tang et al. All rights reserved."
 __author__ = "various"
 
-import sys
-import os.path as op
-from goatools.cli.find_enrichment import GoeaCliArgs
-from goatools.cli.find_enrichment import GoeaCliFnc
-
-sys.path.insert(0, op.join(op.dirname(__file__), ".."))
+from goatools.cli.find_enrichment import main as cli_main
 
 
 def main():
     """Run gene enrichment analysis."""
-    # Load study, population, associations, and GoDag. Run GOEA.
-    obj = GoeaCliFnc(GoeaCliArgs().args)
-    # Reduce results to significant results (pval<value)
-    results_specified = obj.get_results()
-    # Print results in a flat list
-    obj.prt_results(results_specified)
-    # if obj.sections and obj.args.outfile_detail:
-    #     #fout_detail = obj.args.outfile_detail if obj.args.outfile_detail else "goea_details.txt"
-    #     objaart = obj.get_objaart()
-    #     objaart.run("GOEA", results, sys.stdout)
-    #### prt_grouped(results, objgoea, args)
+    cli_main()
 
 
 if __name__ == "__main__":

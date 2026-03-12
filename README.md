@@ -154,7 +154,7 @@ Alternatively, you can manually install:
 
 See examples in [find_enrichment](docs/md/README_find_enrichment.md)
 
-The `find_enrichment.py` takes as arguments files
+The `find_enrichment` command takes as arguments files
 containing:
 
 - gene names in a study
@@ -165,8 +165,8 @@ Please look at `tests/data` folder to see examples on how to make these
 files. when ready, the command looks like:
 
 ```bash
-python scripts/find_enrichment.py --pval=0.05 --indent data/study \
-                                  data/population data/association
+find_enrichment --pval=0.05 --indent data/study \
+                data/population data/association
 ```
 
 and can filter on the significance of (e)nrichment or (p)urification. it
@@ -178,7 +178,7 @@ of GO term in the study group is significantly _higher_ than those in
 the population. The "p" stands for "purified" - significantly _lower_
 concentration of the GO term in the study group than in the population.
 
-**Important note**: by default, `find_enrichment.py` propagates counts
+**Important note**: by default, `find_enrichment` propagates counts
 to all the parents of a GO term. As a result, users may find terms in
 the output that are not present in their `association` file. Use
 `--no_propagate_counts` to disable this behavior.
@@ -196,11 +196,11 @@ the output that are not present in their `association` file. Use
   - User-defined colors
   - Plot relationships (`-r`)
   - Optionally plot children of user-specfied GO terms
-- `plot_go_term.py` can plot the lineage
+- `plot_go_term` can plot the lineage
 of a certain GO term, by:
 
 ```bash
-python scripts/plot_go_term.py --term=GO:0008135
+plot_go_term --term=GO:0008135
 ```
 
 This command will plot the following image.
@@ -216,14 +216,14 @@ reader plugin](https://code.google.com/p/graphmlreader/) may need to be
 downloaded and installed in the `plugins` folder of Cytoscape:
 
 ```bash
-python scripts/plot_go_term.py --term=GO:0008135 --gml
+plot_go_term --term=GO:0008135 --gml
 ```
 
 ![GO term lineage (Cytoscape)](https://www.dropbox.com/s/ueov2ioxl063q8h/gograph-gml.png?raw=1)
 
 ### Map GO terms to GOslim terms
 
-See `map_to_slim.py` for usage. As arguments it takes the gene ontology
+See `map_to_slim` for usage. As arguments it takes the gene ontology
 files:
 
 - the current gene ontology file `go-basic.obo`
@@ -236,18 +236,18 @@ To determine the GOslim terms for a single GO term, you can use the
 following command:
 
 ```bash
-python scripts/map_to_slim.py --term=GO:0008135 go-basic.obo goslim_generic.obo
+map_to_slim --term=GO:0008135 go-basic.obo goslim_generic.obo
 ```
 
 To determine the GOslim terms for protein products with multiple
 associations:
 
 ```bash
-python scripts/map_to_slim.py --association_file=data/association go-basic.obo goslim_generic.obo
+map_to_slim --association_file=data/association go-basic.obo goslim_generic.obo
 ```
 
 Where the `association` file has the same format as used for
-`find_enrichment.py`.
+`find_enrichment`.
 
 The implementation is similar to
 [map2slim](http://search.cpan.org/~cmungall/go-perl/scripts/map2slim).

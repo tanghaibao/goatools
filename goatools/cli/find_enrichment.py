@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 """
-python find_enrichment.py study.file population.file gene-association.file
+find_enrichment study.file population.file gene-association.file
 
 This program returns P-values for functional enrichment in a cluster of study
 genes using Fisher's exact test, and corrected for multiple testing (including
@@ -56,10 +56,10 @@ OBJPRTRES = GoeaPrintFunctions()
 class GoeaCliArgs:
     """Extracts arguments from the command-line."""
 
-    def __init__(self):
-        self.args = self._init_args()
+    def __init__(self, args=None):
+        self.args = self._init_args(args)
 
-    def _init_args(self):
+    def _init_args(self, args=None):
         """Get enrichment arg parser."""
 
         # pylint: disable=invalid-name
@@ -291,13 +291,14 @@ class GoeaCliArgs:
             ),
         )
 
-        if len(sys.argv) == 1:
+        argv = sys.argv[1:] if args is None else args
+        if not argv:
             sys.exit(not p.print_help())
-        self._prt_evidence_codes(set(sys.argv[1:]))
-        args = p.parse_args()  # Namespace object from argparse
-        self._adjust_relationships(args)
-        self._check_input_files(args, p)
-        return args
+        self._prt_evidence_codes(set(argv))
+        nspc = p.parse_args(argv)  # Namespace object from argparse
+        self._adjust_relationships(nspc)
+        self._check_input_files(nspc, p)
+        return nspc
 
     @staticmethod
     def _prt_evidence_codes(args):
@@ -793,6 +794,13 @@ class GrpWr:
         flds.append("study_count")
         flds.append("study_items")
         return flds
+
+
+def main(args=None):
+    """Run gene enrichment analysis from the command line."""
+    obj = GoeaCliFnc(GoeaCliArgs(args).args)
+    results_specified = obj.get_results()
+    obj.prt_results(results_specified)
 
 
 # Copyright (C) 2010-present, H Tang et al. All rights reserved.

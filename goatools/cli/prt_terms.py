@@ -1,8 +1,8 @@
 """Command-line interface to print specified GO Terms from the DAG source
 
 Usage:
-  prt_terms.py [GO ...] [GO_FILE]
-  prt_terms.py [GO ...] [GO_FILE] [options]
+  prt_terms [GO ...] [GO_FILE]
+  prt_terms [GO ...] [GO_FILE] [options]
 
 Options:
   -h --help                                 show this help message and exit
@@ -36,15 +36,20 @@ class PrtGOterms(object):
         self.objdoc = DocOptParse(__doc__, self.kws_dict, self.kws_set)
         self.objsub = WrSubObo()
 
-    def cli(self, prt=sys.stdout):
+    def cli(self, args=None, prt=sys.stdout):
         """Command-line interface to print specified GO Terms from the DAG source ."""
-        kws = self.objdoc.get_docargs(prt=None)
+        kws = self.objdoc.get_docargs(args, prt=None)
         # print("KWS", kws)
         goids = GetGOs().get_goids(kws.get('GO'), kws.get('GO_FILE'), sys.stdout)
         if not goids and 'name' in kws:
             goids = self.objsub.get_goids(kws['obo'], kws['name'])
         self.objsub.prt_goterms(kws['obo'], goids, prt, b_prt=False)
         print("Printing {N:6} GO IDs: {GOs}".format(N=len(goids), GOs=goids))
+
+
+def main(args=None):
+    """Print GO terms from the command line."""
+    PrtGOterms().cli(args=args)
 
 
 # Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.

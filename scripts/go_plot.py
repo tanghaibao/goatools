@@ -4,12 +4,12 @@
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
-from goatools.cli.gosubdag_plot import PlotCli
+from goatools.cli.gosubdag_plot import main as cli_main
 
 
 def run():
     """Create GO-Dag plots."""
-    PlotCli().cli()
+    cli_main()
 
 
 if __name__ == '__main__':
