@@ -1,0 +1,25 @@
+format-version: 1.2
+
+[Term]
+id: GO:0000001
+name: root
+namespace: biological_process
+
+[Term]
+id: GO:0000002
+name: B
+namespace: biological_process
+is_a: GO:0000001
+
+[Term]
+id: GO:0000003
+name: C
+namespace: biological_process
+is_a: GO:0000001
+
+[Term]
+id: GO:0000004
+name: D
+namespace: biological_process
+is_a: GO:0000002
+relationship: part_of GO:0000003
