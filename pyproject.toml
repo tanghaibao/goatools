@@ -20,7 +20,7 @@ version_scheme = "no-guess-dev"
 
 [tool.pytest.ini_options]
 addopts = """
---cov=goatools
+-v --cov=goatools
 tests/test_altid_godag.py
 tests/test_altid_gosubdag.py
 tests/test_annotations_gaf.py::test_gaf_read_fb
