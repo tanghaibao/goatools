@@ -6,6 +6,7 @@ __copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights
 __author__ = "DV Klopfenstein"
 
 import sys
+import re
 import collections as cx
 import math
 from goatools.godag.consts import NAMESPACE2NS
@@ -206,51 +207,54 @@ class InitFields:
         return " ".join(prt_fmt)
 
     def get_prt_hdr(self, alt=False):
-        """Return a column header matching the format returned by get_prt_fmt.
+        """Return a column header string aligned with the format returned by get_prt_fmt.
 
-        Column descriptions (approximate widths match the corresponding format fields):
-          GO_ID      GO term identifier, e.g. GO:0009987  ({GO}: 10 chars)
-          a          'a' if this is an alternate GO ID, else blank  ({alt:1}: 1 char)
-          NS         2-letter namespace: BP, MF, or CC  ({NS}: 2 chars)
-          dcnt       number of GO term descendants in the DAG  ({dcnt:5}: 5 chars)
-          chd        number of direct child GO terms (with relationships)  ({childcnt:3})
-          tcnt       annotation count from supplied annotation file  ({tcnt:7,}: 7 chars)
-          tfreq      annotation frequency  ({tfreq:8.6f}: 8 chars)
-          tinfo      information content  ({tinfo:5.2f}: 5 chars)
-          Lvl        level (L) - minimum hops from the root of the GO hierarchy
-          Dep        depth (D) - maximum hops from the root of the GO hierarchy
-          Rdp        relationship depth (R) using optional relationships (part_of, etc.)
-          D1         letter code for the depth-1 ancestor GO term  ({D1:5}: 5 chars)
-          REL        relationship-type string showing parent relationships
-          rel        relationship-type string showing child relationships
-          GO_name    GO term name
+        Uses the same format string as get_prt_fmt (with string-compatible specs) to
+        guarantee per-column alignment.  Column labels:
+          GO_ID    GO term identifier, e.g. GO:0009987
+          a        'a' if this is an alternate GO ID, else blank
+          NS       2-letter namespace: BP, MF, or CC
+          dcnt     number of GO term descendants in the DAG
+          chd      number of direct child GO terms (with relationships loaded)
+          tcnt     annotation count from supplied annotation file
+          tfreq    annotation frequency
+          tinfo    information content
+          Lvl      level - minimum hops from the root of the GO hierarchy
+          Dep      depth - maximum hops from the root of the GO hierarchy
+          Rdp      relationship depth using optional relationships (part_of, etc.)
+          D1       letter code for the depth-1 ancestor GO term
+          REL      relationship-type string showing parent relationships
+          rel      relationship-type string showing child relationships
+          GO_name  GO term name
         """
-        prt_hdr = []
-        if alt:
-            prt_hdr.append('GO_ID     a')  # {GO}{alt:1}: 10+1=11 chars
-        else:
-            prt_hdr.append('GO_ID     ')   # {GO}: 10 chars (GO:NNNNNNN)
-        prt_hdr.append('# NS')             # '# {NS}' renders as 4 chars: hash+space+2-letter-NS
-        if 'dcnt' in self.prt_flds:
-            prt_hdr.append(' dcnt')        # {dcnt:5}: 5 chars
-        if 'childcnt' in self.prt_flds:
-            prt_hdr.append('chd')          # {childcnt:3}: 3 chars
-        if 'tcnt' in self.prt_flds:
-            prt_hdr.append('   tcnt')      # {tcnt:7,}: 7 chars
-        if 'tfreq' in self.prt_flds:
-            prt_hdr.append('  tfreq ')     # {tfreq:8.6f}: 8 chars
-        if 'tinfo' in self.prt_flds:
-            prt_hdr.append('tinfo')        # {tinfo:5.2f}: 5 chars
-        prt_hdr.append('Lvl Dep')          # L{level:02} D{depth:02}: 7 chars
-        if self.relationships:
-            prt_hdr.append('Rdp')          # R{reldepth:02}: 3 chars
-        if 'D1' in self.prt_flds:
-            prt_hdr.append(' D1  ')        # {D1:5}: 5 chars
-        if 'REL' in self.prt_flds:
-            prt_hdr.append('REL ')         # {REL}: relationship-type string
-            prt_hdr.append('rel ')         # {rel}: relationship-type string (children)
-        prt_hdr.append('GO_name')          # {GO_name}: GO term name
-        return " ".join(prt_hdr)
+        fmt = self.get_prt_fmt(alt)
+        # 1. Give {GO} an explicit width because GO IDs are always 10 chars (GO:NNNNNNN).
+        fmt_hdr = fmt.replace('{GO}', '{GO:10}')
+        # 2. Fold the literal single-char prefix (L/D/R) into the numeric field width so
+        #    the label fits the combined width, e.g. L{level:02} -> {level:3} ('Lvl' = 3).
+        fmt_hdr = re.sub(
+            r'([LDR])\{(level|depth|reldepth):0*(\d+)[^}]*\}',
+            lambda m: '{' + m.group(2) + ':' + str(int(m.group(3)) + 1) + '}',
+            fmt_hdr)
+        # 3. Normalize specs that are incompatible with string values (thousands separator ',',
+        #    float '.Xf', zero-fill '0N') to simple minimum-width specs.
+        fmt_hdr = re.sub(r'\{(\w+):0*(\d+)[^}]*\}', r'{\1:\2}', fmt_hdr)
+        return fmt_hdr.format(
+            GO='GO_ID',
+            alt='a' if alt else '',
+            NS='NS',
+            dcnt='dcnt',
+            childcnt='chd',
+            tcnt='tcnt',
+            tfreq='tfreq',
+            tinfo='tinfo',
+            level='Lvl',
+            depth='Dep',
+            reldepth='Rdp',
+            D1='D1',
+            REL='REL',
+            rel='rel',
+            GO_name='GO_name')
 
     def _get_go2nt_all(self, rcntobj):
         """For each GO id, put all printable fields in one namedtuple."""
