@@ -2,6 +2,7 @@
 """Test to re-produce issue#96: Passes currently."""
 
 import os
+import pytest
 
 from goatools.base import get_godag
 from goatools.associations import dnld_ncbi_gene_file, read_ncbi_gene2go
@@ -11,6 +12,7 @@ from goatools.test_data.genes_NCBI_9606_All import GENEID2NT
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 
+@pytest.mark.skip(reason="[makefile:419: test_ci_subset] Killed")
 def test_i96():
     """Test to re-produce issue#96: Passes currently."""
     # Trying to duplicate: ValueError("All values in table must be nonnegative.
