@@ -2,6 +2,7 @@
 
 import sys
 import os
+import pytest
 import re
 
 from collections import defaultdict
