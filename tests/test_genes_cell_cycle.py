@@ -15,6 +15,7 @@ __copyright__ = "Copyright (C) 2010-2019, DV Klopfenstein, H Tang, All rights re
 __author__ = "DV Klopfenstein"
 
 
+@pytest.mark.skip(reason="[makefile:419: test_ci_subset] Killed")
 def test_cell_cycle(taxid=9606, log=sys.stdout):
     """Get all genes related to cell cycle. Write results to file."""
     geneids = get_genes_cell_cycle(taxid, log)

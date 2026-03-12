@@ -353,6 +353,7 @@ NOSETESTS := \
 	tests/test_combine_nt_lists.py \
 	tests/test_compare_gos.py \
 	tests/test_david_nts.py \
+	tests/test_dcnt_r01.py \
 	tests/test_genes_cell_cycle.py \
 	tests/test_get_children.py \
 	tests/test_get_godag.py \
