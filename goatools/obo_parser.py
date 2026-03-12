@@ -442,7 +442,7 @@ class GODag(dict):
             stderr.write("all children: {}\n".format(repr(rec.get_all_children())))
         return rec
 
-    def paths_to_top(self, term):
+    def paths_to_top(self, term, relationships=None):
         """Returns all possible paths to the root node
 
         Each path includes the term given. The order of the path is
@@ -455,6 +455,18 @@ class GODag(dict):
             the ID of the GO term, where the paths begin (i.e. the
             accession 'GO:0003682')
 
+        - relationships:
+            Optional. Controls which relationship types are traversed in
+            addition to the default 'is_a' hierarchy. Requires the GODag
+            to have been loaded with ``optional_attrs={'relationship'}``.
+
+            * ``None`` (default): traverse only 'is_a' parents.
+            * ``True``: traverse 'is_a' parents **and** all optional
+              relationships (e.g. 'part_of', 'regulates', …).
+            * A ``set`` or ``list`` of relationship-type strings: traverse
+              'is_a' parents plus only the listed relationship types
+              (e.g. ``{'part_of'}``).
+
         Returns:
         --------
         - a list of lists of GO Terms
@@ -464,11 +476,19 @@ class GODag(dict):
             stderr.write("Term %s not found!\n" % term)
             return
 
+        def _get_upper(rec):
+            """Return the set of upper-neighbours to traverse."""
+            if relationships is None:
+                return rec.parents
+            if relationships is True:
+                return rec.get_goterms_upper()
+            return rec.get_goterms_upper_rels(relationships)
+
         def _paths_to_top_recursive(rec):
             if rec.level == 0:
                 return [[rec]]
             paths = []
-            for parent in rec.parents:
+            for parent in _get_upper(rec):
                 top_paths = _paths_to_top_recursive(parent)
                 for top_path in top_paths:
                     top_path.append(rec)
