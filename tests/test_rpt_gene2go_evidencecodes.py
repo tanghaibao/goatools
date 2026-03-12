@@ -5,6 +5,7 @@ __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights re
 __author__ = "DV Klopfenstein"
 
 import os
+import pytest
 
 from goatools.associations import dnld_ncbi_gene_file
 from goatools.evidence_codes import EvidenceCodes
@@ -12,6 +13,7 @@ from goatools.evidence_codes import EvidenceCodes
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../")
 
 
+@pytest.mark.skip(reason="[makefile:419: test_ci_subset] Killed")
 def test_ev():
     """Return GO associations from a GAF file. Download if necessary."""
     evs = _get_evidencecodes("gene2go")
