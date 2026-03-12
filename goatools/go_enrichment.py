@@ -46,14 +46,18 @@ class GOEnrichmentRecord(object):
         "name",
         "ratio_in_study",
         "ratio_in_pop",
+        "fold_enrichment",
         "p_uncorrected",
         "depth",
         "study_count",
         "study_items",
     ]
     _fldsdeffmt = (
-        ["%s"] * 3 + ["%-30s"] + ["%d/%d"] * 2 + ["%.3g"] + ["%d"] * 2 + ["%15s"]
+        # GO, NS, enrichment, name, ratio_in_study, ratio_in_pop, fold_enrichment, p_uncorrected, depth, study_count, study_items
+        ["%s"] * 3 + ["%-30s"] + ["%d/%d"] * 2 + ["%.2f"] + ["%.3g"] + ["%d"] * 2 + ["%15s"]
     )
+
+    _SENTINEL = object()
 
     _flds = set(_fldsdefprt).intersection(
         {"study_items", "study_count", "study_n", "pop_items", "pop_count", "pop_n"}
@@ -112,10 +116,12 @@ class GOEnrichmentRecord(object):
         )
         self._chk_fields(field_data, field_formatter)
 
-        # default formatting only works for non-"n.a" data
+        # default formatting only works for non-"n.a" data; None is also displayed as "n.a."
         for idx, fld in enumerate(field_data):
-            if fld == "n.a.":
+            if fld == "n.a." or fld is None:
                 field_formatter[idx] = "%s"
+                if fld is None:
+                    field_data[idx] = "n.a."
 
         # print dots to show the level of the term
         dots = self.get_indent_dots() if indent else ""
@@ -224,8 +230,8 @@ class GOEnrichmentRecord(object):
         # Loop through each user field desired
         for fld in fldnames:
             # 1. Check the GOEnrichmentRecord's attributes
-            val = getattr(self, fld, None)
-            if val is not None:
+            val = getattr(self, fld, self._SENTINEL)
+            if val is not self._SENTINEL:
                 if rpt_fmt:
                     val = self._get_rpt_fmt(fld, val, itemid2name)
                 row.append(val)
@@ -250,6 +256,8 @@ class GOEnrichmentRecord(object):
     @staticmethod
     def _get_rpt_fmt(fld, val, itemid2name=None):
         """Return values in a format amenable to printing in a table."""
+        if val is None:
+            return "n.a."
         if fld.startswith("ratio_"):
             return "{N}/{TOT}".format(N=val[0], TOT=val[1])
         if fld in {"study_items", "pop_items", "alt_ids"}:
