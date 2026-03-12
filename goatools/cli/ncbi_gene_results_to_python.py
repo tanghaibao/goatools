@@ -22,7 +22,9 @@ def ncbi_tsv_to_py(fin_tsv, fout_py=None, prt=stdout):
 class NCBIgeneToPythonCli:
     """Read a NCBI Gene gene_result.txt file and write a Python module."""
 
-    argparser = ArgumentParser(description='Convert a NCBI gene tsv file into a Python module')
+    argparser = ArgumentParser(
+        prog="goatools ncbi_gene_results_to_python",
+        description='Convert a NCBI gene tsv file into a Python module')
     argparser.add_argument(
         'NCBI_gene_tsv', type=str, nargs='+',
         help='gene_result.tsv downloaded from NCBI Gene')

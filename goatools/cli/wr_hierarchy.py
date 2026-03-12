@@ -1,7 +1,7 @@
 """Command-line script to print a GO term's lower-level hierarchy.
 
 Usage:
-  wr_hier [GO ...] [options]
+  goatools wr_hier [GO ...] [options]
 
 Options:
   -h --help      show this help message and exit

@@ -28,11 +28,11 @@ do
 case $REPLY in
 
 1)
-find_enrichment --pval=0.05 --indent data/study.txt data/population.txt data/association.txt --outfile=goea_results.tsv
+goatools find_enrichment --pval=0.05 --indent data/study.txt data/population.txt data/association.txt --outfile=goea_results.tsv
 ;;
 
 2)
-plot_go_term --term=GO:0008135
+goatools plot_go_term --term=GO:0008135
 ;;
 
 3)
@@ -40,7 +40,7 @@ python 'tests/test_mapslim.py'
 ;;
 
 4)
-map_to_slim --association_file=data/association --slim_out=direct $GO_OBO_FILE $GOSLIM_OBO_FILE
+goatools map_to_slim --association_file=data/association --slim_out=direct $GO_OBO_FILE $GOSLIM_OBO_FILE
 ;;
 
 

@@ -31,7 +31,7 @@
 
 ## Example Details
 
-CMD: python scripts/find_enrichment.py data/study data/population data/association --outfile=goea.xlsx,goea.tsv --pval_field=fdr_bh     
+CMD: goatools find_enrichment data/study data/population data/association --outfile=goea.xlsx,goea.tsv --pval_field=fdr_bh     
 
 ### 1) Enrichment Analysis using various annotation formats    
 
@@ -45,28 +45,28 @@ Arguments to print results where Benjamini-Hochberg values are less than 0.05:
 
 ### 1A) Original id-to-GOs text format    
 ```
-python3 scripts/find_enrichment.py data/study.txt data/population.txt data/association.txt --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_id2gos.xlsx
+goatools find_enrichment data/study.txt data/population.txt data/association.txt --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_id2gos.xlsx
 ```
 
 ### 1B) GAF file
 ```
-python3 scripts/find_enrichment.py ids_stu.txt ids_pop.txt goa_human.gaf --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gaf.xlsx
+goatools find_enrichment ids_stu.txt ids_pop.txt goa_human.gaf --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gaf.xlsx
 ```
 
 ### 1B) GPAD file
 ```
-python3 scripts/find_enrichment.py ids_stu.txt ids_pop.txt goa_human.gpad --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx
+goatools find_enrichment ids_stu.txt ids_pop.txt goa_human.gpad --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx
 ```
 
 ### 1D) NCBI's gene2go file
 #### Human is the default:
 ```
-python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
+goatools find_enrichment ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
 ```
 
 #### Specify mouse using the **--taxid** argment:
 ```
-python3 scripts/find_enrichment.py ids_stu_gene2go_10090.txt ids_pop_gene2go_10090.txt gene2go --taxid=10090 --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_10090.xlsx
+goatools find_enrichment ids_stu_gene2go_10090.txt ids_pop_gene2go_10090.txt gene2go --taxid=10090 --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_10090.xlsx
 ```
 
 ### 2) Exclude or include annotations by evidence code
@@ -79,7 +79,7 @@ EXCLUDE all IEA annotations:
 ```
 
 ```
-python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_exc=IEA --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx
+goatools find_enrichment ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_exc=IEA --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx
 ```
 
 #### 2b) Include only annotations inferred from experimental evidence
@@ -92,18 +92,18 @@ INCLUDE evidence codes by group of by code:
 ```
 **Specify the experimental evidence codes by their group name:**
 ```
-python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_inc=Experimental --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx
+goatools find_enrichment ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_inc=Experimental --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx
 ```
 
 **Specify the experimental evidence codes explicitly:**    
 ```
-python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_inc=EXP,IDA,IPI,IMP,IGI,IEP --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx
+goatools find_enrichment ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_inc=EXP,IDA,IPI,IMP,IGI,IEP --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx
 ```
 
 #### 2c) Get list of evidence codes
 The argument, **--ev_help**, will cause the Evidence codes to be printed:
 ```
-python3 scripts/find_enrichment.py --ev_help
+goatools find_enrichment --ev_help
 ```
 ##### Evidence Code Help
 You can use either group names, like Experimental, or codes on the commandline:    
@@ -166,24 +166,24 @@ Namespace examples:
 
 #### Without --ns, all three branches will be analyzed:
 ```
-python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
+goatools find_enrichment ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
 ```
 
 #### With **--ns=MF**, only the _**molecular function**_ branch will be analyzed:
 ```
-python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --ns=MF --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
+goatools find_enrichment ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --ns=MF --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
 ```
 
 #### With **--ns=BP,MF**, run GOEAs on both the _**biological process**_ and the _**molecular function**_ branches:
 ```
-python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --ns=BP,MF --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
+goatools find_enrichment ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --ns=BP,MF --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
 ```
 
 #### With **--ns=MF** and **--ev_inc=IPI**: 
 Run a GOEA on the _**molecular function**_ branch for just the evidence code, **IPI**.     
 **IPI** includes evidence codes which are inferred from Physical Interaction    
 ```
-python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt -ns=MF --ev_inc=IPI gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
+goatools find_enrichment ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt -ns=MF --ev_inc=IPI gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
 ```
 
 
@@ -192,7 +192,7 @@ python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606
 The default is to print all GO terms with uncorrected P-values < 0.05 (default)
 
 ```
-python scripts/find_enrichment.py data/study.txt data/population.txt data/association.txt
+goatools find_enrichment data/study.txt data/population.txt data/association.txt
 ```
 
 
@@ -214,7 +214,7 @@ Acceptable values for **--sections** are:
 
 
 ```
-python scripts/find_enrichment.py data/study.txt data/population.txt data/association.txt --sections=goatools.test_data.sections.data2018_07_find_enrichment
+goatools find_enrichment data/study.txt data/population.txt data/association.txt --sections=goatools.test_data.sections.data2018_07_find_enrichment
 
 protein
 GO:0036211 BP e 9.83e-03  1320  5.14 D05  33/276  1725/33239 protein modification process ...
@@ -231,7 +231,7 @@ GO:0016301 MF e 4.64e-02   355  4.87 D04  25/276  1310/33239 kinase activity ...
 optional attribute: **--outfile=goea_uncorr.xlsx**    
 
 ```
-$ python scripts/find_enrichment.py data/study.txt data/population.txt data/association.txt --outfile=goea_uncorr.xlsx
+$ goatools find_enrichment data/study.txt data/population.txt data/association.txt --outfile=goea_uncorr.xlsx
     ...
     253 items WROTE: goea.xlsx
 ```
@@ -241,7 +241,7 @@ optional attribute: **--pval_field=fdr_bh**
 optional attribute: **----outfile=goea_fdr_bh.xlsx,goea_fdr_bh.tsv**    
 
 ```
-$ python scripts/find_enrichment.py data/study.txt data/population.txt data/association.txt --outfile=goea_fdr_bh.xlsx,goea_fdr_bh.tsv --pval_field=fdr_bh
+$ goatools find_enrichment data/study.txt data/population.txt data/association.txt --outfile=goea_fdr_bh.xlsx,goea_fdr_bh.tsv --pval_field=fdr_bh
      17 items WROTE: goea.xlsx
      17 items WROTE: goea.tsv
 ```
@@ -251,7 +251,7 @@ optional attribute: **--method=fdr_bh**
 optional attribute: **--outfile=goea_fdr_bh_flat.xlsx**    
 
 ```
-$ python scripts/find_enrichment.py data/study.txt data/population.txt data/association.txt --outfile=goea_fdr_bh_flat.xlsx --method=fdr_bh
+$ goatools find_enrichment data/study.txt data/population.txt data/association.txt --outfile=goea_fdr_bh_flat.xlsx --method=fdr_bh
      17 items WROTE: goea_fdr_bh_flat.xlsx
 ```
 
@@ -261,7 +261,7 @@ optional attribute: **--outfile=goea_fdr_bh_grpd.xlsx**
 optional attribute: **--sections=goatools.test_data.sections.data2018_07_find_enrichment**    
 
 ```
-$ python scripts/find_enrichment.py data/study.txt data/population.txt data/association.txt --outfile=goea_fdr_bh_grpd.xlsx --method=fdr_bh --sections=goatools.test_data.sections.data2018_07_find_enrichment
+$ goatools find_enrichment data/study.txt data/population.txt data/association.txt --outfile=goea_fdr_bh_grpd.xlsx --method=fdr_bh --sections=goatools.test_data.sections.data2018_07_find_enrichment
      17 items WROTE: goea_fdr_bh_grpd.xlsx
 ```
 
@@ -269,7 +269,7 @@ $ python scripts/find_enrichment.py data/study.txt data/population.txt data/asso
 optional attribute: **--pval=-1**
 
 ```
-$ python scripts/find_enrichment.py data/study.txt data/population.txt data/association.txt --outfile=goea_all.xlsx,goea_all.tsv --pval=-1
+$ goatools find_enrichment data/study.txt data/population.txt data/association.txt --outfile=goea_all.xlsx,goea_all.tsv --pval=-1
    6088 items WROTE: goea.xlsx
    6088 items WROTE: goea.tsv
 ```

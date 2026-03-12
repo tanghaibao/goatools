@@ -1,8 +1,8 @@
 """Command-line interface to create an initial Python sections file
 
 Usage:
-  wr_sections [GO_FILE]
-  wr_sections [GO_FILE] [options]
+  goatools wr_sections [GO_FILE]
+  goatools wr_sections [GO_FILE] [options]
 
 Options:
   -h --help                                 show this help message and exit

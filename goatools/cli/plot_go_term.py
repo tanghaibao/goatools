@@ -12,7 +12,7 @@ from ..obo_parser import GODag, GraphEngines
 def _get_argparser():
     """Return the CLI argument parser."""
     parser = argparse.ArgumentParser(
-        prog="plot_go_term",
+        prog="goatools plot_go_term",
         description=__doc__,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )

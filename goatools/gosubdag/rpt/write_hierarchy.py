@@ -116,7 +116,7 @@ class WrHierGO:
 #### Examples:
 ####
 #### Print the GO IDs associated with human genes
-#### >>> python scripts/wr_hier.py BP --gene2go=gene2go --taxid=9606 --concise -o BP_9606.txt
+#### >>> goatools wr_hier BP --gene2go=gene2go --taxid=9606 --concise -o BP_9606.txt
 ####
 #### Print the hierarchy below Term, GO:0030663
 #### >>> python {SCR} GO:0030663

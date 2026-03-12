@@ -1,4 +1,4 @@
-# Plot the GO hierarchy with go_plot.py
+# Plot the GO hierarchy with goatools go_plot
 
   * [**Plot six GO terms in a file (a different color for each) and their ancestors**](#plot-six-go-terms-listed-in-a-file-using-different-colors-and-their-ancestors):
     * [Using 'is_a' relationship only (default)](#six-different-colored-go-terms-without-relationships)
@@ -31,14 +31,14 @@ The file, **go_heartjogging6.txt**, contains the GO terms and user-defined color
 ### Six different-colored GO terms without relationships
 The six GO IDs listed in _go_heartjogging6.txt_ and their ancestors up to the root GO are plotted.   
 ```
-scripts/go_plot.py --go_file=tests/data/go_plot/go_heartjogging6.txt -o heartjogging6_r0.png
+goatools go_plot --go_file=tests/data/go_plot/go_heartjogging6.txt -o heartjogging6_r0.png
 ```
 ![heart_jogging_r0](../images/plot_go/heartjogging6_r0.png)
 
 ### Six different-colored GO terms with relationships
 The **-r** argument causes relationships to be plotted.    
 ```
-scripts/go_plot.py --go_file=tests/data/go_plot/go_heartjogging6.txt -r -o heartjogging6_r1.png
+goatools go_plot --go_file=tests/data/go_plot/go_heartjogging6.txt -r -o heartjogging6_r1.png
 ```
 ![heart_jogging_r0](../images/plot_go/heartjogging6_r1.png)
 
@@ -46,7 +46,7 @@ scripts/go_plot.py --go_file=tests/data/go_plot/go_heartjogging6.txt -r -o heart
 ## Plot one GO term and its ancestors
 Plot one term and all ancestors using the 'is_a' attribute.    
 ```
-scripts/go_plot.py GO:0003304
+goatools go_plot GO:0003304
 ```
 ![heart_jogging_r0](../images/plot_go/GO_0003304_myocardial_epithelial_involution_involved_in_heart_jogging.png)
 
@@ -56,7 +56,7 @@ Plot one term and all ancestors using the 'is_a' attribute and all relationships
 The 'part_of' relationships are represented by dashed magenta arrows.    
 
 ```
-scripts/go_plot.py GO:0003304 --r
+goatools go_plot GO:0003304 --r
 ```
 ![heart_jogging_r1](../images/plot_go/GO_0003304_myocardial_epithelial_involution_involved_in_heart_jogging_r1.png)
 
@@ -64,7 +64,7 @@ scripts/go_plot.py GO:0003304 --r
 ## Plot two GO terms and their ancestors
 Plot two terms and all ancestors using the 'is_a' attribute.        
 ```
-scripts/go_plot.py GO:0003304 GO:0003146 -o heart_jogging.png
+goatools go_plot GO:0003304 GO:0003146 -o heart_jogging.png
 ```
 
 ![heart_jogging_r0](../images/plot_go/heart_jogging.png)
@@ -75,7 +75,7 @@ Plot two terms and all ancestors using the 'is_a' attribute and all relationship
 The 'part_of' relationships are represented by dashed magenta arrows.    
 
 ```
-scripts/go_plot.py GO:0003304 GO:0003146 --r -o heart_jogging_r1.png
+goatools go_plot GO:0003304 GO:0003146 --r -o heart_jogging_r1.png
 ```
 ![heart_jogging_r1](../images/plot_go/heart_jogging_r1.png)
 
@@ -90,7 +90,7 @@ GO:0003304
 GO:0003146 #d6fffa http://klaash.github.io/xkcdcolorpicker/#ice
 ```
 ```
-scripts/go_plot.py --go_file=tests/data/go_plot/go_file1.txt -o heart_jogging_ice_gofile1.png
+goatools go_plot --go_file=tests/data/go_plot/go_file1.txt -o heart_jogging_ice_gofile1.png
 ```
 ![heart_jogging_r0](../images/plot_go/heart_jogging_ice_gofile1.png)
 
@@ -99,7 +99,7 @@ scripts/go_plot.py --go_file=tests/data/go_plot/go_file1.txt -o heart_jogging_ic
 Plot two terms and all ancestors using the 'is_a' attribute.        
 The heart jogging GO term, GO:0003146, is colored in [ice](http://klaash.github.io/xkcdcolorpicker/#ice).    
 ```
-scripts/go_plot.py GO:0003304 GO:0003146#d6fffa -o heart_jogging_ice.png
+goatools go_plot GO:0003304 GO:0003146#d6fffa -o heart_jogging_ice.png
 ```
 ![heart_jogging_r0](../images/plot_go/heart_jogging_ice.png)
 
@@ -109,7 +109,7 @@ Plot two terms ('heart jogging' (GO:0003146) colored in [ice](http://klaash.gith
 The 'part_of' relationships are represented by dashed magenta arrows.    
 
 ```
-scripts/go_plot.py GO:0003304 GO:0003146#d6fffa --r -o heart_jogging_ice_r1.png
+goatools go_plot GO:0003304 GO:0003146#d6fffa --r -o heart_jogging_ice_r1.png
 ```
 ![heart_jogging_r1](../images/plot_go/heart_jogging_ice_r1.png)
 
@@ -120,13 +120,13 @@ Options are TB, LR, BT and RL mirroring GraphViz ![https://graphviz.org/docs/att
 
 ```
 # top -> bottom (default)
-scripts/go_plot.py GO:0000010 -o orientation_TB.png --obo=tests/data/mini_obo.obo --rankdir=TB
+goatools go_plot GO:0000010 -o orientation_TB.png --obo=tests/data/mini_obo.obo --rankdir=TB
 ```
 ![TB](../images/plot_go/rankdir_TB.png)
 
 ```
 # left -> right
-scripts/go_plot.py GO:0000010 -o orientation_LR.png --obo=tests/data/mini_obo.obo --rankdir=LR
+goatools go_plot GO:0000010 -o orientation_LR.png --obo=tests/data/mini_obo.obo --rankdir=LR
 ```
 ![LR](../images/plot_go/rankdir_LR.png)
 

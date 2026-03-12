@@ -36,7 +36,7 @@
   [manuscript](https://www.nature.com/articles/s41598-018-28948-z).
 - **Compare GO lists**:
   Compare [two](https://github.com/tanghaibao/goatools/issues/162) or more lists
-  of GO IDs using `compare_gos.py`, which can be used with or without
+  of GO IDs using `goatools compare_gos`, which can be used with or without
   grouping.
 - **Stochastic GOEA simulations**:
   One of the findings resulting from our simulations is:
@@ -147,14 +147,13 @@ Alternatively, you can manually install:
 
 ## Cookbook
 
-`run.sh` contains example cases, which calls the utility scripts in the
-`scripts` folder.
+`run.sh` contains example cases using the installed `goatools` CLI.
 
 ### Find GO enrichment of genes under study
 
 See examples in [find_enrichment](docs/md/README_find_enrichment.md)
 
-The `find_enrichment` command takes as arguments files
+The `goatools find_enrichment` command takes as arguments files
 containing:
 
 - gene names in a study
@@ -165,8 +164,8 @@ Please look at `tests/data` folder to see examples on how to make these
 files. when ready, the command looks like:
 
 ```bash
-find_enrichment --pval=0.05 --indent data/study \
-                data/population data/association
+goatools find_enrichment --pval=0.05 --indent data/study \
+                         data/population data/association
 ```
 
 and can filter on the significance of (e)nrichment or (p)urification. it
@@ -178,29 +177,29 @@ of GO term in the study group is significantly _higher_ than those in
 the population. The "p" stands for "purified" - significantly _lower_
 concentration of the GO term in the study group than in the population.
 
-**Important note**: by default, `find_enrichment` propagates counts
+**Important note**: by default, `goatools find_enrichment` propagates counts
 to all the parents of a GO term. As a result, users may find terms in
 the output that are not present in their `association` file. Use
 `--no_propagate_counts` to disable this behavior.
 
 ### Write GO hierarchy
 
-- [`wr_hier.py`](docs/md/README_wr_hier.md): Given a GO ID, write the hierarchy below (default)
+- [`goatools wr_hier`](docs/md/README_wr_hier.md): Given a GO ID, write the hierarchy below (default)
   or above (`--up`) the given GO.
 
 ### Plot GO lineage
 
-- [`go_plot.py`](docs/md/README_go_plot.md):
+- [`goatools go_plot`](docs/md/README_go_plot.md):
   - Plots user-specified GO term(s) up to root
   - Multiple user-specified GOs
   - User-defined colors
   - Plot relationships (`-r`)
   - Optionally plot children of user-specfied GO terms
-- `plot_go_term` can plot the lineage
+- `goatools plot_go_term` can plot the lineage
 of a certain GO term, by:
 
 ```bash
-plot_go_term --term=GO:0008135
+goatools plot_go_term --term=GO:0008135
 ```
 
 This command will plot the following image.
@@ -216,14 +215,14 @@ reader plugin](https://code.google.com/p/graphmlreader/) may need to be
 downloaded and installed in the `plugins` folder of Cytoscape:
 
 ```bash
-plot_go_term --term=GO:0008135 --gml
+goatools plot_go_term --term=GO:0008135 --gml
 ```
 
 ![GO term lineage (Cytoscape)](https://www.dropbox.com/s/ueov2ioxl063q8h/gograph-gml.png?raw=1)
 
 ### Map GO terms to GOslim terms
 
-See `map_to_slim` for usage. As arguments it takes the gene ontology
+See `goatools map_to_slim` for usage. As arguments it takes the gene ontology
 files:
 
 - the current gene ontology file `go-basic.obo`
@@ -236,18 +235,18 @@ To determine the GOslim terms for a single GO term, you can use the
 following command:
 
 ```bash
-map_to_slim --term=GO:0008135 go-basic.obo goslim_generic.obo
+goatools map_to_slim --term=GO:0008135 go-basic.obo goslim_generic.obo
 ```
 
 To determine the GOslim terms for protein products with multiple
 associations:
 
 ```bash
-map_to_slim --association_file=data/association go-basic.obo goslim_generic.obo
+goatools map_to_slim --association_file=data/association go-basic.obo goslim_generic.obo
 ```
 
 Where the `association` file has the same format as used for
-`find_enrichment`.
+`goatools find_enrichment`.
 
 The implementation is similar to
 [map2slim](http://search.cpan.org/~cmungall/go-perl/scripts/map2slim).

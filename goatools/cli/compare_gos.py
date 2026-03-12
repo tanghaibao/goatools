@@ -1,8 +1,8 @@
 """Compare two or more sets of GO IDs. Best done using sections.
 
 Usage:
-  compare_gos [GO_FILE] ...
-  compare_gos [GO_FILE] ... [options]
+  goatools compare_gos [GO_FILE] ...
+  goatools compare_gos [GO_FILE] ... [options]
 
 Options:
   -h --help            show this help message and exit

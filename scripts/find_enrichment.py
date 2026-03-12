@@ -17,12 +17,14 @@ About significance cutoff:
 __copyright__ = "Copyright (C) 2010-present, H Tang et al. All rights reserved."
 __author__ = "various"
 
-from goatools.cli.find_enrichment import main as cli_main
+import sys
+
+from goatools.cli.main import main as goatools_main
 
 
 def main():
     """Run gene enrichment analysis."""
-    cli_main()
+    goatools_main(["find_enrichment"] + sys.argv[1:])
 
 
 if __name__ == "__main__":

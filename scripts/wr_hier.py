@@ -4,12 +4,14 @@
 __copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
 __author__ = "DV Klopfenstein"
 
-from goatools.cli.wr_hierarchy import main as cli_main
+import sys
+
+from goatools.cli.main import main as goatools_main
 
 
 def main():
     """Print a GO term's lower-level hierarchy to the screen or to a file."""
-    cli_main()
+    goatools_main(["wr_hier"] + sys.argv[1:])
 
 
 if __name__ == "__main__":

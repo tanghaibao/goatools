@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-from goatools.cli.plot_go_term import main as cli_main
+import sys
+
+from goatools.cli.main import main as goatools_main
 
 
 if __name__ == "__main__":
-    cli_main()
+    goatools_main(["plot_go_term"] + sys.argv[1:])

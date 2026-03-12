@@ -17,7 +17,7 @@ from ..obo_parser import GODag
 def _get_argparser():
     """Return the CLI argument parser."""
     parser = argparse.ArgumentParser(
-        prog="map_to_slim",
+        prog="goatools map_to_slim",
         description=__doc__,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )

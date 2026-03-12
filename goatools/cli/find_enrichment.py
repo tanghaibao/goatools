@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 """
-find_enrichment study.file population.file gene-association.file
+goatools find_enrichment study.file population.file gene-association.file
 
 This program returns P-values for functional enrichment in a cluster of study
 genes using Fisher's exact test, and corrected for multiple testing (including
@@ -64,7 +64,9 @@ class GoeaCliArgs:
 
         # pylint: disable=invalid-name
         p = argparse.ArgumentParser(
-            __doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter
+            prog="goatools find_enrichment",
+            description=__doc__,
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         )
 
         p.add_argument(

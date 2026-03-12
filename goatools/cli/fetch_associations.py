@@ -12,7 +12,7 @@ import sys
 def _get_argparser():
     """Return the CLI argument parser."""
     parser = argparse.ArgumentParser(
-        prog="fetch_associations",
+        prog="goatools fetch_associations",
         description=__doc__,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )

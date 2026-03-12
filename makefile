@@ -13,19 +13,19 @@ GO = GO:0008135
 # ---- Run GOEA -----------------------------------------------------------------
 # -------------------------------------------------------------------------------
 goea: $(GO_OBO_FILE)
-	find_enrichment --pval=0.05 --indent $(GOEA_FILES) --outfile results.txt
+	goatools find_enrichment --pval=0.05 --indent $(GOEA_FILES) --outfile results.txt
 
 # -------------------------------------------------------------------------------
 # ---- Compare 2+ GOEAS ---------------------------------------------------------
 # -------------------------------------------------------------------------------
 compare_gos:
-	compare_gos \
+	goatools compare_gos \
 	data/compare_gos/tat_gos_simple1.tsv \
 	data/compare_gos/tat_gos_simple2.tsv \
 	-s data/compare_gos/sections.txt
 
 compare_gos_wr:
-	compare_gos \
+	goatools compare_gos \
 	data/compare_gos/tat_gos_simple1.tsv \
 	data/compare_gos/tat_gos_simple2.tsv \
 	-s data/compare_gos/sections.txt \
@@ -43,11 +43,11 @@ SECIN  := $(SEC)_sections_in.txt
 SECOUT := $(SEC)_sections.txt
 SECTXT := $(SEC)_grouped_gos.txt
 SECPY := $(SEC)_sections.py
-GO_PLOT := go_plot
+GO_PLOT := goatools go_plot
 
 grpsec:
 	echo $(SEC)
-	wr_sections $(SECGO) -i $(SECIN) -o $(SECOUT) --txt=$(SECTXT) --py=$(SECPY)
+	goatools wr_sections $(SECGO) -i $(SECIN) -o $(SECOUT) --txt=$(SECTXT) --py=$(SECPY)
 
 grpvim:
 	vim -p $(SECGO) $(SEC)_sections_in.txt $(SEC)_sections.txt $(SEC)_grouped_gos.txt
@@ -59,7 +59,7 @@ grpre:
 	perl -ne 'if (/(SECTION|$(TXT))/) {print}' $(SECTXT) | tee gos_$(TXT)
 
 grpplt:
-	wr_sections $(SECGO) -i $(SECIN) -o $(SECOUT) --txt=$(SECTXT) --py=$(SECPY)
+	goatools wr_sections $(SECGO) -i $(SECIN) -o $(SECOUT) --txt=$(SECTXT) --py=$(SECPY)
 	perl -ne 'if (/(SECTION|$(TXT))/) {print}' $(SECTXT) | tee gos_$(TXT)
 	$(GO_PLOT) -s $(SECOUT) -i gos_$(TXT) -o aa_$(TXT).png
 
@@ -122,31 +122,31 @@ gh-pages:
 # ---- Run Scripts --------------------------------------------------------------
 # -------------------------------------------------------------------------------
 goea_scipy_pval: $(GO_OBO_FILE)
-	find_enrichment --pval=0.05 --indent $(GOEA_FILES) --pvalcalc fisher_scipy_stats
+	goatools find_enrichment --pval=0.05 --indent $(GOEA_FILES) --pvalcalc fisher_scipy_stats
 
 goea_basic: $(GO_OBO_FILE)
-	find_enrichment $(GOEA_FILES)
+	goatools find_enrichment $(GOEA_FILES)
 
 goea_xlsx: $(GO_OBO_FILE)
-	find_enrichment --pval=0.05 --indent $(GOEA_FILES) --outfile=goea.xlsx
+	goatools find_enrichment --pval=0.05 --indent $(GOEA_FILES) --outfile=goea.xlsx
 
 goea_xlsx_bonferroni: $(GO_OBO_FILE)
-	find_enrichment --pval=0.05 --indent $(GOEA_FILES) --method=bonferroni --outfile=goea_bonferroni.xlsx
+	goatools find_enrichment --pval=0.05 --indent $(GOEA_FILES) --method=bonferroni --outfile=goea_bonferroni.xlsx
 
 goea_tsv: $(GO_OBO_FILE)
-	find_enrichment --pval=0.05 --indent $(GOEA_FILES) --outfile=goea.tsv
+	goatools find_enrichment --pval=0.05 --indent $(GOEA_FILES) --outfile=goea.tsv
 
 goea_files: $(GO_OBO_FILE)
-	find_enrichment --pval=0.05 --indent $(GOEA_FILES) --outfile=goea.tsv,goea.xlsx
+	goatools find_enrichment --pval=0.05 --indent $(GOEA_FILES) --outfile=goea.tsv,goea.xlsx
 
 plot_go_pygraphviz: $(GO_OBO_FILE)
-	plot_go_term --term=$(GO)
+	goatools plot_go_term --term=$(GO)
 
 plot_go_pydot: $(GO_OBO_FILE)
-	plot_go_term --term=$(GO) --engine=pydot
+	goatools plot_go_term --term=$(GO) --engine=pydot
 
 map_slim: $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
-	map_to_slim --association_file=data/association --slim_out=direct $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
+	goatools map_to_slim --association_file=data/association --slim_out=direct $(GO_OBO_FILE) $(GOSLIM_OBO_FILE)
 
 
 goea_all: goea goea_basic goea_xlsx goea_xlsx_bonferroni goea_tsv goea_files

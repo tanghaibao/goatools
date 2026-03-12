@@ -1,8 +1,8 @@
 """Command-line interface to print specified GO Terms from the DAG source
 
 Usage:
-  prt_terms [GO ...] [GO_FILE]
-  prt_terms [GO ...] [GO_FILE] [options]
+  goatools prt_terms [GO ...] [GO_FILE]
+  goatools prt_terms [GO ...] [GO_FILE] [options]
 
 Options:
   -h --help                                 show this help message and exit
