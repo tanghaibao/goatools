@@ -107,7 +107,7 @@ gh-pages:
 	git rm -rf .
 	git clean -dxf
 	git checkout HEAD .nojekyll
-	git checkout main sphinx goatools scripts
+	git checkout main sphinx goatools
 	make -C sphinx/ apidoc html
 	mv -fv sphinx/_build/html/* .
 	mv -fv _apidoc/* .
@@ -153,7 +153,6 @@ goea_all: goea goea_basic goea_xlsx goea_xlsx_bonferroni goea_tsv goea_files
 
 vim_compare_gos:
 	vim -p \
-	scripts/compare_gos.py \
 	tests/test_compare_gos.py \
 	tests/test_sorter_desc2nts.py \
 	goatools/cli/compare_gos.py \

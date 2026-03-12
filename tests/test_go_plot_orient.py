@@ -28,11 +28,11 @@ def _get_cmds():
     """Commands for generation of different styles, output md5sum"""
     # pylint: disable=line-too-long
     return [
-        ('scripts/go_plot.py GO:0000010 -o tests/bbbb.dot --obo=tests/data/mini_obo.obo', 'rankdir=TB'),
-        ('scripts/go_plot.py GO:0000010 -o tests/bbbb.dot --obo=tests/data/mini_obo.obo --rankdir=TB', 'rankdir=TB'),
-        ('scripts/go_plot.py GO:0000010 -o tests/bbbb.dot --obo=tests/data/mini_obo.obo --rankdir=LR', 'rankdir=LR'),
-        ('scripts/go_plot.py GO:0000010 -o tests/bbbb.dot --obo=tests/data/mini_obo.obo --rankdir=BT', 'rankdir=BT'),
-        ('scripts/go_plot.py GO:0000010 -o tests/bbbb.dot --obo=tests/data/mini_obo.obo --rankdir=RL', 'rankdir=RL'),
+        ('python3 -m goatools go_plot GO:0000010 -o tests/bbbb.dot --obo=tests/data/mini_obo.obo', 'rankdir=TB'),
+        ('python3 -m goatools go_plot GO:0000010 -o tests/bbbb.dot --obo=tests/data/mini_obo.obo --rankdir=TB', 'rankdir=TB'),
+        ('python3 -m goatools go_plot GO:0000010 -o tests/bbbb.dot --obo=tests/data/mini_obo.obo --rankdir=LR', 'rankdir=LR'),
+        ('python3 -m goatools go_plot GO:0000010 -o tests/bbbb.dot --obo=tests/data/mini_obo.obo --rankdir=BT', 'rankdir=BT'),
+        ('python3 -m goatools go_plot GO:0000010 -o tests/bbbb.dot --obo=tests/data/mini_obo.obo --rankdir=RL', 'rankdir=RL'),
     ]
 
 
