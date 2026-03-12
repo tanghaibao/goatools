@@ -11,7 +11,7 @@ Usage:
              [--gaf=<file.gaf>]
              [--gene2go=<gene2go>] [--taxid=<Taxonomy_number>]
              [--id2gos=<file.txt>]
-             [--shorten]
+             [--shorten] [--no_ldr]
              [--parentcnt] [--childcnt] [--mark_alt_id]
              [--go_aliases=<go_aliases.txt>]
              [--draw-children]
@@ -55,6 +55,7 @@ Options:
   -p --parentcnt                       Include parent count in each GO term
   -c --childcnt                        Include child count in each GO term
   --shorten                            Shorten the GO name on plots
+  --no_ldr                             Do not print L(evel), D(epth), R(eldepth) in GO term boxes
   --mark_alt_id                        Add 'a' if GO ID is an alternate ID: GO:0007582a
   --draw-children                      Draw children. By default, they are not drawn.
   --go_aliases=<go_aliases.txt>        ASCII file containing letter alias
@@ -157,11 +158,11 @@ class PlotCli(object):
                     'rankdir',
                     ])
     kws_set = set(['relationship',
-                   'parentcnt', 'childcnt', 'mark_alt_id', 'shorten',
+                   'parentcnt', 'childcnt', 'mark_alt_id', 'shorten', 'no_ldr',
                    'draw-children',
                    'norel'])
     dflt_outfile = "go_plot.png"
-    kws_plt = set(['parentcnt', 'childcnt', 'mark_alt_id', 'shorten'])
+    kws_plt = set(['parentcnt', 'childcnt', 'mark_alt_id', 'shorten', 'no_ldr'])
 
     def __init__(self, gosubdag=None, use_doc=True):
         _doc = __doc__ if use_doc else None
