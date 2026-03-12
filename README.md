@@ -152,7 +152,7 @@ Alternatively, you can manually install:
 
 ### Find GO enrichment of genes under study
 
-See examples in [find_enrichment](/doc/md/README_find_enrichment.md)
+See examples in [find_enrichment](docs/md/README_find_enrichment.md)
 
 The `find_enrichment.py` takes as arguments files
 containing:
@@ -185,12 +185,12 @@ the output that are not present in their `association` file. Use
 
 ### Write GO hierarchy
 
-- [`wr_hier.py`](doc/md/README_wr_hier.md): Given a GO ID, write the hierarchy below (default)
+- [`wr_hier.py`](docs/md/README_wr_hier.md): Given a GO ID, write the hierarchy below (default)
   or above (`--up`) the given GO.
 
 ### Plot GO lineage
 
-- [`go_plot.py`](doc/md/README_go_plot.md):
+- [`go_plot.py`](docs/md/README_go_plot.md):
   - Plots user-specified GO term(s) up to root
   - Multiple user-specified GOs
   - User-defined colors

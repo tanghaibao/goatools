@@ -25,7 +25,7 @@ def test_plotgos(run_all=False):
 
 
 def _get_cmds():
-    """Get commands used in ./doc/md/README_find_enrichment.md"""
+    """Get commands used in ./docs/md/README_find_enrichment.md"""
     # pylint: disable=line-too-long
     return [
         'python3 scripts/go_plot.py -o viral_r0.png                                                GO:0019222#d8dcd6 GO:0060150 --obo=tests/data/i126/viral_gene_silence.obo --go_color_file=tests/data/i126/viral_gene_silence.txt',

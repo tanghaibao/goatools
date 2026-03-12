@@ -22,7 +22,7 @@ NCBI Gene data changes daily, so download gene lists frequently.
 Text in 'Search':
 genetype protein coding[Properties] AND "9606"[Taxonomy ID] AND alive[property] 
 ```
-![NCBI Gene Search](/doc/images/NCBI_gene_search.png)
+![NCBI Gene Search](../images/NCBI_gene_search.png)
 
     | NCBI Search text                    | Description
     |-------------------------------------|----------------------
@@ -34,7 +34,7 @@ genetype protein coding[Properties] AND "9606"[Taxonomy ID] AND alive[property]
   * Click pull-down menu: "**Send to:**"    
   * Click "**File**" radial button    
   * Click "**Create File**" button    
-![NCBI Gene Download](/doc/images/NCBI_gene_download.png)
+![NCBI Gene Download](../images/NCBI_gene_download.png)
 
 
 ## 2) Convert gene_result.txt file into Python 
