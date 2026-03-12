@@ -62,9 +62,6 @@ class TestCustomICFromDict:
 
     def test_ic_non_negative(self):
         """IC values must be >= 0 for all annotated terms."""
-        for go_id in _ANNOTS_TOOL1:
-            # go_id here is a gene; iterate over GO IDs instead
-            pass
         for gene, goids in _ANNOTS_TOOL1.items():
             for go_id in goids:
                 ic = get_info_content(go_id, self.tcnt1)
