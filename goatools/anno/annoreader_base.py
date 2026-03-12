@@ -37,11 +37,12 @@ class AnnoReaderBase(object):
     exp_nss = {"BP", "MF", "CC"}
 
     def __init__(self, name, filename=None, **kws):
-        # kws: allow_missing_symbol
+        # kws: allow_missing_symbol use_symbol
         self.name = name  # name is one of valid_formats
         self.filename = filename
         self.godag = kws.get("godag")
         self.namespaces = kws.get("namespaces")
+        self.use_symbol = kws.get("use_symbol", False)
         self.evobj = EvidenceCodes()
         self.hdr = None
         self.datobj = None
@@ -288,14 +289,18 @@ class AnnoReaderBase(object):
         """Return gene2go data for user-specified taxids."""
         if propagate_counts:
             return self._get_dbid2goids_p1(ntannos, relationships, prt)
-        return self._get_dbid2goids_p0(ntannos)
+        return self._get_dbid2goids_p0(ntannos, self.use_symbol)
 
     @staticmethod
-    def _get_dbid2goids_p0(associations):
+    def _get_dbid2goids_p0(associations, use_symbol=False):
         """Return gene2goids with annotations as-is (propagate_counts == False)"""
         id2gos = cx.defaultdict(set)
-        for ntd in associations:
-            id2gos[ntd.DB_ID].add(ntd.GO_ID)
+        if use_symbol:
+            for ntd in associations:
+                id2gos[ntd.DB_Symbol].add(ntd.GO_ID)
+        else:
+            for ntd in associations:
+                id2gos[ntd.DB_ID].add(ntd.GO_ID)
         return dict(id2gos)
 
     def _get_dbid2goids_p1(self, ntannos, relationships=None, prt=sys.stdout):
@@ -305,12 +310,20 @@ class AnnoReaderBase(object):
         go2ancestors = self._get_go2ancestors(goids_annos, relationships, prt)
         # https://github.com/geneontology/go-annotation/issues/3523
         ## exclude = {'GO:2000325', 'GO:2000327'}
-        for ntd in ntannos:
-            goid = ntd.GO_ID
-            goids = id2gos[ntd.DB_ID]
-            goids.add(goid)
-            if goid in go2ancestors:
-                goids.update(go2ancestors[goid])
+        if self.use_symbol:
+            for ntd in ntannos:
+                goid = ntd.GO_ID
+                goids = id2gos[ntd.DB_Symbol]
+                goids.add(goid)
+                if goid in go2ancestors:
+                    goids.update(go2ancestors[goid])
+        else:
+            for ntd in ntannos:
+                goid = ntd.GO_ID
+                goids = id2gos[ntd.DB_ID]
+                goids.add(goid)
+                if goid in go2ancestors:
+                    goids.update(go2ancestors[goid])
         return dict(id2gos)
 
     @staticmethod

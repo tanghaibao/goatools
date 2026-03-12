@@ -290,6 +290,16 @@ class GoeaCliArgs:
                 "Example: GO:0008150,GO:0003674"
             ),
         )
+        p.add_argument(
+            "--gaf_symbol",
+            default=False,
+            action="store_true",
+            help=(
+                "When using a GAF annotation file, use gene symbols (DB_Symbol, column 3) "
+                "as the annotation keys instead of the default DB_ID (column 2, e.g. UniProt IDs). "
+                "Use this option when your study and population files contain gene symbols."
+            ),
+        )
 
         if len(sys.argv) == 1:
             sys.exit(not p.print_help())
@@ -406,6 +416,8 @@ class GoeaCliFnc:
         kws = {"namespaces": self._get_ns(), "godag": self.godag}
         if anno_type == "gene2go":
             kws["taxid"] = self.args.taxid
+        if anno_type == "gaf" and getattr(self.args, "gaf_symbol", False):
+            kws["use_symbol"] = True
         return kws
 
     def _init_itemid2name(self):
@@ -533,6 +545,17 @@ class GoeaCliFnc:
                         "FOR taxid(%s). TRY: --taxid=<taxid number>",
                         next(iter(self.objanno.taxid2asscs.keys())),
                     )
+                elif self.objanno.name == "gaf" and not getattr(self.args, "gaf_symbol", False):
+                    # Check if population items match gene symbols (DB_Symbol) in the GAF file
+                    assc_syms = set(nt.DB_Symbol for nt in ntsassoc if nt.DB_Symbol)
+                    if not pop.isdisjoint(assc_syms):
+                        logger.fatal(
+                            "NO POPULATION ITEMS SEEN IN THE GAF ANNOTATIONS USING DB_ID. "
+                            "Your population appears to contain gene symbols. "
+                            "TRY: --gaf_symbol"
+                        )
+                    else:
+                        logger.fatal("NO POPULATION ITEMS SEEN IN THE ANNOTATIONS")
                 else:
                     logger.fatal("NO POPULATION ITEMS SEEN IN THE ANNOTATIONS")
                 exit()

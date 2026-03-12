@@ -1,0 +1,35 @@
+ILLEGAL GAF ERROR SUMMARY:
+
+          4 QTY 1
+
+
+ILLEGAL GAF ERROR DETAILS:
+
+**WARNING: GAF LINE ILLEGAL(QTY 1): gaf_missingsym.err[-1]:
+**ERROR: UNEXPECTED REQUIRED VAL() FOR COL(2):DB_Symbol: 
+
+ 0) REQ DB                   **ERROR: UNEXPECTED REQUIRED VAL() FOR COL(2):DB_Symbol: 
+
+
+**WARNING: GAF LINE ILLEGAL(QTY 1): gaf_missingsym.err[-1]:
+DB(MGI) DB_ID(MGI:3643263)
+
+
+ 0) REQ DB                   DB(MGI) DB_ID(MGI:3643263)
+
+
+
+**WARNING: GAF LINE ILLEGAL(QTY 1): gaf_missingsym.err[-1]:
+**ERROR: UNEXPECTED REQUIRED VAL() FOR COL(2):DB_Symbol: 
+
+ 0) REQ DB                   **ERROR: UNEXPECTED REQUIRED VAL() FOR COL(2):DB_Symbol: 
+
+
+**WARNING: GAF LINE ILLEGAL(QTY 1): gaf_missingsym.err[-1]:
+DB(UniProtKB) DB_ID(P84751)
+
+
+ 0) REQ DB                   DB(UniProtKB) DB_ID(P84751)
+
+
+
