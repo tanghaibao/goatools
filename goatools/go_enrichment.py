@@ -335,7 +335,7 @@ class GOEnrichmentStudy(object):
         methods = Methods(kws["methods"]) if "methods" in kws else self.methods
         alpha = kws["alpha"] if "alpha" in kws else self.alpha
         # Calculate uncorrected pvalues
-        results = self.get_pval_uncorr(study, log)
+        results = self.get_pval_uncorr(study, log, kws.get("selected_goids"))
         if not results:
             return []
 
@@ -391,7 +391,7 @@ class GOEnrichmentStudy(object):
             msg.append("{STU} study items".format(STU=stu_txt))
         return msg
 
-    def get_pval_uncorr(self, study, log=sys.stdout):
+    def get_pval_uncorr(self, study, log=sys.stdout, selected_goids=None):
         """Calculate the uncorrected pvalues for study items."""
         results = []
         study_in_pop = self.pop.intersection(study)
@@ -399,6 +399,8 @@ class GOEnrichmentStudy(object):
         go2studyitems = get_terms("study", study_in_pop, self.assoc, self.obo_dag, log)
         pop_n, study_n = self.pop_n, len(study_in_pop)
         allterms = set(go2studyitems).union(set(self.go2popitems))
+        if selected_goids is not None:
+            allterms = allterms.intersection(selected_goids)
         if log is not None:
             self._prt_log_items_found(log, study, study_in_pop, allterms)
         # If no study genes were found in the population, return empty GOEA results

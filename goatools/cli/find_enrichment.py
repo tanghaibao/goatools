@@ -280,6 +280,16 @@ class GoeaCliArgs:
         #   False          Do not remove any broad GO IDs
         ## p.add_argument('--remove_goids', dest='remove_goids', default=None,
         ##                help="User-specified list of broad GO IDs to remove")
+        p.add_argument(
+            "--go_terms",
+            default=None,
+            type=str,
+            help=(
+                "Comma-separated list of GO IDs to analyze. "
+                "Only these GO terms will have p-values computed. "
+                "Example: GO:0008150,GO:0003674"
+            ),
+        )
 
         if len(sys.argv) == 1:
             sys.exit(not p.print_help())
@@ -365,7 +375,8 @@ class GoeaCliFnc:
         # Get GOEnrichmentStudyNS
         self.objgoeans = self._init_objgoeans(_pop)
         # Run GOEA
-        self.results_all = self.objgoeans.run_study(_study)
+        _run_kws = self._get_run_kws()
+        self.results_all = self.objgoeans.run_study(_study, **_run_kws)
         # Prepare for grouping, if user-specified. Create GroupItems
         self.prepgrp = GroupItems(self, self.godag.version) if self.sections else None
 
@@ -483,6 +494,14 @@ class GoeaCliFnc:
             kws["ev_include"] = set(self.args.ev_inc.split(","))
         if self.args.ev_exc is not None:
             kws["ev_exclude"] = set(self.args.ev_exc.split(","))
+        return kws
+
+    def _get_run_kws(self):
+        """Return keyword options to pass to run_study."""
+        kws = {}
+        go_terms = getattr(self.args, "go_terms", None)
+        if go_terms is not None:
+            kws["selected_goids"] = set(t.strip() for t in go_terms.split(",") if t.strip())
         return kws
 
     def chk_genes(self, study, pop, ntsassoc=None):
