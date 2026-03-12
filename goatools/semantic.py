@@ -8,7 +8,7 @@ notebooks/semantic_similarity.ipynb
 """
 
 import sys
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, deque
 
 from .anno.update_association import clean_anno
 from .godag.consts import NAMESPACE2GO, NAMESPACE2NS
@@ -282,6 +282,42 @@ def deepest_common_ancestor(goterms, godag):
     return max(common_parent_go_ids(goterms, godag), key=lambda t: godag[t].depth)
 
 
+def get_deepest_common_ancestors(goids, godag):
+    """
+    Returns the set of all deepest (most recent) common ancestors for the
+    given GO terms.
+
+    Unlike deepest_common_ancestor(), which returns a single term and may
+    behave non-deterministically when multiple common ancestors share the
+    same maximum depth, this function returns all of them.
+
+    Parameters
+    ----------
+    goids : list of str
+        List of GO IDs (e.g. ['GO:0048364', 'GO:0044707']).
+    godag : GODag
+        The GO DAG object (e.g. loaded via GODag('go-basic.obo')).
+
+    Returns
+    -------
+    set of str
+        Set of GO IDs that are the deepest common ancestors of all input terms.
+        Returns an empty set if no common ancestor exists.
+
+    Example
+    -------
+    >>> from goatools.obo_parser import GODag
+    >>> from goatools.semantic import get_deepest_common_ancestors
+    >>> godag = GODag('go-basic.obo')
+    >>> mrca_set = get_deepest_common_ancestors(['GO:0048364', 'GO:0044707'], godag)
+    """
+    candidates = common_parent_go_ids(goids, godag)
+    if not candidates:
+        return set()
+    max_depth = max(godag[t].depth for t in candidates)
+    return {t for t in candidates if godag[t].depth == max_depth}
+
+
 def min_branch_length(go_id1, go_id2, godag, branch_dist):
     """
     Finds the minimum branch length between two terms in the GO DAG.
@@ -303,6 +339,69 @@ def min_branch_length(go_id1, go_id2, godag, branch_dist):
     if branch_dist is not None:
         return goterm1.depth + goterm2.depth + branch_dist
     return None
+
+
+def shortest_path(go_id1, go_id2, godag):
+    """
+    Finds the shortest path length between two GO terms in the same namespace
+    by performing a BFS upward through the DAG from each term and finding
+    the minimum total distance through any common ancestor.
+
+    Unlike min_branch_length() / semantic_distance(), which compute distance
+    using the ``depth`` attribute (longest path from root), this function uses
+    a proper BFS traversal and therefore gives correct results in DAGs where
+    a term is reachable via multiple paths of different lengths.
+
+    Parameters
+    ----------
+    go_id1 : str
+        First GO ID (e.g. 'GO:0048364').
+    go_id2 : str
+        Second GO ID (e.g. 'GO:0044707').
+    godag : GODag
+        The GO DAG object (e.g. loaded via GODag('go-basic.obo')).
+
+    Returns
+    -------
+    int or None
+        The shortest path length (number of edges) between the two GO terms
+        through their common ancestors.  Returns ``None`` if the terms are in
+        different namespaces (and therefore not connected in the DAG).
+        Returns 0 if both GO IDs resolve to the same term.
+
+    Example
+    -------
+    >>> from goatools.obo_parser import GODag
+    >>> from goatools.semantic import shortest_path
+    >>> godag = GODag('go-basic.obo')
+    >>> dist = shortest_path('GO:0048364', 'GO:0044707', godag)
+    """
+    goterm1 = godag[go_id1]
+    goterm2 = godag[go_id2]
+    if goterm1.namespace != goterm2.namespace:
+        return None
+
+    def _bfs_up(start_id):
+        """BFS upward from start_id through is_a parents; returns {go_id: distance}."""
+        distances = {start_id: 0}
+        queue = deque([start_id])
+        while queue:
+            curr_id = queue.popleft()
+            curr_dist = distances[curr_id]
+            for parent in godag[curr_id].parents:
+                pid = parent.item_id
+                if pid not in distances:
+                    distances[pid] = curr_dist + 1
+                    queue.append(pid)
+        return distances
+
+    dist1 = _bfs_up(goterm1.item_id)
+    dist2 = _bfs_up(goterm2.item_id)
+
+    common = dist1.keys() & dist2.keys()
+    if not common:
+        return None
+    return min(dist1[ancestor] + dist2[ancestor] for ancestor in common)
 
 
 def semantic_distance(go_id1, go_id2, godag, branch_dist=None):
