@@ -183,7 +183,11 @@ class GODagSmallPlot(object):
         rel = "is_a"
         pydot = self._get_pydot()
         # Initialize empty dag
-        dag = pydot.Dot(label=self.title, graph_type='digraph', dpi="{}".format(self.dpi))
+        kws_dot = {'graph_type': 'digraph', 'dpi': "{}".format(self.dpi)}
+        if self.title is not None:
+            kws_dot['label'] = self.title
+            kws_dot['labelloc'] = 't'
+        dag = pydot.Dot(**kws_dot)
         # Initialize nodes
         go2node = self._get_go2pydotnode()
         # Add nodes to graph
