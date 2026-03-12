@@ -153,6 +153,19 @@ class GOEnrichmentRecord(object):
             namespace = self.goterm.namespace
             self.NS = self.namespace2NS.get(namespace, namespace)
 
+    @property
+    def fold_enrichment(self):
+        """Ratio of observed to expected representation (study proportion / population proportion).
+
+        Returns the fold enrichment (>1 means enriched, <1 means purified/depleted).
+        Returns None if the population proportion cannot be computed.
+        """
+        if self.study_n == 0 or self.pop_n == 0 or self.pop_count == 0:
+            return None
+        return (1.0 * self.study_count / self.study_n) / (
+            1.0 * self.pop_count / self.pop_n
+        )
+
     def _init_enrichment(self):
         """Mark as 'enriched' or 'purified'."""
         if self.study_n:
