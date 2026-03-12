@@ -5,6 +5,8 @@ from __future__ import print_function
 import importlib
 import sys
 
+from goatools import __version__
+
 
 SUBCOMMANDS = {
     "compare_gos": (
@@ -56,6 +58,7 @@ def _get_help():
         "Usage:",
         "  goatools <command> [<args>...]",
         "  goatools help <command>",
+        "  goatools --version",
         "  goatools -h | --help",
         "",
         "Commands:",
@@ -83,6 +86,9 @@ def _run_subcommand(subcommand, args):
 def main(argv=None):
     """Run the GOATOOLS command-line dispatcher."""
     args = sys.argv[1:] if argv is None else argv
+    if args and args[0] == "--version":
+        print(__version__)
+        return
     if not args or args[0] in ("-h", "--help"):
         print(_get_help())
         return
