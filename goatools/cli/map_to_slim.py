@@ -49,7 +49,9 @@ def _get_argparser():
 def _read_dags(args):
     """Read the GO DAG and GO slim DAG."""
     for fin in (args.go_obo_file, args.goslim_obo_file):
-        assert os.path.exists(fin), "file %s not found!" % fin
+        if not os.path.exists(fin):
+            sys.stderr.write("file %s not found!\n" % fin)
+            raise SystemExit(1)
     return GODag(args.go_obo_file), GODag(args.goslim_obo_file)
 
 
@@ -65,7 +67,9 @@ def _write_term(go_term, go_dag, goslim_dag, only_direct, prt):
 
 def _write_associations(fin_assc, go_dag, goslim_dag, only_direct, prt):
     """Write GO slim mappings for all gene associations in a file."""
-    assert os.path.exists(fin_assc), "file %s not found!" % fin_assc
+    if not os.path.exists(fin_assc):
+        sys.stderr.write("file %s not found!\n" % fin_assc)
+        raise SystemExit(1)
     assocs = read_associations(fin_assc, "id2gos")
     for protein_product, go_terms in assocs.items():
         all_covered_anc = set()

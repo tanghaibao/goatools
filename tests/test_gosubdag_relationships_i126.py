@@ -157,16 +157,16 @@ def _wr_sub_obo(fout_obo, goid_chosen, godag_r1, fin_obo):
         WrSubObo.prt_goterms(fin_obo, goids_viral, prt)
         print("{N} GO IDs WROTE: {OBO}".format(N=len(goids_viral), OBO=fout_obo))
     # Plot obo subset with the unified goatools CLI
-    pat_r1 = "python3 -m goatools go_plot {GO} -o {PNG} -r"
-    pat_r0 = "python3 -m goatools go_plot {GO} -o {PNG}"
+    pat_r1 = "python3 -m goatools go_plot {GO} -o {PNG} -r --obo={OBO}"
+    pat_r0 = "python3 -m goatools go_plot {GO} -o {PNG} --obo={OBO}"
     system(
         pat_r1.format(
-            PNG=fout_obo.replace(".obo", "_r1.png"), GO=goid_chosen
+            PNG=fout_obo.replace(".obo", "_r1.png"), GO=goid_chosen, OBO=fout_obo
         )
     )
     system(
         pat_r0.format(
-            PNG=fout_obo.replace(".obo", "_r0.png"), GO=goid_chosen
+            PNG=fout_obo.replace(".obo", "_r0.png"), GO=goid_chosen, OBO=fout_obo
         )
     )
 

@@ -303,7 +303,7 @@ class PlotCli(object):
         severity = "FATAL" if err else "NOTE"
         txt = "".join([self.objdoc.doc,
                        "User's command-line:\n\n",
-                       "  % goatools go_plot {ARGS}\n\n".format(ARGS=" ".join(sys.argv[1:])),
+                       "  % goatools {ARGS}\n\n".format(ARGS=" ".join(sys.argv[1:])),
                        "**{SEV}: {MSG}\n".format(SEV=severity, MSG=msg)])
         if err:
             raise RuntimeError(txt)
