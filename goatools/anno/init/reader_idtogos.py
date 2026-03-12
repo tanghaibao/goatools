@@ -1,11 +1,37 @@
 """Reads a Annotation File in text format with data in id2gos line"""
 
+import re
 import timeit
 import datetime
 import collections as cx
 
 from ...base import logger
 from ...godag.consts import NAMESPACE2NS
+
+PAT_GOID = re.compile(r"^GO:\d{7}$")
+
+
+def _parse_go_terms(go_terms_str):
+    """Split a semicolon-separated GO-ID string into valid and invalid sets.
+
+    Each token is stripped of surrounding whitespace before validation.
+    A token that matches ``GO:NNNNNNN`` (7 digits) is considered valid.
+
+    :param go_terms_str: raw GO-ID string, e.g. ``"GO:0005575; GO:0003674"``
+    :return: tuple (valid_goids: set, invalid_tokens: list)
+    """
+    valid_goids = set()
+    invalid_tokens = []
+    for token in go_terms_str.split(";"):
+        goid = token.strip()
+        if not goid:
+            continue
+        if PAT_GOID.match(goid):
+            valid_goids.add(goid)
+        else:
+            invalid_tokens.append(goid)
+    return valid_goids, invalid_tokens
+
 
 __copyright__ = (
     "Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved."
@@ -136,7 +162,9 @@ class InitAssc:
                     gene_id, go_terms = row.split("\t")
                 else:
                     continue
-                gos = set(go_terms.split(";"))
+                gos, invalid = _parse_go_terms(go_terms)
+                for bad in invalid:
+                    logger.warning("INVALID GO ID IGNORED: '%s'", bad)
                 ## if no_top:
                 ##     gos = gos.difference(top_terms)
                 if gene_int is None:
