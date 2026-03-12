@@ -37,7 +37,7 @@ def test_find_enrichment(run_all=False):
 
 
 def _get_cmds():
-    """Get commands used in ./doc/md/README_find_enrichment.md"""
+    """Get commands used in ./docs/md/README_find_enrichment.md"""
     # pylint: disable=line-too-long
     return [
         "python3 scripts/find_enrichment.py data/study data/population data/association --outfile=goea.xlsx,goea.tsv --pval_field=fdr_bh",  # 0

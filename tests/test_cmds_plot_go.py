@@ -25,7 +25,7 @@ def test_cmds_plot_annos(run_all=False):
 
 
 def _get_cmds():
-    """Get commands used in ./doc/md/README_find_enrichment.md"""
+    """Get commands used in ./docs/md/README_find_enrichment.md"""
     # pylint: disable=line-too-long
     return [
         'scripts/go_plot.py GO:0016150 -o aaaa_none.png',
