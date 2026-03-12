@@ -82,7 +82,8 @@ def main(args=None):
     """Run the GO term lineage plotting CLI."""
     parser = _get_argparser()
     opts = parser.parse_args(args)
-    assert os.path.exists(opts.obo_file), "file %s not found!" % opts.obo_file
+    if not os.path.exists(opts.obo_file):
+        parser.error("file %s not found!" % opts.obo_file)
     godag = GODag(opts.obo_file)
     if opts.desc:
         godag.write_dag()

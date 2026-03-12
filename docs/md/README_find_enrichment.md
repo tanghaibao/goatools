@@ -64,7 +64,7 @@ goatools find_enrichment ids_stu.txt ids_pop.txt goa_human.gpad --pval=0.05 --me
 goatools find_enrichment ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
 ```
 
-#### Specify mouse using the **--taxid** argment:
+#### Specify mouse using the **--taxid** argument:
 ```
 goatools find_enrichment ids_stu_gene2go_10090.txt ids_pop_gene2go_10090.txt gene2go --taxid=10090 --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_10090.xlsx
 ```
@@ -183,7 +183,7 @@ goatools find_enrichment ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2
 Run a GOEA on the _**molecular function**_ branch for just the evidence code, **IPI**.     
 **IPI** includes evidence codes which are inferred from Physical Interaction    
 ```
-goatools find_enrichment ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt -ns=MF --ev_inc=IPI gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
+goatools find_enrichment ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --ns=MF --ev_inc=IPI --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx
 ```
 
 

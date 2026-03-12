@@ -39,7 +39,7 @@ genetype protein coding[Properties] AND "9606"[Taxonomy ID] AND alive[property]
 
 ## 2) Convert gene_result.txt file into Python 
 ```
-$ goatools ncbi_gene_results_to_python -i gene_result.txt -o gene_result.py
+$ goatools ncbi_gene_results_to_python gene_result.txt -o gene_result.py
       20380 lines READ:  gene_result.txt
       20361 geneids WROTE: gene_result.py
 ```
