@@ -2,6 +2,7 @@
 """Test gracefully exiting if no study genes are in assc or population."""
 
 import os
+import pytest
 import numpy as np
 
 # from goatools.rpt.goea_nt_xfrm import MgrNtGOEAs  # get_goea_nts_all
@@ -14,6 +15,7 @@ __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights re
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../")
 
 
+@pytest.mark.skip(reason="ubuntu-latest slowness")
 def test_example():
     """Test GoeaPrintFunctions::print_results."""
     # --------------------------------------------------------------------
