@@ -3,6 +3,7 @@
 
 import collections as cx
 import os
+import pytest
 import sys
 
 from itertools import combinations
@@ -14,6 +15,7 @@ from goatools.test_data.genes_NCBI_10090_ProteinCoding import GENEID2NT as GeneI
 from goatools.test_data.nature3102_goea import get_geneid2symbol
 
 
+@pytest.mark.skip(reason="[makefile:419: test_ci_subset] Killed")
 def test_pvalcalc(prt=sys.stdout):
     """Test P-value calculations."""
     pvalfnc_names = ["fisher_scipy_stats"]
