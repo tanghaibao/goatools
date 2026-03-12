@@ -13,7 +13,7 @@ REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../")
 
 
 def test_example():
-    """Test GoeaPrintFunctions::print_results."""
+    """Test GoeaPrintFunctions::print_results and GOEnrichmentStudy::print_results."""
     # --------------------------------------------------------------------
     # --------------------------------------------------------------------
     # Gene Ontology Enrichment Analysis (GOEA)
@@ -32,6 +32,8 @@ def test_example():
     objprtres = GoeaPrintFunctions()
     objprtres.print_results(goea_results_sig)
     objprtres.print_date()
+    # Test that print_results can be called directly on GOEnrichmentStudy
+    goeaobj.print_results(goea_results_sig)
 
 
 if __name__ == '__main__':

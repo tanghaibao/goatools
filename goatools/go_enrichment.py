@@ -535,6 +535,10 @@ class GOEnrichmentStudy(object):
         for rec, val in zip(ntmt.results, corrected_pvals):
             rec.set_corrected_pval(ntmt.nt_method, val)
 
+    def print_results(self, results, min_ratio=None, indent=False, pval=0.05, prt=sys.stdout):
+        """Print GOEA results with some additional statistics calculated."""
+        self.objprtres.print_results(results, min_ratio=min_ratio, indent=indent, pval=pval, prt=prt)
+
     # Methods for writing results into tables: text, tab-separated, Excel spreadsheets
     def wr_txt(self, fout_txt, goea_results, prtfmt=None, **kws):
         """Print GOEA results to text file."""
