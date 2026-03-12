@@ -5,6 +5,7 @@ This module provides extensive test coverage for all functions and classes
 in the semantic.py module, including edge cases and error conditions.
 """
 
+import os
 import pytest
 
 from unittest.mock import patch
@@ -21,9 +22,11 @@ from goatools.semantic import (
     get_freq_msca,
     common_parent_go_ids,
     deepest_common_ancestor,
+    get_deepest_common_ancestors,
     min_branch_length,
     semantic_distance,
     semantic_similarity,
+    shortest_path,
 )
 from tests.utils import get_godag
 
@@ -623,6 +626,185 @@ class TestIntegration:
         if schlicker is not None:
             assert isinstance(schlicker, float)
             assert 0.0 <= schlicker <= 1.0
+
+
+_MINI_OBO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "mini_obo.obo")
+
+
+class TestGetDeepestCommonAncestors:
+    """Test cases for the get_deepest_common_ancestors() function.
+
+    DAG structure of mini_obo.obo (all biological_process):
+        top  (GO:0000001, depth=0)
+        ├── B (GO:0000002, depth=1)
+        │   └── c (GO:0000005, depth=2) ─┐
+        └── A (GO:0000003, depth=1)       │
+            ├── b (GO:0000004, depth=2)   │
+            │   └── b1 (GO:0000007, depth=3) ─┐
+            ├── c (GO:0000005, depth=2) ──┘   │
+            │   └── ac (GO:0000010, depth=4) ←─┤ (c + a1)
+            └── a (GO:0000006, depth=2)        │
+                └── a1 (GO:0000008, depth=3) ──┘
+                    ├── ab (GO:0000009, depth=4)  (b1 + a1)
+                    └── ac (GO:0000010, depth=4)  (c + a1)
+    """
+
+    def setup_method(self):
+        from goatools.obo_parser import GODag
+
+        self.godag = GODag(_MINI_OBO, prt=None)
+
+    def test_single_term(self):
+        """Single term: deepest CAs should be the term itself."""
+        result = get_deepest_common_ancestors(["GO:0000009"], self.godag)
+        assert result == {"GO:0000009"}
+
+    def test_identical_terms(self):
+        """Identical pair: deepest CA is the term itself."""
+        result = get_deepest_common_ancestors(["GO:0000009", "GO:0000009"], self.godag)
+        assert result == {"GO:0000009"}
+
+    def test_parent_child(self):
+        """Parent-child pair: deepest CA is the child (which is itself a CA)."""
+        # ab (GO:0000009) is a child of a1 (GO:0000008)
+        result = get_deepest_common_ancestors(["GO:0000009", "GO:0000008"], self.godag)
+        assert result == {"GO:0000008"}
+
+    def test_siblings_via_single_mrca(self):
+        """ab and ac share a1 as their unique deepest common ancestor."""
+        result = get_deepest_common_ancestors(["GO:0000009", "GO:0000010"], self.godag)
+        # Common ancestors: a1, a, A, top.  Deepest by depth=3 → a1
+        assert result == {"GO:0000008"}
+
+    def test_single_deepest_ancestor_when_unique(self):
+        """b1 and c share A as their unique deepest CA (depth=1)."""
+        # b1 (GO:0000007) ancestors: b, A, top
+        # c  (GO:0000005) ancestors: B, A, top
+        # common: A, top  → deepest = A (depth=1)
+        result = get_deepest_common_ancestors(["GO:0000007", "GO:0000005"], self.godag)
+        assert result == {"GO:0000003"}
+
+    def test_returns_set(self):
+        """Return type must be a set."""
+        result = get_deepest_common_ancestors(["GO:0000009", "GO:0000010"], self.godag)
+        assert isinstance(result, set)
+
+    def test_root_terms(self):
+        """Two root-level children: deepest CA is the root."""
+        # B (GO:0000002) and A (GO:0000003) both have only 'top' as common ancestor
+        result = get_deepest_common_ancestors(["GO:0000002", "GO:0000003"], self.godag)
+        assert result == {"GO:0000001"}
+
+    def test_deepest_ca_subset_of_common_ancestors(self):
+        """get_deepest_common_ancestors result must be a subset of common_parent_go_ids."""
+        goids = ["GO:0000009", "GO:0000010"]
+        all_common = common_parent_go_ids(goids, self.godag)
+        deepest = get_deepest_common_ancestors(goids, self.godag)
+        assert deepest.issubset(all_common)
+
+    def test_all_deepest_have_max_depth(self):
+        """Every term returned must have the maximum depth among common ancestors."""
+        goids = ["GO:0000009", "GO:0000010"]
+        all_common = common_parent_go_ids(goids, self.godag)
+        deepest = get_deepest_common_ancestors(goids, self.godag)
+        max_depth = max(self.godag[t].depth for t in all_common)
+        for t in deepest:
+            assert self.godag[t].depth == max_depth
+
+    def test_multiple_deepest_ancestors_when_tied(self):
+        """When two common ancestors share the same maximum depth, both are returned.
+
+        We synthetically promote GO:0000006 (a, depth=2) to depth=3 to create a
+        tie with GO:0000008 (a1, depth=3) among common ancestors of ab and ac.
+        """
+        original_depth = self.godag["GO:0000006"].depth
+        self.godag["GO:0000006"].depth = 3  # force tie with a1 at depth 3
+        try:
+            result = get_deepest_common_ancestors(["GO:0000009", "GO:0000010"], self.godag)
+            # Both a1 (GO:0000008) and a (GO:0000006) are now at depth 3
+            assert "GO:0000008" in result
+            assert "GO:0000006" in result
+            assert len(result) == 2
+        finally:
+            self.godag["GO:0000006"].depth = original_depth
+
+
+class TestShortestPath:
+    """Test cases for shortest_path().
+
+    Uses the same mini_obo.obo DAG (see TestGetDeepestCommonAncestors docstring).
+    """
+
+    def setup_method(self):
+        from goatools.obo_parser import GODag
+
+        self.godag = GODag(_MINI_OBO, prt=None)
+
+    def test_same_term(self):
+        """Distance from a term to itself is 0."""
+        assert shortest_path("GO:0000009", "GO:0000009", self.godag) == 0
+
+    def test_parent_child_one_hop(self):
+        """ab → a1 is exactly 1 edge."""
+        assert shortest_path("GO:0000009", "GO:0000008", self.godag) == 1
+
+    def test_sibling_through_shared_parent(self):
+        """ab and ac share a1; shortest path is 2 (ab→a1→ac)."""
+        assert shortest_path("GO:0000009", "GO:0000010", self.godag) == 2
+
+    def test_different_namespaces_returns_none(self):
+        """Terms from different namespaces have no path and should return None.
+
+        mini_obo has only biological_process terms, so we test with a synthetic
+        second namespace by patching one term's namespace.
+        """
+        # Temporarily change GO:0000010's namespace to test the cross-namespace guard
+        original_ns = self.godag["GO:0000010"].namespace
+        self.godag["GO:0000010"].namespace = "molecular_function"
+        try:
+            result = shortest_path("GO:0000009", "GO:0000010", self.godag)
+            assert result is None
+        finally:
+            self.godag["GO:0000010"].namespace = original_ns
+
+    def test_returns_int_for_same_namespace(self):
+        """shortest_path must return an int for valid same-namespace pairs."""
+        result = shortest_path("GO:0000009", "GO:0000008", self.godag)
+        assert isinstance(result, int)
+
+    def test_non_negative(self):
+        """Shortest path distance is never negative."""
+        for t1 in ["GO:0000009", "GO:0000010", "GO:0000007"]:
+            for t2 in ["GO:0000003", "GO:0000006", "GO:0000001"]:
+                d = shortest_path(t1, t2, self.godag)
+                assert d is None or d >= 0
+
+    def test_symmetry(self):
+        """shortest_path(a, b) == shortest_path(b, a)."""
+        pairs = [
+            ("GO:0000009", "GO:0000010"),
+            ("GO:0000007", "GO:0000005"),
+            ("GO:0000009", "GO:0000003"),
+        ]
+        for t1, t2 in pairs:
+            assert shortest_path(t1, t2, self.godag) == shortest_path(t2, t1, self.godag)
+
+    def test_dag_multi_path_gives_shortest(self):
+        """Verify BFS gives a shorter result than depth-arithmetic when paths differ.
+
+        ac (GO:0000010) has depth=4 but level=3 (reachable in 3 hops from root via
+        root→A→c→ac).  b (GO:0000004) has depth=2.
+        Common ancestor is A (GO:0000003, depth=1).
+        - BFS from ac: ac→c→A = 2 hops  (shorter than ac→a1→a→A = 3 hops)
+        - BFS from b:  b→A   = 1 hop
+        → correct shortest path = 2+1 = 3
+        The depth-based min_branch_length would compute (4-1)+(2-1)=4 (wrong).
+        """
+        dist_bfs = shortest_path("GO:0000010", "GO:0000004", self.godag)
+        dist_depth = min_branch_length("GO:0000010", "GO:0000004", self.godag, None)
+        assert dist_bfs == 3
+        assert dist_depth == 4  # confirms the depth-based value differs
+        assert dist_bfs < dist_depth
 
 
 if __name__ == "__main__":
