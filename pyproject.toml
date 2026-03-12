@@ -40,6 +40,7 @@ tests/test_go_draw.py
 tests/test_go_name_shorten.py
 tests/test_go_print.py
 tests/test_goea_errors.py
+tests/test_fold_enrichment.py
 tests/test_goea_local.py
 tests/test_goea_rpt_bonferroni.py
 tests/test_goea_statsmodels.py
