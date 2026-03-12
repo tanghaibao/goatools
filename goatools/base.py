@@ -7,6 +7,7 @@ import logging
 import os
 import os.path as op
 import sys
+import tempfile
 import traceback
 import zlib
 
@@ -190,14 +191,13 @@ def http_get(url, fout=None):
     """Download a file from http. Save it in a file named by fout"""
     print("requests.get({URL}, stream=True)".format(URL=url))
     rsp = requests.get(url, stream=True, timeout=10)
-    if rsp.status_code == 200 and fout is not None:
+    rsp.raise_for_status()
+    if fout is not None:
         with open(fout, "wb") as prt:
-            for chunk in rsp:  # .iter_content(chunk_size=128):
-                prt.write(chunk)
+            for chunk in rsp.iter_content(chunk_size=1024 * 1024):
+                if chunk:
+                    prt.write(chunk)
             print("  WROTE: {F}\n".format(F=fout))
-    else:
-        print(rsp.status_code, rsp.reason, url)
-        print(rsp.content)
     return rsp
 
 
@@ -228,21 +228,41 @@ def dnld_file(src_ftp, dst_file, prt=sys.stdout):
     dst_gz = "{DST}.gz".format(DST=dst_file) if do_gunzip else dst_file
     # Write to stderr, not stdout so this message will be seen when running nosetests
     cmd_msg = "get({SRC} out={DST})\n".format(SRC=src_ftp, DST=dst_gz)
+    dst_dir = op.dirname(dst_file) or "."
+    tmp_download = _mk_tmpfile(dst_dir, op.basename(dst_gz))
+    tmp_output = _mk_tmpfile(dst_dir, op.basename(dst_file)) if do_gunzip else None
     try:
         print("$ get {SRC}".format(SRC=src_ftp))
         if src_ftp[:4] == "http":
-            http_get(src_ftp, dst_gz)
+            http_get(src_ftp, tmp_download)
         else:
-            ftp_get(src_ftp, dst_gz)
+            ftp_get(src_ftp, tmp_download)
         if do_gunzip:
             if prt is not None:
                 prt.write("$ gunzip {FILE}\n".format(FILE=dst_gz))
-            gzip_open_to(dst_gz, dst_file)
-    except IOError as errmsg:
+            gzip_open_to(tmp_download, tmp_output)
+            os.replace(tmp_output, dst_file)
+            tmp_output = None
+            tmp_download = None
+        else:
+            os.replace(tmp_download, dst_file)
+            tmp_download = None
+    except Exception as errmsg:
         traceback.print_exc()
         logger.fatal("cmd: %s", cmd_msg)
         logger.fatal("msg: %s", str(errmsg))
         sys.exit(1)
+    finally:
+        for fin_tmp in (tmp_download, tmp_output):
+            if fin_tmp and os.path.exists(fin_tmp):
+                os.remove(fin_tmp)
+
+
+def _mk_tmpfile(dst_dir, basename):
+    """Create a temporary file path in the destination directory."""
+    fd, fin_tmp = tempfile.mkstemp(prefix=f".{basename}.tmp.", dir=dst_dir)
+    os.close(fd)
+    return fin_tmp
 
 
 def gzip_open_to(fin_gz, fout):
