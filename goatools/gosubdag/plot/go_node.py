@@ -25,6 +25,7 @@ class GoNodeOpts:
             "mark_alt_id",  # Put an 'a' after GO:NNNNNNN if it is an alternate GO ID
             "shorten",  # Shorten GO description
             "no_name",  # Do not print GO description
+            "no_ldr",  # Do not print L(evel), D(epth), R(eldepth) in GO term box header
         ]
     )
 
@@ -165,6 +166,8 @@ class GoNode:
         exclude = set(self.exclude)
         if self.gosubdag.relationships:
             exclude.add("level")
+        if "no_ldr" in self.present:
+            exclude.update({"level", "depth", "reldepth"})
         return set(f for f in ntflds if f not in exclude)
 
     def _get_hdr_childcnt(self, goobj, ntgo):
