@@ -7,6 +7,7 @@
 """Read and store Gene Ontology's obo file."""
 # -*- coding: UTF-8 -*-
 import os
+import textwrap
 
 from sys import stderr, stdout
 from typing import Optional
@@ -477,10 +478,10 @@ class GODag(dict):
         go_term = self[term]
         return _paths_to_top_recursive(go_term)
 
-    def label_wrap(self, label):
-        """Label text for plot."""
-        wrapped_label = r"%s\n%s" % (label, self[label].name.replace(",", r"\n"))
-        return wrapped_label
+    def label_wrap(self, label, wrap_width):
+        name = self[label].name
+        wrapped_name = r"\n".join(textwrap.wrap(name, width=wrap_width))
+        return rf"{label}\n{wrapped_name}"
 
     def make_graph_pydot(
         self,
@@ -488,9 +489,10 @@ class GODag(dict):
         nodecolor,
         edgecolor,
         dpi,
+        wrap_width,
         format="png",
         draw_parents=True,
-        draw_children=True,
+        draw_children=True
     ):
         """draw AMIGO style network, lineage containing one query record."""
         import pydot
@@ -511,7 +513,7 @@ class GODag(dict):
         rec_id_set = set(rec_id for endpts in edgeset for rec_id in endpts)
         nodes = {
             str(ID): pydot.Node(
-                self.label_wrap(ID).replace("GO:", ""),  # Node name
+                self.label_wrap(ID, wrap_width).replace("GO:", ""),  # Node name
                 shape="box",
                 style="rounded, filled",
                 # Highlight query terms in plum:
@@ -547,6 +549,7 @@ class GODag(dict):
         nodecolor,
         edgecolor,
         dpi,
+        wrap_width,
         format="png",
         draw_parents=True,
         draw_children=True,
@@ -563,13 +566,13 @@ class GODag(dict):
             if draw_children:
                 edgeset.update(rec.get_all_child_edges())
 
-        edgeset = [(self.label_wrap(a), self.label_wrap(b)) for (a, b) in edgeset]
+        edgeset = [(self.label_wrap(a, wrap_width), self.label_wrap(b, wrap_width)) for (a, b) in edgeset]
 
         # add nodes explicitly via add_node
         # adding nodes implicitly via add_edge misses nodes
         # without at least one edge
         for rec in recs:
-            grph.add_node(self.label_wrap(rec.item_id))
+            grph.add_node(self.label_wrap(rec.item_id, wrap_width))
 
         for src, target in edgeset:
             # default layout in graphviz is top->bottom, so we invert
@@ -587,7 +590,7 @@ class GODag(dict):
         # highlight the query terms
         for rec in recs:
             try:
-                node = grph.get_node(self.label_wrap(rec.item_id))
+                node = grph.get_node(self.label_wrap(rec.item_id, wrap_width))
                 node.attr.update(fillcolor="plum")
             except KeyError:
                 continue
@@ -605,6 +608,7 @@ class GODag(dict):
         gml=False,
         draw_parents=True,
         draw_children=True,
+        wrap_width=999
     ):
         """Draw GO DAG subplot."""
         assert engine in GraphEngines
@@ -616,6 +620,7 @@ class GODag(dict):
                 nodecolor,
                 edgecolor,
                 dpi,
+                wrap_width,
                 format=format,
                 draw_parents=draw_parents,
                 draw_children=draw_children,
@@ -630,6 +635,7 @@ class GODag(dict):
                 format=format,
                 draw_parents=draw_parents,
                 draw_children=draw_children,
+                
             )
             grph.write(output, format=format)
 
