@@ -295,8 +295,9 @@ class GoeaCliArgs:
             default=False,
             action="store_true",
             help=(
-                "When using a GAF annotation file, use gene symbols (DB_Symbol, column 3) "
-                "as the annotation keys instead of the default DB_ID (column 2, e.g. UniProt IDs). "
+                "When using a GAF annotation file, use gene symbols (DB_Symbol, "
+                "GAF column 3) as the annotation keys instead of the default "
+                "DB_ID (GAF column 2, e.g. UniProt accessions). "
                 "Use this option when your study and population files contain gene symbols."
             ),
         )

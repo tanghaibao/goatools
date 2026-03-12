@@ -295,12 +295,9 @@ class AnnoReaderBase(object):
     def _get_dbid2goids_p0(associations, use_symbol=False):
         """Return gene2goids with annotations as-is (propagate_counts == False)"""
         id2gos = cx.defaultdict(set)
-        if use_symbol:
-            for ntd in associations:
-                id2gos[ntd.DB_Symbol].add(ntd.GO_ID)
-        else:
-            for ntd in associations:
-                id2gos[ntd.DB_ID].add(ntd.GO_ID)
+        get_key = (lambda nt: nt.DB_Symbol) if use_symbol else (lambda nt: nt.DB_ID)
+        for ntd in associations:
+            id2gos[get_key(ntd)].add(ntd.GO_ID)
         return dict(id2gos)
 
     def _get_dbid2goids_p1(self, ntannos, relationships=None, prt=sys.stdout):
@@ -310,20 +307,13 @@ class AnnoReaderBase(object):
         go2ancestors = self._get_go2ancestors(goids_annos, relationships, prt)
         # https://github.com/geneontology/go-annotation/issues/3523
         ## exclude = {'GO:2000325', 'GO:2000327'}
-        if self.use_symbol:
-            for ntd in ntannos:
-                goid = ntd.GO_ID
-                goids = id2gos[ntd.DB_Symbol]
-                goids.add(goid)
-                if goid in go2ancestors:
-                    goids.update(go2ancestors[goid])
-        else:
-            for ntd in ntannos:
-                goid = ntd.GO_ID
-                goids = id2gos[ntd.DB_ID]
-                goids.add(goid)
-                if goid in go2ancestors:
-                    goids.update(go2ancestors[goid])
+        get_key = (lambda nt: nt.DB_Symbol) if self.use_symbol else (lambda nt: nt.DB_ID)
+        for ntd in ntannos:
+            goid = ntd.GO_ID
+            goids = id2gos[get_key(ntd)]
+            goids.add(goid)
+            if goid in go2ancestors:
+                goids.update(go2ancestors[goid])
         return dict(id2gos)
 
     @staticmethod
