@@ -33,7 +33,7 @@ def test_find_enrichment():
         _get_objanno('data/association', anno_type='id2gos', godag=godag),
     ]
 
-    pat = ('python3 scripts/find_enrichment.py {STU} {POP} {ASSC} '
+    pat = ('python3 -m goatools find_enrichment {STU} {POP} {ASSC} '
            '--pval=0.05 --method=fdr_bh --pval_field=fdr_bh '
            '--taxid={TAXID} {INC} {EXC} --outfile=results_{NAME}.xlsx')
     cmds = []

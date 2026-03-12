@@ -74,10 +74,10 @@ def main():
     print("\n3. Using command-line script:")
     print("-" * 70)
     print("   # Without relationships (is_a only):")
-    print("   $ python scripts/wr_hier.py GO:0003143 --dag=go.obo")
+    print("   $ goatools wr_hier GO:0003143 --dag=go.obo")
     print()
     print("   # With relationships (is_a + part_of, regulates, etc.):")
-    print("   $ python scripts/wr_hier.py GO:0003143 --dag=go.obo -r")
+    print("   $ goatools wr_hier GO:0003143 --dag=go.obo -r")
 
     # ============================================================================
     # SUMMARY
@@ -99,7 +99,7 @@ For multiple GO terms:
   - get_go2descendants(terms, relationships={'part_of'})  -> is_a + selected
 
 For visualization:
-  - wr_hier.py GO_ID --dag=go.obo -r  -> hierarchy with relationships
+  - goatools wr_hier GO_ID --dag=go.obo -r  -> hierarchy with relationships
 
 See notebooks/children_and_descendants.ipynb for more examples!
 """)

@@ -40,25 +40,25 @@ def _get_cmds():
     """Get commands used in ./docs/md/README_find_enrichment.md"""
     # pylint: disable=line-too-long
     return [
-        "python3 scripts/find_enrichment.py data/study data/population data/association --outfile=goea.xlsx,goea.tsv --pval_field=fdr_bh",  # 0
-        "python3 scripts/find_enrichment.py data/study data/population data/association --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_id2gos.xlsx",  # 1
-        "python3 scripts/find_enrichment.py ids_stu_gaf.txt ids_pop_gaf.txt goa_human.gaf --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gaf.xlsx",  # 2
-        "python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx",  # 3
-        "python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx -r",  # 4
-        "python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx --relationships=regulates,negatively_regulates,positively_regulates",
-        "python3 scripts/find_enrichment.py ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx",
-        "python3 scripts/find_enrichment.py ids_stu_gene2go_10090.txt ids_pop_gene2go_10090.txt gene2go --taxid=10090 --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_10090.xlsx",
-        "python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_exc=IEA --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx",
-        "python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_inc=Experimental --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx",
-        "python3 scripts/find_enrichment.py ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_inc=EXP,IDA,IPI,IMP,IGI,IEP --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx",
-        "python3 scripts/find_enrichment.py --ev_help",
-        "python3 scripts/find_enrichment.py data/study data/population data/association",
-        "python3 scripts/find_enrichment.py data/study data/population data/association --sections=goatools.test_data.sections.data2018_07_find_enrichment",
-        "python3 scripts/find_enrichment.py data/study data/population data/association --outfile=goea_uncorr.xlsx",
-        "python3 scripts/find_enrichment.py data/study data/population data/association --outfile=goea_fdr_bh.xlsx,goea_fdr_bh.tsv --pval_field=fdr_bh",
-        "python3 scripts/find_enrichment.py data/study data/population data/association --outfile=goea_fdr_bh_flat.xlsx --method=fdr_bh",
-        "python3 scripts/find_enrichment.py data/study data/population data/association --outfile=goea_fdr_bh_grpd.xlsx --method=fdr_bh --sections=goatools.test_data.sections.data2018_07_find_enrichment",
-        "python3 scripts/find_enrichment.py data/study data/population data/association --outfile=goea_all.xlsx,goea_all.tsv --pval=-1",
+        "python3 -m goatools find_enrichment data/study data/population data/association --outfile=goea.xlsx,goea.tsv --pval_field=fdr_bh",  # 0
+        "python3 -m goatools find_enrichment data/study data/population data/association --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_id2gos.xlsx",  # 1
+        "python3 -m goatools find_enrichment ids_stu_gaf.txt ids_pop_gaf.txt goa_human.gaf --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gaf.xlsx",  # 2
+        "python3 -m goatools find_enrichment ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx",  # 3
+        "python3 -m goatools find_enrichment ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx -r",  # 4
+        "python3 -m goatools find_enrichment ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx --relationships=regulates,negatively_regulates,positively_regulates",
+        "python3 -m goatools find_enrichment ids_stu_gene2go_9606.txt ids_pop_gene2go_9606.txt gene2go --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_9606.xlsx",
+        "python3 -m goatools find_enrichment ids_stu_gene2go_10090.txt ids_pop_gene2go_10090.txt gene2go --taxid=10090 --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gene2go_10090.xlsx",
+        "python3 -m goatools find_enrichment ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_exc=IEA --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx",
+        "python3 -m goatools find_enrichment ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_inc=Experimental --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx",
+        "python3 -m goatools find_enrichment ids_stu_gpad.txt ids_pop_gpad.txt goa_human.gpad --ev_inc=EXP,IDA,IPI,IMP,IGI,IEP --pval=0.05 --method=fdr_bh --pval_field=fdr_bh --outfile=results_gpad.xlsx",
+        "python3 -m goatools find_enrichment --ev_help",
+        "python3 -m goatools find_enrichment data/study data/population data/association",
+        "python3 -m goatools find_enrichment data/study data/population data/association --sections=goatools.test_data.sections.data2018_07_find_enrichment",
+        "python3 -m goatools find_enrichment data/study data/population data/association --outfile=goea_uncorr.xlsx",
+        "python3 -m goatools find_enrichment data/study data/population data/association --outfile=goea_fdr_bh.xlsx,goea_fdr_bh.tsv --pval_field=fdr_bh",
+        "python3 -m goatools find_enrichment data/study data/population data/association --outfile=goea_fdr_bh_flat.xlsx --method=fdr_bh",
+        "python3 -m goatools find_enrichment data/study data/population data/association --outfile=goea_fdr_bh_grpd.xlsx --method=fdr_bh --sections=goatools.test_data.sections.data2018_07_find_enrichment",
+        "python3 -m goatools find_enrichment data/study data/population data/association --outfile=goea_all.xlsx,goea_all.tsv --pval=-1",
     ]
 
 

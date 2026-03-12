@@ -1,38 +1,38 @@
 """Command-line script to create GO term diagrams
 
 Usage:
-  go_plot.py [GO ...] [options]
-  go_plot.py [GO ...] [--obo=<file.obo>] [--outfile=<file.png>] [--title=<title>]
-             [--go_file=<file.txt>]
-             [--relationship]
-             [--relationships=<part_of>]
-             [--sections=<sections.txt>]
-             [--gpad=<file.gpad>]
-             [--gaf=<file.gaf>]
-             [--gene2go=<gene2go>] [--taxid=<Taxonomy_number>]
-             [--id2gos=<file.txt>]
-             [--shorten] [--no_ldr]
-             [--parentcnt] [--childcnt] [--mark_alt_id]
-             [--go_aliases=<go_aliases.txt>]
-             [--draw-children]
-             [--norel]
-             [--go_color_file=<file.txt>]
-             [--rankdir=<rankdir>]
-  go_plot.py [GO ...] [--obo=<file.obo>] [-o <file.png>] [-t <title>]
-             [--shorten] [-p] [-c]
-  go_plot.py [GO ...] [-o <file.png>] [--draw-children]
-  go_plot.py [GO ...] [-o <file.png>] [--draw-children] [--shorten]
-  go_plot.py [--obo=<file.obo>]
-  go_plot.py [--obo=<file.obo>] [--outfile=<file.png>]
-  go_plot.py [GO ...]
-  go_plot.py [GO ...] [--outfile=<file.png>] [--title=<title>]
-  go_plot.py [GO ...] [--outfile=<file.png>] [--title=<title>] [--shorten]
-  go_plot.py [GO ...] [-o <file.png>] [-t <title>]
-  go_plot.py [GO ...] [-o <file.png>] [-t <title>] [--parentcnt]
-  go_plot.py [GO ...] [-o <file.png>] [-t <title>] [--childcnt]
-  go_plot.py [GO ...] [-o <file.png>] [-t <title>] [--parentcnt] [--childcnt]
-  go_plot.py [GO ...] [-o <file.png>] [-t <title>] [-p]
-  go_plot.py [GO ...] [-o <file.png>] [-t <title>] [-p] [-c]
+  goatools go_plot [GO ...] [options]
+  goatools go_plot [GO ...] [--obo=<file.obo>] [--outfile=<file.png>] [--title=<title>]
+                   [--go_file=<file.txt>]
+                   [--relationship]
+                   [--relationships=<part_of>]
+                   [--sections=<sections.txt>]
+                   [--gpad=<file.gpad>]
+                   [--gaf=<file.gaf>]
+                   [--gene2go=<gene2go>] [--taxid=<Taxonomy_number>]
+                   [--id2gos=<file.txt>]
+                   [--shorten] [--no_ldr]
+                   [--parentcnt] [--childcnt] [--mark_alt_id]
+                   [--go_aliases=<go_aliases.txt>]
+                   [--draw-children]
+                   [--norel]
+                   [--go_color_file=<file.txt>]
+                   [--rankdir=<rankdir>]
+  goatools go_plot [GO ...] [--obo=<file.obo>] [-o <file.png>] [-t <title>]
+                   [--shorten] [-p] [-c]
+  goatools go_plot [GO ...] [-o <file.png>] [--draw-children]
+  goatools go_plot [GO ...] [-o <file.png>] [--draw-children] [--shorten]
+  goatools go_plot [--obo=<file.obo>]
+  goatools go_plot [--obo=<file.obo>] [--outfile=<file.png>]
+  goatools go_plot [GO ...]
+  goatools go_plot [GO ...] [--outfile=<file.png>] [--title=<title>]
+  goatools go_plot [GO ...] [--outfile=<file.png>] [--title=<title>] [--shorten]
+  goatools go_plot [GO ...] [-o <file.png>] [-t <title>]
+  goatools go_plot [GO ...] [-o <file.png>] [-t <title>] [--parentcnt]
+  goatools go_plot [GO ...] [-o <file.png>] [-t <title>] [--childcnt]
+  goatools go_plot [GO ...] [-o <file.png>] [-t <title>] [--parentcnt] [--childcnt]
+  goatools go_plot [GO ...] [-o <file.png>] [-t <title>] [-p]
+  goatools go_plot [GO ...] [-o <file.png>] [-t <title>] [-p] [-c]
 
 Options:
   -h --help                            show this help message and exit
@@ -169,9 +169,9 @@ class PlotCli(object):
         self.objdoc = DocOptParse(_doc, self.kws_dict, self.kws_set)
         self.gosubdag = None if gosubdag is None else gosubdag
 
-    def cli(self, kws_plt=None):
+    def cli(self, kws_plt=None, args=None):
         """Command-line interface for go_draw script."""
-        kws_all = self.get_docargs() if not kws_plt else kws_plt
+        kws_all = self.get_docargs(args) if not kws_plt else kws_plt
         godag_optional_attrs = self._get_optional_attrs(kws_all)
         godag = GODag(kws_all['obo'], godag_optional_attrs)
         self.plot(godag, kws_all)
@@ -303,7 +303,7 @@ class PlotCli(object):
         severity = "FATAL" if err else "NOTE"
         txt = "".join([self.objdoc.doc,
                        "User's command-line:\n\n",
-                       "  % go_plot.py {ARGS}\n\n".format(ARGS=" ".join(sys.argv[1:])),
+                       "  % goatools {ARGS}\n\n".format(ARGS=" ".join(sys.argv[1:])),
                        "**{SEV}: {MSG}\n".format(SEV=severity, MSG=msg)])
         if err:
             raise RuntimeError(txt)
@@ -353,6 +353,11 @@ class PlotCli(object):
             return relationships
         if relationships_arg:
             return True
+
+
+def main(args=None):
+    """Create GO-DAG plots from the command line."""
+    PlotCli().cli(args=args)
 
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang. All rights reserved.

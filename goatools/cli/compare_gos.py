@@ -1,8 +1,8 @@
 """Compare two or more sets of GO IDs. Best done using sections.
 
 Usage:
-  compare_gos.py [GO_FILE] ...
-  compare_gos.py [GO_FILE] ... [options]
+  goatools compare_gos [GO_FILE] ...
+  goatools compare_gos [GO_FILE] ... [options]
 
 Options:
   -h --help            show this help message and exit
@@ -87,9 +87,9 @@ class CompareGOsCli:
         "id",
     }
 
-    def __init__(self, **kws):
+    def __init__(self, args=None, **kws):
         _objdoc = DocOptParse(__doc__, self.kws_dict, self.kws_set)
-        self.kws = _objdoc.get_docargs(prt=None) if not kws else kws
+        self.kws = _objdoc.get_docargs(args, prt=None) if not kws else kws
         self.godag = get_godag(
             self.kws.get("obo"), prt=sys.stdout, optional_attrs=["relationship"]
         )
@@ -330,6 +330,12 @@ class _Init:
             assert os.path.exists(fin), "GO FILE({F}) DOES NOT EXIST".format(F=fin)
             go_sets.append(obj.get_usrgos(fin, sys.stdout))
         return go_sets
+
+
+def main(args=None):
+    """Compare two or more GO ID sets from the command line."""
+    obj = CompareGOsCli(args=args)
+    obj.write(obj.kws.get("xlsx"), obj.kws.get("ofile"), obj.kws.get("verbose", False))
 
 
 # Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved.

@@ -17,8 +17,7 @@ def test_unknown_gos():
     """Ensure that a study with only unknown GO Terms will run gracefully."""
     # pylint: disable=bad-whitespace
     code = os.system(
-        "python {SCR} --alpha=0.05 {STUDY} {POP} {ASSN} --obo={OBO}".format(
-            SCR="{REPO}/scripts/find_enrichment.py".format(REPO=REPO),
+        "python -m goatools find_enrichment --alpha=0.05 {STUDY} {POP} {ASSN} --obo={OBO}".format(
             OBO="{REPO}/go-basic.obo".format(REPO=REPO),
             STUDY="{REPO}/tests/data/study_unknown".format(REPO=REPO),
             POP="{REPO}/tests/data/small_population".format(REPO=REPO),

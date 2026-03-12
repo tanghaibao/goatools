@@ -1,7 +1,7 @@
 """Command-line script to print a GO term's lower-level hierarchy.
 
 Usage:
-  wr_hier.py [GO ...] [options]
+  goatools wr_hier [GO ...] [options]
 
 Options:
   -h --help      show this help message and exit
@@ -46,15 +46,20 @@ from goatools.gosubdag.rpt.write_hierarchy import WrHierGO
 from goatools.godag.consts import NS2GO
 
 
-def cli():
+def cli(args=None):
     """Command-line script to print a GO term's lower-level hierarchy."""
-    objcli = WrHierCli(sys.argv[1:])
+    objcli = WrHierCli(sys.argv[1:] if args is None else args)
     fouts_txt = objcli.get_fouts()
     if fouts_txt:
         for fout_txt in fouts_txt:
             objcli.wrtxt_hier(fout_txt)
     else:
         objcli.prt_hier(sys.stdout)
+
+
+def main(args=None):
+    """Print a GO term hierarchy from the command line."""
+    cli(args)
 
 
 class WrHierCli:

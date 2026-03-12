@@ -22,7 +22,9 @@ def ncbi_tsv_to_py(fin_tsv, fout_py=None, prt=stdout):
 class NCBIgeneToPythonCli:
     """Read a NCBI Gene gene_result.txt file and write a Python module."""
 
-    argparser = ArgumentParser(description='Convert a NCBI gene tsv file into a Python module')
+    argparser = ArgumentParser(
+        prog="goatools ncbi_gene_results_to_python",
+        description='Convert a NCBI gene tsv file into a Python module')
     argparser.add_argument(
         'NCBI_gene_tsv', type=str, nargs='+',
         help='gene_result.tsv downloaded from NCBI Gene')
@@ -30,9 +32,9 @@ class NCBIgeneToPythonCli:
         '-o', '--outfile',
         help='Write current citation report to an ASCII text file.')
 
-    def cli(self, prt=stdout):
+    def cli(self, args=None, prt=stdout):
         """Command-line interface to print specified GO Terms from the DAG source ."""
-        args = self.argparser.parse_args()
+        args = self.argparser.parse_args(args)
         # Aggregate all NCBI Gene data into a single output file
         if len(args.NCBI_gene_tsv) > 1 and args.outfile is not None:
             self.tsv_to_py_all(args.NCBI_gene_tsv, args.outfile, prt)
@@ -145,6 +147,11 @@ class NCBIgeneToPythonCli:
                 ofstrm.write("    {GeneID} : {NT},\n".format(GeneID=geneid, NT=ntd))
             ofstrm.write("}\n")
             log.write("  {N:10,} geneids WROTE: {PY}\n".format(N=num_genes, PY=fout_py))
+
+
+def main(args=None):
+    """Convert NCBI Gene TSV results to Python modules."""
+    NCBIgeneToPythonCli().cli(args=args)
 
 
 # Copyright (C) 2016-present, DV Klopfenstein, H Tang. All rights reserved.

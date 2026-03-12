@@ -6,13 +6,13 @@
 ## Write the entire GO hierarchy for all genes from one species (human)
 
 ```
-$ scripts/wr_hier.py BP MF CC --gene2go=gene2go --taxid=9606 --dash_len=17 --concise -o human_BP_MF_CC.txt
+$ goatools wr_hier BP MF CC --gene2go=gene2go --taxid=9606 --dash_len=17 --concise -o human_BP_MF_CC.txt
 ```
 ### Arguments
 
   * **BP MF CC** => Aliases for top GO IDs for biological_process(GO:0008150), molecular_function(GO:0003674) & cellular_process(GO:0005575)
 
-  * **--gene2go=gene2go --taxid=9606** => Tells wr_hier to read the associations in file, "gene2go" for human(9606)
+  * **--gene2go=gene2go --taxid=9606** => Tells goatools wr_hier to read the associations in file, "gene2go" for human(9606)
 
   * **--dash_len=17** => Adds spacing so the GO information printed next to each GO ID does not shift around. The BP branch is 17 GO IDs deep, so 17 is the right number for this print.
 

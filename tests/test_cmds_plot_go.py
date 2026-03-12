@@ -28,10 +28,10 @@ def _get_cmds():
     """Get commands used in ./docs/md/README_find_enrichment.md"""
     # pylint: disable=line-too-long
     return [
-        'scripts/go_plot.py GO:0016150 -o aaaa_none.png',
-        'scripts/go_plot.py GO:0016150 -o aaaa_gpad.png --gpad goa_human.gpa',
-        'scripts/go_plot.py GO:0016150 -o aaaa_gaf.png --gaf goa_human.gaf',
-        'scripts/go_plot.py GO:0016150 -o aaaa_orig.png --id2gos data/association',
+        'python3 -m goatools go_plot GO:0016150 -o aaaa_none.png',
+        'python3 -m goatools go_plot GO:0016150 -o aaaa_gpad.png --gpad goa_human.gpa',
+        'python3 -m goatools go_plot GO:0016150 -o aaaa_gaf.png --gaf goa_human.gaf',
+        'python3 -m goatools go_plot GO:0016150 -o aaaa_orig.png --id2gos data/association',
     ]
 
 

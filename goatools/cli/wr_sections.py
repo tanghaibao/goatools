@@ -1,8 +1,8 @@
 """Command-line interface to create an initial Python sections file
 
 Usage:
-  wr_sections.py [GO_FILE]
-  wr_sections.py [GO_FILE] [options]
+  goatools wr_sections [GO_FILE]
+  goatools wr_sections [GO_FILE] [options]
 
 Options:
   -h --help                                 show this help message and exit
@@ -71,9 +71,9 @@ class WrSectionsCli(object):
         self.objdoc = DocOptParse(__doc__, self.kws_dict, self.kws_set)
         self.gosubdag = None if gosubdag is None else gosubdag
 
-    def cli(self, prt=sys.stdout):
+    def cli(self, args=None, prt=sys.stdout):
         """Command-line interface for go_draw script."""
-        kws = self.objdoc.get_docargs(prt=None)
+        kws = self.objdoc.get_docargs(args, prt=None)
         godag = get_godag(kws["obo"], prt=None, optional_attrs=["relationship"])
         usrgos = GetGOs(godag, max_gos=200).get_usrgos(kws.get("GO_FILE"), prt)
         tcntobj = self._get_tcntobj(usrgos, godag, **kws)  # Gets TermCounts or None
@@ -123,6 +123,11 @@ class WrSectionsCli(object):
             # Get a reduced go2obj set for TermCounts
             _gosubdag = GoSubDag(goids, go2obj, rcntobj=False, prt=None)
             return get_tcntobj(_gosubdag.go2obj, **kws)  # TermCounts
+
+
+def main(args=None):
+    """Create or update sections files from the command line."""
+    WrSectionsCli().cli(args=args)
 
 
 # Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.
