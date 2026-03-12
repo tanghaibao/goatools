@@ -6,6 +6,7 @@ __copyright__ = "Copyright (C) 2016-present, DV Klopfenstein, H Tang, All rights
 __author__ = "DV Klopfenstein"
 
 import sys
+import re
 import collections as cx
 import math
 from goatools.godag.consts import NAMESPACE2NS
@@ -204,6 +205,56 @@ class InitFields:
             prt_fmt.append('{rel}')
         prt_fmt.append('{GO_name}')
         return " ".join(prt_fmt)
+
+    def get_prt_hdr(self, alt=False):
+        """Return a column header string aligned with the format returned by get_prt_fmt.
+
+        Uses the same format string as get_prt_fmt (with string-compatible specs) to
+        guarantee per-column alignment.  Column labels:
+          GO_ID    GO term identifier, e.g. GO:0009987
+          a        'a' if this is an alternate GO ID, else blank
+          NS       2-letter namespace: BP, MF, or CC
+          dcnt     number of GO term descendants in the DAG
+          chd      number of direct child GO terms (with relationships loaded)
+          tcnt     annotation count from supplied annotation file
+          tfreq    annotation frequency
+          tinfo    information content
+          Lvl      level - minimum hops from the root of the GO hierarchy
+          Dep      depth - maximum hops from the root of the GO hierarchy
+          Rdp      relationship depth using optional relationships (part_of, etc.)
+          D1       letter code for the depth-1 ancestor GO term
+          REL      relationship-type string showing parent relationships
+          rel      relationship-type string showing child relationships
+          GO_name  GO term name
+        """
+        fmt = self.get_prt_fmt(alt)
+        # 1. Give {GO} an explicit width because GO IDs are always 10 chars (GO:NNNNNNN).
+        fmt_hdr = fmt.replace('{GO}', '{GO:10}')
+        # 2. Fold the literal single-char prefix (L/D/R) into the numeric field width so
+        #    the label fits the combined width, e.g. L{level:02} -> {level:3} ('Lvl' = 3).
+        fmt_hdr = re.sub(
+            r'([LDR])\{(level|depth|reldepth):0*(\d+)[^}]*\}',
+            lambda m: '{' + m.group(2) + ':' + str(int(m.group(3)) + 1) + '}',
+            fmt_hdr)
+        # 3. Normalize specs that are incompatible with string values (thousands separator ',',
+        #    float '.Xf', zero-fill '0N') to simple minimum-width specs.
+        fmt_hdr = re.sub(r'\{(\w+):0*(\d+)[^}]*\}', r'{\1:\2}', fmt_hdr)
+        return fmt_hdr.format(
+            GO='GO_ID',
+            alt='a' if alt else '',
+            NS='NS',
+            dcnt='dcnt',
+            childcnt='chd',
+            tcnt='tcnt',
+            tfreq='tfreq',
+            tinfo='tinfo',
+            level='Lvl',
+            depth='Dep',
+            reldepth='Rdp',
+            D1='D1',
+            REL='REL',
+            rel='rel',
+            GO_name='GO_name')
 
     def _get_go2nt_all(self, rcntobj):
         """For each GO id, put all printable fields in one namedtuple."""

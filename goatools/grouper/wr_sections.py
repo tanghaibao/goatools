@@ -25,6 +25,26 @@ class WrSectionsBase(object):
                 "# Versions:\n#    {VER}\n\n".format(VER="\n#    ".join(self.ver_list))
             )
 
+    def prt_col_hdr(self, prt):
+        """Print a comment line describing the columns in the output."""
+        prt.write("# {HDR}\n".format(HDR=self._init_prtfmt_hdr()))
+
+    def _init_prtfmt_hdr(self, key="hdra"):
+        """Return column header for Grouper output, including hdr1usr01 and num_usrgos.
+
+        Columns added by Grouper (replacing '# NS' in the base header):
+          hd         '*' if this GO term is a group header; '**' if header and user GO
+          nUsrGOs    number of user GO IDs grouped under this header GO term
+
+        The replacement of '# NS' is safe because get_prt_hdr always generates exactly
+        one '# NS' token in that position (mirroring the '# {NS}' in get_prt_fmt).
+        Width of replacement: ' ' (1) + 'hd' (2) + ' ' (1) + 'nUsrGOs  ' (9) = 13 chars added
+        after '# NS', matching the data format's ' {hdr1usr01:2} {num_usrgos:>4} uGOs' = 13
+        chars (1 space + 2-char hdr1usr01 + 1 space + 4-char num_usrgos + 5 chars ' uGOs').
+        """
+        prt_hdr = self.gosubdag.prt_attr[key]
+        return prt_hdr.replace("# NS", "# NS hd nUsrGOs  ")
+
     def get_sections_2dnt(self, sec2d_go):
         """Return a sections list containing sorted lists of namedtuples."""
         return [(nm, self.get_ntgos_sorted(gos)) for nm, gos in sec2d_go]
@@ -216,6 +236,7 @@ class WrSectionsTxt(WrSectionsBase):
             sortby = self.fncsortnt
         with open(fout_txt, "w") as prt:
             self.prt_ver(prt)
+            self.prt_col_hdr(prt)
             prt.write("# GROUP NAME: {NAME}\n".format(NAME=self.grprobj.grpname))
             for section_name, nthdrgos_actual in sec2d_nt:
                 if prt_section:

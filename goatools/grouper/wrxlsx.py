@@ -88,6 +88,7 @@ class WrXlsxSortedGos(object):
             prtfmt = self.get_prtfmt("fmta")
         if self.ver_list is not None:
             prt.write("# Versions:\n#    {VER}\n".format(VER="\n#    ".join(self.ver_list)))
+        prt.write("# {COL_HDR}\n".format(COL_HDR=self.get_col_hdr("hdra")))
         self.prt_txt_desc2nts(prt, desc2nts, prtfmt)
 
     def prt_txt_desc2nts(self, prt, desc2nts, prtfmt):
@@ -169,6 +170,23 @@ class WrXlsxSortedGos(object):
         prtfmt = self.sortobj.grprobj.gosubdag.prt_attr[key]
         prtfmt = prtfmt.replace("{NS}", "{NS} {num_usrgos:>4} uGOs")
         return "".join(['{hdr1usr01:2}', prtfmt, '\n'])
+
+    def get_col_hdr(self, key="hdra"):
+        """Return a column header string for the grouped GO IDs output.
+
+        Columns prepended by Grouper:
+          hd         '*' if this GO term is a group header; '**' if header and user GO
+          nUsrGOs    number of user GO IDs grouped under this header GO term
+
+        The replacement of '# NS' is safe because get_prt_hdr always generates exactly
+        one '# NS' token in that position (mirroring the '# {NS}' in get_prt_fmt).
+        Width of replacement: 'nUsrGOs  ' (9) chars, matching the data format's
+        '{num_usrgos:>4} uGOs' = 9 chars (4 + 5).  The 'hd' header for the leading
+        {hdr1usr01:2} field is prepended separately before the GO_ID column.
+        """
+        prt_hdr = self.sortobj.grprobj.gosubdag.prt_attr[key]
+        prt_hdr = prt_hdr.replace("# NS", "# NS nUsrGOs  ")
+        return "hd {HDR}".format(HDR=prt_hdr)
 
     @staticmethod
     def _get_shade_hdrgos(**kws):

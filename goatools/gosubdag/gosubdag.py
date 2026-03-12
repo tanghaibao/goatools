@@ -31,7 +31,9 @@ class GoSubDag:
         self.prt_attr = {
             'flds':_fld.prt_flds,           # namedtuple fields in go2nt
             'fmt':_fld.get_prt_fmt(False),  # GO:NNNNNNN   No indication if an alternate GO ID
-            'fmta':_fld.get_prt_fmt(True)}  # GO:NNNNNNNa  'a' indicates if an alternate GO ID
+            'fmta':_fld.get_prt_fmt(True),  # GO:NNNNNNNa  'a' indicates if an alternate GO ID
+            'hdr':_fld.get_prt_hdr(False),  # column header for 'fmt'
+            'hdra':_fld.get_prt_hdr(True)}  # column header for 'fmta'
         ### tic = _rpt_hms(tic, "GoSubDag: Create GoDepth1Letters")
         self.go2nt = _fld.get_go2nt_all(self.rcntobj)
         ### tic = _rpt_hms(tic0, "GoSubDag: total")
