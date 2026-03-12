@@ -44,6 +44,7 @@ tests/test_goea_local.py
 tests/test_goea_rpt_bonferroni.py
 tests/test_goea_statsmodels.py
 tests/test_gosearch_emptydict.py
+tests/test_gosearch_fields.py
 tests/test_gosubdag_relationships.py
 tests/test_grpr_get_sections_2d.py
 tests/test_grprobj.py

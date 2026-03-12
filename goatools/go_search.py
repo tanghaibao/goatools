@@ -9,11 +9,19 @@ __author__ = "DV Klopfenstein"
 class GoSearch(object):
     """Returns GOs matching a regex pattern."""
 
-    def __init__(self, fin_go_basic_obo, go2items, log=None):
+    # Default search headers match geneontology.org behaviour (name only).
+    # Pass a custom list to also search synonyms, definitions, comments, etc.
+    DEF_SRCH_HDRS = ['name']
+
+    def __init__(self, fin_go_basic_obo, go2items, log=None, goa_srch_hdrs=None):
         self.log = sys.stdout if log is None else log
         self.bstdout = True if log is None else log
-        # Some obo fields often used in searching. Many are optional to load when reading obo
-        self.goa_srch_hdrs = ['defn', 'comment', 'name', 'is_a', 'relationship', 'synonym', 'xref']
+        # Fields to search when matching GO terms against a regex pattern.
+        # Defaults to ['name'] to match geneontology.org search behaviour.
+        # Supply a custom list (e.g. ['name', 'synonym', 'defn']) for broader
+        # searches; note that only fields in OboOptionalAttrs.optional_exp are
+        # loaded from the OBO file.
+        self.goa_srch_hdrs = self.DEF_SRCH_HDRS if goa_srch_hdrs is None else list(goa_srch_hdrs)
         self.obo_dag = GODag(fin_go_basic_obo, optional_attrs=self.goa_srch_hdrs)
         self.go2items = go2items
 
@@ -62,6 +70,11 @@ class GoSearch(object):
                 self._search_val(matches, compiled_pattern, val)
         elif isinstance(fld_val, str):
             self._search_val(matches, compiled_pattern, fld_val)
+        elif isinstance(fld_val, list):
+            # synonym is stored as a list of namedtuples with a 'text' field
+            for val in fld_val:
+                text = val.text if hasattr(val, 'text') else str(val)
+                self._search_val(matches, compiled_pattern, text)
         return matches
 
     @staticmethod
