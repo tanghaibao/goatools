@@ -1,5 +1,7 @@
 import sys
 import os
+import tempfile
+from pathlib import Path
 from goatools.obo_parser import GODag
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.associations import read_associations
@@ -11,8 +13,9 @@ ROOT = os.path.dirname(os.path.abspath(__file__)) + "/data/"
 __copyright__ = "Copyright (C) 2010-2018, H Tang et al., All rights reserved."
 
 
-def test_goea_statsmodels(log=sys.stdout):
+def test_goea_statsmodels(tmp_path):
     """Test GOEA with local multipletest correction methods for statsmodels."""
+    log = sys.stdout
     goeaobj = get_goeaobj()
     study_ids = [line.rstrip() for line in open(ROOT + "small_study")]
     prt_if = lambda nt: nt.p_uncorrected < 0.0005
@@ -32,11 +35,11 @@ def test_goea_statsmodels(log=sys.stdout):
         fmtstr = "".join(["{NS} {p_uncorrected:5.3e} {",
                   "p_{M}:5.3e".format(M=method),
                   "} {name} ({study_count} gene(s))\n"])
-        fout_xlsx = "goea_statsmodels_{M}.xlsx".format(M=method)
-        fout_tsv = "goea_statsmodels_{M}.tsv".format(M=method)
+        fout_xlsx = tmp_path / "goea_statsmodels_{M}.xlsx".format(M=method)
+        fout_tsv = tmp_path / "goea_statsmodels_{M}.tsv".format(M=method)
         goeaobj.prt_txt(log, goea_results, fmtstr, prt_if=prt_if)
-        goeaobj.wr_xlsx(fout_xlsx, goea_results)
-        goeaobj.wr_tsv(fout_tsv, goea_results)
+        goeaobj.wr_xlsx(str(fout_xlsx), goea_results)
+        goeaobj.wr_tsv(str(fout_tsv), goea_results)
 
 
 def get_goeaobj(methods=None):
@@ -50,6 +53,7 @@ def get_goeaobj(methods=None):
 
 
 if __name__ == '__main__':
-    test_goea_statsmodels()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_goea_statsmodels(Path(tmpdir))
 
 # Copyright (C) 2010-2018, H Tang et al., All rights reserved.

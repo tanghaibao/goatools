@@ -2,6 +2,8 @@
 """Test CompareGOsCli"""
 
 import os
+import tempfile
+from pathlib import Path
 from goatools.cli.compare_gos import CompareGOsCli
 
 __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved."
@@ -9,7 +11,7 @@ __copyright__ = "Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights re
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../")
 
 
-def test_example():
+def test_example(tmp_path):
     """Test CompareGOsCli"""
     files = ['tat_gos_simple1.tsv', 'tat_gos_simple2.tsv']
     files = ['502S0.tab', '805S0.tab']
@@ -20,11 +22,20 @@ def test_example():
         'sections': os.path.join(REPO, 'data/compare_gos/sections.txt'),
     }
     obj = CompareGOsCli(**kws)
-    obj.write(fout_xlsx='compare_gos_v1.xlsx', fout_txt='compare_gos_v1.txt', verbose=True)
-    obj.write(fout_xlsx='compare_gos_v0.xlsx', fout_txt='compare_gos_v0.txt', verbose=False)
+    obj.write(
+        fout_xlsx=str(tmp_path / "compare_gos_v1.xlsx"),
+        fout_txt=str(tmp_path / "compare_gos_v1.txt"),
+        verbose=True,
+    )
+    obj.write(
+        fout_xlsx=str(tmp_path / "compare_gos_v0.xlsx"),
+        fout_txt=str(tmp_path / "compare_gos_v0.txt"),
+        verbose=False,
+    )
 
 
 if __name__ == '__main__':
-    test_example()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_example(Path(tmpdir))
 
 # Copyright (C) 2016-2019, DV Klopfenstein, H Tang, All rights reserved.

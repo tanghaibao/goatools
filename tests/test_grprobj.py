@@ -3,6 +3,7 @@
 
 import os
 import sys
+import tempfile
 
 from goatools.base import get_godag
 from goatools.gosubdag.gosubdag import GoSubDag
@@ -14,9 +15,11 @@ from goatools.grouper.wr_sections import WrSectionsTxt
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 
-def test_grouper_d2(do_plot=False):
+def test_grouper_d2(tmp_path, monkeypatch):
     """Group depth-02 GO terms under their most specific depth-01 GO parent(s)."""
+    do_plot = False
     print("CWD", os.getcwd())
+    monkeypatch.chdir(tmp_path)
     # Get GOs to be grouped
     # Since no "Grouping GOs" were provided, depth-01 GOs are used for grouping.
     grprdflt = _get_grprdflt()
@@ -299,4 +302,12 @@ def _get_grprdflt():
 
 
 if __name__ == "__main__":
-    test_grouper_d2(True)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        class _MonkeyPatchShim:
+            """Minimal chdir shim for direct script execution."""
+
+            @staticmethod
+            def chdir(path):
+                os.chdir(path)
+
+        test_grouper_d2(tmpdir, _MonkeyPatchShim())

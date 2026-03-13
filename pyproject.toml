@@ -38,10 +38,9 @@ tests/test_get_unique_fields.py
 tests/test_go_depth1.py
 tests/test_go_draw.py
 tests/test_go_name_shorten.py
-tests/test_go_print.py
 tests/test_goea_errors.py
 tests/test_fold_enrichment.py
-tests/test_goea_local.py
+tests/test_goea_local.py::test_unknown_gos
 tests/test_goea_rpt_bonferroni.py
 tests/test_goea_statsmodels.py
 tests/test_gosearch_emptydict.py
@@ -57,10 +56,8 @@ tests/test_ncbi_entrez_annotations.py
 tests/test_optional_attributes.py
 tests/test_parents_ancestors.py
 tests/test_pvalcalc.py
-tests/test_read_gaf_allow_nd.py
 tests/test_rpt_gene2go_evidencecodes.py
 tests/test_semantic.py
-tests/test_semantic_similarity.py
 tests/test_sorter_desc2nts.py
 tests/test_sorter_sections.py
 tests/test_sorter.py

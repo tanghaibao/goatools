@@ -4,6 +4,8 @@
 import os
 import sys
 import collections as cx
+import tempfile
+from pathlib import Path
 from goatools.base import get_godag
 from goatools.gosubdag.godag_rcnt import CountRelatives
 #### from goatools.gosubdag.godag_depth1 import GoDepth1Letters
@@ -11,11 +13,12 @@ from goatools.gosubdag.rpt.wr_xlsx import GoDepth1LettersWr
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
-def test_all(prt=sys.stdout):
+def test_all(tmp_path):
     """Test initialization and operation of CountRelatives for GO term branch(s) visualization."""
+    prt = sys.stdout
     godag = get_godag(os.path.join(REPO, "go-basic.obo"), prt=sys.stdout)
     rcntobj = CountRelatives(godag)
-    _wr_xlsx_d1(rcntobj)
+    _wr_xlsx_d1(rcntobj, tmp_path)
     _run_get_letters_d1(rcntobj)
     _run_get_letters_d2(godag, rcntobj, prt)
 
@@ -65,11 +68,12 @@ def __get_d1d2_goobjs(obo_dag, rcntobj):
                     goobj=goobj)
     return go2nt
 
-def _wr_xlsx_d1(rcntobj):
+def _wr_xlsx_d1(rcntobj, outdir):
     """Test initialization."""
     d1wrobj = GoDepth1LettersWr(rcntobj)
     d1wrobj.prt_txt()
-    d1wrobj.wr_xlsx("go_depth01_godag.xlsx")
+    d1wrobj.wr_xlsx(str(outdir / "go_depth01_godag.xlsx"))
 
 if __name__ == '__main__':
-    test_all()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_all(Path(tmpdir))
