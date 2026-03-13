@@ -2,6 +2,8 @@
 
 import os
 import sys
+import tempfile
+from pathlib import Path
 
 from goatools.associations import read_associations
 from goatools.base import get_godag
@@ -38,8 +40,9 @@ def test_goea_fdr_dflt():
     objprtres.print_date()
 
 
-def test_goea_local(log=sys.stdout):
+def test_goea_local():
     """Test GOEA with local multipletest correction methods for local."""
+    log = sys.stdout
     goeaobj = get_goeaobj()
     study_fin = "{REPO}/tests/data/small_study".format(REPO=REPO)
     study_ids = [line.rstrip() for line in open(study_fin, encoding="utf-8")]
@@ -61,13 +64,13 @@ def test_goea_local(log=sys.stdout):
         goeaobj.prt_txt(log, goea_results, fmtstr, prt_if=prt_if)
 
 
-def test_goea_bonferroni():
+def test_goea_bonferroni(tmp_path):
     """Test GOEA with method, bonferroni."""
     goeaobj = get_goeaobj(["bonferroni"])
     study_fin = "{REPO}/tests/data/small_study".format(REPO=REPO)
     study_ids = [line.rstrip() for line in open(study_fin, encoding="utf-8")]
 
-    fout_xlsx = "{REPO}/goea_bonferroni_usrflds.xlsx".format(REPO=REPO)
+    fout_xlsx = tmp_path / "goea_bonferroni_usrflds.xlsx"
     goea_results = goeaobj.run_study(study_ids)
     prt_flds = ["GO", "NS", "enrichment", "name"]
     # Counts, ratios
@@ -75,20 +78,20 @@ def test_goea_bonferroni():
     # These fields have the same info as: ratio_in_study ratio_in_pop
     prt_flds.extend(["study_count", "study_n", "pop_count", "pop_n"])
     prt_flds.extend(["p_uncorrected", "depth", "p_bonferroni", "study_items"])
-    goeaobj.wr_xlsx(fout_xlsx, goea_results, prt_flds=prt_flds)
+    goeaobj.wr_xlsx(str(fout_xlsx), goea_results, prt_flds=prt_flds)
 
     # Only print if bonferonni value < 0.05
     # prt_if = lambda nt: nt.p_bonferroni < 0.05
     prt_if = None
     # Print to tab-separated table and Excel spreadsheet
     goeaobj.wr_tsv(
-        "{REPO}/goea_bonferroni.tsv".format(REPO=REPO), goea_results, prt_if=prt_if
+        str(tmp_path / "goea_bonferroni.tsv"), goea_results, prt_if=prt_if
     )
     # Print level in addition to all the regular fields
     # User can control which fields are printed and the order that they appear in the table
     prt_flds = "NS level GO name ratio_in_study ratio_in_pop p_uncorrected p_bonferroni".split()
-    fout_xlsx = "{REPO}/goea_bonferroni_lev.xlsx".format(REPO=REPO)
-    goeaobj.wr_xlsx(fout_xlsx, goea_results, prt_if=prt_if, prt_flds=prt_flds)
+    fout_xlsx = tmp_path / "goea_bonferroni_lev.xlsx"
+    goeaobj.wr_xlsx(str(fout_xlsx), goea_results, prt_if=prt_if, prt_flds=prt_flds)
 
 
 def get_goeaobj(methods=None):
@@ -112,6 +115,10 @@ def run_all():
 
 
 if __name__ == "__main__":
-    run_all()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_unknown_gos()
+        test_goea_fdr_dflt()
+        test_goea_local()
+        test_goea_bonferroni(Path(tmpdir))
 
 # Copyright (C) 2010-2019, H Tang et al., All rights reserved.

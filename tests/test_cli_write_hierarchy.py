@@ -6,6 +6,8 @@ __copyright__ = (
 )
 
 import os
+import tempfile
+from pathlib import Path
 
 from goatools.base import download_go_basic_obo
 from goatools.cli.wr_hierarchy import WrHierCli
@@ -20,7 +22,7 @@ REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 #                    Print '===' instead of dashes to note the point of compression
 
 
-def test_cli():
+def test_cli(tmp_path):
     """Add and remove markers for a file."""
     # pylint: disable=bad-whitespace
     args_exp = [
@@ -51,13 +53,13 @@ def test_cli():
         print("")
         # Test writing to a file
         if obj.goids:
-            fout_txt = os.path.join(REPO, "wrhier{N}.txt".format(N=idx))
-            os.system("rm -f {FILE}".format(FILE=fout_txt))
-            obj.wrtxt_hier(fout_txt)
-            assert os.path.exists(fout_txt), "FILE NOT FOUND({F})".format(F=fout_txt)
+            fout_txt = tmp_path / "wrhier{N}.txt".format(N=idx)
+            obj.wrtxt_hier(str(fout_txt))
+            assert fout_txt.exists(), "FILE NOT FOUND({F})".format(F=fout_txt)
 
 
 if __name__ == "__main__":
-    test_cli()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_cli(Path(tmpdir))
 
 # Copyright (c) 2017-present, DV Klopfenstein, Haibao Tang. All rights reserved.

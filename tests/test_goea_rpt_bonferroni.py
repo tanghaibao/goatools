@@ -9,6 +9,8 @@ __author__ = "DV Klopfenstein"
 
 import os
 import sys
+import tempfile
+from pathlib import Path
 
 from goatools.associations import read_associations
 from goatools.base import get_godag
@@ -17,7 +19,7 @@ from goatools.go_enrichment import GOEnrichmentStudy
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 
-def test_bonferroni():
+def test_bonferroni(tmp_path):
     """Do Gene Ontology Enrichment Analysis w/Bonferroni multipletest. Print results 3 ways."""
     # ---------------------------------------------------------------------
     # Run Gene Ontology Analysis (GOEA)
@@ -28,8 +30,8 @@ def test_bonferroni():
 
     # ---------------------------------------------------------------------
     # Print results 3 ways: to screen, to tsv (tab-separated file), to xlsx (Excel spreadsheet)
-    fout_tsv = "goea_bonferroni.tsv"
-    fout_xls = "goea_bonferroni.xlsx"
+    fout_tsv = tmp_path / "goea_bonferroni.tsv"
+    fout_xls = tmp_path / "goea_bonferroni.xlsx"
 
     # print these in tsv and xlsx
     print_fields = [
@@ -67,7 +69,7 @@ def test_bonferroni():
     # Sort by: 1st) BP, MF, CC; 2nd) By GO depth, deepest GO first.
     sort_by = lambda nt: [nt.NS, -1 * nt.depth]
     goea.wr_tsv(
-        fout_tsv,
+        str(fout_tsv),
         results_nt,
         prt_if=prt_if,
         sort_by=sort_by,
@@ -100,7 +102,7 @@ def test_bonferroni():
         "study_items",
     ]
     goea.wr_xlsx(
-        fout_xls,
+        str(fout_xls),
         results_nt,
         # optional key-word args (ie, kwargs, kws)
         prt_if=prt_if,
@@ -137,6 +139,7 @@ def run_bonferroni():
 
 
 if __name__ == "__main__":
-    test_bonferroni()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_bonferroni(Path(tmpdir))
 
 # Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights reserved.

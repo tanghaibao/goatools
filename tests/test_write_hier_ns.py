@@ -4,6 +4,8 @@
 
 import os
 import sys
+import tempfile
+from pathlib import Path
 
 from goatools.base import get_godag
 from goatools.associations import read_annotations
@@ -16,7 +18,7 @@ from goatools.cli.wr_hierarchy import WrHierCli
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 
-def test_write_hier_bp_mf_cc():
+def test_write_hier_bp_mf_cc(tmp_path):
     """Test that write hierarchy writes all: BP, MF, CC"""
     fin_anno = os.path.join(REPO, "gene2go")
     fin_dag = os.path.join(REPO, "go-basic.obo")
@@ -38,10 +40,11 @@ def test_write_hier_bp_mf_cc():
 
     print("Test using no_dup True: concise printing with no GO branches repeated")
     objwr = WrHierGO(gosubdag, no_dup=True)
-    assert len(_wr_hier("nodup1", ["BP", "MF", "CC"], gosubdag.go2nt, objwr)) > 33000
+    assert len(_wr_hier(tmp_path, "nodup1", ["BP", "MF", "CC"], gosubdag.go2nt, objwr)) > 33000
     assert (
         len(
             _wr_hier(
+                tmp_path,
                 "nodup1",
                 [
                     "BP",
@@ -55,6 +58,7 @@ def test_write_hier_bp_mf_cc():
     assert (
         len(
             _wr_hier(
+                tmp_path,
                 "nodup1",
                 [
                     "MF",
@@ -68,6 +72,7 @@ def test_write_hier_bp_mf_cc():
     assert (
         len(
             _wr_hier(
+                tmp_path,
                 "nodup1",
                 [
                     "CC",
@@ -86,10 +91,11 @@ def test_write_hier_bp_mf_cc():
     #      23,199 GO lines under GO:0003674
     #       6,259 GO lines under GO:0005575
     #     624,206 items WROTE: tmp_test_wr_hier_BP_MF_CC.txt
-    assert len(_wr_hier("nodup0", ["BP", "MF", "CC"], gosubdag.go2nt, objwr)) > 580000
+    assert len(_wr_hier(tmp_path, "nodup0", ["BP", "MF", "CC"], gosubdag.go2nt, objwr)) > 580000
     assert (
         len(
             _wr_hier(
+                tmp_path,
                 "nodup0",
                 [
                     "BP",
@@ -103,6 +109,7 @@ def test_write_hier_bp_mf_cc():
     assert (
         len(
             _wr_hier(
+                tmp_path,
                 "nodup0",
                 [
                     "MF",
@@ -116,6 +123,7 @@ def test_write_hier_bp_mf_cc():
     assert (
         len(
             _wr_hier(
+                tmp_path,
                 "nodup0",
                 [
                     "CC",
@@ -128,10 +136,12 @@ def test_write_hier_bp_mf_cc():
     )
 
 
-def _wr_hier(desc, nss, go2nt, objwr):
+def _wr_hier(outdir, desc, nss, go2nt, objwr):
     """Write hierarchy"""
     goids = WrHierCli.init_goids(nss, None, go2nt)
-    fout_rpt = "tmp_test_wr_hier_{DESC}_{NSs}.txt".format(DESC=desc, NSs="_".join(nss))
+    fout_rpt = outdir / "tmp_test_wr_hier_{DESC}_{NSs}.txt".format(
+        DESC=desc, NSs="_".join(nss)
+    )
     items_all = []
     with open(fout_rpt, "w", encoding="utf-8") as prt:
         for goid in goids:
@@ -153,4 +163,5 @@ def _dnld_anno(file_anno):
 
 
 if __name__ == "__main__":
-    test_write_hier_bp_mf_cc()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_write_hier_bp_mf_cc(Path(tmpdir))
