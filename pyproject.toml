@@ -26,6 +26,7 @@ tests/test_altid_gosubdag.py
 tests/test_annotations_gaf.py::test_gaf_read_fb
 tests/test_cli_write_hierarchy.py
 tests/test_combine_nt_lists.py
+tests/test_compare_gos.py
 tests/test_david_nts.py
 tests/test_dcnt_r01.py
 tests/test_genes_cell_cycle.py
@@ -40,6 +41,8 @@ tests/test_go_name_shorten.py
 tests/test_goea_errors.py
 tests/test_fold_enrichment.py
 tests/test_goea_local.py::test_unknown_gos
+tests/test_goea_rpt_bonferroni.py
+tests/test_goea_statsmodels.py
 tests/test_gosearch_emptydict.py
 tests/test_gosearch_fields.py
 tests/test_gosubdag_relationships.py

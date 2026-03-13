@@ -32,7 +32,7 @@ class DocOptParse(object):
         self.doc = doc
         self.exp_keys = exp_keys if exp_keys else set()
         self.exp_elems = exp_elems if exp_elems else set()
-        self.cmd = self._get_command()
+        self.cmd = self._get_command() if doc is not None else None
 
     def get_docargs(self, args=None, prt=None, **kws):
         """Return a pared-down runtime kwargs dictionary."""
@@ -82,7 +82,7 @@ class DocOptParse(object):
         args = self._split_args(sys.argv[1:] if args_user is None else args_user)
         while args and args[0] == "goatools":
             args = args[1:]
-        if args and args[0] == self.cmd:
+        if self.cmd and args and args[0] == self.cmd:
             args = args[1:]
         return args
 
@@ -111,7 +111,7 @@ class DocOptParse(object):
 
     def _parse_compare_gos(self, args):
         parser = _ArgumentParser(self.doc, "goatools compare_gos")
-        parser.add_argument("GO_FILE", nargs="*")
+        parser.add_argument("GO_FILE", nargs="+")
         parser.add_argument("-s", "--sections")
         parser.add_argument("-S")
         parser.add_argument("-o", "--ofile")
@@ -122,7 +122,11 @@ class DocOptParse(object):
         parser.add_argument("--gaf")
         parser.add_argument("--gene2go")
         parser.add_argument("--taxid", type=int)
-        return vars(parser.parse_args(args))
+        parsed = vars(parser.parse_args(args))
+        # nargs="+" ensures >=1; this enforces the domain rule of >=2 files
+        if len(parsed["GO_FILE"]) < 2:
+            parser.error("at least two GO_FILE arguments are required")
+        return parsed
 
     def _parse_go_plot(self, args):
         parser = _ArgumentParser(self.doc, "goatools go_plot")

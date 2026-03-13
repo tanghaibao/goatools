@@ -12,7 +12,6 @@ ARTIFACT_SUFFIXES = {
     ".gml",
     ".jpg",
     ".log",
-    ".obo",
     ".pdf",
     ".png",
     ".py",
@@ -35,9 +34,9 @@ def _iter_artifacts():
                 yield path
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="session")
 def cleanup_generated_artifacts():
-    """Remove new top-level artifacts created by a test."""
+    """Remove new top-level artifacts created by the test session."""
     before = set(_iter_artifacts())
     yield
     for path in set(_iter_artifacts()).difference(before):
