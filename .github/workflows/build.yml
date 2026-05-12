@@ -39,4 +39,4 @@ jobs:
 
       - name: Test with pytest
         run: |
-          uv run pytest
+          make test_ci_subset
