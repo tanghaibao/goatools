@@ -23,7 +23,7 @@ def update_association(assc_gene2gos, go2obj, relationships=None, prt=sys.stdout
     # Get all assc GO IDs that are current
     assc_goid_sets = assc_gene2gos.values()
     goids_assoc_all = set.union(*assc_goid_sets)
-    _chk_goids_notfound(goids_assoc_all, goids_avail)
+    _chk_goids_notfound(goids_assoc_all, goids_avail, prt)
     # Get the subset of GO objects in the association
     _goids_assoc_cur = goids_assoc_all.intersection(goids_avail)
     _go2obj_assc = {go:go2obj[go] for go in _goids_assoc_cur}
@@ -36,11 +36,11 @@ def update_association(assc_gene2gos, go2obj, relationships=None, prt=sys.stdout
                 parents.update(go2ancestors[goid])
         assc_goids_cur.update(parents)
 
-def _chk_goids_notfound(goids_assoc_all, goids_avail):
+def _chk_goids_notfound(goids_assoc_all, goids_avail, prt=sys.stderr):
     """Report the number of GO IDs in the association, but not in the GODAG"""
     goids_bad = goids_assoc_all.difference(goids_avail)
-    if goids_bad:
-        sys.stderr.write("{N} GO IDs NOT FOUND IN ASSOCIATION: {GOs}\n".format(
+    if goids_bad and prt:
+        prt.write("{N} GO IDs NOT FOUND IN ASSOCIATION: {GOs}\n".format(
             N=len(goids_bad), GOs=" ".join(goids_bad)))
 
 def remove_assc_goids(assoc, broad_goids):
