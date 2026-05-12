@@ -325,7 +325,9 @@ class GOEnrichmentStudy(object):
         self.pval_obj = FisherFactory(**kws).pval_obj
 
         if propagate_counts:
-            update_association(assoc, obo_dag, kws.get("relationships", None))
+            update_association(
+                assoc, obo_dag, kws.get("relationships"), prt=self.log
+            )
         # BROAD broad_goids = get_goids_to_remove(kws.get('remove_goids'))
         # BROAD if broad_goids:
         # BROAD     assoc = self._remove_assc_goids(assoc, broad_goids)
