@@ -125,14 +125,14 @@ To install the development version:
 pip install git+git://github.com/tanghaibao/goatools.git
 ```
 
-### [Conda-forge](https://anaconda.org/conda-forge/goatools)
+### [conda-forge](https://anaconda.org/conda-forge/goatools)
 ```bash
 conda install -c conda-forge goatools
 ```
 
 ## Dependencies
 
-When installing via PyPI or Conda-forge as described above, all dependencies are automatically downloaded.
+When installing via PyPI or conda-forge as described above, all dependencies are automatically downloaded.
 Alternatively, you can manually install:
 
 - For statistical testing of GO enrichment:
