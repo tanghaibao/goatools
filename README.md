@@ -1,7 +1,7 @@
 # GOATOOLS: A Python library for Gene Ontology analyses
 
 [![Latest PyPI version](https://img.shields.io/pypi/v/goatools.svg)](https://pypi.python.org/pypi/goatools)
-[![bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools)
+[![conda-forge](https://img.shields.io/conda/vn/conda-forge/goatools.svg)](https://anaconda.org/conda-forge/goatools)
 [![Github Actions](https://github.com/tanghaibao/goatools/workflows/build/badge.svg)](https://github.com/tanghaibao/goatools/actions)
 [![Downloads](https://pepy.tech/badge/goatools)](https://pepy.tech/project/goatools)
 
@@ -125,14 +125,14 @@ To install the development version:
 pip install git+git://github.com/tanghaibao/goatools.git
 ```
 
-### [Bioconda](http://bioconda.github.io/recipes/goatools/README.html?highlight=goatools)
+### [conda-forge](https://anaconda.org/conda-forge/goatools)
 ```bash
-conda install -c bioconda goatools
+conda install -c conda-forge goatools
 ```
 
 ## Dependencies
 
-When installing via PyPI or Bioconda as described above, all dependencies are automatically downloaded.
+When installing via PyPI or conda-forge as described above, all dependencies are automatically downloaded.
 Alternatively, you can manually install:
 
 - For statistical testing of GO enrichment:
