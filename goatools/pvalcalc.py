@@ -47,7 +47,7 @@ class FisherScipyStats(PvalCalcBase):
         #         --------  ------                            --------   -----
         #            9        7      16 = pop_n     pop_genes    9 pcnt   7      16 = pop_n
         #
-        # We use the preceeding table to find the p-value for whales/sharks:
+        # We use the preceding table to find the p-value for whales/sharks:
         #
         # >>> import scipy.stats as stats
         # >>> oddsratio, pvalue = stats.fisher_exact([[8, 2], [1, 5]])
