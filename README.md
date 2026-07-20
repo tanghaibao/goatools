@@ -355,6 +355,12 @@ Items that we know we need include:
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=tanghaibao/goatools&type=Date)](https://star-history.com/#tanghaibao/goatools&Date)
+<a href="https://www.star-history.com/?repos=tanghaibao%2Fgoatools&type=date&logscale=&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=tanghaibao/goatools&type=date&theme=dark&logscale&legend=top-left&sealed_token=2k2eAIo26Rr661sZETf2MlqARZ5SbjPM_mDLSwmwYEi4dyDY-4bxv8XjXL0eQG2iHopSvjzm3YINNGp9S-fGN_f4Pbsu5sfgiFcypO8A8BAXiuXRQyYomapCeFityXAp3DY6f0zMDyLj4NZK0Ue0DIk51DodenWOQEAZM1vFaIkLlALA1mdfu-t41BMw" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=tanghaibao/goatools&type=date&logscale&legend=top-left&sealed_token=2k2eAIo26Rr661sZETf2MlqARZ5SbjPM_mDLSwmwYEi4dyDY-4bxv8XjXL0eQG2iHopSvjzm3YINNGp9S-fGN_f4Pbsu5sfgiFcypO8A8BAXiuXRQyYomapCeFityXAp3DY6f0zMDyLj4NZK0Ue0DIk51DodenWOQEAZM1vFaIkLlALA1mdfu-t41BMw" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=tanghaibao/goatools&type=date&logscale&legend=top-left&sealed_token=2k2eAIo26Rr661sZETf2MlqARZ5SbjPM_mDLSwmwYEi4dyDY-4bxv8XjXL0eQG2iHopSvjzm3YINNGp9S-fGN_f4Pbsu5sfgiFcypO8A8BAXiuXRQyYomapCeFityXAp3DY6f0zMDyLj4NZK0Ue0DIk51DodenWOQEAZM1vFaIkLlALA1mdfu-t41BMw" />
+ </picture>
+</a>
 
 Copyright (C) 2010-2021, Haibao Tang et al. All rights reserved.
