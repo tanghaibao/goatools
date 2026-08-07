@@ -357,9 +357,9 @@ Items that we know we need include:
 
 <a href="https://www.star-history.com/?repos=tanghaibao%2Fgoatools&type=date&logscale=&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=tanghaibao/goatools&type=date&theme=dark&logscale&legend=top-left&sealed_token=2k2eAIo26Rr661sZETf2MlqARZ5SbjPM_mDLSwmwYEi4dyDY-4bxv8XjXL0eQG2iHopSvjzm3YINNGp9S-fGN_f4Pbsu5sfgiFcypO8A8BAXiuXRQyYomapCeFityXAp3DY6f0zMDyLj4NZK0Ue0DIk51DodenWOQEAZM1vFaIkLlALA1mdfu-t41BMw" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=tanghaibao/goatools&type=date&logscale&legend=top-left&sealed_token=2k2eAIo26Rr661sZETf2MlqARZ5SbjPM_mDLSwmwYEi4dyDY-4bxv8XjXL0eQG2iHopSvjzm3YINNGp9S-fGN_f4Pbsu5sfgiFcypO8A8BAXiuXRQyYomapCeFityXAp3DY6f0zMDyLj4NZK0Ue0DIk51DodenWOQEAZM1vFaIkLlALA1mdfu-t41BMw" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=tanghaibao/goatools&type=date&logscale&legend=top-left&sealed_token=2k2eAIo26Rr661sZETf2MlqARZ5SbjPM_mDLSwmwYEi4dyDY-4bxv8XjXL0eQG2iHopSvjzm3YINNGp9S-fGN_f4Pbsu5sfgiFcypO8A8BAXiuXRQyYomapCeFityXAp3DY6f0zMDyLj4NZK0Ue0DIk51DodenWOQEAZM1vFaIkLlALA1mdfu-t41BMw" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=tanghaibao/goatools&type=date&theme=dark&logscale&legend=top-left&sealed_token=qFglFo46ebF_uECYmNAKVRMqHM0FfmGoWPUiKIxe50hU8QKfhrz3lJBoydMnQz2EcGhRL1SurHp-mASTwS63lzIiU5D83vvhGFJU289P_6gTRoi5IsQUtGPZV0zBZ7vg4N3fuBkBmtrTMAr73rfLYfZlnG5as8mOY_LKPqv_1quaFxKQX5cUpDAkAF9k" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=tanghaibao/goatools&type=date&logscale&legend=top-left&sealed_token=qFglFo46ebF_uECYmNAKVRMqHM0FfmGoWPUiKIxe50hU8QKfhrz3lJBoydMnQz2EcGhRL1SurHp-mASTwS63lzIiU5D83vvhGFJU289P_6gTRoi5IsQUtGPZV0zBZ7vg4N3fuBkBmtrTMAr73rfLYfZlnG5as8mOY_LKPqv_1quaFxKQX5cUpDAkAF9k" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=tanghaibao/goatools&type=date&logscale&legend=top-left&sealed_token=qFglFo46ebF_uECYmNAKVRMqHM0FfmGoWPUiKIxe50hU8QKfhrz3lJBoydMnQz2EcGhRL1SurHp-mASTwS63lzIiU5D83vvhGFJU289P_6gTRoi5IsQUtGPZV0zBZ7vg4N3fuBkBmtrTMAr73rfLYfZlnG5as8mOY_LKPqv_1quaFxKQX5cUpDAkAF9k" />
  </picture>
 </a>
 
