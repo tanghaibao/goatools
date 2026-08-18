@@ -9,18 +9,21 @@ __copyright__ = "Copyright (C) 2010-present, H Tang et al., All rights reserved.
 
 from goatools.goea.algorithms.base import GoeaAlgorithm, GoeaAlgoResult, GoeaContext
 from goatools.goea.algorithms.classic import ClassicAlgorithm
+from goatools.goea.algorithms.elim import ElimAlgorithm
 
 __all__ = [
     "GoeaAlgorithm",
     "GoeaAlgoResult",
     "GoeaContext",
     "ClassicAlgorithm",
+    "ElimAlgorithm",
     "ALGORITHMS",
     "get_algorithm",
 ]
 
 ALGORITHMS = {
     ClassicAlgorithm.name: ClassicAlgorithm,
+    ElimAlgorithm.name: ElimAlgorithm,
 }
 
 

@@ -330,6 +330,7 @@ class GOEnrichmentStudy(object):
         # Ancestor traversal in topology-aware algorithms must use the same
         # relationships that were used to propagate the counts
         self.relationships = kws.get("relationships")
+        self.propagate_counts = propagate_counts
 
         if propagate_counts:
             update_association(
@@ -452,6 +453,7 @@ class GOEnrichmentStudy(object):
                 pop_n=pop_n,
                 godag=self.obo_dag,
                 relationships=self.relationships,
+                propagate_counts=self.propagate_counts,
                 calc_pvalue=self.pval_obj.calc_pvalue,
                 log=log,
             )

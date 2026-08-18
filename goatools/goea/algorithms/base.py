@@ -23,12 +23,15 @@ import collections as cx
 #   relationships -- relationships used when propagating counts; ancestor
 #                    traversal must use the same set or elimination and
 #                    annotation would disagree
+#   propagate_counts -- whether the annotations were propagated up the DAG.
+#                    Topology-aware algorithms require this; without it a
+#                    term's gene set is not a superset of its children's
 #   calc_pvalue   -- fnc(study_count, study_n, pop_count, pop_n) -> pvalue
 #   log           -- file-like or None
 GoeaContext = cx.namedtuple(
     "GoeaContext",
     "goids go2studyitems go2popitems study_ids study_n pop_n "
-    "godag relationships calc_pvalue log",
+    "godag relationships propagate_counts calc_pvalue log",
 )
 
 # go2pval  -- GO ID -> uncorrected p-value; must cover every ID in ctx.goids
