@@ -41,7 +41,8 @@ from ..grouper.wr_sections import WrSectionsTxt
 from ..grouper.wrxlsx import WrXlsxSortedGos
 from ..multiple_testing import Methods
 from ..obo_parser import GODag
-from ..pvalcalc import FisherFactory
+from ..goea.algorithms import ALGORITHMS
+from ..pvalcalc import FisherFactory, FisherScipyStats
 from ..rpt.goea_nt_xfrm import MgrNtGOEAs
 from ..rpt.prtfmt import PrtFmt
 from ..semantic import TermCounts
@@ -229,6 +230,47 @@ class GoeaCliArgs:
             default="bonferroni,sidak,holm,fdr_bh",
             type=str,
             help=Methods().getmsg_valid_methods(),
+        )
+        p.add_argument(
+            "--algorithm",
+            default="classic",
+            choices=sorted(ALGORITHMS),
+            help=(
+                "GO term scoring algorithm. 'classic' scores every term "
+                "independently. 'elim' walks the GO DAG bottom-up and removes a "
+                "significant term's genes from all of its ancestors, so a broad "
+                "parent term cannot look enriched merely by inheriting them "
+                "(Alexa 2006). NOTE: unrelated to --method, which selects the "
+                "multiple-testing correction"
+            ),
+        )
+        p.add_argument(
+            "--elim_cutoff",
+            default=0.01,
+            type=float,
+            help=(
+                "For --algorithm elim: a term at or below this p-value has its "
+                "genes eliminated from its ancestors"
+            ),
+        )
+        p.add_argument(
+            "--elim_bonferroni",
+            action="store_true",
+            help=(
+                "For --algorithm elim: divide --elim_cutoff by the number of "
+                "scored terms, as described in the 2006 paper. topGO ships with "
+                "this disabled, so it is off by default here too"
+            ),
+        )
+        p.add_argument(
+            "--alternative",
+            default=None,
+            choices=sorted(FisherScipyStats.alternatives),
+            help=(
+                "Fisher's exact test alternative hypothesis (default: two-sided). "
+                "'greater' tests for over-representation only, as topGO does; "
+                "--algorithm elim uses it automatically unless overridden here"
+            ),
         )
         p.add_argument(
             "--obsolete",
@@ -478,6 +520,12 @@ class GoeaCliFnc:
         ns2assoc = self.objanno.get_ns2assc(**self._get_anno_kws())
         ## BROAD rm_goids = self._get_remove_goids()
         rm_goids = False  # BROAD
+        kws = {}
+        # Only forward --alternative when the user actually set it, so the
+        # algorithm's own default (elim -> "greater") still applies.
+        # getattr: some callers build the args Namespace by hand.
+        if getattr(self.args, "alternative", None) is not None:
+            kws["alternative"] = self.args.alternative
         return GOEnrichmentStudyNS(
             pop,
             ns2assoc,
@@ -488,6 +536,10 @@ class GoeaCliFnc:
             pvalcalc=self.args.pvalcalc,
             methods=self.methods,
             remove_goids=rm_goids,
+            algorithm=getattr(self.args, "algorithm", "classic"),
+            elim_cutoff=getattr(self.args, "elim_cutoff", 0.01),
+            elim_bonferroni=getattr(self.args, "elim_bonferroni", False),
+            **kws
         )
 
     def _get_anno_kws(self):

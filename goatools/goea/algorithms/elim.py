@@ -33,6 +33,17 @@ class ElimAlgorithm(GoeaAlgorithm):
 
     name = "elim"
 
+    # Elimination must be driven by over-representation only. Under a two-sided
+    # test a significantly *depleted* term would eliminate its genes from its
+    # ancestors, which inverts what the algorithm is for. topGO's GOFisherTest
+    # is one-sided for the same reason.
+    default_alternative = "greater"
+
+    # topGO's vignette: for topology-aware algorithms "the tests are therefore
+    # not independent and the multiple testing theory does not directly apply...
+    # we like to interpret the p-values returned by these methods as corrected".
+    pvals_precorrected = True
+
     def __init__(self, cutoff=0.01, bonferroni=False):
         if not 0.0 < cutoff <= 1.0:
             raise ValueError(

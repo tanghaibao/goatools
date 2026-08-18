@@ -45,6 +45,14 @@ class GoeaAlgorithm:
 
     name = None
 
+    # Fisher alternative this algorithm needs when the user has not chosen one.
+    # None leaves goatools' default ("two-sided") alone.
+    default_alternative = None
+
+    # True if the algorithm's p-values already account for the dependence
+    # between terms, so stacking a multiple-testing correction is questionable.
+    pvals_precorrected = False
+
     def run(self, ctx):
         """Score ctx.goids. Returns a GoeaAlgoResult."""
         raise NotImplementedError(

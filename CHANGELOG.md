@@ -31,6 +31,20 @@
 
 ## Unreleased changes
 * **Added**
+  * Added the **elim** GOEA algorithm ([Alexa 2006](https://doi.org/10.1093/bioinformatics/btl140)),
+    a port of [topGO](https://bioconductor.org/packages/topGO)'s `elim`. It walks the GO DAG
+    bottom-up and removes a significant term's genes from all of its ancestors, so a broad
+    parent term cannot appear enriched merely by inheriting the genes of a specific child.
+    Use `GOEnrichmentStudy(..., algorithm='elim')` or `find_enrichment --algorithm elim`.
+    Validated against topGO 2.64.0 to within 1.1e-15 on 5,585 GO terms.
+  * GOEA term scoring is now pluggable: `goatools.goea.algorithms` holds `ClassicAlgorithm`
+    (the default, unchanged behavior) and `ElimAlgorithm`, selectable by name, instance or class.
+  * `FisherScipyStats` accepts `alternative=` (`two-sided`, `greater`, `less`).
+    The default remains `two-sided`; `--algorithm elim` uses `greater` unless told otherwise,
+    since a two-sided test would let a significantly *depleted* term eliminate genes.
+  * `find_enrichment` gains `--algorithm`, `--elim_cutoff`, `--elim_bonferroni` and
+    `--alternative`. Note `--algorithm` is unrelated to `--method`, which selects the
+    multiple-testing correction.
   * Added human phenotype ontologies enrichement analyses [#202](https://github.com/tanghaibao/goatools/issues/202)
 
 ## Release 2021-05-22 1.1.5

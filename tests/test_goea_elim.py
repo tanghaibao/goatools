@@ -238,5 +238,59 @@ def test_bonferroni_cutoff_is_stricter(godag):
         assert adj[goid].p_uncorrected <= raw[goid].p_uncorrected, goid
 
 
+# ------------------------------------------------- defaults elim depends on
+
+
+def _study_no_alternative(godag, **kws):
+    """Build a study WITHOUT naming an alternative, unlike the _run helper."""
+    return GOEnrichmentStudy(
+        POP, {g: set(v) for g, v in ASSOC.items()}, godag,
+        methods=["bonferroni"], log=None, **kws
+    )
+
+
+def test_elim_defaults_to_one_sided_fisher(godag):
+    """A two-sided test would let a *depleted* term eliminate its genes."""
+    assert _study_no_alternative(godag, algorithm="elim").pval_obj.alternative == "greater"
+
+
+def test_classic_keeps_two_sided_fisher(godag):
+    """The algorithm default must not leak into goatools' historical behaviour."""
+    assert _study_no_alternative(godag).pval_obj.alternative == "two-sided"
+
+
+def test_explicit_alternative_beats_algorithm_default(godag):
+    """An explicit user choice always wins over the algorithm's preference."""
+    obj = GOEnrichmentStudy(
+        POP, {g: set(v) for g, v in ASSOC.items()}, godag,
+        methods=["bonferroni"], log=None, algorithm="elim", alternative="two-sided",
+    )
+    assert obj.pval_obj.alternative == "two-sided"
+
+
+def test_elim_warns_once_about_multipletest_correction(godag, caplog):
+    """elim p-values are already dependence-aware; stacking a correction warns."""
+    obj = GOEnrichmentStudy(
+        POP, {g: set(v) for g, v in ASSOC.items()}, godag,
+        methods=["bonferroni"], alternative="greater", log=None, algorithm="elim",
+    )
+    with caplog.at_level("WARNING"):
+        obj.run_study(STUDY, prt=None)
+        obj.run_study(STUDY, prt=None)
+    hits = [r for r in caplog.records if "conditioned on its neighbours" in r.message]
+    assert len(hits) == 1, "expected exactly one warning per study object"
+
+
+def test_classic_does_not_warn(godag, caplog):
+    """The warning is specific to topology-aware algorithms."""
+    obj = GOEnrichmentStudy(
+        POP, {g: set(v) for g, v in ASSOC.items()}, godag,
+        methods=["bonferroni"], log=None,
+    )
+    with caplog.at_level("WARNING"):
+        obj.run_study(STUDY, prt=None)
+    assert not [r for r in caplog.records if "conditioned on" in r.message]
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
