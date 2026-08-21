@@ -11,8 +11,11 @@ re-derive the hypergeometric p-value, which is scipy's job, not elim's.
 __copyright__ = "Copyright (C) 2010-present, H Tang et al., All rights reserved."
 
 import sys
+from unittest import mock
 
 import pytest
+
+import goatools.go_enrichment
 
 from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.goea.algorithms import ElimAlgorithm, get_algorithm
@@ -128,6 +131,20 @@ def test_elim_rejects_bad_cutoff():
     for bad in (0.0, -0.1, 1.5):
         with pytest.raises(ValueError):
             ElimAlgorithm(cutoff=bad)
+
+
+@pytest.fixture(name="godag_rels")
+def _godag_rels(tmp_path):
+    """Same DAG, but with the optional 'relationship' attribute loaded."""
+    fin = tmp_path / "tiny_rels.obo"
+    fin.write_text(OBO)
+    return GODag(str(fin), prt=None, optional_attrs={"relationship"})
+
+
+def test_elim_accepts_relationships_sentinel(godag_rels):
+    """relationships=True means 'all relationships'; elim must expand it."""
+    res, _ = _run(godag_rels, algorithm="elim", relationships=True)
+    assert res[TERM_A].elim_genes == len(C_GENES)
 
 
 def test_elim_requires_propagated_counts(godag):
@@ -259,37 +276,57 @@ def test_classic_keeps_two_sided_fisher(godag):
     assert _study_no_alternative(godag).pval_obj.alternative == "two-sided"
 
 
-def test_explicit_alternative_beats_algorithm_default(godag):
-    """An explicit user choice always wins over the algorithm's preference."""
+def test_conflicting_alternative_is_rejected(godag):
+    """A two-sided test lets a *depleted* term eliminate: refuse it up front."""
+    for bad in ("two-sided", "less"):
+        with pytest.raises(ValueError) as exc:
+            GOEnrichmentStudy(
+                POP, {g: set(v) for g, v in ASSOC.items()}, godag,
+                methods=["bonferroni"], log=None, algorithm="elim", alternative=bad,
+            )
+        assert bad in str(exc.value)
+
+
+def test_redundant_alternative_is_accepted(godag):
+    """Naming the alternative elim would have picked anyway is not an error."""
     obj = GOEnrichmentStudy(
         POP, {g: set(v) for g, v in ASSOC.items()}, godag,
-        methods=["bonferroni"], log=None, algorithm="elim", alternative="two-sided",
+        methods=["bonferroni"], log=None, algorithm="elim", alternative="greater",
     )
-    assert obj.pval_obj.alternative == "two-sided"
+    assert obj.pval_obj.alternative == "greater"
 
 
-def test_elim_warns_once_about_multipletest_correction(godag, caplog):
+def _count_warnings(obj, runs=1):
+    """Warnings emitted by go_enrichment's logger over `runs` studies.
+
+    Patches the logger rather than using caplog: goatools' logger sets
+    propagate=False, which caplog only handles on pytest >= 9.1.
+    """
+    with mock.patch.object(goatools.go_enrichment, "logger") as mocklog:
+        for _ in range(runs):
+            obj.run_study(STUDY, prt=None)
+        return [
+            c for c in mocklog.warning.call_args_list
+            if "conditioned on its neighbours" in c.args[0]
+        ]
+
+
+def test_elim_warns_once_about_multipletest_correction(godag):
     """elim p-values are already dependence-aware; stacking a correction warns."""
     obj = GOEnrichmentStudy(
         POP, {g: set(v) for g, v in ASSOC.items()}, godag,
         methods=["bonferroni"], alternative="greater", log=None, algorithm="elim",
     )
-    with caplog.at_level("WARNING"):
-        obj.run_study(STUDY, prt=None)
-        obj.run_study(STUDY, prt=None)
-    hits = [r for r in caplog.records if "conditioned on its neighbours" in r.message]
-    assert len(hits) == 1, "expected exactly one warning per study object"
+    assert len(_count_warnings(obj, runs=2)) == 1, "expected one warning per study"
 
 
-def test_classic_does_not_warn(godag, caplog):
+def test_classic_does_not_warn(godag):
     """The warning is specific to topology-aware algorithms."""
     obj = GOEnrichmentStudy(
         POP, {g: set(v) for g, v in ASSOC.items()}, godag,
         methods=["bonferroni"], log=None,
     )
-    with caplog.at_level("WARNING"):
-        obj.run_study(STUDY, prt=None)
-    assert not [r for r in caplog.records if "conditioned on" in r.message]
+    assert not _count_warnings(obj)
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ __copyright__ = "Copyright (C) 2010-present, H Tang et al., All rights reserved.
 
 import collections as cx
 
+from goatools.godag.consts import RELATIONSHIP_SET
 from goatools.godag.go_tasks import get_go2ancestors, get_go2parents
 from goatools.goea.algorithms.base import GoeaAlgorithm, GoeaAlgoResult
 
@@ -126,16 +127,17 @@ class ElimAlgorithm(GoeaAlgorithm):
         or elimination would flow along edges the gene counts never did.
         """
         godag = ctx.godag
-        terms = {godag[go] for go in scored if go in godag}
+        # get_go2ancestors accepts True for "all relationships"; get_go2parents
+        # expects an iterable, so expand the sentinel once here
+        rels = RELATIONSHIP_SET if ctx.relationships is True else ctx.relationships
+        go2obj = {go: godag[go] for go in scored if go in godag}
         go2ancestors = {
             go: ancestors & scored
-            for go, ancestors in get_go2ancestors(terms, ctx.relationships).items()
+            for go, ancestors in get_go2ancestors(set(go2obj.values()), rels).items()
         }
         go2parents = {
             go: parents & scored
-            for go, parents in get_go2parents(
-                {go: godag[go] for go in scored if go in godag}, ctx.relationships
-            ).items()
+            for go, parents in get_go2parents(go2obj, rels).items()
         }
         return go2ancestors, ElimAlgorithm._get_depths(scored, go2parents)
 
