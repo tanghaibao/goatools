@@ -36,12 +36,11 @@
     bottom-up and removes a significant term's genes from all of its ancestors, so a broad
     parent term cannot appear enriched merely by inheriting the genes of a specific child.
     Use `GOEnrichmentStudy(..., algorithm='elim')` or `find_enrichment --algorithm elim`.
-    Validated against topGO 2.64.0 to within 1.1e-15 on 5,585 GO terms.
   * GOEA term scoring is now pluggable: `goatools.goea.algorithms` holds `ClassicAlgorithm`
     (the default, unchanged behavior) and `ElimAlgorithm`, selectable by name, instance or class.
   * `FisherScipyStats` accepts `alternative=` (`two-sided`, `greater`, `less`).
-    The default remains `two-sided`; `--algorithm elim` uses `greater` unless told otherwise,
-    since a two-sided test would let a significantly *depleted* term eliminate genes.
+    The default remains `two-sided`; `--algorithm elim` requires `greater`, since a
+    two-sided test would let a significantly *depleted* term eliminate genes.
   * `find_enrichment` gains `--algorithm`, `--elim_cutoff`, `--elim_bonferroni` and
     `--alternative`. Note `--algorithm` is unrelated to `--method`, which selects the
     multiple-testing correction.

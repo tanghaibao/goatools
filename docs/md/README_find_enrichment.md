@@ -299,15 +299,21 @@ Notes:
 * `--elim_cutoff` (default **0.01**) is the p-value at or below which a term's genes
   are eliminated from its ancestors. This matches topGO. The original paper divides
   the cutoff by the number of scored terms; enable that with `--elim_bonferroni`.
-* elim uses a one-sided Fisher test (`--alternative=greater`) unless you override it,
-  because under a two-sided test a significantly *depleted* term would eliminate its
-  genes too, which is not what the algorithm is for.
+* elim requires a one-sided Fisher test (`--alternative=greater`), which it selects
+  for you; asking for another alternative is an error. Under a two-sided test a
+  significantly *depleted* term would eliminate its genes too, inverting the algorithm.
+  This also means elim p-values are not directly comparable to `classic` ones, which
+  are two-sided by default.
 * elim scores each term conditioned on its neighbours, so its p-values are not
   independent. topGO's documentation suggests reading them as already accounting for
-  multiple testing; goatools warns if you apply a correction on top of them.
+  multiple testing; goatools warns if you apply a correction on top of them. Threshold
+  the raw p-value (`--pval_field=uncorrected`) to follow topGO's practice -- stacking a
+  correction is markedly more conservative.
 * elim requires propagated counts, so it is incompatible with `--no_propagate_counts`.
 
-This implementation is a port of topGO's `elim` and agrees with topGO 2.64.0 to
-within 1.1e-15 across all 5,585 GO terms of the sample dataset.
+Given the same GO DAG, propagated annotations and gene universe, this implementation
+reproduces topGO's `elim` scores to floating-point precision. Results will not match a
+stock topGO run out of the box: goatools propagates over `is_a` only unless you pass
+`--relationships`, while topGO's `GO.db` graph also uses `part_of` and `regulates`.
 
 Copyright (C) 2010-present, DV Klopfenstein, Haibao Tang, et al. All rights reserved.

@@ -326,10 +326,18 @@ class GOEnrichmentStudy(object):
         # Term-scoring algorithm: 'classic' (default, each term scored
         # independently) or a topology-aware algorithm such as 'elim'
         self.algorithm = get_algorithm(**kws)
-        # An algorithm may need a particular Fisher alternative to be meaningful
-        # (elim needs one-sided). An explicit user choice always wins.
-        if self.algorithm.default_alternative and "alternative" not in kws:
-            kws = dict(kws, alternative=self.algorithm.default_alternative)
+        # An algorithm may require a particular Fisher alternative to be
+        # meaningful: elim under a two-sided test would let a *depleted* term
+        # eliminate its genes from its ancestors, inverting the algorithm.
+        _alt = self.algorithm.default_alternative
+        if _alt:
+            if kws.get("alternative", _alt) != _alt:
+                raise ValueError(
+                    "THE {A} ALGORITHM REQUIRES alternative={E}; GOT({G})".format(
+                        A=self.algorithm.name, E=_alt, G=kws["alternative"]
+                    )
+                )
+            kws = dict(kws, alternative=_alt)
         self.pval_obj = FisherFactory(**kws).pval_obj
         # Ancestor traversal in topology-aware algorithms must use the same
         # relationships that were used to propagate the counts

@@ -268,8 +268,8 @@ class GoeaCliArgs:
             choices=sorted(FisherScipyStats.alternatives),
             help=(
                 "Fisher's exact test alternative hypothesis (default: two-sided). "
-                "'greater' tests for over-representation only, as topGO does; "
-                "--algorithm elim uses it automatically unless overridden here"
+                "'greater' tests for over-representation only, as topGO does. "
+                "--algorithm elim selects it automatically and rejects any other value"
             ),
         )
         p.add_argument(
