@@ -182,6 +182,14 @@ to all the parents of a GO term. As a result, users may find terms in
 the output that are not present in their `association` file. Use
 `--no_propagate_counts` to disable this behavior.
 
+Because of that propagation, broad parent terms inherit the genes of their more
+specific children and tend to look enriched whenever a child is. Pass
+`--algorithm=elim` to score terms with the decorrelating *elim* algorithm
+([Alexa 2006](https://doi.org/10.1093/bioinformatics/btl140), ported from
+[topGO](https://bioconductor.org/packages/topGO)), which removes a significant
+term's genes from all of its ancestors before scoring them. See
+[find_enrichment](docs/md/README_find_enrichment.md#11-decorrelate-the-go-graph-with-the-elim-algorithm).
+
 ### Write GO hierarchy
 
 - [`goatools wr_hier`](docs/md/README_wr_hier.md): Given a GO ID, write the hierarchy below (default)

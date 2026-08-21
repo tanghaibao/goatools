@@ -384,6 +384,8 @@ CI_TESTS = \
     tests/test_go_depth1.py \
     tests/test_go_draw.py \
     tests/test_go_name_shorten.py \
+    tests/test_goea_algorithms.py \
+    tests/test_goea_elim.py \
     tests/test_goea_errors.py \
     tests/test_fold_enrichment.py \
     tests/test_goea_local.py::test_unknown_gos \

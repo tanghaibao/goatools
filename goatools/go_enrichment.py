@@ -19,6 +19,7 @@ import goatools.wr_tbl as RPT
 
 from .anno.update_association import remove_assc_goids, update_association
 from .base import logger
+from .goea.algorithms import GoeaContext, get_algorithm
 from .godag.prtfncs import GoeaPrintFunctions
 from .multiple_testing import Bonferroni, FDR, HolmBonferroni, Methods, Sidak, calc_qval
 from .pvalcalc import FisherFactory
@@ -322,7 +323,19 @@ class GOEnrichmentStudy(object):
         if methods is None:
             methods = ["bonferroni", "sidak", "holm"]
         self.methods = Methods(methods)
+        # Term-scoring algorithm: 'classic' (default, each term scored
+        # independently) or a topology-aware algorithm such as 'elim'
+        self.algorithm = get_algorithm(**kws)
+        # An algorithm may need a particular Fisher alternative to be meaningful
+        # (elim needs one-sided). An explicit user choice always wins.
+        if self.algorithm.default_alternative and "alternative" not in kws:
+            kws = dict(kws, alternative=self.algorithm.default_alternative)
         self.pval_obj = FisherFactory(**kws).pval_obj
+        # Ancestor traversal in topology-aware algorithms must use the same
+        # relationships that were used to propagate the counts
+        self.relationships = kws.get("relationships")
+        self.propagate_counts = propagate_counts
+        self._warned_precorrected = False
 
         if propagate_counts:
             update_association(
@@ -430,7 +443,27 @@ class GOEnrichmentStudy(object):
         # If no study genes were found in the population, return empty GOEA results
         if not study_in_pop:
             return []
-        calc_pvalue = self.pval_obj.calc_pvalue
+
+        # Delegate p-value calculation to the term-scoring algorithm. The
+        # reported counts below are always the un-eliminated ones, so that a
+        # topology-aware algorithm changes the p-values without silently
+        # changing what "study_count" and "pop_count" mean.
+        algo_res = self.algorithm.run(
+            GoeaContext(
+                goids=allterms,
+                go2studyitems=go2studyitems,
+                go2popitems=self.go2popitems,
+                study_ids=study_in_pop,
+                study_n=study_n,
+                pop_n=pop_n,
+                godag=self.obo_dag,
+                relationships=self.relationships,
+                propagate_counts=self.propagate_counts,
+                calc_pvalue=self.pval_obj.calc_pvalue,
+                log=log,
+            )
+        )
+        go2pval, go2flds = algo_res.go2pval, algo_res.go2flds
 
         for goid in allterms:
             study_items = go2studyitems.get(goid, set())
@@ -440,11 +473,12 @@ class GOEnrichmentStudy(object):
 
             one_record = GOEnrichmentRecord(
                 goid,
-                p_uncorrected=calc_pvalue(study_count, study_n, pop_count, pop_n),
+                p_uncorrected=go2pval[goid],
                 study_items=study_items,
                 pop_items=pop_items,
                 ratio_in_study=(study_count, study_n),
                 ratio_in_pop=(pop_count, pop_n),
+                **go2flds.get(goid, {})
             )
 
             results.append(one_record)
@@ -469,9 +503,24 @@ class GOEnrichmentStudy(object):
                 )
             )
 
+    def _warn_precorrected(self, usrmethod_flds):
+        """Warn once if a correction is stacked on already-dependent p-values."""
+        if not self.algorithm.pvals_precorrected or self._warned_precorrected:
+            return
+        self._warned_precorrected = True
+        logger.warning(
+            "%s scores each GO term conditioned on its neighbours, so its "
+            "p-values are not independent and are usually read as already "
+            "accounting for multiple testing. Applying %s on top of them is "
+            "likely over-conservative.",
+            self.algorithm.name,
+            ", ".join(m.fieldname for m in usrmethod_flds),
+        )
+
     def _run_multitest_corr(self, results, usrmethod_flds, alpha, study, log):
         """Do multiple-test corrections on uncorrected pvalues."""
         assert 0 < alpha < 1, "Test-wise alpha must fall between (0, 1)"
+        self._warn_precorrected(usrmethod_flds)
         pvals = [r.p_uncorrected for r in results]
         ntobj = cx.namedtuple("ntobj", "results pvals alpha nt_method study")
         for nt_method in usrmethod_flds:

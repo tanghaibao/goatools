@@ -32,9 +32,20 @@ class FisherScipyStats(PvalCalcBase):
         "STUDY={A}/{B} POP={C}/{D} scnt({scnt}) stot({stot}) pcnt({pcnt}) ptot({ptot})"
     )
 
-    def __init__(self, name, log):
+    # Fisher alternative hypothesis. "two-sided" is the historical goatools default.
+    # "greater" tests for over-representation only, which is what topGO's GOFisherTest uses.
+    alternatives = {"two-sided", "greater", "less"}
+
+    def __init__(self, name, log, alternative="two-sided"):
         from scipy import stats
 
+        if alternative not in self.alternatives:
+            raise ValueError(
+                "UNKNOWN FISHER ALTERNATIVE({A}); EXPECTED ONE OF: {E}".format(
+                    A=alternative, E=" ".join(sorted(self.alternatives))
+                )
+            )
+        self.alternative = alternative
         super().__init__(name, stats.fisher_exact, log)
 
     def calc_pvalue(self, study_count, study_n, pop_count, pop_n):
@@ -67,7 +78,9 @@ class FisherScipyStats(PvalCalcBase):
             ptot=pop_n,
         )
         # stats.fisher_exact returns oddsratio, pval_uncorrected
-        _, p_uncorrected = self.pval_fnc([[avar, bvar], [cvar, dvar]])
+        _, p_uncorrected = self.pval_fnc(
+            [[avar, bvar], [cvar, dvar]], alternative=self.alternative
+        )
         return p_uncorrected
 
 
@@ -85,12 +98,15 @@ class FisherFactory(object):
         self.pval_fnc_name = (
             kws["pvalcalc"] if "pvalcalc" in kws else "fisher_scipy_stats"
         )
+        self.alternative = kws.get("alternative", "two-sided")
         self.pval_obj = self._init_pval_obj()
 
     def _init_pval_obj(self):
         """Returns a Fisher object based on user-input."""
         if self.pval_fnc_name in self.options.keys():
-            return self.options[self.pval_fnc_name](self.pval_fnc_name, self.log)
+            return self.options[self.pval_fnc_name](
+                self.pval_fnc_name, self.log, self.alternative
+            )
 
         raise Exception(
             "PVALUE FUNCTION({FNC}) NOT FOUND".format(FNC=self.pval_fnc_name)
