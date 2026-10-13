@@ -139,7 +139,7 @@ class Methods(object):
         """Only load statsmodels package if it is used."""
         if self.statsmodels_multicomp is not None:
             return self.statsmodels_multicomp
-        from statsmodels.sandbox.stats.multicomp import multipletests
+        from statsmodels.stats.multitest import multipletests
         self.statsmodels_multicomp = multipletests
         return self.statsmodels_multicomp
 
