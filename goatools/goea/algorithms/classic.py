@@ -3,6 +3,8 @@
 
 __copyright__ = "Copyright (C) 2010-present, H Tang et al., All rights reserved."
 
+from functools import lru_cache
+
 from goatools.goea.algorithms.base import GoeaAlgorithm, GoeaAlgoResult
 
 
@@ -15,8 +17,8 @@ class ClassicAlgorithm(GoeaAlgorithm):
     name = "classic"
 
     def run(self, ctx):
-        """One independent test per GO term."""
-        calc_pvalue = ctx.calc_pvalue
+        """Score each term, reusing p-values for identical contingency tables."""
+        calc_pvalue = lru_cache(maxsize=None)(ctx.calc_pvalue)
         study_n, pop_n = ctx.study_n, ctx.pop_n
         go2studyitems, go2popitems = ctx.go2studyitems, ctx.go2popitems
         empty = set()
