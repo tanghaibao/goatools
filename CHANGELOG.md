@@ -48,6 +48,9 @@
 * **Fixed**
   * Reading GO sections from a Python module name (e.g. `goatools.test_data.sections.gjoneska_pfenning`)
     no longer fails on Python 3.14, which removed `pkgutil.find_loader`.
+  * `NCBIgeneFileReader.run()` no longer raises `TypeError` on files with a `Chr` or `chromosome`
+    column, and passing go2gene associations to a GOEA raises the intended error message
+    instead of a `TypeError` (both indexed a `dict.items()` view).
 
 ## Release 2021-05-22 1.1.5
 

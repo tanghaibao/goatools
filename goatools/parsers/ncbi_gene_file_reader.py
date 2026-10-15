@@ -227,7 +227,7 @@ class NCBIgeneFileReader:
             #print 'idx={} ({}) {}'.format(idx, flds[idx], flds) # DVK
             flds[idx] = int(flds[idx]) if dig.isdigit() else dig
         for idx in self.idxs_strpat:
-            hdr = self.hdr2idx.items()[idx][0]
+            hdr = list(self.hdr2idx.items())[idx][0]
             pat = self.strpat_hdrs[hdr]
             flds[idx] = pat.format(flds[idx])
 
