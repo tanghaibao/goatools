@@ -45,6 +45,9 @@
     `--alternative`. Note `--algorithm` is unrelated to `--method`, which selects the
     multiple-testing correction.
   * Added human phenotype ontologies enrichement analyses [#202](https://github.com/tanghaibao/goatools/issues/202)
+* **Fixed**
+  * Reading GO sections from a Python module name (e.g. `goatools.test_data.sections.gjoneska_pfenning`)
+    no longer fails on Python 3.14, which removed `pkgutil.find_loader`.
 
 ## Release 2021-05-22 1.1.5
 
