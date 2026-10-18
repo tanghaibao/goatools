@@ -10,6 +10,7 @@ import sys
 import random
 import numpy as np
 import collections as cx
+from functools import lru_cache
 
 __copyright__ = "Copyright (C) 2010-2018, H Tang et al., All rights reserved."
 __author__ = "various"
@@ -253,7 +254,8 @@ def calc_qval(study_n, pop_n,
     sys.stderr.write("Generate p-value distribution for FDR "
                      "based on resampling (this might take a while)\n")
     distribution = []
-    calc_pvalue = FisherFactory().pval_obj.calc_pvalue
+    # study_n and pop_n are fixed, so count pairs recur across resamples
+    calc_pvalue = lru_cache(maxsize=None)(FisherFactory().pval_obj.calc_pvalue)
     pop = list(pop)
     for i in range(T):
         new_study = random.sample(pop, study_n)

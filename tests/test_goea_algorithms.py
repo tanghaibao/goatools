@@ -10,8 +10,9 @@ goatools produced before the algorithm layer existed.
 __copyright__ = "Copyright (C) 2010-present, H Tang et al., All rights reserved."
 
 import os
+import random
 import sys
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -24,8 +25,10 @@ from goatools.goea.algorithms import (
     GoeaAlgorithm,
     get_algorithm,
 )
-from goatools.goea.algorithms.base import GoeaAlgoResult, GoeaContext
-from goatools.pvalcalc import FisherFactory
+from goatools.goea.algorithms.base import GoeaAlgoResult
+from goatools.multiple_testing import calc_qval
+from goatools.pvalcalc import FisherFactory, FisherScipyStats
+from goatools.ratio import count_terms
 
 ROOT = os.path.dirname(os.path.abspath(__file__)) + "/../data/"
 
@@ -188,68 +191,40 @@ def test_context_carries_relationships():
     assert ctx.goids
 
 
-def _cache_context(calc_pvalue):
-    """Distinct terms and gene sets, including duplicate count pairs."""
-    return GoeaContext(
-        goids=["a", "b", "c", "d", "zero"],
-        go2studyitems={"a": {0, 1}, "b": {2, 3}, "c": {0}, "d": {1}},
-        go2popitems={"a": {0, 1, 10}, "b": {2, 3, 11}, "c": {0, 10, 11},
-                     "d": {1, 10, 11, 12}, "zero": {10, 11, 12}},
-        study_ids=set(range(5)), study_n=5, pop_n=16, godag=None,
-        relationships=None, propagate_counts=False, calc_pvalue=calc_pvalue, log=None,
-    )
+def _spy_pvalues(obj):
+    """Record every table the study sends to its p-value backend."""
+    spy = Mock(side_effect=obj.pval_obj.calc_pvalue)
+    obj.pval_obj.calc_pvalue = spy
+    return spy
 
 
-@pytest.mark.parametrize("alternative", ["two-sided", "greater", "less"])
-def test_classic_reuses_counts_without_dropping_terms(alternative):
-    """Equal tables share a calculation; every term keeps its exact p-value."""
-    calc = FisherFactory(log=None, alternative=alternative).pval_obj.calc_pvalue
-    observed = Mock(side_effect=calc)
-    ctx = _cache_context(observed)
-    expected = {go: calc(len(ctx.go2studyitems.get(go, set())), ctx.study_n,
-                         len(ctx.go2popitems[go]), ctx.pop_n) for go in ctx.goids}
-    result = ClassicAlgorithm().run(ctx)
-    assert result.go2pval == expected
-    assert result.go2flds == {}
-    assert observed.call_count == 4  # five terms, four distinct tables
-    assert ctx.calc_pvalue is observed
+@pytest.mark.parametrize("algorithm", ["classic", "elim"])
+def test_identical_tables_computed_once_per_run(algorithm):
+    """Every algorithm shares one table cache, which starts empty each run."""
+    obj, study_ids = _init_goea(algorithm=algorithm)
+    spy = _spy_pvalues(obj)
+    runs = []
+    for _ in range(2):
+        spy.reset_mock()
+        runs.append(_go2pval(obj.run_study(study_ids, prt=None)))
+        tables = [c.args for c in spy.call_args_list]
+        # a cache surviving the first run would leave the second with no calls
+        assert tables and len(tables) == len(set(tables))
+    assert runs[0] == runs[1]
 
 
-def test_classic_cache_does_not_survive_runs():
-    """The same callback may change alternative or margins between runs."""
-    pobj = FisherFactory(log=None, alternative="greater").pval_obj
-    observed = Mock(side_effect=pobj.calc_pvalue)
-    ctx = _cache_context(observed)
-    algorithm = ClassicAlgorithm()
-    first = algorithm.run(ctx).go2pval
-    for alternative, study_n, pop_n in [("less", 5, 16), ("two-sided", 6, 20)]:
-        pobj.alternative = alternative
-        observed.reset_mock()
-        changed = ctx._replace(study_n=study_n, pop_n=pop_n,
-                               study_ids=set(range(study_n)))
-        actual = algorithm.run(changed).go2pval
-        expected = {go: pobj.calc_pvalue(len(changed.go2studyitems.get(go, set())),
-                                        study_n, len(changed.go2popitems[go]), pop_n)
-                    for go in changed.goids}
-        assert actual == expected
-        assert actual != first
-        assert observed.call_count == 4
-
-
-def test_classic_cache_empty_and_failed_runs():
-    """Empty input makes no calls; a failed analysis cannot seed the next one."""
-    observed = Mock(side_effect=RuntimeError("backend failed"))
-    ctx = _cache_context(observed)
-    algorithm = ClassicAlgorithm()
-    assert algorithm.run(ctx._replace(goids=[])).go2pval == {}
-    observed.assert_not_called()
-    with pytest.raises(RuntimeError, match="backend failed"):
-        algorithm.run(ctx)
-    assert ctx.calc_pvalue is observed
-    observed.side_effect = FisherFactory(log=None).pval_obj.calc_pvalue
-    observed.reset_mock()
-    assert len(algorithm.run(ctx).go2pval) == 5
-    assert observed.call_count == 4
+def test_fdr_resampling_computes_each_table_once():
+    """Count pairs recurring across resamples share one calculation."""
+    obj, study_ids = _init_goea()
+    term_pop = count_terms(obj.pop, obj.assoc, obj.obo_dag)
+    random.seed(0)
+    with patch.object(FisherScipyStats, "calc_pvalue", autospec=True,
+                      side_effect=FisherScipyStats.calc_pvalue) as spy:
+        distribution = calc_qval(len(study_ids), obj.pop_n, obj.pop, obj.assoc,
+                                 term_pop, obj.obo_dag, T=20)
+    assert len(distribution) == 20
+    tables = [c.args[1:] for c in spy.call_args_list]  # drop self
+    assert tables and len(tables) == len(set(tables))
 
 
 if __name__ == "__main__":

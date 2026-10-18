@@ -26,7 +26,8 @@ import collections as cx
 #   propagate_counts -- whether the annotations were propagated up the DAG.
 #                    Topology-aware algorithms require this; without it a
 #                    term's gene set is not a superset of its children's
-#   calc_pvalue   -- fnc(study_count, study_n, pop_count, pop_n) -> pvalue
+#   calc_pvalue   -- fnc(study_count, study_n, pop_count, pop_n) -> pvalue,
+#                    memoized for the run: identical tables share one result
 #   log           -- file-like or None
 GoeaContext = cx.namedtuple(
     "GoeaContext",
