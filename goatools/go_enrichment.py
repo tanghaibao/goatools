@@ -527,7 +527,8 @@ class GOEnrichmentStudy(object):
             go2pval = self._score_terms(
                 goids, go2studyitems, sample, calc_pvalue, None
             ).go2pval
-            smallest_p = min(go2pval.values(), default=1.0)
+            # go2pval may hold extra terms; the study only reports goids
+            smallest_p = min((go2pval[go] for go in goids), default=1.0)
             distribution.append(smallest_p)
             if i % 10 == 0:
                 sys.stderr.write(

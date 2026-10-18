@@ -256,5 +256,22 @@ def test_fdr_null_scored_like_the_study(base, alternative):
         assert ctx.study_n == len(ctx.study_ids) == study.study_n
 
 
+def test_fdr_null_ignores_terms_outside_goids():
+    """Extra p-values an algorithm returns must not reach the null minimum."""
+
+    class _Extra(ClassicAlgorithm):
+        """Classic, plus a p-value for a term nobody asked about."""
+
+        def run(self, ctx):
+            res = super().run(ctx)
+            return res._replace(go2pval=dict(res.go2pval, **{"GO:EXTRA": 0.0}))
+
+    obj, study_ids = _init_goea(algorithm=_Extra())
+    results = obj.run_study(study_ids, prt=None, methods=["fdr"])
+    assert "GO:EXTRA" not in {r.GO for r in results}
+    # a null of all zeros would push every q-value to 1
+    assert min(r.p_fdr for r in results) < 0.05
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
