@@ -13,6 +13,7 @@ __copyright__ = "Copyright (C) 2010-2019, H Tang et al., All rights reserved."
 __author__ = "various"
 
 import sys
+import random
 import collections as cx
 from functools import lru_cache
 
@@ -22,9 +23,9 @@ from .anno.update_association import remove_assc_goids, update_association
 from .base import logger
 from .goea.algorithms import GoeaContext, get_algorithm
 from .godag.prtfncs import GoeaPrintFunctions
-from .multiple_testing import Bonferroni, FDR, HolmBonferroni, Methods, Sidak, calc_qval
+from .multiple_testing import Bonferroni, FDR, HolmBonferroni, Methods, Sidak
 from .pvalcalc import FisherFactory
-from .ratio import get_terms, count_terms, is_ratio_different
+from .ratio import get_terms, is_ratio_different
 from .rpt.goea_nt_xfrm import MgrNtGOEAs
 from .rpt.prtfmt import PrtFmt
 
@@ -458,20 +459,12 @@ class GOEnrichmentStudy(object):
         # topology-aware algorithm changes the p-values without silently
         # changing what "study_count" and "pop_count" mean. Many terms share a
         # contingency table, so each distinct table is computed once per run.
-        algo_res = self.algorithm.run(
-            GoeaContext(
-                goids=allterms,
-                go2studyitems=go2studyitems,
-                go2popitems=self.go2popitems,
-                study_ids=study_in_pop,
-                study_n=study_n,
-                pop_n=pop_n,
-                godag=self.obo_dag,
-                relationships=self.relationships,
-                propagate_counts=self.propagate_counts,
-                calc_pvalue=lru_cache(maxsize=None)(self.pval_obj.calc_pvalue),
-                log=log,
-            )
+        algo_res = self._score_terms(
+            allterms,
+            go2studyitems,
+            study_in_pop,
+            lru_cache(maxsize=None)(self.pval_obj.calc_pvalue),
+            log,
         )
         go2pval, go2flds = algo_res.go2pval, algo_res.go2flds
 
@@ -494,6 +487,53 @@ class GOEnrichmentStudy(object):
             results.append(one_record)
 
         return results
+
+    def _score_terms(self, goids, go2studyitems, study_in_pop, calc_pvalue, log):
+        """Run the term-scoring algorithm on one study set."""
+        return self.algorithm.run(
+            GoeaContext(
+                goids=goids,
+                go2studyitems=go2studyitems,
+                go2popitems=self.go2popitems,
+                study_ids=study_in_pop,
+                study_n=len(study_in_pop),
+                pop_n=self.pop_n,
+                godag=self.obo_dag,
+                relationships=self.relationships,
+                propagate_counts=self.propagate_counts,
+                calc_pvalue=calc_pvalue,
+                log=log,
+            )
+        )
+
+    def _get_pval_null(self, goids, study_n, num_samples=500):
+        """Smallest p-value of each of many random study sets, for FDR.
+
+        Each random set is scored exactly as the study was: same algorithm,
+        same Fisher alternative, same GO IDs and same study size. Otherwise
+        the observed p-values and the null distribution are not comparable.
+        """
+        sys.stderr.write(
+            "Generate p-value distribution for FDR "
+            "based on resampling (this might take a while)\n"
+        )
+        # The margins never change, so one cache serves every sample
+        calc_pvalue = lru_cache(maxsize=None)(self.pval_obj.calc_pvalue)
+        pop = list(self.pop)
+        distribution = []
+        for i in range(num_samples):
+            sample = set(random.sample(pop, study_n))
+            go2studyitems = get_terms("study", sample, self.assoc, self.obo_dag, None)
+            go2pval = self._score_terms(
+                goids, go2studyitems, sample, calc_pvalue, None
+            ).go2pval
+            smallest_p = min(go2pval.values(), default=1.0)
+            distribution.append(smallest_p)
+            if i % 10 == 0:
+                sys.stderr.write(
+                    "Sample {0} / {1}: p-value {2}\n".format(i, num_samples, smallest_p)
+                )
+        return distribution
 
     def _prt_log_items_found(self, log, study, study_in_pop, allterms):
         """2 GO terms found significant (< 0.05=alpha) (  2 enriched +   0 purified): local bonferroni"""
@@ -595,16 +635,8 @@ class GOEnrichmentStudy(object):
             corrected_pvals = HolmBonferroni(ntmt.pvals, ntmt.alpha).corrected_pvals
         elif method == "fdr":
             # get the empirical p-value distributions for FDR
-            term_pop = getattr(self, "term_pop", None)
-            if term_pop is None:
-                term_pop = count_terms(self.pop, self.assoc, self.obo_dag)
-            p_val_distribution = calc_qval(
-                len(ntmt.study),
-                self.pop_n,
-                self.pop,
-                self.assoc,
-                term_pop,
-                self.obo_dag,
+            p_val_distribution = self._get_pval_null(
+                {r.GO for r in ntmt.results}, ntmt.results[0].study_n
             )
             corrected_pvals = FDR(
                 p_val_distribution, ntmt.results, ntmt.alpha
