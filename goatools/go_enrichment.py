@@ -14,6 +14,7 @@ __author__ = "various"
 
 import sys
 import collections as cx
+from functools import lru_cache
 
 import goatools.wr_tbl as RPT
 
@@ -455,7 +456,8 @@ class GOEnrichmentStudy(object):
         # Delegate p-value calculation to the term-scoring algorithm. The
         # reported counts below are always the un-eliminated ones, so that a
         # topology-aware algorithm changes the p-values without silently
-        # changing what "study_count" and "pop_count" mean.
+        # changing what "study_count" and "pop_count" mean. Many terms share a
+        # contingency table, so each distinct table is computed once per run.
         algo_res = self.algorithm.run(
             GoeaContext(
                 goids=allterms,
@@ -467,7 +469,7 @@ class GOEnrichmentStudy(object):
                 godag=self.obo_dag,
                 relationships=self.relationships,
                 propagate_counts=self.propagate_counts,
-                calc_pvalue=self.pval_obj.calc_pvalue,
+                calc_pvalue=lru_cache(maxsize=None)(self.pval_obj.calc_pvalue),
                 log=log,
             )
         )

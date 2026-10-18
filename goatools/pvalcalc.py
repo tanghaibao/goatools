@@ -18,7 +18,11 @@ class PvalCalcBase(object):
         self.pval_fnc = pval_fnc
 
     def calc_pvalue(self, study_count, study_n, pop_count, pop_n):
-        """pvalues are calculated in derived classes."""
+        """pvalues are calculated in derived classes.
+
+        Must be a pure function of its four integer arguments: goatools caches
+        the result per run, so terms with identical tables share one call.
+        """
         fnc_call = "calc_pvalue({SCNT}, {STOT}, {PCNT} {PTOT})".format(
             SCNT=study_count, STOT=study_n, PCNT=pop_count, PTOT=pop_n
         )
