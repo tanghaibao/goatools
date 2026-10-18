@@ -248,7 +248,11 @@ def mcorrection_factory(pvals, alpha, method):
 
 def calc_qval(study_n, pop_n,
               pop, assoc, term_pop, obo_dag, T=500):
-    """Generate p-value distribution for FDR based on resampling."""
+    """Generate p-value distribution for FDR based on resampling.
+
+    Always scores with the classic algorithm and a two-sided Fisher test.
+    GOEnrichmentStudy builds its own null that honours the study's settings.
+    """
     from goatools.pvalcalc import FisherFactory
     from goatools.ratio import count_terms
     sys.stderr.write("Generate p-value distribution for FDR "

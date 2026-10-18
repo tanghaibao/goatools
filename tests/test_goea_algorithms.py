@@ -22,6 +22,7 @@ from goatools.go_enrichment import GOEnrichmentStudy
 from goatools.goea.algorithms import (
     ALGORITHMS,
     ClassicAlgorithm,
+    ElimAlgorithm,
     GoeaAlgorithm,
     get_algorithm,
 )
@@ -225,6 +226,51 @@ def test_fdr_resampling_computes_each_table_once():
     assert len(distribution) == 20
     tables = [c.args[1:] for c in spy.call_args_list]  # drop self
     assert tables and len(tables) == len(set(tables))
+
+
+@pytest.mark.parametrize("base, alternative", [(ClassicAlgorithm, "less"),
+                                               (ElimAlgorithm, "greater")])
+def test_fdr_null_scored_like_the_study(base, alternative):
+    """Each random set uses the study's algorithm, alternative, terms and size."""
+    contexts = []
+
+    class _Spy(base):
+        """Records every context it scores."""
+
+        def run(self, ctx):
+            contexts.append(ctx)
+            return super().run(ctx)
+
+    obj, study_ids = _init_goea(algorithm=_Spy(), alternative=alternative)
+    spy = _spy_pvalues(obj)
+    # genes outside the population must not inflate the random sets
+    results = obj.run_study(study_ids + ["NOT_IN_POP_1", "NOT_IN_POP_2"],
+                            prt=None, methods=["fdr"])
+    assert results and all(0.0 <= r.p_fdr <= 1.0 for r in results)
+    study, null = contexts[0], contexts[1:]
+    assert null
+    for ctx in null:
+        # the same backend means the same Fisher alternative
+        assert ctx.calc_pvalue.__wrapped__ is spy
+        assert ctx.goids == study.goids  # terms with no study genes included
+        assert ctx.study_n == len(ctx.study_ids) == study.study_n
+
+
+def test_fdr_null_ignores_terms_outside_goids():
+    """Extra p-values an algorithm returns must not reach the null minimum."""
+
+    class _Extra(ClassicAlgorithm):
+        """Classic, plus a p-value for a term nobody asked about."""
+
+        def run(self, ctx):
+            res = super().run(ctx)
+            return res._replace(go2pval=dict(res.go2pval, **{"GO:EXTRA": 0.0}))
+
+    obj, study_ids = _init_goea(algorithm=_Extra())
+    results = obj.run_study(study_ids, prt=None, methods=["fdr"])
+    assert "GO:EXTRA" not in {r.GO for r in results}
+    # a null of all zeros would push every q-value to 1
+    assert min(r.p_fdr for r in results) < 0.05
 
 
 if __name__ == "__main__":
