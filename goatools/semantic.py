@@ -167,12 +167,15 @@ def get_info_content(go_id, termcounts):
 
 def resnik_sim(go_id1, go_id2, godag, termcounts):
     """
-    Computes Resnik's similarity measure.
+    Computes Resnik's similarity measure: the information content of the
+    most informative common ancestor (MICA).
     """
     goterm1 = godag[go_id1]
     goterm2 = godag[go_id2]
     if goterm1.namespace == goterm2.namespace:
-        msca_goid = deepest_common_ancestor([go_id1, go_id2], godag)
+        msca_goid = most_informative_common_ancestor(
+            [go_id1, go_id2], godag, termcounts
+        )
         return get_info_content(msca_goid, termcounts)
     return None
 
@@ -214,7 +217,9 @@ def get_freq_msca(go_id1, go_id2, godag, termcounts):
         goterm1 = godag[go_id1]
         goterm2 = godag[go_id2]
         if goterm1.namespace == goterm2.namespace:
-            msca_goid = deepest_common_ancestor([go_id1, go_id2], godag)
+            msca_goid = most_informative_common_ancestor(
+                [go_id1, go_id2], godag, termcounts
+            )
             ntd = termcounts.gosubdag.go2nt.get(msca_goid)
             return ntd.tfreq if ntd else 0
         return 0
@@ -276,10 +281,26 @@ def deepest_common_ancestor(goterms, godag):
     """
     This function gets the nearest common ancestor
     using the above function.
-    Only returns single most specific - assumes unique exists.
+    Returns a single term; ties at the maximum depth are broken by GO ID.
+    Use get_deepest_common_ancestors() to get all of them.
     """
     # Take the element at maximum depth.
-    return max(common_parent_go_ids(goterms, godag), key=lambda t: godag[t].depth)
+    return max(
+        common_parent_go_ids(goterms, godag), key=lambda t: (godag[t].depth, t)
+    )
+
+
+def most_informative_common_ancestor(goids, godag, termcounts):
+    """
+    Returns the most informative common ancestor (MICA): the common ancestor
+    with the highest information content (Resnik 1995). This need not be the
+    deepest one, since a deep term can be heavily annotated. Ties are broken
+    by depth, then GO ID.
+    """
+    return max(
+        common_parent_go_ids(goids, godag),
+        key=lambda t: (get_info_content(t, termcounts), godag[t].depth, t),
+    )
 
 
 def get_deepest_common_ancestors(goids, godag):

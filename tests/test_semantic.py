@@ -5,6 +5,7 @@ This module provides extensive test coverage for all functions and classes
 in the semantic.py module, including edge cases and error conditions.
 """
 
+import math
 import os
 import pytest
 
@@ -23,6 +24,7 @@ from goatools.semantic import (
     common_parent_go_ids,
     deepest_common_ancestor,
     get_deepest_common_ancestors,
+    most_informative_common_ancestor,
     min_branch_length,
     semantic_distance,
     semantic_similarity,
@@ -626,6 +628,131 @@ class TestIntegration:
         if schlicker is not None:
             assert isinstance(schlicker, float)
             assert 0.0 <= schlicker <= 1.0
+
+
+# root -+- A -- A1 -+- x, y
+#       +- B -------+- x, y, z, w
+#       +- C ----------------- z, w
+# A1 (depth 2) is deeper than B (depth 1) but more heavily annotated, so B is
+# the most informative common ancestor (MICA) of x and y. B and C tie for the
+# deepest common ancestor of z and w, but B is the more informative one.
+# The root is the real BP root: TermCounts takes aspect totals from it.
+_MICA_OBO = """format-version: 1.2
+
+[Term]
+id: GO:0008150
+name: biological_process
+namespace: biological_process
+
+[Term]
+id: GO:0000002
+name: A
+namespace: biological_process
+is_a: GO:0008150
+
+[Term]
+id: GO:0000003
+name: A1
+namespace: biological_process
+is_a: GO:0000002
+
+[Term]
+id: GO:0000004
+name: B
+namespace: biological_process
+is_a: GO:0008150
+
+[Term]
+id: GO:0000005
+name: C
+namespace: biological_process
+is_a: GO:0008150
+
+[Term]
+id: GO:0000006
+name: x
+namespace: biological_process
+is_a: GO:0000003
+is_a: GO:0000004
+
+[Term]
+id: GO:0000007
+name: y
+namespace: biological_process
+is_a: GO:0000003
+is_a: GO:0000004
+
+[Term]
+id: GO:0000008
+name: z
+namespace: biological_process
+is_a: GO:0000004
+is_a: GO:0000005
+
+[Term]
+id: GO:0000009
+name: w
+namespace: biological_process
+is_a: GO:0000004
+is_a: GO:0000005
+"""
+_MICA_ANNOTS = {
+    **{"g%d" % i: {"GO:0000003"} for i in range(1, 6)},  # A1
+    "g6": {"GO:0000006"},  # x
+    "g7": {"GO:0000007"},  # y
+    "g8": {"GO:0000008"},  # z
+    "g9": {"GO:0000009"},  # w
+    **{"g%d" % i: {"GO:0000005"} for i in range(10, 13)},  # C
+}
+X, Y, Z, W = "GO:0000006", "GO:0000007", "GO:0000008", "GO:0000009"
+A1, B, C = "GO:0000003", "GO:0000004", "GO:0000005"
+
+
+class TestMostInformativeCommonAncestor:
+    """Resnik uses the MICA (max IC), not the deepest common ancestor (#349)."""
+
+    @pytest.fixture(autouse=True)
+    def _dag(self, tmp_path):
+        from goatools.obo_parser import GODag
+
+        fin = tmp_path / "mica.obo"
+        fin.write_text(_MICA_OBO)
+        self.godag = GODag(str(fin), prt=None)
+        self.tcnt = TermCounts(self.godag, _MICA_ANNOTS)
+
+    def test_fixture(self):
+        """The fixture means what the comments say it means."""
+        ic = {go: get_info_content(go, self.tcnt) for go in (A1, B, C)}
+        assert ic[B] == pytest.approx(math.log(12 / 4))  # x, y, z, w
+        assert ic[A1] == pytest.approx(math.log(12 / 7))  # 5 direct + x, y
+        assert ic[C] == pytest.approx(math.log(12 / 5))  # 3 direct + z, w
+        assert self.godag[A1].depth > self.godag[B].depth == self.godag[C].depth
+
+    def test_mica_is_not_the_deepest(self):
+        """A shallower, rarer ancestor beats a deeper, common one."""
+        assert deepest_common_ancestor([X, Y], self.godag) == A1
+        assert most_informative_common_ancestor([X, Y], self.godag, self.tcnt) == B
+        assert resnik_sim(X, Y, self.godag, self.tcnt) == pytest.approx(math.log(3))
+        # Lin and Schlicker build on the same ancestor
+        assert lin_sim(X, Y, self.godag, self.tcnt) == pytest.approx(
+            math.log(3) / math.log(12)
+        )
+        assert get_freq_msca(X, Y, self.godag, self.tcnt) == pytest.approx(4 / 12)
+
+    def test_depth_tie_does_not_decide_resnik(self):
+        """With B and C equally deep, set order used to pick the Resnik value."""
+        assert get_deepest_common_ancestors([Z, W], self.godag) == {B, C}
+        assert most_informative_common_ancestor([Z, W], self.godag, self.tcnt) == B
+        assert resnik_sim(Z, W, self.godag, self.tcnt) == pytest.approx(math.log(3))
+
+    def test_deepest_common_ancestor_tie_is_deterministic(self):
+        """Ties at the maximum depth are broken by GO ID, not set order."""
+        assert deepest_common_ancestor([Z, W], self.godag) == C
+        assert deepest_common_ancestor([W, Z], self.godag) == C
+
+    def test_term_is_its_own_mica(self):
+        """For an annotated term, nothing is more informative than itself."""
+        assert most_informative_common_ancestor([X, X], self.godag, self.tcnt) == X
 
 
 _MINI_OBO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "mini_obo.obo")
