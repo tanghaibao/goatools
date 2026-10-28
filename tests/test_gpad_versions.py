@@ -56,6 +56,23 @@ def test_gpad_2_0_fields(tmp_path):
     assert cpx.Qualifier == {"part_of"}
 
 
+def test_gpad_2_0_taxa_and_properties(tmp_path):
+    """2.0 allows several interacting taxa and repeated annotation properties."""
+    props = ("contributor-id=orcid:0000-0002-1478-7671|model-state=production|"
+             "contributor-id=orcid:0000-0001-7476-6306")
+    text = GPAD_2_0.replace(
+        "\t\t2026-04-25\tIntAct\t\t\n",
+        "\tNCBITaxon:9606|NCBITaxon:10090\t2026-04-25\tIntAct\t\t" + props + "\n")
+    p1, p2, mgi, _ = _read(tmp_path, "v20.gpad", text).associations
+    assert p1.Taxon == [9606, 10090]
+    assert p1.Properties == {
+        "contributor-id": ["orcid:0000-0002-1478-7671", "orcid:0000-0001-7476-6306"],
+        "model-state": ["production"],
+    }
+    # one taxon stays an int and no properties stay empty, as in 1.1
+    assert (mgi.Taxon, mgi.Properties, p2.Taxon) == (10090, {}, None)
+
+
 def test_gpad_2_0_id2gos(tmp_path):
     """Downstream id2gos is unchanged; the NOT annotation is excluded as in 1.1."""
     id2gos_11 = _read(tmp_path, "v11.gpa", GPAD_1_1).get_id2gos(prt=None)

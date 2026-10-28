@@ -12,7 +12,7 @@
 import sys
 import re
 import collections as cx
-from typing import List, Optional
+from typing import Dict, List, Optional, Union
 from goatools.base import nopen
 from goatools.godag.consts import NAMESPACE2NS
 from goatools.anno.init.utils import get_date_yyyymmdd
@@ -39,13 +39,13 @@ class InitAssc:
         'ECO',           #  5 required 1              ECO:NNNNNNN
         'Evidence_Code', #    eco2group[ECO]
         'With_From',     #  6 optional 0 or greater   GO:0000346
-        'Taxon',         #  7 optional 0 or 1         taxon:9606
+        'Taxon',         #  7 optional 0 or 1         taxon:9606 (2.0: a list if more than 1)
         'Date',          #  8 required 1              20090118
         # Assigned_By: Ensembl FlyBase GO_Central GOC MGI Reactome UniProt WormBase
         'Assigned_By',   #  9 required 1              SGD
         # Annotations (Optional)
         'Extension',     # 10 optional 0 or greater
-        'Properties',    # 11 optional 0 or greater
+        'Properties',    # 11 optional 0 or greater   (2.0: property -> list of values)
     ]
 
     ## gpad_columns = {"1.1" : gpadhdr}            # !gpad-version: 1.1
@@ -146,8 +146,34 @@ class InitAssc:
         # 2.0 dates are YYYY-MM-DD, optionally followed by a time
         assert re.match(r'\d{4}-\d{2}-\d{2}', flds[8]), 'UNRECOGNIZED DATE({D})'.format(D=flds[8])
         yyyymmdd = flds[8][:10].replace('-', '')
-        flds_v1 = [db_, db_id, qualifier] + flds[3:8] + [yyyymmdd] + flds[9:]
-        return self._get_ntgpadvals(flds_v1, goid, nspc, add_ns)
+        # 2.0 widens the taxon and property columns past what the 1.1 parsers accept:
+        # blank them for the 1.1 conversion and fill in the 2.0 values afterwards
+        flds_v1 = [db_, db_id, qualifier] + flds[3:7] + ['', yyyymmdd] + flds[9:11] + ['']
+        vals = self._get_ntgpadvals(flds_v1, goid, nspc, add_ns)
+        vals[self.gpadhdr.index('Taxon')] = self._get_taxons_v2(flds[7])
+        vals[self.gpadhdr.index('Properties')] = self._get_properties_v2(flds[11])
+        return vals
+
+    def _get_taxons_v2(self, fldstr: str) -> Optional[Union[int, List[int]]]:
+        """GPAD 2.0 interacting taxa: None, an int for one taxon, or a list for several."""
+        if not fldstr:
+            return None
+        taxids = [self._get_taxon(taxon) for taxon in fldstr.split('|')]
+        assert None not in taxids, 'UNRECOGNIZED TAXON({T})'.format(T=fldstr)
+        return taxids[0] if len(taxids) == 1 else taxids
+
+    @staticmethod
+    def _get_properties_v2(fldstr: str) -> Dict[str, List[str]]:
+        """GPAD 2.0 annotation properties: property -> its values, in file order.
+
+        Properties such as contributor-id may repeat, so every value is a list.
+        """
+        prop2vals = cx.defaultdict(list)
+        for pair in fldstr.split('|') if fldstr else []:
+            prop, sep, val = pair.partition('=')
+            assert prop and sep, 'UNRECOGNIZED PROPERTY({P})'.format(P=pair)
+            prop2vals[prop].append(val)
+        return dict(prop2vals)
 
     def _get_namespace(self, goid):
         """Get the namespace of the GO ID"""
