@@ -64,7 +64,7 @@ def _chk_gene2go(assoc):
     for key in assoc:
         if isinstance(key, str) and key[:3] == "GO:":
             raise Exception("ASSOCIATIONS EXPECTED TO BE gene2go, NOT go2gene: {EX}".format(
-                EX=assoc.items()[:2]))
+                EX=list(assoc.items())[:2]))
         return
 
 # Copyright (C) 2010-2018, H Tang et al., All rights reserved.

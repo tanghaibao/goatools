@@ -5,8 +5,8 @@ from __future__ import print_function
 import os
 import sys
 import re
-import pkgutil
 import importlib
+import importlib.util
 from goatools.gosubdag.go_tasks import chk_goids
 from goatools.grouper.hdrgos import HdrgosSections
 from goatools.grouper.grprobj import Grouper
@@ -26,7 +26,7 @@ def read_sections(sections_file, exclude_ungrouped=False, prt=sys.stdout):
         return ReadGoids().read_sections(sections_file, False, exclude_ungrouped)
     # Is 'sections_file' a module string?
     if '/' not in sections_file and r'\\' not in sections_file and \
-            pkgutil.find_loader(sections_file) is not None:
+            importlib.util.find_spec(sections_file) is not None:
         mod = importlib.import_module(sections_file)
         var = getattr(mod, 'SECTIONS', None)
         if var is not None:
