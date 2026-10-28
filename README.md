@@ -64,9 +64,11 @@ This package contains a Python library to
   Benjamini-Krieger-Yekutieli, FDR adaptive Gavrilov-Benjamini-Sarkar,
   Bonferroni, Sidak, and Holm.
 
-- Process the obo-formatted file from [Gene Ontology
-  website](http://geneontology.org). The data structure is a directed
-  acyclic graph (DAG) that allows easy traversal from leaf to root.
+- Process the ontology from the [Gene Ontology
+  website](http://geneontology.org), as an `.obo` file or as
+  [OBO Graphs](https://github.com/geneontology/obographs) JSON (`go-basic.json`).
+  The data structure is a directed acyclic graph (DAG) that allows easy
+  traversal from leaf to root.
 
 - Read [GO Association files](http://geneontology.org/page/go-annotation-file-formats):
 

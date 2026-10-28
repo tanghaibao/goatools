@@ -49,6 +49,7 @@
     (e.g. `goa_human.gpad`), into the same annotations as GPAD 1.1. GPAD 1.1 files read as before.
   * A documentation site at <https://tanghaibao.github.io/goatools/>, built from the README,
     command-line guides, notebooks and docstrings, and deployed from `main` on every push.
+  * `GODag` and `get_godag` read OBO Graphs JSON, e.g. `go-basic.json` [#71](https://github.com/tanghaibao/goatools/issues/71).
 * **Fixed**
   * Reading GO sections from a Python module name (e.g. `goatools.test_data.sections.gjoneska_pfenning`)
     no longer fails on Python 3.14, which removed `pkgutil.find_loader`.
@@ -56,6 +57,7 @@
     column, and passing go2gene associations to a GOEA raises the intended error message
     instead of a `TypeError` (both indexed a `dict.items()` view).
   * The GPAD reader no longer drops the first annotation after the header.
+  * The obo reader no longer drops a `[Typedef]` at the end of a file without a trailing blank line.
 
 ## Release 2021-05-22 1.1.5
 
