@@ -11,6 +11,11 @@ test = [
     "pytest",
     "pytest-cov",
 ]
+docs = [
+    "furo",
+    "myst-nb",
+    "sphinx",
+]
 
 [tool.setuptools_scm]
 write_to = "goatools/version.py"

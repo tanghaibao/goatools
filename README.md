@@ -4,6 +4,7 @@
 [![conda-forge](https://img.shields.io/conda/vn/conda-forge/goatools.svg)](https://anaconda.org/conda-forge/goatools)
 [![Github Actions](https://github.com/tanghaibao/goatools/workflows/build/badge.svg)](https://github.com/tanghaibao/goatools/actions)
 [![Downloads](https://pepy.tech/badge/goatools)](https://pepy.tech/project/goatools)
+[![Documentation](https://img.shields.io/badge/docs-latest-blue)](https://tanghaibao.github.io/goatools/)
 
 |         |                                                                       |
 | ------- | --------------------------------------------------------------------- |
@@ -20,6 +21,7 @@
 |         | David DeTomaso ([deto](https://github.com/deto))                      |
 |         | Olga Botvinnik ([olgabot](https://github.com/olgabot))                |
 | Email   | <tanghaibao@gmail.com>                                                |
+| Docs    | <https://tanghaibao.github.io/goatools/>                              |
 | License | BSD                                                                   |
 
 ## How to cite
@@ -294,7 +296,7 @@ In total 15 tests are available, which can be selected using option
 `--method`. Please note that the default FDR (`fdr`) uses a resampling
 strategy which may lead to slightly different q-values between runs.
 
-## iPython [Notebooks](notebooks)
+## iPython [Notebooks](https://github.com/tanghaibao/goatools/tree/main/notebooks)
 
 ### Optional attributes
 
@@ -328,38 +330,6 @@ strategy which may lead to slightly different q-values between runs.
 ### Obsolete GO terms are loaded upon request
 
 [godag_obsolete_terms](notebooks/godag_obsolete_terms.ipynb)
-
-## Want to Help?
-
-Prior to submitting your pull request, please add a test which verifies your code, and run:
-
-```console
-make test
-```
-
-Items that we know we need include:
-
-- Add code coverage runs
-- Edit tests in the `makefile` under the comment
-- Help setting up [documentation](http://goatools.readthedocs.io/en/latest/). We
-  are using Sphinx and Python docstrings to create documentation.
-  For documentation practice, use make targets:
-
-  ```bash
-  make mkdocs_practice
-  ```
-
-  To remove practice documentation:
-
-  ```bash
-  make rmdocs_practice
-  ```
-
-  Once you are happy with the documentation do:
-
-  ```bash
-  make gh-pages
-  ```
 
 ## Star History
 

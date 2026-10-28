@@ -21,7 +21,4 @@ gene2go
 goatools/version.py
 __pycache__/
 
-# Sphinx working directories
-_static
-_templates
 *.tsv

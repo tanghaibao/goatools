@@ -9,7 +9,8 @@ import collections as cx
 class SorterGoIds(object):
     """Sorts grouped GO IDs.
 
-       * Get a 2-D sorted list:
+       * Get a 2-D sorted list::
+
              goids = ["GO:HHHHHH0", [
                          "GO:UUUUU00",
                          ...
@@ -19,7 +20,8 @@ class SorterGoIds(object):
                          ...
                          "GO:UUUUU1N"], ...
 
-       * Get a flat sorted list of GO IDs
+       * Get a flat sorted list of GO IDs::
+
              goids = ["GO:HHHHHH0",
                       "GO:UUUUU00",
                       ...

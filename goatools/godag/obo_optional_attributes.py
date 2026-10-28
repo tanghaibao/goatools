@@ -250,7 +250,8 @@ class OboOptionalAttrs:
 
         Not loading these optional fields by default saves in space and speed.
         But allow the possibility for saving these fields, if the user desires,
-          Including:
+        including:
+
             comment consider def is_class_level is_metadata_tag is_transitive
             relationship replaced_by subset synonym transitive_over xref
         """

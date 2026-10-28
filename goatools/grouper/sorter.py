@@ -15,34 +15,34 @@ class Sorter(object):
     """Sorts GO IDs or user-provided sections containing GO IDs.
 
        User GO IDs grouped under header GO IDs are not sorted by the Grouper class.
-       Sort both user GO IDs in a group and header GO IDs across groups with these:
+       Sort both user GO IDs in a group and header GO IDs across groups with these::
 
-       S: use_sections
-       s: section_sortby (T=True, F=False, S=lambda sort function)
-       h: hdrgo_sortby Sorts hdr GO IDs
-       u: sortby       Sorts user GO IDs
-       P: hdrgo_prt    If True, Removes GO IDs used as GO group headers; Leaves list in
-                       sorted order, but removes header GO IDs which are not user GO IDs.
+           S: use_sections
+           s: section_sortby (T=True, F=False, S=lambda sort function)
+           h: hdrgo_sortby Sorts hdr GO IDs
+           u: sortby       Sorts user GO IDs
+           P: hdrgo_prt    If True, Removes GO IDs used as GO group headers; Leaves list in
+                           sorted order, but removes header GO IDs which are not user GO IDs.
 
-               rm_h     hdr_sort      usr_sort       S  s  h  u  p
-                ---     ------------  ------------  -- -- -- -- --
-       case 1:   NO     hdrgo_sortby  usrgo_sortby   N  T  H  U  T
-       case 2:  YES     hdrgo_sortby  usrgo_sortby   N  T  H  U  F
-       case 3:   NO     section_order usrgo_sortby   S  F  -  U  T
-       case 4:  YES     section_order usrgo_sortby   S  F  -  U  F
-       case 5:  YES     |<--- section_sortby --->|   S  S  -  -  -
+                   rm_h     hdr_sort      usr_sort       S  s  h  u  p
+                    ---     ------------  ------------  -- -- -- -- --
+           case 1:   NO     hdrgo_sortby  usrgo_sortby   N  T  H  U  T
+           case 2:  YES     hdrgo_sortby  usrgo_sortby   N  T  H  U  F
+           case 3:   NO     section_order usrgo_sortby   S  F  -  U  T
+           case 4:  YES     section_order usrgo_sortby   S  F  -  U  F
+           case 5:  YES     |<--- section_sortby --->|   S  S  -  -  -
 
-                                        |print|
-         sec usesec prthdr prtsec 1d 2d hdr usr
-        ---- ------ ------ ------ -- -- --- ---
-        none      -   true      -  y  . hdr usr A
-        none      -  false      -  y  . ... usr B
+                                            |print|
+             sec usesec prthdr prtsec 1d 2d hdr usr
+            ---- ------ ------ ------ -- -- --- ---
+            none      -   true      -  y  . hdr usr A
+            none      -  false      -  y  . ... usr B
 
-         yes  False   true      -  y  . hdr usr A
-         yes  False  false      -  y  . ... usr B
+             yes  False   true      -  y  . hdr usr A
+             yes  False  false      -  y  . ... usr B
 
-         yes   True   True  False  .  y hdr usr
-         yes   True  False  False  .  y ... usr
+             yes   True   True  False  .  y hdr usr
+             yes   True  False  False  .  y ... usr
     """
 
     # Keywords for creating desc2nts
@@ -147,7 +147,7 @@ class Sorter(object):
 
     @staticmethod
     def get_sections_flattened(section_nts):
-        """Convert [(section0, nts0), (section1, nts1), ... to [*nts0, *nts1, ..."""
+        """Convert ``[(section0, nts0), (section1, nts1), ...]`` to ``[*nts0, *nts1, ...]``"""
         nt_flds = list(section_nts[0][1][0]._fields)
         # Flatten section_nts 2-D list
         if 'section' in nt_flds:

@@ -1,6 +1,7 @@
 """Contains generic table-writing functions. Data is expected to be a list of namedtuples.
 
-       kwargs (kws):
+       kwargs (kws)::
+
            'title': First row will contain user-provided title string
            'prt_if': Only print a line if user-specfied test returns True.
                prt_if is a lambda function with the data item's namedtuple as input.
