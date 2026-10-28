@@ -47,6 +47,8 @@
   * Added human phenotype ontologies enrichement analyses [#202](https://github.com/tanghaibao/goatools/issues/202)
   * The GPAD reader reads GPAD 2.0, the format of the GO Consortium's current annotation files
     (e.g. `goa_human.gpad`), into the same annotations as GPAD 1.1. GPAD 1.1 files read as before.
+  * A documentation site at <https://tanghaibao.github.io/goatools/>, built from the README,
+    command-line guides, notebooks and docstrings, and deployed from `main` on every push.
 * **Fixed**
   * Reading GO sections from a Python module name (e.g. `goatools.test_data.sections.gjoneska_pfenning`)
     no longer fails on Python 3.14, which removed `pkgutil.find_loader`.

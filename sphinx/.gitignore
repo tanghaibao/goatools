@@ -1,2 +1,6 @@
 _apidoc
 _build
+# Copied in at build time by conf.py
+notebooks
+docs
+README.md

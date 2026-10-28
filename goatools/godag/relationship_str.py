@@ -1,25 +1,27 @@
 """Create strings representing relationships on GO Terms.
 
-                   +------- has 'part_of' relationship(s)
-                   |    +-- pointed to by a GO ID with a 'part_of' relationship
-                   |    |
-                   V    V
-GO:0008150 L00 D00 .... .rdu biological_process
-GO:0050896 L01 D01 .... .rdu response to stimulus
-GO:0042221 L02 D02 .... p... response to chemical
-GO:0032501 L01 D01 .... .rdu multicellular organismal process
-GO:0003008 L02 D02 .... .r.. system process
-GO:0051606 L02 D02 .... .... detection of stimulus
-GO:0050877 L03 D03 .... .rdu nervous system process
-GO:0009593 L03 D03 P... .... detection of chemical stimulus
-GO:0007600 L04 D04 .... pr.. sensory perception
-GO:0050906 L03 D03 P... .... detection of stimulus involved in sensory perception
-GO:0050890 L04 D04 .... .... cognition
-GO:0050907 L04 D04 P... .... detection of chemical stimulus involved in sensory perception
-GO:0007606 L05 D05 .... p... sensory perception of chemical stimulus
-GO:0050893 L05 D05 P... .... sensory processing
-GO:0050911 L05 D05 P... .... detection of chemical stimulus involved in sensory perception of smell
-GO:0007608 L06 D06 .... p... sensory perception of smell
+For example::
+
+                       +------- has 'part_of' relationship(s)
+                       |    +-- pointed to by a GO ID with a 'part_of' relationship
+                       |    |
+                       V    V
+    GO:0008150 L00 D00 .... .rdu biological_process
+    GO:0050896 L01 D01 .... .rdu response to stimulus
+    GO:0042221 L02 D02 .... p... response to chemical
+    GO:0032501 L01 D01 .... .rdu multicellular organismal process
+    GO:0003008 L02 D02 .... .r.. system process
+    GO:0051606 L02 D02 .... .... detection of stimulus
+    GO:0050877 L03 D03 .... .rdu nervous system process
+    GO:0009593 L03 D03 P... .... detection of chemical stimulus
+    GO:0007600 L04 D04 .... pr.. sensory perception
+    GO:0050906 L03 D03 P... .... detection of stimulus involved in sensory perception
+    GO:0050890 L04 D04 .... .... cognition
+    GO:0050907 L04 D04 P... .... detection of chemical stimulus involved in sensory perception
+    GO:0007606 L05 D05 .... p... sensory perception of chemical stimulus
+    GO:0050893 L05 D05 P... .... sensory processing
+    GO:0050911 L05 D05 P... .... detection of chemical stimulus involved in sensory perception of smell
+    GO:0007608 L06 D06 .... p... sensory perception of smell
 
 """
 

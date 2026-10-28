@@ -210,7 +210,8 @@ class InitFields:
         """Return a column header string aligned with the format returned by get_prt_fmt.
 
         Uses the same format string as get_prt_fmt (with string-compatible specs) to
-        guarantee per-column alignment.  Column labels:
+        guarantee per-column alignment.  Column labels::
+
           GO_ID    GO term identifier, e.g. GO:0009987
           a        'a' if this is an alternate GO ID, else blank
           NS       2-letter namespace: BP, MF, or CC

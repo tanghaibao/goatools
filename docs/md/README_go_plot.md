@@ -82,7 +82,7 @@ goatools go_plot GO:0003304 GO:0003146 -r -o heart_jogging_r1.png
 
 ## Plot two GO terms (listed in a file) using different colors and their ancestors
 Plot two terms and all ancestors using the 'is_a' attribute.
-The heart jogging GO term, GO:0003146, is colored in [ice](://klaash.github.io/xkcdcolorpicker/#ice).
+The heart jogging GO term, GO:0003146, is colored in [ice](https://klaash.github.io/xkcdcolorpicker/#ice).
 
 The file, _go_file1.txt_, contains the GO terms and user-defined colors:
 ```

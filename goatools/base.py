@@ -38,22 +38,29 @@ logger = get_logger("goatools")
 
 
 def nopen(f, mode="r"):
-    r"""
-    open a file that's gzipped or return stdin for '-'
-    if f is a number, the result of nopen(sys.argv[f]) is returned.
+    r"""Open a file that's gzipped or return stdin for '-'.
+
+    If f is a number, the result of nopen(sys.argv[f]) is returned.
+
     >>> nopen('-') == sys.stdin, nopen('-', 'w') == sys.stdout
     (True, True)
     >>> nopen(sys.argv[0])
     <...file...>
-    # expands user and vars ($HOME)
+
+    Expands user and vars ($HOME):
+
     >>> nopen("~/.bashrc").name == nopen("$HOME/.bashrc").name
     True
-    # an already open file.
+
+    An already open file:
+
     >>> nopen(open(sys.argv[0]))
     <...file...>
     >>> nopen(0)
     <...file...>
-    Or provide nicer access to Popen.stdout
+
+    Or provide nicer access to Popen.stdout:
+
     >>> files = list(nopen("|ls"))
     >>> assert 'setup.py\n' in files or b'setup.py\n' in files, files
     """

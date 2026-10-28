@@ -65,57 +65,18 @@ grpplt:
 
 
 # -------------------------------------------------------------------------------
-# ---- Sphinx-Generated Documentation -------------------------------------------
+# ---- Documentation ------------------------------------------------------------
 # -------------------------------------------------------------------------------
 
-# GENERATE A TEMPORARY LOCAL WORKING COPY of Sphinx docs when developing documentation.
-#
-# User your browser to view the temporary local html files located at:
-#   <LOCAL_GIT_ROOT>/sphinx/_build/html/index.html
-#
-# Html files generated using "mkdocs_practice" should not be committed or pushed.
-# Use the "mkdocs_live" or "gh-pages" make target to generate html docs
-# which will be saved in the "goatools" "GitHub Pages".
-# "GitHub Pages" are public webpages hosted and published through the goatools repository.
-.PHONY: mkdocs rmdocs gh-pages
-mkdocs_practice:
-	make -C sphinx/ apidoc html
+# Build the documentation site into sphinx/_build/html (needs: uv sync --group docs).
+# https://tanghaibao.github.io/goatools/ is built and deployed from main by
+# .github/workflows/docs.yml.
+.PHONY: docs clean_docs
+docs:
+	make -C sphinx html
 
-# REMOVE THE TEMPORARY LOCAL WORKING COPY of Sphinx docs after a session of developing documentation.
-rmdocs_practice:
-	make clean_docgen
-
-
-# Update Live on-line GOATOOLS Documentation
-mkdocs_live:
-	make gh-pages
-
-
-# GENERATE SPHINX HTML DOCS DISPLAYED ON-LINE.
-#
-# Make target, "gh-pages" does the following:
-#   1. Switches from the "main" branch to the "gh-pages" branch
-#   2. While in the "gh-pages" branch, checks out from the "main" branch:
-#      a. Sphinx control files
-#      b. GOATOOLS source code, which contains docstrings
-#         The docstrings are used to create Sphinx html documentation
-#   3. Creates html documentation using Sphinx in the "gh-pages" branch.
-#   4. Commits and pushes html docs from "gh-pages" branch.
-#   5. Switches back to the main branch
-gh-pages:
-	git checkout gh-pages
-	git rm -rf .
-	git clean -dxf
-	git checkout HEAD .nojekyll
-	git checkout main sphinx goatools
-	make -C sphinx/ apidoc html
-	mv -fv sphinx/_build/html/* .
-	mv -fv _apidoc/* .
-	rm -rf sphinx/ goatools/
-	git add -A
-	git commit -m "Generated gh-pages for `git log main -1 --pretty=short --abbrev-commit`"
-	git push
-	git checkout main
+clean_docs:
+	make -C sphinx clean
 
 
 # -------------------------------------------------------------------------------
@@ -227,28 +188,6 @@ clean:
 clean_pyc:
 	find . -name \*.pyc | xargs rm -f
 	rm -f py*.*.st*p
-
-# Removes local files in main branch generated using Sphinx
-clean_docgen:
-	rm -rf ./_apidoc/
-	rm -rf ./_modules/
-	rm -rf ./_sources/
-	rm -rf ./_static/
-	rm -f genindex.html
-	rm -f index.html
-	rm -f objects.inv
-	rm -f py-modindex.html
-	rm -f search.html
-	rm -f searchindex.js
-	rm -rf sphinx/_apidoc/
-	rm -rf sphinx/_build/
-	rm -f fetch_associations.html
-	rm -f find_enrichment.html
-	rm -f goatools.html
-	rm -f map_to_slim.html
-	rm -f modules.html
-	rm -f plot_go_term.html
-	rm -f write_hierarchy.html
 
 clobber:
 	rm -f ./notebooks/go-basic.obo

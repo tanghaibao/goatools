@@ -7,15 +7,19 @@ __author__ = "DV Klopfenstein"
 class SorterNts(object):
     """Handles GO IDs in user-created sections.
 
-       * Get a 2-D list of sections:
+       * Get a 2-D list of sections::
+
              sections = [
                  ['Immune', [
                       "GO:HHHHHH0", "GO:UUUUU00", ...  "GO:UUUUU0N", "GO:HHHHHH1", ...]],
                  ['Neuro', [
                       "GO:HHHHHH2", "GO:UUUUU20", ...  "GO:UUUUU2N", "GO:HHHHHH3", ...]],
              ]
+
        Also contains function for various tasks on grouped GO IDs:
+
          * Sort in various ways (sort by: p=value, depth, proximity to leaf-level, etc.):
+
            * Header GO ID groups
            * User GO IDs within a group
     """
