@@ -93,6 +93,8 @@ class OBOReader(object):
             # Return last record, if necessary
             if rec_curr is not None:
                 yield rec_curr
+            elif typedef_curr is not None:
+                self.typedefs[typedef_curr.item_id] = typedef_curr
 
     def _add_to_obj(self, rec_curr, typedef_curr, line):
         """Add information on line to GOTerm or Typedef."""
@@ -303,7 +305,7 @@ class GOTerm(object):
 
 
 class GODag(dict):
-    """Holds the GO DAG as a dict."""
+    """Holds the GO DAG as a dict. Loads go-basic.obo or OBO Graphs JSON (go-basic.json)."""
 
     # pylint: disable=line-too-long
     def __init__(
@@ -320,7 +322,7 @@ class GODag(dict):
 
     def load_obo_file(self, obo_file, optional_attrs, load_obsolete, prt):
         """Read obo file. Store results."""
-        reader = OBOReader(obo_file, optional_attrs)
+        reader = self._get_reader(obo_file, optional_attrs)
 
         # Save alt_ids and their corresponding main GO ID. Add to GODag after populating GO Terms
         alt2rec = {}
@@ -347,6 +349,16 @@ class GODag(dict):
         if prt:
             prt.write("{DESC}\n".format(DESC=desc))
         return desc, reader.data_version
+
+    @staticmethod
+    def _get_reader(obo_file: str, optional_attrs: Optional[set]) -> OBOReader:
+        """OBO Graphs JSON reader for .json files, else the obo reader."""
+        if obo_file.endswith(".json"):
+            # Imported here to avoid a circular import
+            from .godag.obographs import OboGraphsReader
+
+            return OboGraphsReader(obo_file, optional_attrs)
+        return OBOReader(obo_file, optional_attrs)
 
     def _str_desc(self, reader):
         """String containing information about the current GO DAG."""

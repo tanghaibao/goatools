@@ -343,6 +343,7 @@ CI_TESTS = \
     tests/test_mapslim.py \
     tests/test_multiple_testing.py \
     tests/test_ncbi_entrez_annotations.py \
+    tests/test_obographs.py \
     tests/test_optional_attributes.py \
     tests/test_parents_ancestors.py \
     tests/test_pvalcalc.py \
