@@ -4,6 +4,7 @@
 
     GPAD format:
         http://geneontology.org/page/gene-product-association-data-gpad-format
+        GPAD 2.0: https://github.com/geneontology/go-annotation/blob/master/specs/gpad-gpi-2-0.md
 """
 
 # https://github.com/geneontology/go-ontology/issues/17470
@@ -11,6 +12,7 @@
 import sys
 import re
 import collections as cx
+from typing import List, Optional
 from goatools.base import nopen
 from goatools.godag.consts import NAMESPACE2NS
 from goatools.anno.init.utils import get_date_yyyymmdd
@@ -68,13 +70,33 @@ class InitAssc:
         'acts_upstream_of_or_within_positive_effect',
     ])
 
+    # GPAD 2.0 replaces the Qualifier label with a relation ID
+    relation2qualifier = {
+        'RO:0002327': 'enables',
+        'RO:0002326': 'contributes_to',
+        'RO:0002331': 'involved_in',
+        'RO:0002263': 'acts_upstream_of',
+        'RO:0004034': 'acts_upstream_of_positive_effect',
+        'RO:0004035': 'acts_upstream_of_negative_effect',
+        'RO:0002264': 'acts_upstream_of_or_within',
+        'RO:0004032': 'acts_upstream_of_or_within_positive_effect',
+        'RO:0004033': 'acts_upstream_of_or_within_negative_effect',
+        'BFO:0000050': 'part_of',
+        'RO:0001025': 'located_in',
+        'RO:0002432': 'is_active_in',
+        'RO:0002325': 'colocalizes_with',
+    }
+
+    # Header line naming the format version: "!gpa-version: 1.1" or "!gpad-version: 2.0"
+    cmpver = re.compile(r'^!gpad?-version:\s*(\S+)')
+
     def __init__(self, filename, godag):
         self.filename = filename
         self.hdr = None
         self.godag = godag
 
     def _get_ntgpadvals(self, flds, goid, nspc, add_ns):
-        """Convert fields from string to preferred format for GPAD ver 2.1 and 2.0."""
+        """Convert fields from string to preferred format for GPAD 1.1."""
         is_set = False
         qualifiers = self._get_qualifier(flds[2])
         assert flds[3][:3] == 'GO:', 'UNRECOGNIZED GO({GO})'.format(GO=flds[3])
@@ -108,6 +130,24 @@ class InitAssc:
         if add_ns:
             gpadvals.append(nspc)
         return gpadvals
+
+    def _get_ntgpadvals_v2(
+        self, flds: List[str], goid: str, nspc: Optional[str], add_ns: bool
+    ) -> list:
+        """Rewrite the GPAD 2.0 fields that changed into GPAD 1.1 form, then convert."""
+        # 2.0 col 1 is DB:DB_Object_ID, and the ID may itself hold a colon (MGI:MGI:101757)
+        db_, sep, db_id = flds[0].partition(':')
+        assert sep and db_id, 'UNRECOGNIZED DB:DB_Object_ID({ID})'.format(ID=flds[0])
+        # 2.0 col 2 is the negation, col 3 a relation ID instead of a Qualifier label
+        assert flds[1] in {'', 'NOT'}, 'UNRECOGNIZED NEGATION({N})'.format(N=flds[1])
+        relation = self.relation2qualifier.get(flds[2])
+        assert relation is not None, 'UNRECOGNIZED RELATION({R})'.format(R=flds[2])
+        qualifier = 'NOT|' + relation if flds[1] else relation
+        # 2.0 dates are YYYY-MM-DD, optionally followed by a time
+        assert re.match(r'\d{4}-\d{2}-\d{2}', flds[8]), 'UNRECOGNIZED DATE({D})'.format(D=flds[8])
+        yyyymmdd = flds[8][:10].replace('-', '')
+        flds_v1 = [db_, db_id, qualifier] + flds[3:8] + [yyyymmdd] + flds[9:]
+        return self._get_ntgpadvals(flds_v1, goid, nspc, add_ns)
 
     def _get_namespace(self, goid):
         """Get the namespace of the GO ID"""
@@ -207,44 +247,48 @@ class InitAssc:
         hdrobj = GpadHdr()
         ifstrm = nopen(self.filename)
         _add_ns = self.godag is not None
-        _get_ntgpadvals = self._get_ntgpadvals
+        _get_ntgpadvals = None
         get_all_nss = self._get_b_all_nss(namespaces)
         for lnum, line in enumerate(ifstrm, 1):
-            # Read data
-            if ntgpadobj_make:
-                flds = self._split_line(line)
-                try:
-                    # pylint: disable=not-callable
-                    goid = flds[3]
-                    assert flds[5][:4] == 'ECO:', 'UNRECOGNIZED ECO({ECO})'.format(ECO=flds[5])
-                    nspc = self._get_namespace(goid) if _add_ns else None
-                    if get_all_nss or nspc in namespaces:
-                        ntgpad = ntgpadobj_make(_get_ntgpadvals(flds, goid, nspc, _add_ns))
-                        associations.append(ntgpad)
-                # pylint: disable=broad-except
-                except Exception as inst:
-                    import traceback
-                    traceback.print_exc()
-                    sys.stdout.write("\n  **FATAL: {MSG}\n\n".format(MSG=str(inst)))
-                    sys.stdout.write("**FATAL: {FIN}[{LNUM}]:\n{L}\n".format(
-                        FIN=self.filename, L=line, LNUM=lnum))
-                    flds.insert(6, ECO2GRP.get(flds[5], '???'))
-                    for idx, (key, val) in enumerate(zip(self.gpadhdr, flds)):
-                        sys.stdout.write('{I:2} {KEY:13} {VAL}\n'.format(I=idx, KEY=key, VAL=val))
-                    ## if datobj is not None:
-                    ##     datobj.prt_line_detail(sys.stdout, line)
-                    sys.exit(1)
             # Read header
-            else:
+            if ntgpadobj_make is None:
                 if line[0] == '!':
-                    if ver is None and line[1:13] == 'gpa-version:':
-                        ver = line[13:].strip()
+                    mtch = self.cmpver.match(line)
+                    if ver is None and mtch:
+                        ver = mtch.group(1)
                     hdrobj.chkaddhdr(line)
-                else:
-                    self.hdr = hdrobj.get_hdr()
-                    if hdr_only:
-                        return associations
-                    ntgpadobj_make = self._get_ntgpadnt(ver, _add_ns)._make
+                    continue
+                # The first line after the header is data: fall through and read it
+                self.hdr = hdrobj.get_hdr()
+                if hdr_only:
+                    return associations
+                ntgpadobj_make = self._get_ntgpadnt(ver, _add_ns)._make
+                # Files without a version line are read as GPAD 1.1, as before
+                _get_ntgpadvals = self._get_ntgpadvals_v2 \
+                    if ver is not None and ver.startswith('2.') else self._get_ntgpadvals
+            # Read data
+            flds = self._split_line(line)
+            try:
+                # pylint: disable=not-callable
+                goid = flds[3]
+                assert flds[5][:4] == 'ECO:', 'UNRECOGNIZED ECO({ECO})'.format(ECO=flds[5])
+                nspc = self._get_namespace(goid) if _add_ns else None
+                if get_all_nss or nspc in namespaces:
+                    ntgpad = ntgpadobj_make(_get_ntgpadvals(flds, goid, nspc, _add_ns))
+                    associations.append(ntgpad)
+            # pylint: disable=broad-except
+            except Exception as inst:
+                import traceback
+                traceback.print_exc()
+                sys.stdout.write("\n  **FATAL: {MSG}\n\n".format(MSG=str(inst)))
+                sys.stdout.write("**FATAL: {FIN}[{LNUM}]:\n{L}\n".format(
+                    FIN=self.filename, L=line, LNUM=lnum))
+                flds.insert(6, ECO2GRP.get(flds[5], '???'))
+                for idx, (key, val) in enumerate(zip(self.gpadhdr, flds)):
+                    sys.stdout.write('{I:2} {KEY:13} {VAL}\n'.format(I=idx, KEY=key, VAL=val))
+                ## if datobj is not None:
+                ##     datobj.prt_line_detail(sys.stdout, line)
+                sys.exit(1)
         # GPAD file has been read
         prt.write('HMS:{HMS} {N:7,} annotations READ: {ANNO} {NSs}\n'.format(
             N=len(associations), ANNO=self.filename,
