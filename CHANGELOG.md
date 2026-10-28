@@ -45,12 +45,15 @@
     `--alternative`. Note `--algorithm` is unrelated to `--method`, which selects the
     multiple-testing correction.
   * Added human phenotype ontologies enrichement analyses [#202](https://github.com/tanghaibao/goatools/issues/202)
+  * The GPAD reader reads GPAD 2.0, the format of the GO Consortium's current annotation files
+    (e.g. `goa_human.gpad`), into the same annotations as GPAD 1.1. GPAD 1.1 files read as before.
 * **Fixed**
   * Reading GO sections from a Python module name (e.g. `goatools.test_data.sections.gjoneska_pfenning`)
     no longer fails on Python 3.14, which removed `pkgutil.find_loader`.
   * `NCBIgeneFileReader.run()` no longer raises `TypeError` on files with a `Chr` or `chromosome`
     column, and passing go2gene associations to a GOEA raises the intended error message
     instead of a `TypeError` (both indexed a `dict.items()` view).
+  * The GPAD reader no longer drops the first annotation after the header.
 
 ## Release 2021-05-22 1.1.5
 

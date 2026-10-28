@@ -375,6 +375,7 @@ CI_TESTS = \
     tests/test_compare_gos.py \
     tests/test_david_nts.py \
     tests/test_dcnt_r01.py \
+    tests/test_dict_items_indexing.py \
     tests/test_genes_cell_cycle.py \
     tests/test_get_children.py \
     tests/test_get_godag.py \
@@ -394,6 +395,7 @@ CI_TESTS = \
     tests/test_gosearch_emptydict.py \
     tests/test_gosearch_fields.py \
     tests/test_gosubdag_relationships.py \
+    tests/test_gpad_versions.py \
     tests/test_grpr_get_sections_2d.py \
     tests/test_grprobj.py \
     tests/test_i92_relationship_parentchild.py \
