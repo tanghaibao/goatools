@@ -177,18 +177,16 @@ class Bonferroni(_AbstractCorrection):
 
 
 class Sidak(_AbstractCorrection):
-    """http://en.wikipedia.org/wiki/Bonferroni_correction
+    """https://en.wikipedia.org/wiki/%C5%A0id%C3%A1k_correction
     >>> Sidak([0.01, 0.01, 0.03, 0.05, 0.005], a=0.05).corrected_pvals
-    array([ 0.04898974,  0.04898974,  0.14696923,  0.24494871,  0.02449487])
+    array([0.04900995, 0.04900995, 0.14125866, 0.22621906, 0.02475125])
     """
 
-    def set_correction(self):
+    def set_correction(self) -> None:
         """Do Sidak multiple test correction on original p-values."""
-        if self.n != 0:
-            correction = self.a * 1. / (1 - (1 - self.a) ** (1. / self.n))
-        else:
-            correction = 1
-        self.corrected_pvals *= correction
+        # 1 - (1 - p)^n, computed without cancellation for tiny p; p = 1 gives log1p(-1) = -inf
+        with np.errstate(divide="ignore"):
+            self.corrected_pvals = -np.expm1(self.n * np.log1p(-self.pvals))
 
 
 class HolmBonferroni(_AbstractCorrection):
@@ -198,33 +196,16 @@ class HolmBonferroni(_AbstractCorrection):
     and return the indexes from original list that are significant.
     (cant use p-value as that may be repeated.)
     >>> HolmBonferroni([0.01, 0.01, 0.03, 0.05, 0.005], a=0.05).corrected_pvals
-    array([ 0.04 ,  0.04 ,  0.06 ,  0.05 ,  0.025])
+    array([0.04 , 0.04 , 0.06 , 0.06 , 0.025])
     """
-    def set_correction(self):
-        """Do Holm-Bonferroni multiple test correction on original p-values."""
-        if len(self.pvals):
-            if all(p==1. for p in self.pvals):
-                idxs, correction = [(0,), (1,)]
-            else:
-                idxs, correction = list(zip(*self._generate_significant()))
-            idxs = list(idxs)
-            self.corrected_pvals[idxs] *= correction
-
-    def _generate_significant(self):
-
-        pvals = self.pvals
-        pvals_idxs = list(zip(pvals, list(range(len(pvals)))))
-        pvals_idxs.sort()
-
-        num_pvals = len(self.pvals)
-
-        from itertools import groupby
-        for _, idxs in groupby(pvals_idxs, lambda x: x[0]):
-            idxs = list(idxs)
-            for p, i in idxs:
-                if p < 1.:
-                    yield (i, num_pvals)
-            num_pvals -= len(idxs)
+    def set_correction(self) -> None:
+        """Do Holm-Bonferroni (step-down) multiple test correction on original p-values."""
+        order: np.ndarray = np.argsort(self.pvals, kind="stable")
+        # The i-th smallest p-value is scaled by (n - i); step-down makes the
+        # adjusted values non-decreasing in that order
+        scaled: np.ndarray = self.pvals[order] * (self.n - np.arange(self.n))
+        self.corrected_pvals = np.empty(self.n)
+        self.corrected_pvals[order] = np.maximum.accumulate(scaled)
 
 
 class FDR(object):
