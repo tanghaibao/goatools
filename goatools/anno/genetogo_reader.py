@@ -30,7 +30,7 @@ class Gene2GoReader(AnnoReaderBase):
         # kws: taxids or taxid
         super().__init__("gene2go", filename, **kws)
         # Each taxid has a list of namedtuples - one for each line in the annotations
-        self.taxid2asscs = self._init_taxid2asscs()
+        self.taxid2asscs = self._init_taxid2asscs(kws.get("taxids", kws.get("taxid")))
 
     def get_ns2assc(self, taxid=None, **kws):
         """Return given associations into 3 (BP, MF, CC) dicts, id2gos"""
@@ -185,12 +185,14 @@ class Gene2GoReader(AnnoReaderBase):
         """Read annotation file and store a list of namedtuples."""
         return InitAssc(taxid, taxids).init_associations(fin_anno, taxids, namespaces)
 
-    def _init_taxid2asscs(self):
+    def _init_taxid2asscs(self, taxids=None):
         """Create dict with taxid keys and annotation namedtuple list."""
         taxid2asscs = cx.defaultdict(list)
         for ntanno in self.associations:
             taxid2asscs[ntanno.tax_id].append(ntanno)
-        assert taxid2asscs, "**FATAL: NO TAXIDS: {F}".format(F=self.filename)
+        assert taxid2asscs, (
+            "**FATAL: NO ANNOTATIONS FOR taxids({T}) IN {F}. taxids are NCBI Taxonomy IDs, "
+            "e.g. 9606 for human, not gene IDs".format(T=taxids, F=self.filename))
         return dict(taxid2asscs)
 
 

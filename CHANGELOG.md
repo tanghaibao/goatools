@@ -57,6 +57,9 @@
     column, and passing go2gene associations to a GOEA raises the intended error message
     instead of a `TypeError` (both indexed a `dict.items()` view).
   * The GPAD reader no longer drops the first annotation after the header.
+  * `find_enrichment` exits with status 1, not 0, when no population IDs are in the annotations, and its ID
+    errors show example IDs [#254](https://github.com/tanghaibao/goatools/issues/254). `Gene2GoReader` says
+    taxids are taxonomy IDs when none match [#186](https://github.com/tanghaibao/goatools/issues/186).
   * The obo reader no longer drops a `[Typedef]` at the end of a file without a trailing blank line.
   * Blank GO IDs in an association are no longer reported as missing from the GO DAG, and that warning
     now names the GO DAG, not the association [#145](https://github.com/tanghaibao/goatools/issues/145).

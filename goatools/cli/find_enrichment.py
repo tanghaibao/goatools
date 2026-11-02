@@ -22,6 +22,7 @@ import os
 import sys
 import re
 import argparse
+from typing import Iterable
 
 
 from ..anno.factory import get_anno_desc, get_objanno
@@ -562,7 +563,7 @@ class GoeaCliFnc:
     def chk_genes(self, study, pop, ntsassoc=None):
         """Compare population and study gene product sets"""
         if len(pop) < len(study):
-            exit(
+            sys.exit(
                 "\nERROR: The study file contains more elements than the population file. "
                 "Please check that the study file is a subset of the population file.\n"
             )
@@ -570,13 +571,14 @@ class GoeaCliFnc:
         overlap = self.get_overlap(study, pop)
         if overlap < 0.95:
             sys.stderr.write(
-                f"\nWARNING: only {overlap} fraction of genes/proteins in study are found in "
+                f"\nWARNING: only {overlap:.0%} of genes/proteins in study are found in "
                 "the population background.\n\n"
             )
         if overlap <= self.args.min_overlap:
-            exit(
-                f"\nERROR: only {overlap} of genes/proteins in the study are found in the "
-                "background population. Please check.\n"
+            sys.exit(
+                f"\nERROR: only {overlap:.0%} of genes/proteins in the study are found in the "
+                f"background population (--min_overlap {self.args.min_overlap}). "
+                f"Study IDs not in the population include: {_get_examples(study - pop)}\n"
             )
         # Population and associations
         if ntsassoc is not None:
@@ -589,8 +591,12 @@ class GoeaCliFnc:
                         next(iter(self.objanno.taxid2asscs.keys())),
                     )
                 else:
-                    logger.fatal("NO POPULATION ITEMS SEEN IN THE ANNOTATIONS")
-                exit()
+                    logger.fatal(
+                        "NO POPULATION ITEMS SEEN IN THE ANNOTATIONS. Population IDs (e.g. %s) "
+                        "must match the annotation IDs (e.g. %s); a GAF uses column 2, DB_Object_ID",
+                        _get_examples(pop), _get_examples(assc_ids),
+                    )
+                sys.exit(1)
 
     def get_results_sig(self):
         """Get significant results."""
@@ -848,6 +854,11 @@ class GrpWr:
         flds.append("study_count")
         flds.append("study_items")
         return flds
+
+
+def _get_examples(ids: Iterable, num: int = 3) -> str:
+    """A few IDs, to show in an error message."""
+    return ", ".join(sorted((str(i) for i in ids), key=str)[:num])
 
 
 def main(args=None):
