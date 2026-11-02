@@ -162,7 +162,8 @@ class GoeaCliArgs:
             action="store_true",
             help="the population file as a comparison group. if this "
             "flag is specified, the population is used as the study "
-            "plus the `population/comparison`",
+            "plus the `population/comparison`. IDs in both files are "
+            "removed from both",
         )
         p.add_argument(
             "--ratio",
