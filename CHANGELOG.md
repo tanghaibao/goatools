@@ -51,6 +51,8 @@
     command-line guides, notebooks and docstrings, and deployed from `main` on every push.
   * `GODag` and `get_godag` read OBO Graphs JSON, e.g. `go-basic.json` [#71](https://github.com/tanghaibao/goatools/issues/71).
 * **Fixed**
+  * Local `holm` and `sidak` corrections now give the standard adjusted p-values (as statsmodels does).
+    `holm` lacked the step-down maximum, so it could report p-values that were too small.
   * Reading GO sections from a Python module name (e.g. `goatools.test_data.sections.gjoneska_pfenning`)
     no longer fails on Python 3.14, which removed `pkgutil.find_loader`.
   * `NCBIgeneFileReader.run()` no longer raises `TypeError` on files with a `Chr` or `chromosome`
