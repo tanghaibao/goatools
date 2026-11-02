@@ -184,7 +184,9 @@ class Sidak(_AbstractCorrection):
 
     def set_correction(self) -> None:
         """Do Sidak multiple test correction on original p-values."""
-        self.corrected_pvals = 1 - (1 - self.pvals) ** self.n
+        # 1 - (1 - p)^n, computed without cancellation for tiny p; p = 1 gives log1p(-1) = -inf
+        with np.errstate(divide="ignore"):
+            self.corrected_pvals = -np.expm1(self.n * np.log1p(-self.pvals))
 
 
 class HolmBonferroni(_AbstractCorrection):
