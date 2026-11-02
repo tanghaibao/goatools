@@ -518,8 +518,6 @@ class GoeaCliFnc:
     def _init_objgoeans(self, pop):
         """Run gene ontology enrichment analysis (GOEA)."""
         ns2assoc = self.objanno.get_ns2assc(**self._get_anno_kws())
-        ## BROAD rm_goids = self._get_remove_goids()
-        rm_goids = False  # BROAD
         kws = {}
         # Only forward --alternative when the user actually set it, so the
         # algorithm's own default (elim -> "greater") still applies.
@@ -535,7 +533,6 @@ class GoeaCliFnc:
             alpha=self.args.alpha,
             pvalcalc=self.args.pvalcalc,
             methods=self.methods,
-            remove_goids=rm_goids,
             algorithm=getattr(self.args, "algorithm", "classic"),
             elim_cutoff=getattr(self.args, "elim_cutoff", 0.01),
             elim_bonferroni=getattr(self.args, "elim_bonferroni", False),

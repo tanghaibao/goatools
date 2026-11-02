@@ -16,12 +16,14 @@ import sys
 import random
 import collections as cx
 from functools import lru_cache
+from typing import Set, Tuple
 
 import goatools.wr_tbl as RPT
 
 from .anno.update_association import remove_assc_goids, update_association
 from .base import logger
-from .goea.algorithms import GoeaContext, get_algorithm
+from .goea.algorithms import ALGORITHMS, GoeaContext, get_algorithm
+from .gosubdag.utils import chk_kwargs
 from .godag.prtfncs import GoeaPrintFunctions
 from .multiple_testing import Bonferroni, FDR, HolmBonferroni, Methods, Sidak
 from .pvalcalc import FisherFactory
@@ -295,6 +297,10 @@ class GOEnrichmentStudy(object):
 
     objprtres = GoeaPrintFunctions()
 
+    # Keyword args read by GOEnrichmentStudy, FisherFactory and get_algorithm,
+    # which also takes args named after an algorithm, e.g. elim_cutoff
+    kws_ok: Set[str] = {"name", "log", "alternative", "relationships", "pvalcalc", "algorithm"}
+
     def __init__(
         self,
         pop,
@@ -305,6 +311,12 @@ class GOEnrichmentStudy(object):
         methods=None,
         **kws
     ):
+        algo_prefixes: Tuple[str, ...] = tuple(name + "_" for name in ALGORITHMS)
+        chk_kwargs(
+            "GOEnrichmentStudy",
+            {k: v for k, v in kws.items() if not k.startswith(algo_prefixes)},
+            self.kws_ok | {"propagate_counts", "alpha", "methods"},
+        )
         self.name = kws.get("name", "")
         self.log = kws["log"] if "log" in kws else sys.stdout
         if self.log:
@@ -351,9 +363,6 @@ class GOEnrichmentStudy(object):
             update_association(
                 assoc, obo_dag, kws.get("relationships"), prt=self.log
             )
-        # BROAD broad_goids = get_goids_to_remove(kws.get('remove_goids'))
-        # BROAD if broad_goids:
-        # BROAD     assoc = self._remove_assc_goids(assoc, broad_goids)
         self.go2popitems = get_terms("population", pop, assoc, obo_dag, self.log)
 
     def _remove_assc_goids(self, assoc, broad_goids):

@@ -60,6 +60,8 @@
   * The obo reader no longer drops a `[Typedef]` at the end of a file without a trailing blank line.
   * Blank GO IDs in an association are no longer reported as missing from the GO DAG, and that warning
     now names the GO DAG, not the association [#145](https://github.com/tanghaibao/goatools/issues/145).
+  * `GoSubDag` and `GOEnrichmentStudy` raise `TypeError` on an unknown keyword, e.g. `relationship=`,
+    which they used to ignore silently [#304](https://github.com/tanghaibao/goatools/issues/304).
 
 ## Release 2021-05-22 1.1.5
 

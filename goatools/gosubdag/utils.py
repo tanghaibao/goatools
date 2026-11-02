@@ -3,6 +3,9 @@
 __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved."
 __author__ = "DV Klopfenstein"
 
+from difflib import get_close_matches
+from typing import Any, Dict, List, Set
+
 
 def extract_kwargs(args, exp_keys, exp_elems):
     """Return user-specified keyword args in a dictionary and a set (for True/False items)."""
@@ -39,6 +42,14 @@ def get_kwargs(args, exp_keys, exp_elems):
         elif exp_elems is not None and key in exp_elems and val:
             arg_dict[key] = True
     return arg_dict
+
+def chk_kwargs(name: str, kws: Dict[str, Any], expected: Set[str]) -> None:
+    """Raise TypeError on an unexpected keyword arg, as Python does, suggesting a close match."""
+    for key in sorted(set(kws) - expected):
+        close: List[str] = get_close_matches(key, expected, n=1)
+        hint: str = " Did you mean '{C}'?".format(C=close[0]) if close else ""
+        raise TypeError("{N}() got an unexpected keyword argument '{K}'.{H}".format(
+            N=name, K=key, H=hint))
 
 
 # Copyright (C) 2016-2018, DV Klopfenstein, H Tang, All rights reserved.
