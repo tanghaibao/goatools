@@ -311,7 +311,9 @@ class GOEnrichmentStudy(object):
         methods=None,
         **kws
     ):
-        algo_prefixes: Tuple[str, ...] = tuple(name + "_" for name in ALGORITHMS)
+        # get_algorithm also takes a GoeaAlgorithm class or instance with its own name
+        algo_names: Set[str] = set(ALGORITHMS) | {getattr(kws.get("algorithm"), "name", None)} - {None}
+        algo_prefixes: Tuple[str, ...] = tuple(name + "_" for name in algo_names)
         chk_kwargs(
             "GOEnrichmentStudy",
             {k: v for k, v in kws.items() if not k.startswith(algo_prefixes)},

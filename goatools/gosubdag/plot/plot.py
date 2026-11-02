@@ -54,7 +54,7 @@ from goatools.gosubdag.plot.gosubdag_plot import GoSubDagPlot
 
 def plt_goids(gosubdag, fout_img, goids, **kws_plt):
     """Plot GO IDs in a DAG (Directed Acyclic Graph)."""
-    kws_dag = {k: v for k, v in kws_plt.items() if k in GoSubDag.kws_ok}
+    kws_dag = {k: v for k, v in kws_plt.items() if k in GoSubDag.kws_ok | {"relationships"}}
     gosubdag_plt = GoSubDag(goids, gosubdag.go2obj, rcntobj=gosubdag.rcntobj, **kws_dag)
     godagplot = GoSubDagPlot(gosubdag_plt, **kws_plt)
     godagplot.plt_dag(fout_img)

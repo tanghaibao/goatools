@@ -30,7 +30,7 @@ class GrouperPlot(object):
 
     def plot_sections(self, fout_dir=".", **kws_usr):
         """Plot groups of GOs which have been placed in sections."""
-        kws_plt, _ = self._get_kws_plt(None, **kws_usr)
+        kws_plt = self._get_kws_plt(None, **kws_usr)
         PltGroupedGos(self).plot_sections(fout_dir, **kws_plt)
 
     def plot_groups_all(self, fout_dir=".", **kws_pltargs): # Grouper
@@ -59,14 +59,13 @@ class GrouperPlot(object):
         """Plot GO IDs."""
         if goids is None:
             goids = self.grprobj.usrgos
-        kws_plt, kws_dag = self._get_kws_plt(goids, **kws_usr)
+        kws_plt = self._get_kws_plt(goids, **kws_usr)
         gosubdag = GoSubDag(
             goids,
             self.grprobj.gosubdag.get_go2obj(goids),
             self.grprobj.gosubdag.relationships,
             rcntobj=self.grprobj.gosubdag.rcntobj,
-            go2nt=self.grprobj.gosubdag.go2nt,
-            **kws_dag)
+            go2nt=self.grprobj.gosubdag.go2nt)
         return GoSubDagPlot(gosubdag, **kws_plt)
 
     def plot_gos(self, fout_img, goids=None, **kws_usr):
@@ -77,7 +76,6 @@ class GrouperPlot(object):
     def _get_kws_plt(self, usrgos, **kws_usr):
         """Add go2color and go2bordercolor relevant to this grouping into plot."""
         kws_plt = kws_usr.copy()
-        kws_dag = {}
         hdrgo = kws_plt.get('hdrgo', None)
         objcolor = GrouperColors(self.grprobj)
         # GO term colors
@@ -90,17 +88,12 @@ class GrouperPlot(object):
         # GO term border colors
         if 'go2bordercolor' not in kws_usr:
             kws_plt['go2bordercolor'] = objcolor.get_bordercolor()
-        prune = kws_usr.get('prune', None)
-        if prune is True and hdrgo is not None:
-            kws_dag['dst_srcs_list'] = [(hdrgo, usrgos), (None, set([hdrgo]))]
-            kws_plt['parentcnt'] = True
-        elif prune:
-            kws_dag['dst_srcs_list'] = prune
+        if kws_usr.get('prune'):
             kws_plt['parentcnt'] = True
         # Group text
         kws_plt['go2txt'] = self.get_go2txt(self.grprobj,
                                             kws_plt.get('go2color'), kws_plt.get('go2bordercolor'))
-        return kws_plt, kws_dag
+        return kws_plt
 
     @staticmethod
     def get_go2txt(grprobj_cur, grp_go2color, grp_go2bordercolor):
@@ -125,7 +118,7 @@ class GrouperPlot(object):
     def plot_grouped_gos(self, fout_img=None, exclude_hdrs=None, **kws_usr):
         """One Plot containing all user GOs (yellow or green) and header GO IDs(green or purple)."""
         # kws_plt -> go2color go2bordercolor
-        kws_plt, kws_dag = self._get_kws_plt(self.grprobj.usrgos, **kws_usr)
+        kws_plt = self._get_kws_plt(self.grprobj.usrgos, **kws_usr)
         pltgosusr = self.grprobj.usrgos
         if exclude_hdrs is not None:
             pltgosusr = pltgosusr.difference(self.grprobj.get_usrgos_g_hdrgos(exclude_hdrs))
@@ -138,19 +131,18 @@ class GrouperPlot(object):
                 pltgos_ns = [go for go in pltgosusr if go2nt[go].NS == namespace]
                 if pltgos_ns:
                     png = fout_img.format(NS=namespace)
-                    self._plot_grouped_gos(png, pltgos_ns, kws_plt, kws_dag)
+                    self._plot_grouped_gos(png, pltgos_ns, kws_plt)
         # Plot all user GO IDs into a single plot, regardless of their namespace
         else:
-            self._plot_grouped_gos(fout_img, pltgosusr, kws_plt, kws_dag)
+            self._plot_grouped_gos(fout_img, pltgosusr, kws_plt)
 
-    def _plot_grouped_gos(self, fout_img, pltgosusr, kws_plt, kws_dag):
+    def _plot_grouped_gos(self, fout_img, pltgosusr, kws_plt):
         gosubdag_plt = GoSubDag(
             pltgosusr,
             self.grprobj.gosubdag.get_go2obj(pltgosusr),
             self.grprobj.gosubdag.relationships,
             rcntobj=self.grprobj.gosubdag.rcntobj,
-            go2nt=self.grprobj.gosubdag.go2nt,
-            **kws_dag)
+            go2nt=self.grprobj.gosubdag.go2nt)
         godagplot = GoSubDagPlot(gosubdag_plt, **kws_plt)
         godagplot.plt_dag(fout_img)
 
