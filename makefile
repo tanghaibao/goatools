@@ -341,6 +341,7 @@ CI_TESTS = \
     tests/test_i96_goea_ncbi.py \
     tests/test_i145_blank_goids.py \
     tests/test_i339_silent_init.py \
+    tests/test_id_mismatch_errors.py \
     tests/test_mapslim.py \
     tests/test_multiple_testing.py \
     tests/test_ncbi_entrez_annotations.py \
