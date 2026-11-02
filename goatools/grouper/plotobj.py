@@ -275,8 +275,7 @@ class PltGroupedGos(object):
                             self.gosubdag.get_go2obj(go_sources),
                             relationships=self.gosubdag.relationships,
                             rcntobj=self.gosubdag.rcntobj,
-                            go2nt=self.gosubdag.go2nt,
-                            dst_srcs_list=[(hdrgo, usrgos), (None, set([hdrgo]))])
+                            go2nt=self.gosubdag.go2nt)
         tot_usrgos = len(set(gosubdag.go2obj.keys()).intersection(self.usrgos))
         return self.ntpltgo(
             hdrgo=hdrgo,

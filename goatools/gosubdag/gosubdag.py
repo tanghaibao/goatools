@@ -7,18 +7,23 @@ __author__ = "DV Klopfenstein"
 
 import sys
 import collections as cx
+from typing import Set
 # import timeit
 # from goatools.godag.prttime import prt_hms
 from goatools.gosubdag.gosubdag_init import InitGOs
 from goatools.gosubdag.gosubdag_init import InitFields
 from goatools.gosubdag.go_tasks import chk_goids
+from goatools.gosubdag.utils import chk_kwargs
 
 
 class GoSubDag:
     """Manages a user-specified subset of a GO DAG."""
 
+    # Keyword args read by GoSubDag, InitGOs and InitFields
+    kws_ok: Set[str] = {"prt", "go2color", "children", "rcntobj", "tcntobj", "go2nt", "go2letter"}
+
     def __init__(self, go_sources, go2obj, relationships=None, **kws):
-        # kws _Init: tcntobj, rcntobj
+        chk_kwargs("GoSubDag", kws, self.kws_ok | {"relationships"})
         # tic = timeit.default_timer()
         _ini = InitGOs(go_sources, go2obj, relationships, **kws)
         self.go_sources = _ini.go_sources # set(go_sources)
