@@ -16,14 +16,14 @@ def update_association(assc_gene2gos, go2obj, relationships=None, prt=sys.stdout
         print('**WARNING: {N} ASSOCATIONS. NO ACTION BY update_association'.format(
             N=len(assc_gene2gos)))
         return
-    if prt:
-        prt.write("Propagating term counts ")
     # Replaces update_association in GODag
     goids_avail = set(go2obj)
     # Get all assc GO IDs that are current
     assc_goid_sets = assc_gene2gos.values()
     goids_assoc_all = set.union(*assc_goid_sets)
     _chk_goids_notfound(goids_assoc_all, goids_avail, prt)
+    if prt:
+        prt.write("Propagating term counts ")
     # Get the subset of GO objects in the association
     _goids_assoc_cur = goids_assoc_all.intersection(goids_avail)
     _go2obj_assc = {go:go2obj[go] for go in _goids_assoc_cur}
@@ -37,11 +37,12 @@ def update_association(assc_gene2gos, go2obj, relationships=None, prt=sys.stdout
         assc_goids_cur.update(parents)
 
 def _chk_goids_notfound(goids_assoc_all, goids_avail, prt=sys.stderr):
-    """Report the number of GO IDs in the association, but not in the GODAG"""
-    goids_bad = goids_assoc_all.difference(goids_avail)
+    """Report the GO IDs in the association that are not in the GODAG"""
+    # Blank entries (e.g. from splitting "GO:1;GO:2;" on ";") are not GO IDs
+    goids_bad = {go for go in goids_assoc_all.difference(goids_avail) if go}
     if goids_bad and prt:
-        prt.write("{N} GO IDs NOT FOUND IN ASSOCIATION: {GOs}\n".format(
-            N=len(goids_bad), GOs=" ".join(goids_bad)))
+        prt.write("{N} GO IDs NOT FOUND IN THE GO DAG: {GOs}\n".format(
+            N=len(goids_bad), GOs=" ".join(sorted(goids_bad))))
 
 def remove_assc_goids(assoc, broad_goids):
     """Remove GO IDs from the association, return a reduced association"""
@@ -91,7 +92,7 @@ def clean_anno(annots, godag, prt=sys.stdout):
                 if goid_anno != goid_main:
                     go_alts.add(goid_anno)
                 goids_main.add(goid_main)
-            else:
+            elif goid_anno:
                 goids_notfound.add(goid_anno)
         gene2goset[geneid] = goids_main
     if prt:

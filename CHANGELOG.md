@@ -58,6 +58,8 @@
     instead of a `TypeError` (both indexed a `dict.items()` view).
   * The GPAD reader no longer drops the first annotation after the header.
   * The obo reader no longer drops a `[Typedef]` at the end of a file without a trailing blank line.
+  * Blank GO IDs in an association are no longer reported as missing from the GO DAG, and that warning
+    now names the GO DAG, not the association [#145](https://github.com/tanghaibao/goatools/issues/145).
 
 ## Release 2021-05-22 1.1.5
 
