@@ -7,6 +7,7 @@ import collections as cx
 import logging
 
 from ..anno.opts import AnnoOptions
+from ..anno.update_association import _chk_goids_notfound
 from ..base import logger
 from ..evidence_codes import EvidenceCodes
 from ..godag.consts import NAMESPACE2NS
@@ -261,26 +262,14 @@ class AnnoReaderBase(object):
         _godag = self.godag
         # Get GO IDs in annotations that are in GO DAG
         goids_avail = set(_godag)
-        goids_missing = self._rpt_goids_notfound(goids_assoc_usr, goids_avail)
-        goids_assoc_cur = goids_assoc_usr & goids_avail - goids_missing
+        _chk_goids_notfound(goids_assoc_usr, goids_avail, prt)
+        goids_assoc_cur = goids_assoc_usr & goids_avail
         # Get GO Term for each current GO ID in the annotations
         _go2obj_assc = {go: _godag[go] for go in goids_assoc_cur}
         go2ancestors = get_go2parents_go2obj(_go2obj_assc, relationships, prt)
         if prt:
             prt.write("{len(goids_avail)} GO IDs -> {len(go2ancestors)} go2ancestors\n")
         return go2ancestors
-
-    @staticmethod
-    def _rpt_goids_notfound(goids_assoc_all, goids_avail):
-        """Report the number of GO IDs in the association, but not in the GODAG"""
-        goids_missing = goids_assoc_all.difference(goids_avail)
-        if goids_missing:
-            print(
-                "{N} GO IDs NOT FOUND IN ASSOCIATION: {GOs}".format(
-                    N=len(goids_missing), GOs=" ".join(sorted(goids_missing))
-                )
-            )
-        return goids_missing
 
     def get_dbid2goids(
         self, ntannos, propagate_counts=False, relationships=None, prt=sys.stdout

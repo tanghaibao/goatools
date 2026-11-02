@@ -339,6 +339,7 @@ CI_TESTS = \
     tests/test_grprobj.py \
     tests/test_i92_relationship_parentchild.py \
     tests/test_i96_goea_ncbi.py \
+    tests/test_i145_blank_goids.py \
     tests/test_i339_silent_init.py \
     tests/test_mapslim.py \
     tests/test_multiple_testing.py \
